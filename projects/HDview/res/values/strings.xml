@@ -1,0 +1,31 @@
+<resources>
+
+    <string name="app_name">HDview</string>
+
+    <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
+        active position is saved through configuration changes.\nAdditionally, if the menu is open, a back press will
+        close it.
+    </string>
+    
+    <string name="sample_window">Sample of dragging the entire window.\nThe menu is a simple ScrollView, with a click
+        listener set on each item.\nThe drawer will animate slightly open, to make it more discoverable.\nAdditionally,
+        if the menu is open, a back press will close it.
+    </string>
+    
+    
+    <!-- 菜单 -->
+    <string name="common_drawer_top">用户名  </string>
+    <string name="common_drawer_realtime_preview">实时预览</string>
+    <string name="common_drawer_remote_playback">远程回放</string>
+    <string name="common_drawer_device_management">设备管理</string>
+    <string name="common_drawer_picture_management">图像管理</string>
+    <string name="common_drawer_sys_setting">系统配置</string>
+    
+    
+    <string name="navigation_title_realtime_preview">实时预览</string>
+    <string name="navigation_title_remote_playback">远程回放</string>
+    <string name="navigation_title_device_management">设备管理</string>
+    <string name="navigation_title_picture_management">图像管理</string>
+    <string name="navigation_title_sys_setting">系统设置</string>
+    
+</resources>

@@ -1,0 +1,31 @@
+<resources>
+    <item name="menu_drawer_top" type="id" />
+    <item name="menu_drawer_realtime_preview" type="id" />
+    <item name="menu_drawer_remote_playback" type="id" />
+    <item name="menu_drawer_device_management" type="id" />
+    <item name="menu_drawer_picture_management" type="id" />
+    <item name="menu_drawer_sys_setting" type="id" />
+    
+    <item name="base_navigationbar_title" type="id" />
+    <item name="base_navigationbar_left_btn" type="id" />
+    <item name="base_navigationbar_right_btn1" type="id" />
+    <item name="base_navigationbar_right_btn2" type="id" />
+    
+    <item name="base_toolbar_container" type="id" />
+    <item name="base_toolbar" type="id" />
+    <item name="base_toolbar_container_arrowleft" type="id" />
+    <item name="base_toolbar_container_arrowright" type="id" />
+    
+    
+    
+    <item name="base_content" type="id" />
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
+
+
+    <item name="navigation_bar" type="id" />
+    <item name="toolbar" type="id" />
+    <item name="pager" type="id" />
+    <item name="toolbar_quality_menu" type="id" />
+    <item name="toolbar_ptz_menu" type="id" />
+</resources>

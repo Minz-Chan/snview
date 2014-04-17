@@ -1,0 +1,17 @@
+<resources>
+
+    <color name="md__transparent">#00000000</color>
+
+    <color name="md__defaultBackground">#FF555555</color>
+    
+    <color name="md__bgTransparent">#66555555</color>
+    
+    <color name="menu_drawer_bg">#FF333333</color>
+    <color name="menu_drawer_item_bg">#FF666666</color>
+    <color name="menu_drawer_item_top_bg">#FF787878</color>
+    
+    <color name="navigation_bar_bg">#FF0096FF</color>
+    <color name="view_bg">#FFF2F2F2</color>
+    
+    
+</resources>

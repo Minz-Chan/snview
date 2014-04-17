@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 导航菜单   -->
+    <include android:id="@id/navigation_bar" android:layout_alignParentTop="true" layout="@layout/navigation_bar" />
+    
+    <LinearLayout android:orientation="vertical" android:layout_below="@id/navigation_bar" android:layout_width="fill_parent" android:layout_height="fill_parent"
+        android:baselineAligned="false" android:weightSum="1.0" android:layout_alignWithParentIfMissing="true">
+        
+        <!-- 内容 -->
+        <FrameLayout android:id="@id/base_content" android:background="@color/view_bg" android:layout_width="fill_parent" android:layout_height="0.0dip" 
+            android:layout_weight="1.0" />
+        
+        
+
+        <FrameLayout android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <com.starnet.hdview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <include android:id="@id/toolbar_quality_menu" layout="@layout/toolbar_quality_menu" />
+            <include android:id="@id/toolbar_ptz_menu" layout="@layout/toolbar_ptz_menu"/>            
+        </FrameLayout>
+        
+        <!-- 工具栏 -->
+		<include android:id="@id/toolbar" layout="@layout/toolbar" />  
+    </LinearLayout>
+    
+    
+<!--     <TextView -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:text="@string/sample_window" /> -->
+
+<!--     <TextView -->
+<!--         android:id="@+id/contentText" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" /> -->
+
+</RelativeLayout>
