@@ -28,4 +28,8 @@
     <item name="pager" type="id" />
     <item name="toolbar_quality_menu" type="id" />
     <item name="toolbar_ptz_menu" type="id" />
+    <item name="toolbar_quality_menu_fluency" type="id" />
+    <item name="toolbar_quality_menu_standard" type="id" />
+    <item name="toolbar_quality_menu_high" type="id" />
+    <item name="toolbar_quality_menu_custom" type="id" />
 </resources>

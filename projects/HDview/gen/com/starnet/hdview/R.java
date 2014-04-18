@@ -342,19 +342,19 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class id {
         public static final int base_content=0x7f04001c;
-        public static final int base_left_button=0x7f040026;
-        public static final int base_navigationbar=0x7f040025;
+        public static final int base_left_button=0x7f04002a;
+        public static final int base_navigationbar=0x7f040029;
         public static final int base_navigationbar_left_btn=0x7f040015;
         public static final int base_navigationbar_right_btn1=0x7f040016;
         public static final int base_navigationbar_right_btn2=0x7f040017;
         public static final int base_navigationbar_title=0x7f040014;
-        public static final int base_right_button=0x7f040027;
+        public static final int base_right_button=0x7f04002b;
         public static final int base_toolbar=0x7f040019;
         public static final int base_toolbar_container=0x7f040018;
         public static final int base_toolbar_container_arrowleft=0x7f04001a;
         public static final int base_toolbar_container_arrowright=0x7f04001b;
         public static final int bottom=0x7f040003;
-        public static final int contentText=0x7f040022;
+        public static final int contentText=0x7f040026;
         public static final int end=0x7f040005;
         public static final int left=0x7f040000;
         /**  Used with View#setTag(int) to specify a position for the active view. 
@@ -389,12 +389,16 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int navigation_bar=0x7f04001d;
         public static final int pager=0x7f04001f;
         public static final int right=0x7f040002;
-        public static final int scrollView=0x7f040024;
-        public static final int seekBar=0x7f040023;
+        public static final int scrollView=0x7f040028;
+        public static final int seekBar=0x7f040027;
         public static final int start=0x7f040004;
         public static final int toolbar=0x7f04001e;
         public static final int toolbar_ptz_menu=0x7f040021;
         public static final int toolbar_quality_menu=0x7f040020;
+        public static final int toolbar_quality_menu_custom=0x7f040025;
+        public static final int toolbar_quality_menu_fluency=0x7f040022;
+        public static final int toolbar_quality_menu_high=0x7f040024;
+        public static final int toolbar_quality_menu_standard=0x7f040023;
         public static final int top=0x7f040001;
     }
     public static final class layout {
@@ -428,6 +432,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int navigation_title_sys_setting=0x7f06000f;
         public static final int sample_content=0x7f060003;
         public static final int sample_window=0x7f060004;
+        public static final int toolbar_quality_menu_custom=0x7f060013;
+        public static final int toolbar_quality_menu_fluency=0x7f060010;
+        public static final int toolbar_quality_menu_high=0x7f060012;
+        public static final int toolbar_quality_menu_standard=0x7f060011;
     }
     public static final class style {
         /** 
