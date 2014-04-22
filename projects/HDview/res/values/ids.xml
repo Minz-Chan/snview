@@ -8,8 +8,8 @@
     
     <item name="base_navigationbar_title" type="id" />
     <item name="base_navigationbar_left_btn" type="id" />
-    <item name="base_navigationbar_right_btn1" type="id" />
-    <item name="base_navigationbar_right_btn2" type="id" />
+    <item name="base_navigationbar_extend_btn" type="id" />
+    <item name="base_navigationbar_right_btn" type="id" />
     
     <item name="base_toolbar_container" type="id" />
     <item name="base_toolbar" type="id" />

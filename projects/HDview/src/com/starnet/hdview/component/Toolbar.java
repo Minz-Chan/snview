@@ -99,19 +99,25 @@ public class Toolbar extends HorizontalScrollView {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		if (mScrollCallBack != null) {
+			this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		}		
 	}
 
 	@Override
 	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
 		super.onScrollChanged(l, t, oldl, oldt);
-		this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		if (mScrollCallBack != null) {
+			this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		}		
 	}
 
 	@Override
 	protected void onVisibilityChanged(View changedView, int visibility) {
 		super.onVisibilityChanged(changedView, visibility);
-		this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		if (mScrollCallBack != null) {
+			this.mScrollCallBack.onScroll(getScrollX(), 0, this.mContentLinearLayout.getMeasuredWidth() - getMeasuredWidth());
+		}		
 	}
 	
 

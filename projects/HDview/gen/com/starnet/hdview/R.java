@@ -344,9 +344,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int base_content=0x7f04001c;
         public static final int base_left_button=0x7f04002a;
         public static final int base_navigationbar=0x7f040029;
+        public static final int base_navigationbar_extend_btn=0x7f040016;
         public static final int base_navigationbar_left_btn=0x7f040015;
-        public static final int base_navigationbar_right_btn1=0x7f040016;
-        public static final int base_navigationbar_right_btn2=0x7f040017;
+        public static final int base_navigationbar_right_btn=0x7f040017;
         public static final int base_navigationbar_title=0x7f040014;
         public static final int base_right_button=0x7f04002b;
         public static final int base_toolbar=0x7f040019;
@@ -402,8 +402,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int top=0x7f040001;
     }
     public static final class layout {
-        public static final int contentsample_activity=0x7f030000;
-        public static final int main_activity=0x7f030001;
+        public static final int base_activity=0x7f030000;
+        public static final int contentsample_activity=0x7f030001;
         public static final int menu_row_category=0x7f030002;
         public static final int menu_row_item=0x7f030003;
         public static final int menu_scrollview=0x7f030004;
@@ -430,12 +430,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int navigation_title_realtime_preview=0x7f06000b;
         public static final int navigation_title_remote_playback=0x7f06000c;
         public static final int navigation_title_sys_setting=0x7f06000f;
+        public static final int nothing=0x7f060010;
         public static final int sample_content=0x7f060003;
         public static final int sample_window=0x7f060004;
-        public static final int toolbar_quality_menu_custom=0x7f060013;
-        public static final int toolbar_quality_menu_fluency=0x7f060010;
-        public static final int toolbar_quality_menu_high=0x7f060012;
-        public static final int toolbar_quality_menu_standard=0x7f060011;
+        public static final int toolbar_quality_menu_custom=0x7f060014;
+        public static final int toolbar_quality_menu_fluency=0x7f060011;
+        public static final int toolbar_quality_menu_high=0x7f060013;
+        public static final int toolbar_quality_menu_standard=0x7f060012;
     }
     public static final class style {
         /** 

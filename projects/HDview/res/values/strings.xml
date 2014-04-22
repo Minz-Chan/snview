@@ -28,6 +28,7 @@
     <string name="navigation_title_picture_management">图像管理</string>
     <string name="navigation_title_sys_setting">系统设置</string>
     
+    <string name="nothing" />
     <string name="toolbar_quality_menu_fluency">流畅</string>
     <string name="toolbar_quality_menu_standard">标清</string>
     <string name="toolbar_quality_menu_high">高清</string>

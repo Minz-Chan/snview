@@ -3,6 +3,7 @@ package com.starnet.hdview.activity;
 import java.util.ArrayList;
 
 import com.starnet.hdview.R;
+import com.starnet.hdview.component.BaseActivity;
 import com.starnet.hdview.component.Toolbar;
 import com.starnet.hdview.component.Toolbar.ActionImageButton;
 import com.starnet.hdview.component.VideoPager.ACTION;
@@ -25,66 +26,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements View.OnClickListener {
+public class RealplayActivity extends BaseActivity {
 
 	private static final String TAG = "MainActivity";
 	
-    private static final String STATE_MENUDRAWER = "net.simonvt.menudrawer.samples.WindowSample.menuDrawer";
-    private static final String STATE_ACTIVE_VIEW_ID = "net.simonvt.menudrawer.samples.WindowSample.activeViewId";
-
-    private MenuDrawer mMenuDrawer;
-    private TextView mContentTextView;
     
     private Toolbar mToolbar;
-    private ImageView mLeftArrow;
-    private ImageView mRightArrow;
+
     
     private VideoPager mPager;
     private LinearLayout mToolbarQualityMenu;
     private LinearLayout mToolbarPTZMenu;
 
-    private int mActiveViewId;
+
 
     @SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (inState != null) {
-            mActiveViewId = inState.getInt(STATE_ACTIVE_VIEW_ID);
-        } 
 
-        mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
-        mMenuDrawer.setContentView(R.layout.main_activity); 
-        mMenuDrawer.setMenuView(R.layout.menu_scrollview);
-        
-        int screenWidth = ActivityUtility.getScreenSize(this).x;
-        mMenuDrawer.setMenuSize((int)(screenWidth * 0.6));
-        
-        Log.d(TAG, "screen width: " + screenWidth);
-       
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            //getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-
-        mContentTextView = (TextView) findViewById(R.id.contentText);
-
-        findViewById(R.id.menu_drawer_top).setOnClickListener(this);
-        findViewById(R.id.menu_drawer_realtime_preview).setOnClickListener(this);
-        findViewById(R.id.menu_drawer_remote_playback).setOnClickListener(this);
-        findViewById(R.id.menu_drawer_device_management).setOnClickListener(this);
-        findViewById(R.id.menu_drawer_picture_management).setOnClickListener(this);
-        findViewById(R.id.menu_drawer_sys_setting).setOnClickListener(this);
-
-        TextView activeView = (TextView) findViewById(mActiveViewId);
-        if (activeView != null) {
-            mMenuDrawer.setActiveView(activeView);
-            mContentTextView.setText("Active item: " + activeView.getText());
-        }
-
-        // This will animate the drawer open and closed until the user manually drags it. Usually this would only be
-        // called on first launch.
-        //mMenuDrawer.peekDrawer();
         
         initToolbar();
         
@@ -109,51 +69,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 	};
  
-
-    @Override
-    protected void onRestoreInstanceState(Bundle inState) {
-        super.onRestoreInstanceState(inState);
-        mMenuDrawer.restoreState(inState.getParcelable(STATE_MENUDRAWER));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_MENUDRAWER, mMenuDrawer.saveState());
-        outState.putInt(STATE_ACTIVE_VIEW_ID, mActiveViewId);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                mMenuDrawer.toggleMenu();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        final int drawerState = mMenuDrawer.getDrawerState();
-        if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
-            mMenuDrawer.closeMenu();
-            return;
-        }
-
-        super.onBackPressed();
-    }
-
-    @Override
-    public void onClick(View v) {
-        mMenuDrawer.setActiveView(v);
-        mContentTextView.setText("Active item: " + ((TextView) v).getText());
-        mMenuDrawer.closeMenu();
-        mActiveViewId = v.getId();
-    }
-    
-    
     private boolean bIsPlaying = false;
     private boolean bQualityPressed = false;
     private boolean bPTZPressed = false;
@@ -233,9 +148,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initToolbar() {
-    	mToolbar = (Toolbar) findViewById(R.id.base_toolbar);
-        mLeftArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowleft);
-        mRightArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowright);
+    	mToolbar = super.getBaseToolbar();
     	
     	ArrayList itemList = new ArrayList();
     	itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector));
@@ -248,14 +161,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
     	itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.ALARM, R.drawable.toolbar_alarm_selector));
     	
     	mToolbar.createToolbar(itemList, ActivityUtility.getScreenSize(this).x, getResources().getDimensionPixelSize(R.dimen.toolbar_height));
-    	this.mToolbar.setOnScrollCallBack(new Toolbar.ScrollCallBack()
-        {
-          public void onScroll(int scrollX, int scrollY, int offset)
-          {
-            MainActivity.this.mLeftArrow.getBackground().setAlpha((int)(255.0D * (1.0D * scrollX / offset)));
-            MainActivity.this.mRightArrow.getBackground().setAlpha((int)(255.0D * (1.0D - 1.0D * scrollX / offset)));
-          }
-        });
     	
     	this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
     }

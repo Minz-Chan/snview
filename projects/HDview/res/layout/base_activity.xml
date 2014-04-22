@@ -24,15 +24,6 @@
 		<include android:id="@id/toolbar" layout="@layout/toolbar" />  
     </LinearLayout>
     
-    
-<!--     <TextView -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" -->
-<!--         android:text="@string/sample_window" /> -->
 
-<!--     <TextView -->
-<!--         android:id="@+id/contentText" -->
-<!--         android:layout_width="wrap_content" -->
-<!--         android:layout_height="wrap_content" /> -->
 
 </RelativeLayout>
