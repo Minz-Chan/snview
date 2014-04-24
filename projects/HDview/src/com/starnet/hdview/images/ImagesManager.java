@@ -1,0 +1,178 @@
+package com.starnet.hdview.images;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TreeMap;
+
+import android.util.Log;
+
+public class ImagesManager {
+	private static final String TAG = "ImagesManager";
+
+	private static ImagesManager mInstance;
+
+	static final int THUMBNAIL_COLUMNS_NUM = 4;
+	private static FilenameFilter mCaptureFilter = new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String filename) {
+			return filename.endsWith(".jpg");
+		}
+	};
+
+	private static FilenameFilter mRecordFilter = new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String filename) {
+			return filename.endsWith(".mp4");
+		}
+	};
+
+	private static FilenameFilter mDateFolderFilter = new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String filename) {
+			try {
+				new SimpleDateFormat("yyyy-MM-dd").parse(filename);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+	};
+
+	private static Comparator<String> mTreeComparator = new Comparator<String>() {
+
+		@Override
+		public int compare(String lhs, String rhs) {
+			return rhs.compareTo(lhs);
+		}
+	};
+
+	private final List<String> mDateList = new ArrayList();
+	private final TreeMap<String, List<Image>> mImagesMap = new TreeMap(
+			mTreeComparator);
+
+	private void deleteImages(String strDate, List<Image> imageList) {
+		Iterator<Image> it = imageList.iterator();
+		while (it.hasNext()) {
+			Image image = it.next();
+			File imageFile = new File(image.getImagePath());
+			File thumbnailFile = new File(image.getThumbnailsPath());
+			imageFile.delete();
+			thumbnailFile.delete();
+		}
+
+		String str1 = LocalFileUtils.getCaptureFolderPathForDate(strDate);
+		String str2 = LocalFileUtils.getRecordFolderPathForDate(strDate);
+		File file1 = new File(str1);
+		File file2 = new File(str2);
+		file1.delete();
+		file2.delete();
+	}
+
+	public static ImagesManager getInstance() {
+		if (mInstance == null) {
+			mInstance = new ImagesManager();
+		}
+		return mInstance;
+	}
+
+	public void loadLocalImages() {
+		this.mDateList.clear();
+		this.mImagesMap.clear();
+		String str1 = LocalFileUtils.getCaptureFolderRootPath();
+		String str2 = LocalFileUtils.getRecordFolderRootPath();
+		loadImageFiles(Image.ImageType.PICTURE, str1);
+		loadImageFiles(Image.ImageType.VIDEO, str2);
+		Collections.sort(this.mDateList, new Comparator<String>() {
+			@Override
+			public int compare(String lhs, String rhs) {
+				return rhs.compareTo(lhs);
+			}
+		});
+	}
+
+	private void loadImageFiles(Image.ImageType imageType, String path) {
+		File folder = new File(path);
+		if ((!folder.exists()) || (!folder.isDirectory())) {
+			Log.i("ImagesManager", "dirPath not exist: " + path);
+			return;
+		}
+		String thumbnailFolderPath = LocalFileUtils.getThumbnailsFolderPath();
+		FilenameFilter filenameFilter = null;
+		if (imageType == Image.ImageType.PICTURE) {
+			filenameFilter = mCaptureFilter;
+		} else {
+			filenameFilter = mRecordFilter;
+		}
+
+		for (File dateFolder : folder.listFiles(mDateFolderFilter)) {
+			if (dateFolder.isDirectory()) {
+				File[] dateFolderFiles = dateFolder
+						.listFiles(filenameFilter);
+				if (dateFolderFiles.length != 0) {
+					String dateFolderName = dateFolder.getName();
+					Object images = (List) this.mImagesMap
+							.get(dateFolderName);
+					
+					if (images == null) {
+						images = new LinkedList();
+						this.mImagesMap.put(dateFolderName,
+								(List<Image>) images);
+						this.mDateList.add(dateFolderName);
+					}
+					
+					int count = dateFolderFiles.length;
+					for (int i = 0; i < count; i++) {
+						File f1 = dateFolderFiles[i];
+						if (f1.isFile()) {
+							String f1Name = f1.getName();
+							Image imgTmp = new Image(imageType,
+									f1.getName(), f1.getAbsolutePath(),
+									thumbnailFolderPath + File.separator
+											+ getThumbnailsName(f1Name),
+									dateFolderName, f1.lastModified());
+							((List) images).add(imgTmp);
+						}
+					}
+
+					Comparator<Image> comparator = new Comparator<Image>() {
+						public int compare(Image image1, Image image2) {
+							return image2.compareToByLastModified(image1);
+						}
+					};
+					Collections.sort((List) images, comparator);
+
+				}
+			}
+		}
+		
+
+	}
+
+	private String getThumbnailsName(String fileName) {
+		int i = fileName.lastIndexOf(".");
+		if (i != -1) {
+			return fileName.substring(0, i) + ".jpg";
+		} else {
+			return "";
+		}
+	}
+
+	public List<String> getDateList() {
+		return mDateList;
+	}
+
+	public List<Image> getImageListForDate(String strDate) {
+		return mImagesMap.get(strDate);
+	}
+
+	
+	
+}

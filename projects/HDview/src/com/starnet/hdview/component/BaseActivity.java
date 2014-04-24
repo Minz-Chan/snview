@@ -4,10 +4,13 @@ import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
 
 import com.starnet.hdview.R;
+import com.starnet.hdview.global.GlobalApplication;
+import com.starnet.hdview.images.ImagesManagerActivity;
 import com.starnet.hdview.util.ActivityUtility;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,6 +50,7 @@ public class BaseActivity extends Activity {
     private FrameLayout mToolbarContainer;
     private ImageView mLeftArrow;
     private ImageView mRightArrow;
+    private FrameLayout mLiveviewExtendBar;
 	
     
     @Override
@@ -98,6 +102,7 @@ public class BaseActivity extends Activity {
 		mToolbarContainer = (FrameLayout) findViewById(R.id.base_toolbar_container);
         mLeftArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowleft);
         mRightArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowright);
+        mLiveviewExtendBar = (FrameLayout) findViewById(R.id.liveview_extend_bar);
 		
 	}
 	
@@ -201,6 +206,24 @@ public class BaseActivity extends Activity {
 	        //mContentTextView.setText("Active item: " + ((TextView) v).getText());
 	        mMenuDrawer.closeMenu();
 	        mActiveViewId = v.getId();
+	        
+	        switch (mActiveViewId) {
+	        case R.id.menu_drawer_top:
+	        	break;
+	        case R.id.menu_drawer_realtime_preview:
+	        	break;
+	        case R.id.menu_drawer_remote_playback:
+	        	break;
+	        case R.id.menu_drawer_device_management:
+	        	break;
+	        case R.id.menu_drawer_picture_management:
+	        	Intent intent = new Intent();
+	            intent.setClass(BaseActivity.this, ImagesManagerActivity.class); 
+	            startActivity(intent);
+	        	break;
+	        case R.id.menu_drawer_sys_setting:
+	        	break;
+	        }
 		}
 		
 	};
@@ -292,6 +315,12 @@ public class BaseActivity extends Activity {
 		return mToolbarContainer;
 	}
 	
-	
+	protected void setExtendBarVisible(boolean flag) {
+		if (flag) {
+			mLiveviewExtendBar.setVisibility(View.VISIBLE);
+		} else {
+			mLiveviewExtendBar.setVisibility(View.GONE);
+		}
+	}
 	
 }

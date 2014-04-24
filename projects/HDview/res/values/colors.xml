@@ -13,5 +13,9 @@
     <color name="navigation_bar_bg">#FF0096FF</color>
     <color name="view_bg">#FFF2F2F2</color>
     
+    <color name="list_view_bg">#FF333333</color>
+    
+    <color name="images_listview_date_info_layout_bg">#FF333333</color>
+    <color name="white">#FFFFFFFF</color>
     
 </resources>

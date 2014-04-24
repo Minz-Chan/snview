@@ -15,6 +15,7 @@
     <item name="base_toolbar" type="id" />
     <item name="base_toolbar_container_arrowleft" type="id" />
     <item name="base_toolbar_container_arrowright" type="id" />
+    <item name="liveview_extend_bar" type="id" />
     
     
     
@@ -32,4 +33,14 @@
     <item name="toolbar_quality_menu_standard" type="id" />
     <item name="toolbar_quality_menu_high" type="id" />
     <item name="toolbar_quality_menu_custom" type="id" />
+    
+    
+    <item name="images_listview" type="id" />
+    <item name="images_listview_image_gridview" type="id" />
+    <item name="images_thumbnail_item_layout" type="id" />
+    <item name="images_thumbnail_item_imageview" type="id" />
+    <item name="images_thumbnail_item_selected_bg_imageview" type="id" />
+    <item name="images_thumbnail_item_video_bg_imageview" type="id" />
+    <item name="images_listview_date_info_layout" type="id" />
+    <item name="images_date_textview" type="id" />
 </resources>
