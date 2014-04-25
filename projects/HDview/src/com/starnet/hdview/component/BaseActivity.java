@@ -290,6 +290,7 @@ public class BaseActivity extends Activity {
         
         int screenWidth = ActivityUtility.getScreenSize(this).x;
         mMenuDrawer.setMenuSize((int)(screenWidth * 0.6));
+        mMenuDrawer.setDropShadowEnabled(false);
         
         Log.d(TAG, "screen width: " + screenWidth);
        
