@@ -10,12 +10,14 @@
     <color name="menu_drawer_item_bg">#FF666666</color>
     <color name="menu_drawer_item_top_bg">#FF787878</color>
     
-    <color name="navigation_bar_bg">#FF0096FF</color>
+    <color name="navigation_bar_blue_bg">#FF0096FF</color>
+    <color name="navigation_bar_red_bg">#FFFF3C3C</color>
     <color name="view_bg">#FFF2F2F2</color>
     
-    <color name="list_view_bg">#FF333333</color>
+    <color name="list_view_bg">#FFF2F2F2</color>
     
-    <color name="images_listview_date_info_layout_bg">#FF333333</color>
+    <color name="images_listview_date_info_layout_bg">#FFF2F2F2</color>
+    <color name="images_date_textview">#FF666666</color>
     <color name="white">#FFFFFFFF</color>
     
 </resources>

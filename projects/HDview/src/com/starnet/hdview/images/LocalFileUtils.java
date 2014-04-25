@@ -33,9 +33,9 @@ public class LocalFileUtils {
 		return str + File.separator + fileName + PICTURE_EXT_NAME;
 	}
 
-	public static String getCaptureFolderPathForDate(String paramString) {
+	public static String getCaptureFolderPathForDate(String strDate) {
 		return getLocalFileRootPath() + "/" + CAPTURE_FOLDER_NAME + "/"
-				+ paramString;
+				+ strDate;
 	}
 
 	public static String getCaptureFolderPathToday() {

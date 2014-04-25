@@ -62,32 +62,32 @@ public class Image {
 		return this.mIsSelected;
 	}
 
-	public void setDate(String paramString) {
-		this.mDate = paramString;
+	public void setDate(String date) {
+		this.mDate = date;
 	}
 
-	public void setImagePath(String paramString) {
-		this.mImagePath = paramString;
+	public void setImagePath(String imagePath) {
+		this.mImagePath = imagePath;
 	}
 
-	public void setLastModified(long paramLong) {
-		this.mLastModified = paramLong;
+	public void setLastModified(long lastModified) {
+		this.mLastModified = lastModified;
 	}
 
-	public void setName(String paramString) {
-		this.mName = paramString;
+	public void setName(String name) {
+		this.mName = name;
 	}
 
-	public void setSelected(boolean paramBoolean) {
-		this.mIsSelected = paramBoolean;
+	public void setSelected(boolean isSelected) {
+		this.mIsSelected = isSelected;
 	}
 
-	public void setThumbnailsPath(String paramString) {
-		this.mThumbnailsPath = paramString;
+	public void setThumbnailsPath(String thumbPath) {
+		this.mThumbnailsPath = thumbPath;
 	}
 
-	public void setType(ImageType paramImageType) {
-		this.mType = paramImageType;
+	public void setType(ImageType type) {
+		this.mType = type;
 	}
 
 	public static enum ImageType {

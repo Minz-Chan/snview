@@ -9,7 +9,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+
+
+
+
 
 import android.util.Log;
 
@@ -58,7 +63,70 @@ public class ImagesManager {
 	private final TreeMap<String, List<Image>> mImagesMap = new TreeMap(
 			mTreeComparator);
 
-	private void deleteImages(String strDate, List<Image> imageList) {
+	
+	public boolean addImage(Image image) {
+		boolean result = false;
+		
+		if (image == null || image.getDate() == null) {
+			return false;
+		}
+		
+		Iterator it = mDateList.iterator();
+		
+		while (it.hasNext()) {
+			String item = (String) it.next();
+			
+			if (item.endsWith(image.getDate())) {
+				((LinkedList)(mImagesMap.get(item))).add(0, image);
+				result = true;
+				break;
+			}
+		}
+		
+		if (!result) {
+			mDateList.add(image.getDate());
+			LinkedList imageList = new LinkedList();
+			imageList.add(image);
+			mImagesMap.put(image.getDate(), imageList);
+		}
+		
+		return result;
+	}
+	
+	public void deleteImage(Image image) {
+		List imageList = (List) mImagesMap.get(image.getDate());
+
+		if (imageList != null) {
+			imageList.remove(image);
+
+			File imageFile = new File(image.getImagePath());
+			File thumbnailFile = new File(image.getThumbnailsPath());
+			imageFile.delete();
+			thumbnailFile.delete();
+
+			File captureFolder = new File(
+					LocalFileUtils.getCaptureFolderPathForDate(image.getDate()));
+			File recordFolder = new File(
+					LocalFileUtils.getRecordFolderPathForDate(image.getDate()));
+
+			if (captureFolder.list() != null
+					&& captureFolder.list().length == 0) {
+				captureFolder.delete();
+			}
+
+			if (recordFolder.list() != null && recordFolder.list().length == 0) {
+				recordFolder.delete();
+			}
+
+		}
+	}
+	
+	/**
+	 * 删除出现在待删除列表imageList的文件, 并且删除folderName对应的截图和录音文件夹
+	 * @param folderName 文件夹名称
+	 * @param imageList 待删除列表
+	 */
+	private void deleteImages(String folderName, List<Image> imageList) {
 		Iterator<Image> it = imageList.iterator();
 		while (it.hasNext()) {
 			Image image = it.next();
@@ -68,12 +136,56 @@ public class ImagesManager {
 			thumbnailFile.delete();
 		}
 
-		String str1 = LocalFileUtils.getCaptureFolderPathForDate(strDate);
-		String str2 = LocalFileUtils.getRecordFolderPathForDate(strDate);
+		String str1 = LocalFileUtils.getCaptureFolderPathForDate(folderName);
+		String str2 = LocalFileUtils.getRecordFolderPathForDate(folderName);
 		File file1 = new File(str1);
 		File file2 = new File(str2);
 		file1.delete();
 		file2.delete();
+	}
+	
+	public void deleteSelectedImages() {
+		ArrayList foldersToBeDeleted = new ArrayList();
+		LinkedList selectedImages = new LinkedList();
+		Iterator itEntrySet = mImagesMap.entrySet().iterator();
+		
+		while (itEntrySet.hasNext()) {
+			
+			Map.Entry entry = (Map.Entry)itEntrySet.next();
+			String strDate = (String) entry.getKey();
+			List imageList = (List) entry.getValue();
+			Iterator itImageList = imageList.iterator();
+			
+			while (itImageList.hasNext()) {
+				Image image = (Image) itImageList.next();
+				
+				if (image.isSelected()) {
+					selectedImages.add(image);
+				}
+			}
+			
+			if (!selectedImages.isEmpty()) {
+				imageList.removeAll(selectedImages);
+				deleteImages(strDate, selectedImages);
+			}
+			
+			if (imageList.isEmpty()) {
+				foldersToBeDeleted.add(strDate);
+			}
+			
+		}
+		
+
+		Iterator it3 = foldersToBeDeleted.iterator();
+		
+		while (it3.hasNext()) {
+			String folderName = (String) it3.next();
+			
+			mDateList.remove(folderName);
+			mImagesMap.remove(folderName);
+		}
+
+	    
 	}
 
 	public static ImagesManager getInstance() {

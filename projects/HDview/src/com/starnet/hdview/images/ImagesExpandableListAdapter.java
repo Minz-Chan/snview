@@ -1,13 +1,16 @@
 package com.starnet.hdview.images;
 
 import java.util.List;
+
 import com.starnet.hdview.R;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
@@ -16,7 +19,7 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 	private List<ImagesGroup> mGroupList;
 	private ImagesManagerActivity mImagesActivity;
 	private LayoutInflater mLayoutInflater;
-	private int mThumbnailSelectedCount;
+	private int mThumbnailSelectedCount = 0;
 
 	public ImagesExpandableListAdapter(
 			ImagesManagerActivity imagesManagerActivity,
@@ -40,6 +43,8 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 	@Override
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
+		final int gPos = groupPosition;
+		
 		if (convertView == null) {
 			convertView = mLayoutInflater.inflate(
 					R.layout.images_listview_thumbnail_layout, null);
@@ -55,8 +60,40 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 					@Override
-					public void onItemClick(AdapterView<?> arg0, View arg1,
-							int arg2, long arg3) {
+					public void onItemClick(AdapterView<?> view, View parent,
+							int position, long arg3) {
+						
+						ImagesManagerActivity activity = ImagesExpandableListAdapter.this.mImagesActivity;
+						
+						if (activity.getEditStatus()) {
+							ImageView selectedImage = (ImageView) parent
+									.findViewById(R.id.images_thumbnail_item_selected_bg_imageview);
+							Image image = ImagesExpandableListAdapter
+									.this.mGroupList.get(gPos).getThumbnailList().get(position);
+							
+							if (!image.isSelected()) {
+								image.setSelected(true);
+								selectedImage.setVisibility(View.VISIBLE);
+								ImagesExpandableListAdapter.this.mThumbnailSelectedCount += 1;
+							} else {
+								image.setSelected(false);
+								selectedImage.setVisibility(View.GONE);
+								ImagesExpandableListAdapter.this.mThumbnailSelectedCount -= 1;
+							}
+							
+							
+							// 显示已选择图片数量
+							activity.setTitleText(ImagesExpandableListAdapter.this.mThumbnailSelectedCount);
+						} else {	// 响应按钮事件
+							int imgPosInMap = 0;
+							
+							for (int i = 0; i < gPos; i++) {
+								imgPosInMap += ImagesExpandableListAdapter.this.mGroupList.get(i).getGroupSize();
+							}
+							
+							// 显示图片或播放视频
+							
+						}
 
 					}
 
@@ -107,5 +144,14 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
 		return true;
 	}
+	
+	public List<ImagesGroup> getImageGroupList() {
+		return mGroupList;
+	}
 
+	public void setThumbnailSelectedCount(int mThumbnailSelectedCount) {
+		this.mThumbnailSelectedCount = mThumbnailSelectedCount;
+	}
+
+	
 }

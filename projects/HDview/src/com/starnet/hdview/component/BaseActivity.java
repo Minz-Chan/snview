@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BaseActivity extends Activity {
@@ -37,6 +38,7 @@ public class BaseActivity extends Activity {
 	private Button mLeftButton;
 	private Button mRightButton;
 	private Button mExtendButton;
+	private RelativeLayout mNavbarContainer;
 	
 	/* 抽屉菜单 */
 	private static final String STATE_MENUDRAWER = "net.simonvt.menudrawer.samples.WindowSample.menuDrawer";
@@ -97,6 +99,7 @@ public class BaseActivity extends Activity {
 		mLeftButton = (Button) findViewById(R.id.base_navigationbar_left_btn);
 		mRightButton = (Button) findViewById(R.id.base_navigationbar_right_btn);
 		mExtendButton = (Button) findViewById(R.id.base_navigationbar_extend_btn);
+		mNavbarContainer = (RelativeLayout) findViewById(R.id.navigation_bar);
 		
 		mToolbar = (Toolbar) findViewById(R.id.base_toolbar);
 		mToolbarContainer = (FrameLayout) findViewById(R.id.base_toolbar_container);
@@ -198,6 +201,18 @@ public class BaseActivity extends Activity {
 		}
 	}
 	
+	protected void setNavbarBg(int resid) {
+		if (mNavbarContainer != null) {
+			mNavbarContainer.setBackgroundResource(resid);
+		}
+	}
+	
+	protected void setNavbarBgFromColor(int color) {
+		if (mNavbarContainer != null) {
+			mNavbarContainer.setBackgroundColor(color);;
+		}
+	}
+	
 	private OnClickListener mOnMenudrawerItemClickListener = new OnClickListener() {
 
 		@Override
@@ -217,9 +232,7 @@ public class BaseActivity extends Activity {
 	        case R.id.menu_drawer_device_management:
 	        	break;
 	        case R.id.menu_drawer_picture_management:
-	        	Intent intent = new Intent();
-	            intent.setClass(BaseActivity.this, ImagesManagerActivity.class); 
-	            startActivity(intent);
+	        	gotoPictureManagement();
 	        	break;
 	        case R.id.menu_drawer_sys_setting:
 	        	break;
@@ -227,6 +240,12 @@ public class BaseActivity extends Activity {
 		}
 		
 	};
+	
+	protected void gotoPictureManagement() {
+		Intent intent = new Intent();
+        intent.setClass(BaseActivity.this, ImagesManagerActivity.class); 
+        startActivity(intent);
+	}
 	
 	
 	@Override
