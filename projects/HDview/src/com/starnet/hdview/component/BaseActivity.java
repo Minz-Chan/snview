@@ -52,7 +52,6 @@ public class BaseActivity extends Activity {
     private FrameLayout mToolbarContainer;
     private ImageView mLeftArrow;
     private ImageView mRightArrow;
-    private FrameLayout mLiveviewExtendBar;
 	
     
     @Override
@@ -105,7 +104,6 @@ public class BaseActivity extends Activity {
 		mToolbarContainer = (FrameLayout) findViewById(R.id.base_toolbar_container);
         mLeftArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowleft);
         mRightArrow = (ImageView) findViewById(R.id.base_toolbar_container_arrowright);
-        mLiveviewExtendBar = (FrameLayout) findViewById(R.id.liveview_extend_bar);
 		
 	}
 	
@@ -335,12 +333,5 @@ public class BaseActivity extends Activity {
 		return mToolbarContainer;
 	}
 	
-	protected void setExtendBarVisible(boolean flag) {
-		if (flag) {
-			mLiveviewExtendBar.setVisibility(View.VISIBLE);
-		} else {
-			mLiveviewExtendBar.setVisibility(View.GONE);
-		}
-	}
-	
+
 }

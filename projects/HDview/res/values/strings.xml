@@ -33,5 +33,8 @@
     <string name="toolbar_quality_menu_standard">标清</string>
     <string name="toolbar_quality_menu_high">高清</string>
     <string name="toolbar_quality_menu_custom">自定义</string>
+    <string name="toolbar_sub_menu_focal_length">焦距</string>
+    <string name="toolbar_sub_menu_focus">聚焦</string>
+    <string name="toolbar_sub_menu_aperture">光圈</string>
     
 </resources>

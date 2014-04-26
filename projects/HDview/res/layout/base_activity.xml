@@ -11,14 +11,13 @@
         <!-- 内容 -->
         <FrameLayout android:id="@id/base_content" android:background="@color/view_bg" android:layout_width="fill_parent" android:layout_height="0.0dip" 
             android:layout_weight="1.0" />
-        
-        
 
-        <FrameLayout android:id="@id/liveview_extend_bar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="wrap_content">
-            <com.starnet.hdview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
-            <include android:id="@id/toolbar_quality_menu" layout="@layout/toolbar_quality_menu" />
-            <include android:id="@id/toolbar_ptz_menu" layout="@layout/toolbar_ptz_menu"/>            
-        </FrameLayout>
+
+<!--         <FrameLayout android:id="@id/liveview_extend_bar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="wrap_content"> -->
+<!--             <com.starnet.hdview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" /> -->
+<!--             <include android:id="@id/toolbar_quality_menu" layout="@layout/toolbar_quality_menu" /> -->
+<!--             <include android:id="@id/toolbar_ptz_menu" layout="@layout/toolbar_ptz_menu"/>             -->
+<!--         </FrameLayout> -->
         
         <!-- 工具栏 -->
 		<include layout="@layout/toolbar" />  

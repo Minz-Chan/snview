@@ -27,7 +27,7 @@
     <dimen name="quality_custom_pop_frame_width">200.0dip</dimen>
     <dimen name="quality_custom_pop_list_height">191.0dip</dimen>
     <dimen name="landscape_pop_frame_bottom_margin">65.0dip</dimen>
-    <dimen name="portrait_pop_frame_bottom_margin">20.0dip</dimen>
+    <dimen name="portrait_pop_frame_bottom_margin">8.0dip</dimen>
     <dimen name="channel_list_padding">3.0dip</dimen>
     <dimen name="guide_menu_first_offset_zh">30.0dip</dimen>
     <dimen name="guide_menu_second_offset_zh">50.0dip</dimen>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:baselineAligned="false"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/toolbar_height"
+    android:orientation="horizontal"
+    android:gravity="center" 
+    android:weightSum="5.0">
+    
+    <LinearLayout  android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="center" android:layout_weight="1.0">
+    	<ImageButton android:id="@id/ptz_controlbar_menu_scan" android:background="@drawable/ptz_controlbar_menu_scan_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />    
+    </LinearLayout>
+    
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="center" android:layout_weight="1.0">
+    	<ImageButton android:id="@id/ptz_controlbar_menu_focal_length" android:background="@drawable/ptz_controlbar_menu_focal_length_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+    </LinearLayout>
+    
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="center" android:layout_weight="1.0">
+    	<ImageButton android:id="@id/ptz_controlbar_menu_focus" android:background="@drawable/ptz_controlbar_menu_focus_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+    </LinearLayout>
+    
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="center" android:layout_weight="1.0">
+    	<ImageButton android:id="@id/ptz_controlbar_menu_aperture" android:background="@drawable/ptz_controlbar_menu_aperture_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+    </LinearLayout>
+    
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:gravity="center" android:layout_weight="1.0">
+    	<ImageButton android:id="@id/ptz_controlbar_menu_preset" android:background="@drawable/ptz_controlbar_menu_preset_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+    </LinearLayout>
+
+</LinearLayout>

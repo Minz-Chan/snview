@@ -54,7 +54,7 @@ public class ImagesManagerActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
 		super.setToolbarVisiable(false);
-		super.setExtendBarVisible(false);
+		//super.setExtendBarVisible(false);
 		
 		mBaseContentView = ((FrameLayout)findViewById(R.id.base_content));
 	    mBaseContentView.setBackgroundResource(R.color.list_view_bg);

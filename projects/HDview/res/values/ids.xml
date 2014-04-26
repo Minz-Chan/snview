@@ -15,6 +15,9 @@
     <item name="base_toolbar" type="id" />
     <item name="base_toolbar_container_arrowleft" type="id" />
     <item name="base_toolbar_container_arrowright" type="id" />
+    <item name="base_toolbar_sub_menu_text" type="id" />
+    <item name="base_toolbar_sub_menu_left_btn" type="id" />
+    <item name="base_toolbar_sub_menu_right_btn" type="id" />
     <item name="liveview_extend_bar" type="id" />
     
     
@@ -27,12 +30,19 @@
     <item name="navigation_bar" type="id" />
     <item name="toolbar" type="id" />
     <item name="pager" type="id" />
-    <item name="toolbar_quality_menu" type="id" />
-    <item name="toolbar_ptz_menu" type="id" />
-    <item name="toolbar_quality_menu_fluency" type="id" />
-    <item name="toolbar_quality_menu_standard" type="id" />
-    <item name="toolbar_quality_menu_high" type="id" />
-    <item name="toolbar_quality_menu_custom" type="id" />
+    <item name="quality_controlbar_menu" type="id" />
+    <item name="ptz_controlbar_menu" type="id" />
+    <item name="quality_controlbar_menu_fluency" type="id" />
+    <item name="quality_controlbar_menu_standard" type="id" />
+    <item name="quality_controlbar_menu_high" type="id" />
+    <item name="quality_controlbar_menu_custom" type="id" />
+    <item name="ptz_controlbar_menu_scan" type="id" />
+    <item name="ptz_controlbar_menu_focal_length" type="id" />
+    <item name="ptz_controlbar_menu_focus" type="id" />
+    <item name="ptz_controlbar_menu_aperture" type="id" />
+    <item name="ptz_controlbar_menu_preset" type="id" />
+    <item name="toolbar_sub_menu" type="id" />
+    <item name="toolbar_ptz_pop_frame" type="id" />
     
     
     <item name="images_listview" type="id" />
@@ -43,4 +53,21 @@
     <item name="images_thumbnail_item_video_bg_imageview" type="id" />
     <item name="images_listview_date_info_layout" type="id" />
     <item name="images_date_textview" type="id" />
+    
+    
+    <item name="realplay_controlbar" type="id" />
+    <item name="realplay_container" type="id" />
+    <item name="ptz_pop_frame" type="id" />
+    <item name="ptz_pop_focal_length_frame" type="id" />
+    <item name="ptz_pop_focus_frame" type="id" />
+    <item name="ptz_pop_aperture_frame" type="id" />
+    <item name="ptz_pop_focal_length_increase" type="id" />
+    <item name="ptz_pop_focal_length_decrease" type="id" />
+    
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
 </resources>

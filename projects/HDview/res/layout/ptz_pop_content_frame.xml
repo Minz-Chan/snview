@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 焦距弹窗 -->
+    <LinearLayout android:id="@id/ptz_pop_focal_length_frame" android:gravity="center_vertical" android:orientation="horizontal"  android:background="@drawable/ptz_pop_frame_bg" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="6.0">
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_increase" android:background="@drawable/ptz_pop_frame_decrease_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/toolbar_sub_menu_focal_length" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_decrease" android:background="@drawable/ptz_pop_frame_increase_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+    </LinearLayout>
+    <!-- 聚焦弹窗 -->
+    <LinearLayout android:id="@id/ptz_pop_focus_frame" android:gravity="center_vertical" android:orientation="horizontal"  android:background="@drawable/ptz_pop_frame_bg" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="6.0">
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_increase" android:background="@drawable/ptz_pop_frame_decrease_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/toolbar_sub_menu_focus" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_decrease" android:background="@drawable/ptz_pop_frame_increase_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+    </LinearLayout>
+    <!-- 光圈弹窗 -->
+    <LinearLayout android:id="@id/ptz_pop_aperture_frame" android:gravity="center_vertical" android:orientation="horizontal"  android:background="@drawable/ptz_pop_frame_bg" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="6.0">
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_increase" android:background="@drawable/ptz_pop_frame_decrease_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/toolbar_sub_menu_aperture" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+        <ImageButton android:id="@id/ptz_pop_focal_length_decrease" android:background="@drawable/ptz_pop_frame_increase_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+    </LinearLayout>
+</LinearLayout>

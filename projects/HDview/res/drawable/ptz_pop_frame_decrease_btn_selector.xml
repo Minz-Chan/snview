@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true" >
+		<bitmap android:src="@drawable/ptz_pop_frame_decrease_sel" android:tileMode="disabled" android:gravity="center" />
+    </item>
+    <item >
+        <bitmap android:src="@drawable/ptz_pop_frame_decrease" android:tileMode="disabled" android:gravity="center" />
+    </item>
+</selector>

@@ -1,4 +1,4 @@
-package com.starnet.hdview.activity;
+package com.starnet.hdview.realplay;
 
 import com.starnet.hdview.R;
 import com.starnet.hdview.component.drawer.BaseListSample;

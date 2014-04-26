@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+   <FrameLayout android:id="@id/realplay_controlbar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="@dimen/toolbar_height" android:layout_alignParentBottom="true">
+       <com.starnet.hdview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+       <include android:id="@id/quality_controlbar_menu" layout="@layout/quality_controlbar_menu" />
+       <include android:id="@id/ptz_controlbar_menu" layout="@layout/ptz_controlbar_menu"/>            
+   </FrameLayout>
+    
+   <RelativeLayout android:id="@id/realplay_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/realplay_controlbar" android:layout_alignParentTop="true">
+
+        <LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">
+		    <!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->
+        	<include android:layout_gravity="center_vertical" layout="@layout/ptz_pop_content_frame" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>
