@@ -30,7 +30,7 @@ import android.widget.Toast;
 
 public class RealplayActivity extends BaseActivity {
 
-	private static final String TAG = "MainActivity";
+	private static final String TAG = "RealplayActivity";
 	
     
     private Toolbar mToolbar;

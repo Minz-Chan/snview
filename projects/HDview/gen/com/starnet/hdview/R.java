@@ -371,13 +371,13 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class id {
         public static final int base_content=0x7f040020;
-        public static final int base_left_button=0x7f040045;
-        public static final int base_navigationbar=0x7f040044;
+        public static final int base_left_button=0x7f040048;
+        public static final int base_navigationbar=0x7f040047;
         public static final int base_navigationbar_extend_btn=0x7f040016;
         public static final int base_navigationbar_left_btn=0x7f040015;
         public static final int base_navigationbar_right_btn=0x7f040017;
         public static final int base_navigationbar_title=0x7f040014;
-        public static final int base_right_button=0x7f040046;
+        public static final int base_right_button=0x7f040049;
         public static final int base_toolbar=0x7f040019;
         public static final int base_toolbar_container=0x7f040018;
         public static final int base_toolbar_container_arrowleft=0x7f04001a;
@@ -386,7 +386,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int base_toolbar_sub_menu_right_btn=0x7f04001e;
         public static final int base_toolbar_sub_menu_text=0x7f04001c;
         public static final int bottom=0x7f040003;
-        public static final int contentText=0x7f040041;
+        public static final int contentText=0x7f040044;
         public static final int end=0x7f040005;
         public static final int images_date_textview=0x7f040038;
         public static final int images_listview=0x7f040031;
@@ -429,6 +429,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          */
         public static final int navigation_bar=0x7f040021;
         public static final int pager=0x7f040023;
+        public static final int playback_container=0x7f040042;
+        public static final int playback_controlbar=0x7f040041;
         public static final int ptz_controlbar_menu=0x7f040025;
         public static final int ptz_controlbar_menu_aperture=0x7f04002d;
         public static final int ptz_controlbar_menu_focal_length=0x7f04002b;
@@ -449,9 +451,10 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int realplay_container=0x7f04003a;
         public static final int realplay_controlbar=0x7f040039;
         public static final int right=0x7f040002;
-        public static final int scrollView=0x7f040043;
-        public static final int seekBar=0x7f040042;
+        public static final int scrollView=0x7f040046;
+        public static final int seekBar=0x7f040045;
         public static final int start=0x7f040004;
+        public static final int timebar_control=0x7f040043;
         public static final int toolbar=0x7f040022;
         public static final int toolbar_ptz_pop_frame=0x7f040030;
         public static final int toolbar_sub_menu=0x7f04002f;
@@ -469,11 +472,12 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int menu_scrollview=0x7f030008;
         public static final int navigation_bar=0x7f030009;
         public static final int navigation_bar_test=0x7f03000a;
-        public static final int ptz_controlbar_menu=0x7f03000b;
-        public static final int ptz_pop_content_frame=0x7f03000c;
-        public static final int quality_controlbar_menu=0x7f03000d;
-        public static final int realplay_activity=0x7f03000e;
-        public static final int toolbar=0x7f03000f;
+        public static final int playback_activity=0x7f03000b;
+        public static final int ptz_controlbar_menu=0x7f03000c;
+        public static final int ptz_pop_content_frame=0x7f03000d;
+        public static final int quality_controlbar_menu=0x7f03000e;
+        public static final int realplay_activity=0x7f03000f;
+        public static final int toolbar=0x7f030010;
     }
     public static final class string {
         public static final int app_name=0x7f060002;

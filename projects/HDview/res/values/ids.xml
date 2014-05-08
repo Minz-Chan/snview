@@ -64,9 +64,9 @@
     <item name="ptz_pop_focal_length_increase" type="id" />
     <item name="ptz_pop_focal_length_decrease" type="id" />
     
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
+    <item name="playback_controlbar" type="id" />
+    <item name="playback_container" type="id" />
+    <item name="timebar_control" type="id" />
 <!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->

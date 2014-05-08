@@ -6,6 +6,7 @@ import net.simonvt.menudrawer.Position;
 import com.starnet.hdview.R;
 import com.starnet.hdview.global.GlobalApplication;
 import com.starnet.hdview.images.ImagesManagerActivity;
+import com.starnet.hdview.playback.PlaybackActivity;
 import com.starnet.hdview.util.ActivityUtility;
 
 import android.app.Activity;
@@ -226,6 +227,7 @@ public class BaseActivity extends Activity {
 	        case R.id.menu_drawer_realtime_preview:
 	        	break;
 	        case R.id.menu_drawer_remote_playback:
+	        	gotoPlayback();
 	        	break;
 	        case R.id.menu_drawer_device_management:
 	        	break;
@@ -242,6 +244,12 @@ public class BaseActivity extends Activity {
 	protected void gotoPictureManagement() {
 		Intent intent = new Intent();
         intent.setClass(BaseActivity.this, ImagesManagerActivity.class); 
+        startActivity(intent);
+	}
+	
+	protected void gotoPlayback() {
+		Intent intent = new Intent();
+        intent.setClass(BaseActivity.this, PlaybackActivity.class); 
         startActivity(intent);
 	}
 	
