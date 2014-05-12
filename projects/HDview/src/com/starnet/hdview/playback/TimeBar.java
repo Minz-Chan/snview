@@ -37,7 +37,7 @@ public class TimeBar
 
   private float mCellWidth = 0.0F;				// 刻度单元格宽度，在iVMS中为宽度的1/4
   private static final long mCellMilliSeconds = 3600000L;
-  private static final int mShowCellNumber = 4;
+  private static final int mShowCellNumber = 5;
   private static final int mTotoalCellNumber = 24;
   
   
@@ -65,8 +65,8 @@ public class TimeBar
   private static int mScaleTimeFontSize = 12;					// 刻度时间字体大小（单位px）
   private static final float mScaleTimeFontSizeInSp = 9.0F;		// 刻度时间字体大小（单位sp）
   
-  private float mScaleLineY = 50.0F;			// 刻度线Y轴坐标
-  private float mScaleTimeY = 45.0F;			// 时间Y轴坐标
+  private float mScaleLineY = 45.0F;			// 刻度线Y轴坐标
+  private float mScaleTimeY = 57.0F;			// 时间Y轴坐标
   private float mScaleLineHeight = 6.0F;		// 刻度线高度
   
   
@@ -201,7 +201,8 @@ public class TimeBar
         long stopTimeMillis = fr.getStopTimeInMillis();
         long offset = startTimeMillis - this.mMiddleLineTime.getTimeInMillis();
         float left = this.mMiddleLineX + (float)(offset / (1.0D * mCellMilliSeconds) * this.mCellWidth);
-        float top = this.mHeight - this.mFileRectHeight;
+        //float top = this.mHeight - this.mFileRectHeight;
+        float top = this.mMiddleTimeFontSize + this.mFileRectHeight;
         int frWidth = (int)((stopTimeMillis - startTimeMillis) / (1.0D * mCellMilliSeconds) * this.mCellWidth);
         if (frWidth == 0) {
           frWidth = 1;
@@ -321,6 +322,11 @@ public class TimeBar
     Iterator scaleInfoIt = this.mScaleInfoList.iterator();
     Iterator fileRectIt = null;
     
+    
+    // 绘制横线
+    canvas.drawLine(2, this.mScaleLineY + this.mScaleLineHeight + 1, this.mWidth - 2, 
+    		this.mScaleLineY + this.mScaleLineHeight + 1, paint);
+    
     /* 绘制刻度信息 */
     while (scaleInfoIt.hasNext()) {
     	ScaleInfo si = (ScaleInfo)scaleInfoIt.next();
@@ -329,11 +335,13 @@ public class TimeBar
 //          break;
 //        }
         
-        // 绘制刻度上的文本
-        canvas.drawText(si.getTime(), si.getX() - paint.measureText("00:00") / 2.0F, this.mScaleTimeY, paint);
-        
-        // 绘制刻度竖线
+    	
+    	// 绘制刻度竖线
         canvas.drawLine(si.getX(), this.mScaleLineY, si.getX(), this.mScaleLineY + this.mScaleLineHeight, paint);
+
+        // 绘制刻度上的文本
+        //canvas.drawText(si.getTime(), si.getX() - paint.measureText("00:00") / 2.0F, this.mScaleTimeY, paint);
+        canvas.drawText(si.getTime(), si.getX(), this.mScaleTimeY, paint);
     }
     
     /* 绘制视频矩形条 */
@@ -395,8 +403,12 @@ public class TimeBar
     this.mMiddleLineX = (w / 2);
     this.mCellWidth = (w / (1.0F * mShowCellNumber));
     this.mMilliSecondsPerPixel = ((1.0F * mCellMilliSeconds) / this.mCellWidth);
-    this.mScaleTimeY = ((int)(0.5D * h));
-    this.mScaleLineY = (3.0F + this.mScaleTimeY);
+    //this.mScaleTimeY = ((int)(0.5D * h));
+    //this.mScaleLineY = (3.0F + this.mScaleTimeY);
+    //this.mScaleLineY = ((int)(0.5D * h));
+    //this.mScaleTimeY = (18.0F + mScaleLineHeight + this.mScaleLineY);
+    this.mScaleTimeY = h;
+    this.mScaleLineY = this.mScaleTimeY - mScaleLineHeight - 16.0F;
     updateScalePos();
     updateFileListPos();
   }

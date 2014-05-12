@@ -23,11 +23,20 @@ public class PlaybackActivity extends BaseActivity {
 		
 		setContentView(R.layout.playback_activity);
 		
+		initView();
+		
+		
+		
+	}
+	
+	private void initView() {
+		super.setTitleViewText(getString(R.string.navigation_title_remote_playback));
+		super.hideExtendButton();
+		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
+		
 		initToolbar();
 		
 		initTimebar();
-		
-		
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

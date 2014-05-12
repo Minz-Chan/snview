@@ -7,6 +7,7 @@ import com.starnet.hdview.R;
 import com.starnet.hdview.global.GlobalApplication;
 import com.starnet.hdview.images.ImagesManagerActivity;
 import com.starnet.hdview.playback.PlaybackActivity;
+import com.starnet.hdview.realplay.RealplayActivity;
 import com.starnet.hdview.util.ActivityUtility;
 
 import android.app.Activity;
@@ -225,6 +226,7 @@ public class BaseActivity extends Activity {
 	        case R.id.menu_drawer_top:
 	        	break;
 	        case R.id.menu_drawer_realtime_preview:
+	        	gotoRealtimePreview();
 	        	break;
 	        case R.id.menu_drawer_remote_playback:
 	        	gotoPlayback();
@@ -237,9 +239,17 @@ public class BaseActivity extends Activity {
 	        case R.id.menu_drawer_sys_setting:
 	        	break;
 	        }
+	        
+	        BaseActivity.this.finish();
 		}
 		
 	};
+	
+	protected void gotoRealtimePreview() {
+		Intent intent = new Intent();
+        intent.setClass(BaseActivity.this, RealplayActivity.class); 
+        startActivity(intent);
+	}
 	
 	protected void gotoPictureManagement() {
 		Intent intent = new Intent();

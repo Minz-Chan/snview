@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-	<FrameLayout android:id="@id/playback_controlbar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="@dimen/toolbar_height" android:layout_alignParentBottom="true">
+	<FrameLayout android:id="@id/playback_controlbar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="@dimen/ptzbar_height" android:layout_alignParentBottom="true">
 		<com.starnet.hdview.playback.TimeBar android:layout_gravity="center" android:id="@id/timebar_control" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_margin="5.0dip" />
 	</FrameLayout>
 	  
