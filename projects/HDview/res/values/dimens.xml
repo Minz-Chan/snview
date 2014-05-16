@@ -41,4 +41,14 @@
     <dimen name="guide_check_channel_topmargin_en">1.0dip</dimen>
     <dimen name="playback_progressbar_height">40.0dip</dimen>
     <dimen name="playback_landscapetimebar_substract_width">80.0dip</dimen>
+    
+    <dimen name="device_list_item_leftpadding">10.0dip</dimen>
+    <dimen name="device_list_item_toppadding">7.0dip</dimen>
+    <dimen name="device_list_item_rightpadding">10.0dip</dimen>
+    <dimen name="device_list_item_bottompadding">7.0dip</dimen>
+    <dimen name="device_list_item_imgcontainer_height">60.0dip</dimen>
+    <dimen name="device_list_item_imgcontainer_width">78.0dip</dimen>
+    <dimen name="device_list_item_spacing_5dp">5.0dip</dimen>
+    <dimen name="device_list_item_spacing_10dp">10.0dip</dimen>
+    
 </resources>

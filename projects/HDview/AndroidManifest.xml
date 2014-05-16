@@ -15,7 +15,7 @@
         
         
         <activity
-            android:name="com.starnet.hdview.realplay.RealplayActivity"
+            android:name=".global.SplashActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
@@ -24,8 +24,10 @@
             </intent-filter>
         </activity>
         
+        <activity android:name=".realplay.RealplayActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".images.ImagesManagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".playback.PlaybackActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".devicemanager.DeviceViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         
         
     </application>

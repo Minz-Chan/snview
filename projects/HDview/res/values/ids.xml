@@ -67,7 +67,10 @@
     <item name="playback_controlbar" type="id" />
     <item name="playback_container" type="id" />
     <item name="timebar_control" type="id" />
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
+    
+    
+    <item name="device_listview" type="id" />
+    <item name="device_item_name" type="id" />
+    <item name="device_listview_item_securityprotection" type="id" />
 <!--     <item name="" type="id" /> -->
 </resources>

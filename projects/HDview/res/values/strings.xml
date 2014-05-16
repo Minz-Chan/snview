@@ -37,4 +37,6 @@
     <string name="toolbar_sub_menu_focus">聚焦</string>
     <string name="toolbar_sub_menu_aperture">光圈</string>
     
+    <string name="device_listview_item_securityprotection">安全防护</string>
+    
 </resources>
