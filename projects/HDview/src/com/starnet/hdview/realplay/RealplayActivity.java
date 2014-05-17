@@ -3,6 +3,7 @@ package com.starnet.hdview.realplay;
 import java.util.ArrayList;
 
 import com.starnet.hdview.R;
+import com.starnet.hdview.channelmanager.ChannelListActivity;
 import com.starnet.hdview.component.BaseActivity;
 import com.starnet.hdview.component.Toolbar;
 import com.starnet.hdview.component.Toolbar.ActionImageButton;
@@ -15,12 +16,14 @@ import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,7 +55,24 @@ public class RealplayActivity extends BaseActivity {
         setContentView(R.layout.realplay_activity);
         GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
         
-        initToolbar();
+        
+        initView();
+        
+    }
+    
+    private void initView() {
+    	Button deviceList = super.getRightButton();
+
+    	deviceList.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				intent.setClass(RealplayActivity.this, ChannelListActivity.class);
+				RealplayActivity.this.startActivity(intent);
+			}		
+    	});
+    	
+    	initToolbar();
         
         initToolbarExtendMenu();
         

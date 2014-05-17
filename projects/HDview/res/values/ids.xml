@@ -72,5 +72,16 @@
     <item name="device_listview" type="id" />
     <item name="device_item_name" type="id" />
     <item name="device_listview_item_securityprotection" type="id" />
+    
+    <item name="channel_listview" type="id" />
+    <item name="channel_sublistview" type="id" />
+    <item name="channel_listview_device_item_name" type="id" />
+    <item name="channel_listview_channel_item_name" type="id" /> 
+    <item name="channel_listview_channel_item_text_prefix" type="id" />
+	<item name="channel_listview_channel_item_chkbox" type="id" />
+    <item name="channel_listview_arrow" type="id" />
+    
+    
+<!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->
 </resources>

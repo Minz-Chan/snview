@@ -27,6 +27,7 @@
     <string name="navigation_title_device_management">设备管理</string>
     <string name="navigation_title_picture_management">图像管理</string>
     <string name="navigation_title_sys_setting">系统设置</string>
+    <string name="navigation_title_channel_list">通道列表</string>
     
     <string name="nothing" />
     <string name="toolbar_quality_menu_fluency">流畅</string>

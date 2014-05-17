@@ -1,11 +1,23 @@
 package com.starnet.hdview.devicemanager;
 
+import java.util.List;
+
+import com.starnet.hdview.channelmanager.Channel;
+
 public class DeviceItem {
 	private String deviceName;
 	private int deviceType;
 	private boolean isSecurityProtectionOpen = false;
+	private boolean isExpanded = false;
+	private List<Channel> channelList;
 	
 	
+	public List<Channel> getChannelList() {
+		return channelList;
+	}
+	public void setChannelList(List<Channel> channelList) {
+		this.channelList = channelList;
+	}
 	public String getDeviceName() {
 		return deviceName;
 	}
@@ -24,5 +36,12 @@ public class DeviceItem {
 	public void setSecurityProtectionOpen(boolean isSecurityProtectionOpen) {
 		this.isSecurityProtectionOpen = isSecurityProtectionOpen;
 	}
+	public boolean isExpanded() {
+		return isExpanded;
+	}
+	public void setExpanded(boolean isExpanded) {
+		this.isExpanded = isExpanded;
+	}
+	
 	
 }
