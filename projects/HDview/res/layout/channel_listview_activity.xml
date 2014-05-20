@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical" android:background="@color/list_view_bg" android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <ExpandableListView android:id="@id/channel_listview" android:scrollbars="vertical" android:fadingEdge="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="2.0dip" android:layout_marginRight="2.0dip" android:cacheColorHint="@android:color/transparent" android:groupIndicator="@android:color/transparent" android:childDivider="@android:color/transparent" android:smoothScrollbar="true" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:orientation="vertical" android:background="@color/list_view_bg"
+    android:weightSum="6.0">
+    <ExpandableListView android:id="@id/channel_listview" android:scrollbars="vertical" android:fadingEdge="vertical" 
+        android:layout_width="fill_parent" android:layout_height="0.0dip" android:cacheColorHint="@android:color/transparent" 
+        android:groupIndicator="@android:color/transparent" android:childDivider="@android:color/transparent" 
+        android:smoothScrollbar="true" android:divider="@color/channel_listview_channel_divider" android:dividerHeight="1.0dip" 
+        android:layout_weight="5.0" />
+    <LinearLayout android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0"
+        android:background="@color/channel_listview_channel_item_bg">
+        <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <ImageButton android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" 
+                android:background="@drawable/channel_listview_preview" android:contentDescription="@string/nothing" />
+            <TextView android:layout_gravity="center" android:gravity="center" android:layout_width="fill_parent" 
+                android:layout_height="wrap_content" android:text="开始预览" android:textColor="@android:color/white"
+                android:textSize="@dimen/common_textsize_middle_20sp" android:textStyle="bold"/>
+        </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

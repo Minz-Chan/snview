@@ -120,14 +120,17 @@ public class DeviceExpandableListAdapter extends BaseExpandableListAdapter {
 		TextView deviceItemName = (TextView) convertView.findViewById(R.id.channel_listview_device_item_name);
 		deviceItemName.setText(mDeviceList.get(groupPosition).getDeviceName());
 		
+		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_device_item_icon);
 		ImageView arrow = (ImageView) convertView.findViewById(R.id.channel_listview_arrow);
 		
 		if (mDeviceList.get(groupPosition).isExpanded()) {
 			convertView.setBackgroundColor(getColor(R.color.channel_listview_device_item_bg_expanded));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_device);
 			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 			((ExpandableListView) parent).expandGroup(groupPosition);
 		} else {
 			convertView.setBackgroundColor(getColor(R.color.channel_listview_device_item_bg_collapsed));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_device);
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);
 			((ExpandableListView) parent).collapseGroup(groupPosition);
 		}

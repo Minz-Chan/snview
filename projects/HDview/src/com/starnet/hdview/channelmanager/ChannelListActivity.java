@@ -44,32 +44,101 @@ public class ChannelListActivity extends BaseActivity {
 		
 		
 		ArrayList<Channel> l1 = new ArrayList<Channel>();
-		Channel c1 = new Channel();
-		c1.setChannelName("通道1");
-		c1.setSelected(true);
+		Channel c11 = new Channel();
+		c11.setChannelName("通道1");
+		c11.setSelected(true);
 		
-		Channel c2 = new Channel();
-		c2.setChannelName("通道2");
-		c2.setSelected(false);
+		Channel c21 = new Channel();
+		c21.setChannelName("通道2");
+		c21.setSelected(false);
 		
-		l1.add(c1);
-		l1.add(c2);
-		
+		l1.add(c11);
+		l1.add(c21);
 		
 		DeviceItem d1 = new DeviceItem();
 		d1.setDeviceName("上海");
 		d1.setChannelList(l1);
-		d1.setExpanded(true);
+		d1.setExpanded(false);
 		
+		
+		
+		ArrayList<Channel> l2 = new ArrayList<Channel>();
+		Channel c12 = new Channel();
+		c12.setChannelName("通道1");
+		c12.setSelected(false);
+		
+		Channel c22 = new Channel();
+		c22.setChannelName("通道2");
+		c22.setSelected(true);
+		
+		Channel c32 = new Channel();
+		c32.setChannelName("通道3");
+		c32.setSelected(true);
+		
+		l2.add(c12);
+		l2.add(c22);
+		l2.add(c32);
+
 		DeviceItem d2 = new DeviceItem();
 		d2.setDeviceName("福州");
-		d2.setChannelList(l1);
-		d2.setExpanded(false);
+		d2.setChannelList(l2);
+		d2.setExpanded(true);
+		
+		
+		
+		ArrayList<Channel> l3 = new ArrayList<Channel>();
+		Channel c13 = new Channel();
+		c13.setChannelName("通道1");
+		c13.setSelected(true);
+		
+		Channel c23 = new Channel();
+		c23.setChannelName("通道2");
+		c23.setSelected(false);
+		
+		Channel c33 = new Channel();
+		c33.setChannelName("通道3");
+		c33.setSelected(false);
+		
+		Channel c43 = new Channel();
+		c43.setChannelName("通道4");
+		c43.setSelected(true);
+		
+		l3.add(c13);
+		l3.add(c23);
+		l3.add(c33);
+		l3.add(c43);
+
+		DeviceItem d3 = new DeviceItem();
+		d3.setDeviceName("深圳");
+		d3.setChannelList(l3);
+		d3.setExpanded(false);
+		
+		
+		
+		ArrayList<Channel> l4 = new ArrayList<Channel>();
+		Channel c14 = new Channel();
+		c14.setChannelName("通道1");
+		c14.setSelected(false);
+		
+		Channel c24 = new Channel();
+		c24.setChannelName("通道2");
+		c24.setSelected(true);
+		
+		l4.add(c14);
+		l4.add(c24);
+		
+		DeviceItem d4 = new DeviceItem();
+		d4.setDeviceName("北京");
+		d4.setChannelList(l4);
+		d4.setExpanded(false);
+		
 		
 		
 		ArrayList<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		deviceList.add(d1);
 		deviceList.add(d2);
+		deviceList.add(d3);
+		deviceList.add(d4);
 		
 		mExpandableListAdapter = new DeviceExpandableListAdapter(this, deviceList);
 		

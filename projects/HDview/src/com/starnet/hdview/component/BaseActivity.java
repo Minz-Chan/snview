@@ -223,6 +223,8 @@ public class BaseActivity extends Activity {
 	        mMenuDrawer.closeMenu();
 	        mActiveViewId = v.getId();
 	        
+	        BaseActivity.this.finish();
+	        
 	        switch (mActiveViewId) {
 	        case R.id.menu_drawer_top:
 	        	break;
@@ -242,7 +244,7 @@ public class BaseActivity extends Activity {
 	        	break;
 	        }
 	        
-	        BaseActivity.this.finish();
+	        
 		}
 		
 	};
