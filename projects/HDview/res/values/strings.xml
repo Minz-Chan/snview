@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">HDview</string>
+    <string name="app_name">SNview</string>
 
     <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
         active position is saved through configuration changes.\nAdditionally, if the menu is open, a back press will
