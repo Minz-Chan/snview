@@ -125,7 +125,7 @@ public class DeviceExpandableListAdapter extends BaseExpandableListAdapter {
 		
 		if (mDeviceList.get(groupPosition).isExpanded()) {
 			convertView.setBackgroundColor(getColor(R.color.channel_listview_device_item_bg_expanded));
-			itemIcon.setBackgroundResource(R.drawable.channel_listview_device);
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_device_sel);
 			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 			((ExpandableListView) parent).expandGroup(groupPosition);
 		} else {

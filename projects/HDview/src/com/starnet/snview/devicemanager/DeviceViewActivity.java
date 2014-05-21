@@ -43,7 +43,7 @@ public class DeviceViewActivity extends BaseActivity {
 		d2.setSecurityProtectionOpen(false);
 		
 		DeviceItem d3 = new DeviceItem();
-		d3.setDeviceName("车库门口");
+		d3.setDeviceName("上海");
 		d3.setSecurityProtectionOpen(true);
 		
 		deviceList.add(d1);

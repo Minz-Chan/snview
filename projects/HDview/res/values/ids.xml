@@ -4,6 +4,7 @@
     <item name="menu_drawer_remote_playback" type="id" />
     <item name="menu_drawer_device_management" type="id" />
     <item name="menu_drawer_picture_management" type="id" />
+    <item name="menu_drawer_alarm_management" type="id" />
     <item name="menu_drawer_sys_setting" type="id" />
     
     <item name="base_navigationbar_title" type="id" />

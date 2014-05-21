@@ -19,6 +19,7 @@
     <string name="common_drawer_remote_playback">远程回放</string>
     <string name="common_drawer_device_management">设备管理</string>
     <string name="common_drawer_picture_management">图像管理</string>
+    <string name="common_drawer_alarm_management">报警管理</string>
     <string name="common_drawer_sys_setting">系统配置</string>
     
     

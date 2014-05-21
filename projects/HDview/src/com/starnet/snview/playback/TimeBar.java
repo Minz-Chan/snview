@@ -47,7 +47,7 @@ public class TimeBar
   private GregorianCalendar mMiddleLineTime = new GregorianCalendar();
   private static final SimpleDateFormat mTimeFormat 
   					= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");	// 中线时间格式
-  private static final int mMiddleTimeColor = Color.RED;				// 中线时间文字颜色
+  private static final int mMiddleTimeColor = 0xfff15a24;				// 中线时间文字颜色
   private static final Typeface mMiddleTimefont 
   					= Typeface.create(Typeface.SANS_SERIF, 1);	// 中线时间文字字体
   private static int mMiddleTimeFontSize = 18;					// 中线时间文字字体大小

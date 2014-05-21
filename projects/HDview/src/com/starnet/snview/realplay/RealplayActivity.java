@@ -53,6 +53,8 @@ public class RealplayActivity extends BaseActivity {
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
         setContentView(R.layout.realplay_activity);
+        
+        
         GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
         
         

@@ -91,6 +91,26 @@ public class PlaybackActivity extends BaseActivity {
 	    c4.set(c4.get(Calendar.YEAR), c4.get(Calendar.MONTH), c4.get(Calendar.DAY_OF_MONTH), 
 	    		c4.get(Calendar.HOUR_OF_DAY), c4.get(Calendar.MINUTE));
 	    mTimebar.addFileInfo(1, c3, c4);
+	    
+	    Calendar c5 = Calendar.getInstance();
+	    c5.add(Calendar.MINUTE, 130);
+	    c5.set(c5.get(Calendar.YEAR), c5.get(Calendar.MONTH), c5.get(Calendar.DAY_OF_MONTH), 
+	    		c5.get(Calendar.HOUR_OF_DAY), c5.get(Calendar.MINUTE));
+	    Calendar c6 = Calendar.getInstance();
+	    c6.add(Calendar.MINUTE, 200);
+	    c6.set(c6.get(Calendar.YEAR), c6.get(Calendar.MONTH), c6.get(Calendar.DAY_OF_MONTH), 
+	    		c6.get(Calendar.HOUR_OF_DAY), c6.get(Calendar.MINUTE));
+	    mTimebar.addFileInfo(1, c5, c6);
+	    
+	    Calendar c7 = Calendar.getInstance();
+	    c7.add(Calendar.MINUTE, 220);
+	    c7.set(c7.get(Calendar.YEAR), c7.get(Calendar.MONTH), c7.get(Calendar.DAY_OF_MONTH), 
+	    		c7.get(Calendar.HOUR_OF_DAY), c7.get(Calendar.MINUTE));
+	    Calendar c8 = Calendar.getInstance();
+	    c8.add(Calendar.MINUTE, 260);
+	    c8.set(c8.get(Calendar.YEAR), c8.get(Calendar.MONTH), c8.get(Calendar.DAY_OF_MONTH), 
+	    		c8.get(Calendar.HOUR_OF_DAY), c8.get(Calendar.MINUTE));
+	    mTimebar.addFileInfo(1, c7, c8);
 	}
 
 }

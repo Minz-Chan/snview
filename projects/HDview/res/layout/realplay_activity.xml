@@ -10,7 +10,9 @@
    </FrameLayout>
     
    <RelativeLayout android:id="@id/realplay_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/realplay_controlbar" android:layout_alignParentTop="true">
-
+		
+       <ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
+       
         <LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">
 		    <!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->
         	<include android:layout_gravity="center_vertical" layout="@layout/ptz_pop_content_frame" />

@@ -11,7 +11,7 @@ import com.starnet.snview.util.SDCardUtils;
 public class LocalFileUtils {
 	public static final String CAPTURE_FOLDER_NAME = "capture";
 	public static final String RECORD_FOLDER_NAME = "record";
-	public static final String THUMBNAILS_FOLDER_NAME = ".thumbnails";
+	public static final String THUMBNAILS_FOLDER_NAME = "thumbnails";
 	public static final String PICTURE_EXT_NAME = ".jpg";
 	public static final String RECORD_EXT_NAME = ".mp4";
 
@@ -70,10 +70,10 @@ public class LocalFileUtils {
 	}
 
 	public static String getLocalFileRootPath() {
-//		return SDCardUtils.getSDCardPath()
-//				+ GlobalApplication.getInstance().getAppName();
 		return SDCardUtils.getSDCardPath()
-				+ "iVMS-4500";
+				+ GlobalApplication.getInstance().getAppName();
+//		return SDCardUtils.getSDCardPath()
+//				+ "iVMS-4500";
 		
 	}
 

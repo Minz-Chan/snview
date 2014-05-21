@@ -36,7 +36,7 @@
         
         <View 
 			android:layout_width="fill_parent" 
-			android:layout_height="1dip" 
+			android:layout_height="@dimen/menu_drawer_divider_height" 
 			android:background="@drawable/menu_drawer_divide_line" />        
 
         <TextView
@@ -50,7 +50,7 @@
         
         <View 
 			android:layout_width="fill_parent" 
-			android:layout_height="1dip" 
+			android:layout_height="@dimen/menu_drawer_divider_height" 
 			android:background="@drawable/menu_drawer_divide_line" />  
 
         <TextView
@@ -64,7 +64,7 @@
         
       	<View 
 			android:layout_width="fill_parent" 
-			android:layout_height="1dip" 
+			android:layout_height="@dimen/menu_drawer_divider_height" 
 			android:background="@drawable/menu_drawer_divide_line" />  
 
         <TextView
@@ -75,10 +75,25 @@
             android:background="@color/menu_drawer_item_bg"
             android:text="@string/common_drawer_picture_management"
             style="@style/MenuDrawer.Widget.Title" />
+        
+        <View 
+			android:layout_width="fill_parent" 
+			android:layout_height="@dimen/menu_drawer_divider_height" 
+			android:background="@drawable/menu_drawer_divide_line" />  
+
+        <TextView
+            android:id="@id/menu_drawer_alarm_management"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/menu_drawer_alarm_management_selector"
+            android:background="@color/menu_drawer_item_bg"
+            android:text="@string/common_drawer_alarm_management"
+            style="@style/MenuDrawer.Widget.Title" />
+        
 
         <View 
 			android:layout_width="fill_parent" 
-			android:layout_height="1dip" 
+			android:layout_height="@dimen/menu_drawer_divider_height" 
 			android:background="@drawable/menu_drawer_divide_line" />  
 
         <TextView

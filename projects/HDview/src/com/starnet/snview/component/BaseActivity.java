@@ -119,6 +119,13 @@ public class BaseActivity extends Activity {
             mRightArrow.getBackground().setAlpha((int)(255.0D * (1.0D - 1.0D * scrollX / offset)));
           }
         });
+		
+		mLeftButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mMenuDrawer.openMenu();
+			}
+		});
 	}
 
 	
