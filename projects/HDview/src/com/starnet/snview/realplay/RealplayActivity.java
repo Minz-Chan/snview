@@ -12,28 +12,19 @@ import com.starnet.snview.component.VideoPager.ACTION;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.util.ActivityUtility;
 
-import net.simonvt.menudrawer.MenuDrawer;
-import net.simonvt.menudrawer.Position;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class RealplayActivity extends BaseActivity {
 
-	private static final String TAG = "RealplayActivity";
+	//private static final String TAG = "RealplayActivity";
 	
     
     private Toolbar mToolbar;
@@ -405,11 +396,11 @@ public class RealplayActivity extends BaseActivity {
     	//mToolbarSubMenu = (LinearLayout) findViewById(R.id.toolbar_sub_menu);
     	//mToolbarSubMenuText = (TextView) findViewById(R.id.base_toolbar_sub_menu_text);
     	
-		int menuWidth = (int) (GlobalApplication.getInstance().getScreenWidth() / 5 * 2);
-		int menuHeight = getResources().getDimensionPixelSize(
-				R.dimen.toolbar_height);
-		LinearLayout.LayoutParams subMenuLayout = new LinearLayout.LayoutParams(
-				menuWidth, menuHeight);
+		//int menuWidth = (int) (GlobalApplication.getInstance().getScreenWidth() / 5 * 2);
+		//int menuHeight = getResources().getDimensionPixelSize(
+		//		R.dimen.toolbar_height);
+		//LinearLayout.LayoutParams subMenuLayout = new LinearLayout.LayoutParams(
+		//		menuWidth, menuHeight);
 		//mToolbarSubMenu.setLayoutParams(subMenuLayout);
     }
     

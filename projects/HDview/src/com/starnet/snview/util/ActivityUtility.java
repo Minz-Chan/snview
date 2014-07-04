@@ -72,6 +72,7 @@ public final class ActivityUtility {
 	 * @param activity Activity
 	 * @return 屏幕大小对象
 	 */
+	@SuppressWarnings("deprecation")
 	public static Point getScreenSize(Activity activity){
 		Display display = activity.getWindowManager().getDefaultDisplay();
 		Point size = new Point();

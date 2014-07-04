@@ -1,22 +1,16 @@
 package com.starnet.snview.global;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import com.starnet.snview.R;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.AssetsUtil;
 import com.starnet.snview.util.FileUtility;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -25,8 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+
 
 public class SplashActivity extends Activity{
 	private final int SPLASH_DISPLAY_LENGTH = 2000;  //延时5秒
@@ -70,6 +63,8 @@ public class SplashActivity extends Activity{
 		}, SPLASH_DISPLAY_LENGTH);
 	}
 	
+	@SuppressLint("WorldReadableFiles")
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	private boolean CheckWhetherFirstStart() {
 		boolean isFirstStart = false;
 		
@@ -117,6 +112,7 @@ public class SplashActivity extends Activity{
 	} 
 	
 	
+	@SuppressWarnings("rawtypes")
 	private class LoadDemoDataAsync extends AsyncTask {
 
 		@Override
@@ -142,6 +138,7 @@ public class SplashActivity extends Activity{
 			return null;
 		}
 
+		@SuppressWarnings({ "deprecation", "unchecked" })
 		@Override
 		protected void onPostExecute(Object result) {
 			SplashActivity.this.dismissDialog(PROGRESS_DIALOG);
