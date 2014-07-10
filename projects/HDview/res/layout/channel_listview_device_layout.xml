@@ -4,5 +4,5 @@
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content">
     <ListView android:id="@id/channel_sublistview" android:layout_width="fill_parent" android:layout_height="wrap_content" 
-        android:divider="@color/channel_listview_channel_divider" android:dividerHeight="1.0dip" />
+        android:divider="@color/channel_listview_device_divider" android:dividerHeight="1.0dip" />
 </LinearLayout>

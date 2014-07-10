@@ -48,14 +48,14 @@ public class ChannelListAdapter extends BaseAdapter {
 		
 		if (convertView == null) {
 			convertView = this.mLayoutInflater.inflate(
-					R.layout.channel_listview_channel_item_layout, null);
+					R.layout.channel_listview_device_item_layout, null);
 		}
 		
 		final Channel c = mChannelList.get(position);
 		
-		TextView channelItemName = (TextView) convertView.findViewById(R.id.channel_listview_channel_item_name);
-		TextView channelItemTextPre = (TextView) convertView.findViewById(R.id.channel_listview_channel_item_text_prefix);
-		ImageView chkboxIsSelected = (ImageView) convertView.findViewById(R.id.channel_listview_channel_item_chkbox);
+		TextView channelItemName = (TextView) convertView.findViewById(R.id.channel_listview_device_item_name);
+		TextView channelItemTextPre = (TextView) convertView.findViewById(R.id.channel_listview_device_item_text_prefix);
+		ImageView chkboxIsSelected = (ImageView) convertView.findViewById(R.id.channel_listview_device_item_chkbox);
 		
 		channelItemName.setText(c.getChannelName());
 		

@@ -55,7 +55,7 @@ public class DeviceExpandableListAdapter extends BaseExpandableListAdapter {
 			boolean isLastChild, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.mLayoutInflater.inflate(
-					R.layout.channel_listview_channel_layout, null);
+					R.layout.channel_listview_device_layout, null);
 		}
 		
 		ListView channelListView = (ListView) convertView.findViewById(R.id.channel_sublistview);
@@ -63,7 +63,7 @@ public class DeviceExpandableListAdapter extends BaseExpandableListAdapter {
 				mDeviceList.get(groupPosition).getChannelList()));
 		
 		int channelCount = mDeviceList.get(groupPosition).getChannelList().size();
-		float itemHeight = mChannelListActivity.getResources().getDimension(R.dimen.channel_listview_channel_item_height);
+		float itemHeight = mChannelListActivity.getResources().getDimension(R.dimen.channel_listview_device_item_height);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, (int)(itemHeight * channelCount));
 		channelListView.setLayoutParams(params);
 		
@@ -114,23 +114,23 @@ public class DeviceExpandableListAdapter extends BaseExpandableListAdapter {
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = mLayoutInflater.inflate(
-					R.layout.channel_listview_device_item_layout, null);
+					R.layout.channel_listview_account_item_layout, null);
 		}
 		
-		TextView deviceItemName = (TextView) convertView.findViewById(R.id.channel_listview_device_item_name);
+		TextView deviceItemName = (TextView) convertView.findViewById(R.id.channel_listview_account_item_name);
 		deviceItemName.setText(mDeviceList.get(groupPosition).getDeviceName());
 		
-		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_device_item_icon);
+		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);
 		ImageView arrow = (ImageView) convertView.findViewById(R.id.channel_listview_arrow);
 		
 		if (mDeviceList.get(groupPosition).isExpanded()) {
-			convertView.setBackgroundColor(getColor(R.color.channel_listview_device_item_bg_expanded));
-			itemIcon.setBackgroundResource(R.drawable.channel_listview_device_sel);
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_account_sel);
 			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 			((ExpandableListView) parent).expandGroup(groupPosition);
 		} else {
-			convertView.setBackgroundColor(getColor(R.color.channel_listview_device_item_bg_collapsed));
-			itemIcon.setBackgroundResource(R.drawable.channel_listview_device);
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_account);
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);
 			((ExpandableListView) parent).collapseGroup(groupPosition);
 		}

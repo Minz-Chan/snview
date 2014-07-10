@@ -76,11 +76,11 @@
     
     <item name="channel_listview" type="id" />
     <item name="channel_sublistview" type="id" />
-    <item name="channel_listview_device_item_name" type="id" />
-    <item name="channel_listview_device_item_icon" type="id" />
-    <item name="channel_listview_channel_item_name" type="id" /> 
-    <item name="channel_listview_channel_item_text_prefix" type="id" />
-	<item name="channel_listview_channel_item_chkbox" type="id" />
+    <item name="channel_listview_account_item_name" type="id" />
+    <item name="channel_listview_account_item_icon" type="id" />
+    <item name="channel_listview_device_item_name" type="id" /> 
+    <item name="channel_listview_device_item_text_prefix" type="id" />
+	<item name="channel_listview_device_item_chkbox" type="id" />
     <item name="channel_listview_arrow" type="id" />
     
     

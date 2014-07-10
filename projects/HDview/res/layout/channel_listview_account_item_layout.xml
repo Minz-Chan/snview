@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:descendantFocusability="blocksDescendants"
+    android:background="@color/channel_listview_account_item_bg_collapsed"
+    android:weightSum="10.0">
+    
+    <LinearLayout android:layout_width="0.0dip" android:layout_height="@dimen/channel_listview_account_item_height" android:layout_weight="0.7" />
+    
+    <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
+        <ImageView android:id="@id/channel_listview_account_item_icon" android:background="@drawable/channel_listview_account" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
+    </LinearLayout>
+    
+    <TextView android:id="@id/channel_listview_account_item_name" android:textSize="@dimen/common_textsize_small_18sp" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="6.8"/>
+    
+    <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.5" >
+        <ImageView android:id="@id/channel_listview_arrow" android:background="@drawable/channel_listview_right_arrow_selector" android:layout_width="wrap_content" android:layout_height="wrap_content"  android:contentDescription="@string/nothing"/>
+    </LinearLayout>
+
+</LinearLayout>

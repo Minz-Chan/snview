@@ -51,8 +51,8 @@
     <dimen name="device_list_item_spacing_5dp">5.0dip</dimen>
     <dimen name="device_list_item_spacing_10dp">10.0dip</dimen>
     
-    <dimen name="channel_listview_device_item_height">33.0dip</dimen>
-    <dimen name="channel_listview_channel_item_height">30.0dip</dimen>
+    <dimen name="channel_listview_account_item_height">33.0dip</dimen>
+    <dimen name="channel_listview_device_item_height">30.0dip</dimen>
     
     <dimen name="menu_drawer_divider_height">0.7dip</dimen>
     

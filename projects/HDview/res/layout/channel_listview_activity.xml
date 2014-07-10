@@ -6,10 +6,10 @@
     <ExpandableListView android:id="@id/channel_listview" android:scrollbars="vertical" android:fadingEdge="vertical" 
         android:layout_width="fill_parent" android:layout_height="0.0dip" android:cacheColorHint="@android:color/transparent" 
         android:groupIndicator="@android:color/transparent" android:childDivider="@android:color/transparent" 
-        android:smoothScrollbar="true" android:divider="@color/channel_listview_channel_divider" android:dividerHeight="1.0dip" 
+        android:smoothScrollbar="true" android:divider="@color/channel_listview_device_divider" android:dividerHeight="1.0dip" 
         android:layout_weight="5.0" />
     <LinearLayout android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0"
-        android:background="@color/channel_listview_channel_item_bg">
+        android:background="@color/channel_listview_device_item_bg">
         <FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
             <ImageButton android:layout_gravity="center" android:layout_width="wrap_content" android:layout_height="wrap_content" 
                 android:background="@drawable/channel_listview_preview" android:contentDescription="@string/nothing" />

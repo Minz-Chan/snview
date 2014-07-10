@@ -22,10 +22,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="base_toolbar_sub_menu_text">#ffc9c9c9</color>
     
-    <color name="channel_listview_device_item_bg_collapsed">#C0222222</color>
-    <color name="channel_listview_device_item_bg_expanded">#C0F2F2F2</color>
-    <color name="channel_listview_channel_item_bg">#C0333333</color>
-    <color name="channel_listview_channel_divider">#C0696969</color>
+    <color name="channel_listview_account_item_bg_collapsed">#C0222222</color>
+    <color name="channel_listview_account_item_bg_expanded">#C0F2F2F2</color>
+    <color name="channel_listview_device_item_bg">#C0333333</color>
+    <color name="channel_listview_device_divider">#C0696969</color>
     <color name="channel_listview_text_selected">#FF3BC7FF</color>
     <color name="channel_listview_text_unselected">#FFFFFFFF</color>
     
