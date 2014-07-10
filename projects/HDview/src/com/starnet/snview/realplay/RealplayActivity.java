@@ -9,7 +9,9 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
+import com.starnet.snview.component.liveview.LiveView;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.annotation.SuppressLint;
@@ -37,7 +39,10 @@ public class RealplayActivity extends BaseActivity {
     //private LinearLayout mToolbarSubMenu;
     //private TextView mToolbarSubMenuText;
 
-
+    private LiveView mLiveView1;
+    private LiveView mLiveView2;
+    private LiveView mLiveView3;
+    private LiveView mLiveView4;
 
     @SuppressLint("NewApi")
 	@Override
@@ -51,6 +56,12 @@ public class RealplayActivity extends BaseActivity {
         
         initView();
         
+        test();
+        
+    }
+    
+    private void test() {
+  
     }
     
     private void initView() {
