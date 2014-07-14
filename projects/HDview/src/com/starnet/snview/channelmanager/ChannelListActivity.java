@@ -1,178 +1,233 @@
 package com.starnet.snview.channelmanager;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseExpandableListAdapter;
+import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.CloudService;
+import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
+import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.images.ImagesManagerActivity;
+import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.syssetting.CloudAccount;
 
+/**
+ * @author 陈名珍
+ * @Date 2014/7/3
+ * @ClassName ChannelListActivity.java
+ * @Description 主要用于星云账号、账号中的平台内的信息显示;1、显示本地通道列表；2、加载网络的设备列表
+ * @Modifier 赵康
+ * @Modify date 2014/7/7
+ * @Modify description 增加了字段：starUserNameList、starPlatformList
+ */
+@SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class ChannelListActivity extends BaseActivity {
 
+	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+
 	private ExpandableListView mExpandableListView;
-	private DeviceExpandableListAdapter mExpandableListAdapter;
-	private LayoutInflater mLayoutInflater;
+	private CloudAccountXML caXML;
+
+	ImageButton startScanButton;// 开始预览按钮；
+
+	private List<CloudAccount> groupList = new ArrayList<CloudAccount>();// 用于通道列表选择的显示,(选择前和选择后)
+	List<CloudAccount> cloudAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
+	private Context curContext;
+	private ChannelExpandableListviewAdapter chExpandableListAdapter;
+
+	private NetCloudAccountThread netThread;
 	
+	List<PreviewDeviceItem> previewChannelList;//当前预览通道
+
+	private Handler netHandler = new Handler() {// 处理线程的handler
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Bundle data = msg.getData();
+			String position = data.getString("position");
+			String success = data.getString("success");
+			if (success.equals("Yes")) {// 通知ExpandableListView的第position个位置的progressBar不再转动;获取到访问的整个网络数据；			
+				int pos = Integer.valueOf(position);				
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
+				cloudAccount.setRotate(true);
+				cloudAccounts.set(pos, cloudAccount);
+				chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+				mExpandableListView.setAdapter(chExpandableListAdapter);
+			} else {
+				int pos = Integer.valueOf(position);
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
+				cloudAccount.setRotate(false);
+				cloudAccounts.set(pos, cloudAccount);
+				chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+				mExpandableListView.setAdapter(chExpandableListAdapter);
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.channel_listview_activity);
-		
 		initView();
-		
 	}
-	
+
 	private void initView() {
-		super.setTitleViewText(getString(R.string.navigation_title_channel_list));
+
+		super.setTitleViewText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
 		super.setToolbarVisiable(false);
-		
-		mLayoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		curContext = ChannelListActivity.this;
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
-		
-		
-		
-		ArrayList<Channel> l1 = new ArrayList<Channel>();
-		Channel c11 = new Channel();
-		c11.setChannelName("通道1");
-		c11.setSelected(true);
-		
-		Channel c21 = new Channel();
-		c21.setChannelName("通道2");
-		c21.setSelected(false);
-		
-		l1.add(c11);
-		l1.add(c21);
-		
-		DeviceItem d1 = new DeviceItem();
-		d1.setDeviceName("上海");
-		d1.setChannelList(l1);
-		d1.setExpanded(false);
-		
-		
-		
-		ArrayList<Channel> l2 = new ArrayList<Channel>();
-		Channel c12 = new Channel();
-		c12.setChannelName("通道1");
-		c12.setSelected(false);
-		
-		Channel c22 = new Channel();
-		c22.setChannelName("通道2");
-		c22.setSelected(true);
-		
-		Channel c32 = new Channel();
-		c32.setChannelName("通道3");
-		c32.setSelected(true);
-		
-		l2.add(c12);
-		l2.add(c22);
-		l2.add(c32);
+		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 
-		DeviceItem d2 = new DeviceItem();
-		d2.setDeviceName("福州");
-		d2.setChannelList(l2);
-		d2.setExpanded(true);
+		caXML = new CloudAccountXML();
+		cloudAccounts = getCloudAccountInfoFromUI();
+		int netSize = cloudAccounts.size();
 		
-		
-		
-		ArrayList<Channel> l3 = new ArrayList<Channel>();
-		Channel c13 = new Channel();
-		c13.setChannelName("通道1");
-		c13.setSelected(true);
-		
-		Channel c23 = new Channel();
-		c23.setChannelName("通道2");
-		c23.setSelected(false);
-		
-		Channel c33 = new Channel();
-		c33.setChannelName("通道3");
-		c33.setSelected(false);
-		
-		Channel c43 = new Channel();
-		c43.setChannelName("通道4");
-		c43.setSelected(true);
-		
-		l3.add(c13);
-		l3.add(c23);
-		l3.add(c33);
-		l3.add(c43);
+		for (int i = 0; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
+			String conn_name = "conn1";
+			CloudAccount cAccount = cloudAccounts.get(i);
+			CloudService cloudService = new CloudServiceImpl(conn_name);
+			netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
+			netThread.start();// 线程开启，进行网络访问
+		}
 
-		DeviceItem d3 = new DeviceItem();
-		d3.setDeviceName("深圳");
-		d3.setChannelList(l3);
-		d3.setExpanded(false);
-		
-		
-		
-		ArrayList<Channel> l4 = new ArrayList<Channel>();
-		Channel c14 = new Channel();
-		c14.setChannelName("通道1");
-		c14.setSelected(false);
-		
-		Channel c24 = new Channel();
-		c24.setChannelName("通道2");
-		c24.setSelected(true);
-		
-		l4.add(c14);
-		l4.add(c24);
-		
-		DeviceItem d4 = new DeviceItem();
-		d4.setDeviceName("北京");
-		d4.setChannelList(l4);
-		d4.setExpanded(false);
-		
-		
-		
-		ArrayList<DeviceItem> deviceList = new ArrayList<DeviceItem>();
-		deviceList.add(d1);
-		deviceList.add(d2);
-		deviceList.add(d3);
-		deviceList.add(d4);
-		
-		mExpandableListAdapter = new DeviceExpandableListAdapter(this, deviceList);
-		
-		mExpandableListView.setAdapter(mExpandableListAdapter);
-		
-//		for (int i = 0; i < mExpandableListAdapter.getGroupCount(); i++) {
-//	          mExpandableListView.expandGroup(i);
-//	    }
+		File file = new File(CLOUD_ACCOUNT_PATH);
+		if (file.exists()) {
+			file.delete();
+		}
+
+		curContext = ChannelListActivity.this;
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+		mExpandableListView.setAdapter(chExpandableListAdapter);
 		
 		mExpandableListView.setOnGroupClickListener(new OnGroupClickListener() {
-
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,
 					int groupPosition, long id) {
-				
-				DeviceItem device = (DeviceItem) parent.getExpandableListAdapter().getGroup(groupPosition);
-
-				if (device.isExpanded()) {
-					device.setExpanded(false);	
+				CloudAccount cloudAccount = (CloudAccount) parent.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
+				if (cloudAccount.isExpanded()) {// 判断列表是否已经展开
+					cloudAccount.setExpanded(false);
 				} else {
-					device.setExpanded(true);	
+					cloudAccount.setExpanded(true);
 				}
-				
-				//v.invalidate();
-				
 				return false;
 			}
-			
 		});
 		
+		startScanButton.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表
+			
+			@Override
+			public void onClick(View v) {
+				//考虑文档为空时；文档不存在时；文档中包含数据时
+				CloudAccountXML csxml = new CloudAccountXML();
+				File file = new File(CLOUD_ACCOUNT_PATH);
+				if (!file.exists()) {
+					String text = "您暂时还没有做通道选择";
+					Toast toast = Toast.makeText(ChannelListActivity.this, text, Toast.LENGTH_SHORT);
+					toast.show();
+				}else {
+					List<CloudAccount> cloudAccounts = csxml.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);//从文件中读取通道列表的选择情况
+					previewChannelList = new ArrayList<PreviewDeviceItem>();
+					previewChannelList = getPreviewChannelList(cloudAccounts);
+					//补充通道操作。。。。。。。
+					int size = previewChannelList.size();
+					String tt = "一共选择了"+size+"个通道.";	
+					Toast toast1 = Toast.makeText(ChannelListActivity.this, tt, Toast.LENGTH_SHORT);
+					toast1.show();
+					for (int i = 0; i < size; i++) {
+						String text = previewChannelList.get(i).getLoginUser()+"选择了"+"个通道.";	
+						Toast toast = Toast.makeText(ChannelListActivity.this, text, Toast.LENGTH_SHORT);
+						toast.show();
+					}
+				}
+			}
+		});
+	}
+	
+	private List<PreviewDeviceItem> getPreviewChannelList(List<CloudAccount> cloudAccounts) {
+		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
+		if (cloudAccounts == null) {
+			//打印一句话，用户尚未进行选择
+			String printSentence = "您暂时还没有做通道选择,请选择...";
+			Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
+			toast.show();
+		}else {
+			int size = cloudAccounts.size();
+			for (int i = 0; i < size; i++) {
+				CloudAccount cloudAccount = cloudAccounts.get(i);
+				List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
+				if (deviceItems!=null) {
+					int deviceSize = deviceItems.size();
+					for (int j = 0; j < deviceSize; j++) {
+						DeviceItem deviceItem = deviceItems.get(j);
+						List<Channel> channelList = deviceItem.getChannelList();
+						if (channelList != null) {
+							int channelSize = channelList.size();
+							for (int k = 0; k < channelSize; k++) {
+								Channel channel = channelList.get(k);
+								if (channel.isSelected()) {//判断通道列表是否选择
+									PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
+									previewDeviceItem.setChannel(channel.getChannelNo());
+									previewDeviceItem.setLoginPass(deviceItem.getLoginPass());
+									previewDeviceItem.setLoginUser(deviceItem.getLoginUser());
+									previewDeviceItem.setSvrIp(deviceItem.getSvrIp());
+									previewDeviceItem.setSvrPort(deviceItem.getSvrPort());
+									previewList.add(previewDeviceItem);
+								}
+							}
+						}
+					}
+				}else {
+					String printSentence = "用户设备数据尚未加载成功,请等待...";
+					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
+					toast.show();
+				}
+			}
+		}
+		return previewList;
+	}
 
+	/**
+	 * 
+	 * @author zhaohongxu
+	 * @Date Jul 13, 2014
+	 * @Description TODO
+	 * @return
+	 */
+	private List<CloudAccount> getCloudAccountInfoFromUI() {// 从设置界面中获取用户信息
+		
+		CloudAccountUtil caUtil = new CloudAccountUtil();
+		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
+		accoutInfo = caUtil.getCloudAccountInfoFromUI();
+		return accoutInfo;
 		
 	}
 
-	
-	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		// 根据得到的值确定状态框的显示情形,全选、半选或者空选,通知ExpandableListView中状态框的改变
+		groupList = caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);// 从文档中获取信息、
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, groupList);
+		mExpandableListView.setAdapter(chExpandableListAdapter);
+	}
 }

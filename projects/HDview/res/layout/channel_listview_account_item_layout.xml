@@ -7,7 +7,15 @@
     android:background="@color/channel_listview_account_item_bg_collapsed"
     android:weightSum="10.0">
     
-    <LinearLayout android:layout_width="0.0dip" android:layout_height="@dimen/channel_listview_account_item_height" android:layout_weight="0.7" />
+    <LinearLayout android:layout_width="0.0dip" android:layout_height="@dimen/channel_listview_account_item_height" android:layout_weight="0.7" >
+
+        <ProgressBar
+            android:id="@+id/progressBar_net_load"
+            android:layout_width="wrap_content"
+            android:progress="10"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
     
     <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
         <ImageView android:id="@id/channel_listview_account_item_icon" android:background="@drawable/channel_listview_account" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>

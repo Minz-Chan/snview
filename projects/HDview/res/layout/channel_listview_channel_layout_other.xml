@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/list_view_bg" 
-    android:layout_width="fill_parent" 
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical">
-
-<!--     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent" >
-    </LinearLayout> -->
+    android:orientation="vertical"
+    android:background="@color/list_view_bg" >
 
     <ListView
         android:id="@id/channel_sublistview"
         android:layout_width="fill_parent"
-        android:layout_height="388dp"
-        android:divider="@color/channel_listview_device_divider"
-        android:dividerHeight="1.0dip" />
-    
-      <LinearLayout
+        android:layout_height="0.0dip"
+        android:divider="@color/channel_listview_device_divider" 
+        android:layout_weight="1"/>
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:orientation="horizontal"
         android:gravity="center"
@@ -38,6 +33,5 @@
             android:text="@string/channel_listview_cancel" />
 
     </LinearLayout>
-    
 
 </LinearLayout>

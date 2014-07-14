@@ -1,6 +1,12 @@
 package com.starnet.snview.channelmanager;
 
-public class Channel {
+import java.io.Serializable;
+
+public class Channel implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1216065285217692064L;
 	private String channelName;
 	private int channelNo;
 	private boolean isSelected;

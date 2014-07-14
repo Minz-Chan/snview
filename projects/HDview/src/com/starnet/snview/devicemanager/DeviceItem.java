@@ -1,16 +1,21 @@
 package com.starnet.snview.devicemanager;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.starnet.snview.channelmanager.Channel;
 
-public class DeviceItem {
+public class DeviceItem implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 28304239979711868L;
 	private String deviceName;     // 记录名
 	private String svrIp;          // 服务器IP
 	private String svrPort;        // 服务器端口
 	private String loginUser;      // 登录用户名
 	private String loginPass;      // 登录密码
-	private String defaultChannel; // 默认通道
+	private int defaultChannel; // 默认通道
 	private String channelSum;     // 通道总数	
 	private int deviceType;
 	private boolean isSecurityProtectionOpen = false;
@@ -72,10 +77,10 @@ public class DeviceItem {
 	public void setLoginPass(String loginPass) {
 		this.loginPass = loginPass;
 	}
-	public String getDefaultChannel() {
+	public int getDefaultChannel() {
 		return defaultChannel;
 	}
-	public void setDefaultChannel(String defaultChannel) {
+	public void setDefaultChannel(int defaultChannel) {
 		this.defaultChannel = defaultChannel;
 	}
 	public String getChannelSum() {

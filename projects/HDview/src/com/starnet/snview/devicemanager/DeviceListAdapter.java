@@ -31,7 +31,11 @@ public class DeviceListAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return mDeviceList.size();
+		int size = 0;
+		if (mDeviceList!=null) {
+			size = mDeviceList.size();
+		}
+		return size;
 	}
 
 	@Override
@@ -47,8 +51,7 @@ public class DeviceListAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.mLayoutInflater.inflate(
-					R.layout.device_listview_item_layout, null);
+			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout, null);
 		}
 		
 		DeviceItem item  = mDeviceList.get(position);

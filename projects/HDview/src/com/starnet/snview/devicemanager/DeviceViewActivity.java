@@ -2,7 +2,11 @@ package com.starnet.snview.devicemanager;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.starnet.snview.R;
@@ -12,6 +16,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private static final String TAG = "DeviceViewActivity";
 	
 	private ListView mDeviceList;
+	private Button navigation_bar_add_btn;//zk
 	
 
 	@Override
@@ -31,6 +36,7 @@ public class DeviceViewActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 		
 		mDeviceList = (ListView) findViewById(R.id.device_listview);
+		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);//zk
 		
 		ArrayList<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		
@@ -49,7 +55,16 @@ public class DeviceViewActivity extends BaseActivity {
 		deviceList.add(d1);
 		deviceList.add(d2);
 		deviceList.add(d3);
-		
+		navigation_bar_add_btn.setOnClickListener(new OnClickListener() {//zk
+			
+			@Override
+			public void onClick(View v) {
+				
+				Intent intent = new Intent();
+				intent.setClass(DeviceViewActivity.this, DevicesAddActivity.class);
+				startActivity(intent);
+			}
+		});
 		mDeviceList.setAdapter(new DeviceListAdapter(this, deviceList));
 	}
 
