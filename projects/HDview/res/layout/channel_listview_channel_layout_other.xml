@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:background="@color/list_view_bg" >
+
+    <ListView
+        android:id="@id/channel_sublistview"
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:divider="@color/channel_listview_device_divider" 
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/channel_listview_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/channel_listview_ok" />
+
+        <Button
+            android:id="@+id/channel_listview_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="0dip"
+            android:text="@string/channel_listview_cancel" />
+
+    </LinearLayout>
+
+</LinearLayout>

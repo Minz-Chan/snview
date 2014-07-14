@@ -11,6 +11,7 @@ public class CloudAccount {
 	private String password;  // 密码
 	private boolean isEnabled;// 是否启用
 	private List<DeviceItem> deviceList; // 设备列表
+	private boolean isExpanded;
 	
 	public String getDomain() {
 		return domain;
@@ -47,6 +48,12 @@ public class CloudAccount {
 	}
 	public void setDeviceList(List<DeviceItem> deviceList) {
 		this.deviceList = deviceList;
+	}
+	public boolean isExpanded() {
+		return isExpanded;
+	}
+	public void setExpanded(boolean isExpanded) {
+		this.isExpanded = isExpanded;
 	}
 	
 	
