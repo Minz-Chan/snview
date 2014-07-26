@@ -64,7 +64,7 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.childPos = childPos;
 		this.state_button = state_button;
 		this.bs = bs;
-		//csxml = new CloudAccountXML();
+		csxml = new CloudAccountXML();
 	}
 
 	public ButtonOnclickListener(Context context,int parentPos,int childPos) {
@@ -201,5 +201,5 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.clickCloudAccount = clickCloudAccount;
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;
-	}
+		}
 }

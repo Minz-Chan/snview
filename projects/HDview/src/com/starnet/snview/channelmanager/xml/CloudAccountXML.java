@@ -469,8 +469,6 @@ public class CloudAccountXML {
 			saveResult = "您已经收藏，不需要再次收藏。";
 			return saveResult;
 		}
-		
-		
 	}
 
 	private boolean judgeSubElementsContainsDeviceItem(List<Element> subElements, DeviceItem deviceItem) {

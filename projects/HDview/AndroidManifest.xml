@@ -35,7 +35,9 @@
         <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Dialog"/>
         
+
         <activity android:name="com.starnet.snview.devicemanager.DevicesAddActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>
+
     </application>
 
     
