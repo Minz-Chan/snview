@@ -51,12 +51,15 @@ public class DeviceListAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout, null);
+			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout_zk, null);
 		}
 		
 		DeviceItem item  = mDeviceList.get(position);
 		
 		TextView deviceItemName = (TextView) convertView.findViewById(R.id.device_item_name);
+		TextView deviceIp  = (TextView) convertView.findViewById(R.id.device_listview_item_ip);
+		
+		deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+",通道数:"+item.getChannelSum());
 		
 		deviceItemName.setText(item.getDeviceName());
 		

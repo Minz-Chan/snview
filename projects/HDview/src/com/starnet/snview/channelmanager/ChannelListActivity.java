@@ -3,6 +3,7 @@ package com.starnet.snview.channelmanager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import com.starnet.snview.syssetting.CloudAccount;
 public class ChannelListActivity extends BaseActivity {
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	private ExpandableListView mExpandableListView;
 	private CloudAccountXML caXML;
@@ -53,6 +55,7 @@ public class ChannelListActivity extends BaseActivity {
 	private ChannelExpandableListviewAdapter chExpandableListAdapter;
 
 	private NetCloudAccountThread netThread;
+	CloudAccount cloudAccount3;
 	
 	List<PreviewDeviceItem> previewChannelList;//当前预览通道
 
@@ -69,16 +72,14 @@ public class ChannelListActivity extends BaseActivity {
 				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
 				cloudAccount.setRotate(true);
 				cloudAccounts.set(pos, cloudAccount);
-				chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
-				mExpandableListView.setAdapter(chExpandableListAdapter);
 			} else {
 				int pos = Integer.valueOf(position);
 				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
 				cloudAccount.setRotate(false);
 				cloudAccounts.set(pos, cloudAccount);
-				chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
-				mExpandableListView.setAdapter(chExpandableListAdapter);
 			}
+			chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+			mExpandableListView.setAdapter(chExpandableListAdapter);
 		}
 	};
 
@@ -103,10 +104,10 @@ public class ChannelListActivity extends BaseActivity {
 		//当用户选择了0以后，即用户从此便从上次保存的文档中获取用户信息；根据用户的选择而改变		
 
 		caXML = new CloudAccountXML();
-		cloudAccounts = getCloudAccountInfoFromUI();
+		cloudAccounts = getCloudAccountInfoFromUI();//获取收藏设备，以及用户信息
 		int netSize = cloudAccounts.size();
 
-		for (int i = 0; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
+		for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
 			String conn_name = "conn1";
 			CloudAccount cAccount = cloudAccounts.get(i);
 			CloudService cloudService = new CloudServiceImpl(conn_name);
@@ -238,49 +239,24 @@ public class ChannelListActivity extends BaseActivity {
 		return groupList;
 	}
 
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		//根据得到的值确定状态框的显示情形,全选、半选或者空选,通知ExpandableListView中状态框的改变
-		groupList = caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);//从文档中获取信息、
-		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, groupList);
-		mExpandableListView.setAdapter(chExpandableListAdapter);		
+		if((resultCode == 31)){
+			Bundle bundle = data.getExtras();
+			cloudAccount3 = (CloudAccount) bundle.getSerializable("wca");
+			//更新ExpandableListView指定的按钮
+			int pos = bundle.getInt("parentPos");
+			cloudAccounts.set(pos, cloudAccount3);
+			chExpandableListAdapter.notifyDataSetChanged();
+			caXML = new CloudAccountXML();
+			Thread thread = new Thread(){
+				public void run(){
+					caXML.writeNewCloudAccountToXML(cloudAccount3, CLOUD_ACCOUNT_PATH);//考虑多线程写文件的冲突问题，比如，用户选择了之后，立马取消了，需要重新写入，测试。。。。
+				}
+			};
+			thread.start();
+		}	
 	}
 }
-
-/**
- * 
- * @author zhaohongxu
- * @Date Jul 10, 2014
- * @Description 从xml文档中获取信息
- * @return
- */
-/*private List<CloudAccount> readFromCloudAccountXmlfile() {
-	List<CloudAccount> cloudAccounts = new ArrayList<CloudAccount>();
-	List<String>cloudAccountInfo = getCloudAccountInfoFromUI();//从设置界面中获取用户信息		
-	//请求星云账号中设备平台的信息
-	String conn_name = cloudAccountInfo.get(5);
-	CloudService cloudService = new CloudServiceImpl(conn_name);		
-	cAccountUtil = new CloudAccountUtil(cloudService, cloudAccountInfo);
-	try {
-		CloudAccount cloudAccount=cAccountUtil.getCloudAccountFromURL();
-		cloudAccounts.add(cloudAccount);
-	} catch (IOException e) {
-		e.printStackTrace();
-	} catch (DocumentException e) {
-		e.printStackTrace();
-	}
-	return cloudAccounts;
-}*/
-
-/**
- * 
- * @author ZhaoKang
- * @Date Jul 7, 2014
- * @Description TODO :用于从远程服务器端请求星云平台账号名信息
- * @return 星云平台账号名列表
- */
-/*private List<CloudAccount> getCloudAccountList() {		
-	return readFromCloudAccountXmlfile();
-}*/

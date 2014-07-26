@@ -14,11 +14,45 @@
 	   	    <ImageButton android:background="@drawable/device_list_item_arrow_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/device_list_item_spacing_5dp" android:layout_marginRight="@dimen/device_list_item_spacing_5dp" android:contentDescription="@string/nothing"/>
   		</LinearLayout>
   		
-       <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1.0">
-           <LinearLayout android:layout_alignParentRight="true" android:layout_centerVertical="true" android:gravity="center_vertical" android:layout_gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="wrap_content" >
-               <TextView android:text="@string/device_listview_item_securityprotection" android:textSize="@dimen/common_textsize_small_12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"  />
-               <ImageButton android:id="@id/device_listview_item_securityprotection" android:background="@drawable/device_listview_item_securityprotection_on" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/device_list_item_spacing_10dp" android:layout_marginRight="@dimen/device_list_item_spacing_10dp" android:contentDescription="@string/nothing"/>
+       <RelativeLayout
+           android:layout_width="fill_parent"
+           android:layout_height="fill_parent"
+           android:layout_weight="1.0" >
+
+           <LinearLayout
+               android:id="@+id/linearLayout1"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_alignParentRight="true"
+               android:layout_centerVertical="true"
+               android:layout_gravity="center_vertical"
+               android:gravity="center_vertical" >
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="@string/device_listview_item_securityprotection"
+                   android:textSize="@dimen/common_textsize_small_12sp" />
+
+               <ImageButton
+                   android:id="@id/device_listview_item_securityprotection"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
+                   android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
+                   android:background="@drawable/device_listview_item_securityprotection_on"
+                   android:contentDescription="@string/nothing" />
            </LinearLayout>
+
+           <TextView
+               android:id="@+id/device_listview_item_IP"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_alignParentLeft="true"
+               android:layout_centerVertical="true"
+               android:layout_toLeftOf="@+id/linearLayout1"
+               android:text="TextView" />
+
        </RelativeLayout>
            
 </LinearLayout>

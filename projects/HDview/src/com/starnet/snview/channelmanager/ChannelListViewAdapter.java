@@ -48,7 +48,6 @@ public class ChannelListViewAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
-
 	//绘制界面的时候，若是选择过某个通道的话，保存起来，用于绘制界面的显示；
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {

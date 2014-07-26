@@ -133,7 +133,7 @@ public class CloudAccountXML {
 	 * @param fileName
 	 */
 	@SuppressWarnings("unchecked")
-	public void writeNewCloudAccountToXML(CloudAccount cloudAccount,String fileName) {
+	public synchronized void writeNewCloudAccountToXML(CloudAccount cloudAccount,String fileName) {
 
 		File file = new File(fileName);
 		try {
@@ -427,8 +427,8 @@ public class CloudAccountXML {
 		Element root = document.getRootElement();
 		
 		List<Element> subElements = root.elements();
-		boolean result = judgeSubElementsContainsDeviceItem(subElements,deviceItem);
-		if (!result) {//检查是否包含相同的元素，如果包含的话，则不添加；如果不包含，则添加；
+		judgeSubElementsContainsDeviceItem(subElements,deviceItem);
+		//检查是否包含相同的元素，如果包含的话，则先删除，后添加；如果不包含，则添加；
 			Element subElement = root.addElement("deviceItem");
 			subElement.addAttribute("deviceName", deviceItem.getDeviceName());
 			subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
@@ -460,21 +460,12 @@ public class CloudAccountXML {
 			fileWriter.close();
 			saveResult = "保存成功！";
 			return saveResult;
-		}else {
-			OutputFormat opf = new OutputFormat("", true, "UTF-8");
-			FileWriter fileWriter = new FileWriter(filePath);
-			XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
-			xmlWriter.write(document);
-			fileWriter.close();
-			saveResult = "您已经收藏，不需要再次收藏。";
-			return saveResult;
-		}
 	}
 
 	private boolean judgeSubElementsContainsDeviceItem(List<Element> subElements, DeviceItem deviceItem) {
 		boolean result = false;
 		int subElementSize = subElements.size();
-		for (int i = 0; i < subElementSize; i++) {//检查是否包含相同的元素，如果包含的话，则不添加；
+		for (int i = 0; i < subElementSize; i++) {//检查是否包含相同的元素，如果包含的话，则删除；
 			Element subElement = subElements.get(i);
 			String deviceName = subElement.attributeValue("deviceName");
 			String channelNumber = subElement.attributeValue("channelNumber");
@@ -489,10 +480,79 @@ public class CloudAccountXML {
 					&&loginUser.equals(deviceItem.getLoginUser())	&&loginPass.equals(deviceItem.getLoginPass())
 					&&serverIP.equals(deviceItem.getSvrIp())&&serverPort.equals(deviceItem.getSvrPort())
 					&&defaultChannel.equals(String.valueOf(deviceItem.getDefaultChannel()))) {
+				subElement.detach();//删除节点
 				result = true;
 				break;
 			}
 		}
 		return result;
+	}
+	//从指定的xml文档中获取收藏设备列表...
+	public List<DeviceItem> getCollectDeviceListFromXML(String fileName) throws Exception{
+		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
+		SAXReader saxReader = new SAXReader();
+		File file = new File(fileName);
+		if(!file.exists()){
+			return deviceList;
+		}
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List <Element> subElements = root.elements();//子目录
+		int size = subElements.size();
+		for(int i =0 ;i<size ;i++){
+			DeviceItem deviceItem = new DeviceItem();//构造收藏设备
+			Element subElement = subElements.get(i);
+			
+			String deviceName = subElement.attributeValue("deviceName");
+			String channelSum = subElement.attributeValue("channelNumber");
+			String loginUser = subElement.attributeValue("loginUser");
+			String loginPass = subElement.attributeValue("loginPass");
+			String defaultChannel = subElement.attributeValue("defaultChannel");
+			
+			String svrIp = subElement.attributeValue("serverIP");
+			String svrPort = subElement.attributeValue("serverPort");
+			String deviceType = subElement.attributeValue("deviceType");
+			String isSecurityProtectionOpen = subElement.attributeValue("isSecurityProtectionOpen");
+			String isExpanded = subElement.attributeValue("isExpanded");
+			
+			if((isSecurityProtectionOpen == null)||(isSecurityProtectionOpen.equals(null))){
+				isSecurityProtectionOpen = "false";
+			}
+			if((isExpanded == null)||(isExpanded.equals(null))){
+				isExpanded = "false";
+			}
+			deviceItem.setChannelSum(channelSum);
+			deviceItem.setDeviceName(deviceName);
+			deviceItem.setLoginUser(loginUser);
+			deviceItem.setLoginPass(loginPass);
+			deviceItem.setDefaultChannel(Integer.valueOf(defaultChannel));
+			deviceItem.setSvrIp(svrIp);
+			deviceItem.setSvrPort(svrPort);
+			deviceItem.setSecurityProtectionOpen(Boolean.valueOf(isSecurityProtectionOpen));
+			deviceItem.setExpanded(Boolean.valueOf(isExpanded));
+			deviceItem.setDeviceType(Integer.valueOf(deviceType));
+			List<Channel>channelList = new ArrayList<Channel>();
+			
+			List<Element> channelElements = subElement.elements();
+			if(channelElements != null){
+				int channelSize = channelElements.size();
+				for(int j = 0 ;j < channelSize;j++){
+					Channel channel = new Channel();
+					
+					Element channelElement = channelElements.get(j);
+					String channelName = channelElement.attributeValue("channelName");
+					String channelNo = channelElement.attributeValue("channelNo");
+					String isSelected = channelElement.attributeValue("isSelected");
+					channel.setChannelName(channelName);
+					channel.setChannelNo(Integer.valueOf(channelNo));
+					channel.setSelected(Boolean.valueOf(isSelected));
+					
+					channelList.add(channel);
+				}
+			}
+			deviceItem.setChannelList(channelList);
+			deviceList.add(deviceItem);
+		}
+		return deviceList;	
 	}
 }

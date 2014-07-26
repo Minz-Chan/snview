@@ -1,6 +1,7 @@
 package com.starnet.snview.devicemanager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,15 +11,17 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceViewActivity extends BaseActivity {
 	private static final String TAG = "DeviceViewActivity";
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	private CloudAccountXML caxml;
 	
 	private ListView mDeviceList;
 	private Button navigation_bar_add_btn;//zk
 	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,9 +38,18 @@ public class DeviceViewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setToolbarVisiable(false);
 		
+		caxml = new CloudAccountXML();
 		mDeviceList = (ListView) findViewById(R.id.device_listview);
 		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);//zk
 		
+		try {
+			List<DeviceItem> addDeviceList = caxml.getCollectDeviceListFromXML(filePath);
+			mDeviceList.setAdapter(new DeviceListAdapter(this, addDeviceList));
+			int size = addDeviceList.size();
+			System.out.println(size);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		ArrayList<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		
 		DeviceItem d1 = new DeviceItem();
@@ -61,11 +73,11 @@ public class DeviceViewActivity extends BaseActivity {
 			public void onClick(View v) {
 				
 				Intent intent = new Intent();
-				intent.setClass(DeviceViewActivity.this, DevicesAddActivity.class);
+				intent.setClass(DeviceViewActivity.this, DeviceCollectActivity.class);
 				startActivity(intent);
 			}
 		});
-		mDeviceList.setAdapter(new DeviceListAdapter(this, deviceList));
+//		mDeviceList.setAdapter(new DeviceListAdapter(this, deviceList));//陈明珍原始数据
 	}
 
 }

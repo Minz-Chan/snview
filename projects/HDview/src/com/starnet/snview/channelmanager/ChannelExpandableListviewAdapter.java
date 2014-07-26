@@ -26,10 +26,14 @@ import android.widget.TextView;
  * @Description 显示扩展列表下的内容，组元素，子元素等；在每次进行界面的动态加载时，都是从文档中进行信息读取；
  */
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
-
+	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
 	private Context context;
 	private LayoutInflater layoutInflater;
+	private CloudAccount clickCloudAccount;
+	
+	private Button button_channel_list;
+	private Button state_button;
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList) {
 		super();
@@ -76,8 +80,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	}
 	@Override
 	public long getGroupId(int groupPosition) {
-		int n = groupPosition;
-		System.out.println("groupPosition:" + n);
 		return groupPosition;
 	}
 
@@ -135,22 +137,21 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		title.setText(deviceName);
 
 		// 发现“状态显示按钮”并为之添加单击事件,若选择了该按钮为全满时，需要将该行的"通道列表"置为全选；
-		final Button state_button = (Button) convertView.findViewById(R.id.button_state);
+		state_button = (Button) convertView.findViewById(R.id.button_state);
 		//根据每一组、每一行的通道列表选择情况，来加载对应的state_button的全/半选状态
-		final String state = getChannelSelectNum(groupPosition, childPosition);
+		String state = getChannelSelectNum(groupPosition, childPosition);
 		changeStateButton(state_button,state,groupPosition,childPosition);
-		
 		ButtonState bs = new ButtonState();
 		bs.setState(state);
 		ButtonOnclickListener bolc = new ButtonOnclickListener(groupPosition,childPosition,state_button,bs,groupAccountList);		
-		state_button.setOnClickListener(bolc);	
+		state_button.setOnClickListener(bolc);
 		
 		// 发现“通道列表按钮”并为之添加单击事件
-		Button button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
-		CloudAccount clickCloudAccount = groupAccountList.get(groupPosition);
-		ButtonOnclickListener bol = new ButtonOnclickListener(context,clickCloudAccount,groupPosition,childPosition);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
-
+		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
+		clickCloudAccount = groupAccountList.get(groupPosition);
+		ButtonOnclickListener bol = new ButtonOnclickListener(context,clickCloudAccount,groupPosition,childPosition,state_button);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
 		button_channel_list.setOnClickListener(bol);
+		
 		return convertView;
 	}
 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/device_list_item_bg"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/device_list_item_bottompadding"
+    android:paddingLeft="@dimen/device_list_item_leftpadding"
+    android:paddingRight="@dimen/device_list_item_rightpadding"
+    android:paddingTop="@dimen/device_list_item_toppadding"
+    android:weightSum="1.0" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/device_list_item_imgcontainer_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="1.0" >
+
+        <LinearLayout
+            android:layout_width="@dimen/device_list_item_imgcontainer_width"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/list_equipment"
+                android:contentDescription="@string/nothing" />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@id/device_item_name"
+            android:layout_width="0.0dip"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
+            android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
+            android:layout_weight="1.0"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/common_textsize_small_16sp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/device_list_item_spacing_5dp"
+            android:layout_marginRight="@dimen/device_list_item_spacing_5dp"
+            android:background="@drawable/device_list_item_arrow_btn_selector"
+            android:contentDescription="@string/nothing" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="1.0" >
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/device_listview_item_securityprotection"
+                android:textSize="@dimen/common_textsize_small_12sp" />
+
+            <ImageButton
+                android:id="@id/device_listview_item_securityprotection"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
+                android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
+                android:background="@drawable/device_listview_item_securityprotection_on"
+                android:contentDescription="@string/nothing" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/device_listview_item_ip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/linearLayout1"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/linearLayout1"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="Ip" />
+
+    </RelativeLayout>
+
+</LinearLayout>

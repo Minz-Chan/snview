@@ -50,6 +50,7 @@ public class NetCloudAccountThread extends Thread {
 			if (requestStatus == null) {//网络访问成功
 				List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取到设备
 				CloudAccount netCloudAccount = getCloudAccountFromDVRDevice(dvrDevices);//将获取的内容封装成CloudAccount
+				//写操作的同步
 				caXml.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountSuccess(data,netCloudAccount);//封装数据:将网络访问获取得到的数据打包
@@ -63,8 +64,8 @@ public class NetCloudAccountThread extends Thread {
 				data.putSerializable("netCloudAccount", cAccount);
 				msg.setData(data);
 				netHandler.sendMessage(msg);
-			}
-		} catch (Exception e) {
+               }
+           } catch (Exception e) {
 			e.printStackTrace();
 		} 	
 	}
@@ -105,7 +106,7 @@ public class NetCloudAccountThread extends Thread {
 			
 			String deviceName = dvrDevice.getDeviceName();
 			String svrIp = dvrDevice.getLoginIP();// 服务器IP
-			String svrPort = dvrDevice.getLoginPort();// 服务器端口
+			String svrPort = dvrDevice.getMobliePhonePort();// 服务器端口
 			String loginUser = dvrDevice.getLoginUsername();// 登录用户名
 			String loginPass = dvrDevice.getLoginPassword();// 登录密码
 			String defaultChannel = dvrDevice.getStarChannel();			

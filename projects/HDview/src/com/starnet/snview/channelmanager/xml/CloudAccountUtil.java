@@ -2,6 +2,7 @@ package com.starnet.snview.channelmanager.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.annotation.SuppressLint;
 import com.starnet.snview.syssetting.CloudAccount;
 import java.io.IOException;
 import org.dom4j.Document;
@@ -19,10 +20,11 @@ import com.starnet.snview.devicemanager.DeviceItem;
  * @Modify date Jul 12, 2014
  * @Modify description 封装有关获取星云平台用户信息
  */
+@SuppressLint("SdCardPath")
 public class CloudAccountUtil {
 	
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//收藏设备的存放地址；获取得打的数据放在ExpandableListView的第一个位置
 	private CloudService cloudService ;
-    private List<String>cloudAccountInfo ;
 	
 	//请求星云账号中设备平台的信息
 	private String domain;//域名设置
@@ -41,18 +43,7 @@ public class CloudAccountUtil {
 		this.deviceName = deviceName;
 	}
 	
-	public CloudAccountUtil(CloudService cloudService,List<String> cloudAccountInfo) {
-		super();
-		this.cloudService = cloudService;
-		this.cloudAccountInfo = cloudAccountInfo;
-		this.domain = cloudAccountInfo.get(0);
-		this.port = cloudAccountInfo.get(1);
-		this.username = cloudAccountInfo.get(2);
-		this.password = cloudAccountInfo.get(3);
-		this.deviceName = cloudAccountInfo.get(4);
-	}
 	public CloudAccountUtil() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public CloudAccount getCloudAccountFromURL() throws IOException, DocumentException{
@@ -130,48 +121,50 @@ public class CloudAccountUtil {
 	 */
 	public List<CloudAccount> getCloudAccountInfoFromUI() {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
+			
+		try{
+			CloudAccount collectDevice = new CloudAccount();
+			CloudAccountXML caXML = new CloudAccountXML();
+			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);
+			collectDevice.setDeviceList(deviceItemList);
+			collectDevice.setEnabled(false);
+			collectDevice.setExpanded(false);
+			collectDevice.setRotate(true);
+			collectDevice.setUsername("收藏设备");
+			collectDevice.setDomain("com");
+			collectDevice.setPort("80");
+			collectDevice.setPassword("00000");
+			accoutInfo.add(collectDevice);
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			String domain1 = "xy.star-netsecurity.com";
+			String port1 = "80";
+			String username1 = "jtpt";
+			String password1 = "xwrj123";
+			CloudAccount cloudAccount1 = new CloudAccount();
+			cloudAccount1.setEnabled(false);
+			cloudAccount1.setExpanded(false);
+			cloudAccount1.setDomain(domain1);
+			cloudAccount1.setPassword(password1);
+			cloudAccount1.setPort(port1);
+			cloudAccount1.setUsername(username1);
 		
-		String domain1 = "xy.star-netsecurity.com";
-		String port1 = "80";
-		String username1 = "jtpt";
-		String password1 = "xwrj123";
-		CloudAccount cloudAccount1 = new CloudAccount();
-		cloudAccount1.setEnabled(false);
-		cloudAccount1.setExpanded(false);
-		cloudAccount1.setDomain(domain1);
-		cloudAccount1.setPassword(password1);
-		cloudAccount1.setPort(port1);
-		cloudAccount1.setUsername(username1);
-
-//		String domain2 = "xy.star-netsecurity.com";
-//		String port2 = "80";
-//		String username2 = "why";
-//		String password2 = "c123";
-//		CloudAccount cloudAccount2 = new CloudAccount();
-//		cloudAccount2.setEnabled(false);
-//		cloudAccount2.setExpanded(false);
-//		cloudAccount2.setDomain(domain2);
-//		cloudAccount2.setPassword(password2);
-//		cloudAccount2.setPort(port2);
-//		cloudAccount2.setUsername(username2);
-		
-		String domain3 = "xy.star-netsecurity.com";
-		String port3 = "80";
-		String username3 = "why";
-		String password3 = "1";
-		CloudAccount cloudAccount3 = new CloudAccount();
-		cloudAccount3.setEnabled(false);
-		cloudAccount3.setExpanded(false);
-		cloudAccount3.setDomain(domain3);
-		cloudAccount3.setPassword(password3);
-		cloudAccount3.setPort(port3);
-		cloudAccount3.setUsername(username3);
-		
-//		accoutInfo.add(cloudAccount4);
-		accoutInfo.add(cloudAccount1);
-//		accoutInfo.add(cloudAccount2);
-		accoutInfo.add(cloudAccount3);
-		
+			String domain3 = "xy.star-netsecurity.com";
+			String port3 = "80";
+			String username3 = "why";
+			String password3 = "1";
+			CloudAccount cloudAccount3 = new CloudAccount();
+			cloudAccount3.setEnabled(false);
+			cloudAccount3.setExpanded(false);
+			cloudAccount3.setDomain(domain3);
+			cloudAccount3.setPassword(password3);
+			cloudAccount3.setPort(port3);
+			cloudAccount3.setUsername(username3);
+			
+			accoutInfo.add(cloudAccount1);
+			accoutInfo.add(cloudAccount3);
+		}
 		return accoutInfo;
 	}
 }

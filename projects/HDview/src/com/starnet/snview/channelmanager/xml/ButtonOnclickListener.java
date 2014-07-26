@@ -1,6 +1,5 @@
 package com.starnet.snview.channelmanager.xml;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 /**
  * 
@@ -83,72 +81,23 @@ public class ButtonOnclickListener implements OnClickListener {
 			bundle.putString("childPosition", String.valueOf(childPos));
 			
 			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
-			intent.putExtras(bundle);//String pos = "parentPos:"+parentPos+";childPos:"+childPos;//Toast toast = Toast.makeText(context, pos, Toast.LENGTH_SHORT);//toast.show();
-			((ChannelListActivity) context).startActivityForResult(intent, 31);
-			break;
-		case R.id.startScan://收集通道列表
-			List<CloudAccount> cloudAccounts = csxml.readCloudAccountFromXML(CLOUDACCOUNTFILEPATH);//从文件中读取通道列表的选择情况
-			if (cloudAccounts == null) {
-				//打印一句话，用户尚未进行选择
-				String printSentence = "用户数据尚未加载成功,请等待...";
-				Toast toast = Toast.makeText(context, printSentence, Toast.LENGTH_SHORT);
-				toast.show();
-			}else {
-				
-				previewChannelList = new ArrayList<PreviewDeviceItem>();
-				int size = cloudAccounts.size();
-				for (int i = 0; i < size; i++) {
-					CloudAccount cloudAccount = cloudAccounts.get(i);
-					List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
-					if (deviceItems!=null) {
-						int deviceSize = deviceItems.size();
-						for (int j = 0; j < deviceSize; j++) {
-							DeviceItem deviceItem = deviceItems.get(j);
-							List<Channel> channelList = deviceItem.getChannelList();
-							if (channelList != null) {
-								int channelSize = channelList.size();
-								for (int k = 0; k < channelSize; k++) {
-									Channel channel = channelList.get(k);
-									if (channel.isSelected()) {//判断通道列表是否选择
-										PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
-										previewDeviceItem.setChannel(channel.getChannelNo());
-										previewDeviceItem.setLoginPass(deviceItem.getLoginPass());
-										previewDeviceItem.setLoginUser(deviceItem.getLoginUser());
-										previewDeviceItem.setSvrIp(deviceItem.getSvrIp());
-										previewDeviceItem.setSvrPort(deviceItem.getSvrPort());
-										previewChannelList.add(previewDeviceItem);
-									}
-								}
-							}
-						}
-					}else {
-						String printSentence = "用户设备数据尚未加载成功,请等待...";
-						Toast toast = Toast.makeText(context, printSentence, Toast.LENGTH_SHORT);
-						toast.show();
-					}
-				}
-			}
+			intent.putExtras(bundle);
 			
+//			ChannelListViewActivity clva = new ChannelListViewActivity(state_button);
+			((ChannelListActivity) context).startActivityForResult(intent, 31);
 			break;
 		case R.id.button_state:
 			if ((bs.getState() == "half")||(bs.getState().equals("half"))) {
 				state_button.setBackgroundResource(R.drawable.zz_half_select);
 				bs.setState("all");					
-				//将通道列表的状态写入到指定的XML状态文件中	
-				//1、修改某一组中某一个选项的通道列表的信息
-				DeviceItem deviceItem = cloudAccountList.get(parentPos).getDeviceList().get(childPos);
+				//将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
+				CloudAccount selectCloudAccount = cloudAccountList.get(parentPos);
+				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 				List<Channel> channels = deviceItem.getChannelList();
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(false);
-				}
-				int size = cloudAccountList.size();
-				for (int i = 0; i < size; i++) {
-					CloudAccount cloudAccount = cloudAccountList.get(i);
-					csxml.writeNewCloudAccountToXML(cloudAccount, CLOUDACCOUNTFILEPATH);
-				}
-				
-//				((ChannelListActivity) context).startActivityForResult(intent, 32);
+				}			
 			}else if ((bs.getState() == "all")||(bs.getState().equals("all"))) {
 				state_button.setBackgroundResource(R.drawable.zz_all_select);
 				bs.setState("empty");					
@@ -159,13 +108,7 @@ public class ButtonOnclickListener implements OnClickListener {
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
-				}
-				int size = cloudAccountList.size();
-				for (int i = 0; i < size; i++) {
-					CloudAccount cloudAccount = cloudAccountList.get(i);
-					csxml.writeNewCloudAccountToXML(cloudAccount, CLOUDACCOUNTFILEPATH);
-				}
-				
+				}				
 			}else {					
 				state_button.setBackgroundResource(R.drawable.zz_empty_select);
 				bs.setState("all");					
@@ -177,13 +120,16 @@ public class ButtonOnclickListener implements OnClickListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(false);
 				}
-				int size = cloudAccountList.size();
-				for (int i = 0; i < size; i++) {
-					CloudAccount cloudAccount = cloudAccountList.get(i);
-					csxml.writeNewCloudAccountToXML(cloudAccount, CLOUDACCOUNTFILEPATH);
-				}
 			}
-		break;
+			Thread thread = new Thread(){//采用多线程操作写操作文件，需要注意，写同步问题。。。。。？？？？
+				@Override
+				public void run() {
+					super.run();
+			        csxml.writeNewCloudAccountToXML(cloudAccountList.get(parentPos), CLOUDACCOUNTFILEPATH);
+				}
+			};
+			thread.start();
+		    break;
 		default:
 			break;
 		}
@@ -195,11 +141,12 @@ public class ButtonOnclickListener implements OnClickListener {
 		csxml = new CloudAccountXML();
 	}
 
-	public ButtonOnclickListener(Context context2,CloudAccount clickCloudAccount, int groupPosition, int childPosition) {
+	public ButtonOnclickListener(Context context2,CloudAccount clickCloudAccount, int groupPosition, int childPosition,Button staButton) {
 		this.context = context2;
 		csxml = new CloudAccountXML();
 		this.clickCloudAccount = clickCloudAccount;
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;
+		this.state_button = staButton;
 		}
 }
