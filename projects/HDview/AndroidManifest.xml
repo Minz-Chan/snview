@@ -34,7 +34,10 @@
         <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Dialog"/>
-        
+        <activity android:name="com.starnet.snview.syssetting.SystemSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.syssetting.AboutActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.syssetting.CloudAccountViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.syssetting.CloudAccountSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
 
         <activity android:name="com.starnet.snview.devicemanager.DevicesAddActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceCollectActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>

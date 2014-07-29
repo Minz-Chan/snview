@@ -1,0 +1,138 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    tools:context="${packageName}.${activityClass}" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/system_setting_cloudaccount_server" />
+
+        <EditText
+            android:id="@+id/cloudaccount_setting_server_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:inputType="text"
+            android:text="xy.star-netsecurity.com"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/system_setting_cloudaccount_port" />
+
+        <EditText
+            android:id="@+id/cloudaccount_setting_port_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:inputType="text"
+            android:text = "80"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/system_setting_cloudaccount_username" />
+
+        <EditText
+            android:id="@+id/cloudaccount_setting_username_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:inputType="text"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="@string/system_setting_cloudaccount_password" />
+
+        <EditText
+            android:id="@+id/cloudaccount_setting_password_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+			android:inputType="textPassword"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:orientation="horizontal" >
+		<TextView 
+		    android:layout_width="0dp"
+        	android:layout_height="wrap_content"
+        	android:layout_weight="2"
+        	android:text="@string/system_setting_cloudaccount_isenable_choice"
+        	android:orientation="horizontal"/>
+        <RadioGroup
+            android:id="@+id/cloudaccount_setting_isenable_radioGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:orientation="horizontal"
+            android:contentDescription="@string/system_setting_cloudaccount_isenable_choice">
+            <RadioButton
+                android:id="@+id/cloudaccount_setting_isenable_yes_radioBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:textColor="@color/system_setting_listview_selected"
+                android:text="@string/system_setting_cloudaccount_isenable_yes"
+                />
+            <RadioButton
+                android:id="@+id/cloudaccount_setting_isenable_no_radioBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:checked="true"
+                android:textColor="@color/system_setting_listview_selected"
+                android:text="@string/system_setting_cloudaccount_isenable_no" />
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>

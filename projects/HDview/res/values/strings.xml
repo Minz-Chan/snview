@@ -29,6 +29,10 @@
     <string name="navigation_title_picture_management">图像管理</string>
     <string name="navigation_title_sys_setting">系统设置</string>
     <string name="navigation_title_channel_list">通道列表</string>
+    <string name="navigation_title_system_setting">系统配置</string>
+    <string name="navigation_title_system_setting_network_setting">网络配置</string>
+    <string name="navigation_title_system_setting_cloudaccount_setting">星云平台</string>
+    <string name="navigation_title_system_setting_about">关于</string>
     
     <string name="nothing" />
     <string name="toolbar_quality_menu_fluency">流畅</string>
@@ -40,6 +44,21 @@
     <string name="toolbar_sub_menu_aperture">光圈</string>
     
     <string name="device_listview_item_securityprotection">安全防护</string>
+    <string name="cloudaccount_listview_item_enable">启用</string>
+    <string name="system_setting_newworksetting">网络配置</string>
+    <string name="system_setting_update">软件更新</string>
+    <string name="system_setting_help">帮助</string>
+    <string name="system_setting_about">关于</string>
+    <string name="system_setting_logout">退出</string>
+    <string name="system_setting_about_build">Version 6.0.0 (Build 20140101)</string>
+    <string name="system_setting_cloudaccount_server">域名服务器</string>
+    <string name="system_setting_cloudaccount_port">端口</string>
+    <string name="system_setting_cloudaccount_username">用户名</string>
+    <string name="system_setting_cloudaccount_password">密码</string>
+    <string name="system_setting_cloudaccount_isenable">是否启用</string>
+    <string name="system_setting_cloudaccount_isenable_choice">启用</string>
+    <string name="system_setting_cloudaccount_isenable_yes">是</string>
+    <string name="system_setting_cloudaccount_isenable_no">否</string>
     
     <string name="channel_listview_ok">确定</string>
     <string name="channel_listview_cancel">取消</string>

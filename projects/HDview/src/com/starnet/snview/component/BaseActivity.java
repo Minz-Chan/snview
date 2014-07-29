@@ -2,14 +2,6 @@ package com.starnet.snview.component;
 
 import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
-
-import com.starnet.snview.R;
-import com.starnet.snview.devicemanager.DeviceViewActivity;
-import com.starnet.snview.images.ImagesManagerActivity;
-import com.starnet.snview.playback.PlaybackActivity;
-import com.starnet.snview.realplay.RealplayActivity;
-import com.starnet.snview.util.ActivityUtility;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +19,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.starnet.snview.R;
+import com.starnet.snview.devicemanager.DeviceViewActivity;
+import com.starnet.snview.images.ImagesManagerActivity;
+import com.starnet.snview.playback.PlaybackActivity;
+import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.syssetting.SystemSettingActivity;
+import com.starnet.snview.util.ActivityUtility;
 
 public class BaseActivity extends Activity {
 	private static final String TAG = "BaseActivity";
@@ -245,6 +245,7 @@ public class BaseActivity extends Activity {
 	        	gotoPictureManagement();
 	        	break;
 	        case R.id.menu_drawer_sys_setting:
+	        	gotoSystemSetting();
 	        	return;
 	        	//break;
 	        }
@@ -281,7 +282,11 @@ public class BaseActivity extends Activity {
         startActivity(intent);
 	}
 	
-	
+	protected void gotoSystemSetting() {
+		Intent intent = new Intent();
+        intent.setClass(BaseActivity.this, SystemSettingActivity.class); 
+        startActivity(intent);
+	}
 	
 	@Override
     protected void onRestoreInstanceState(Bundle inState) {
