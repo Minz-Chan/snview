@@ -153,15 +153,15 @@ public class ChannelListActivity extends BaseActivity {
 					List<CloudAccount> cloudAccounts = csxml.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);//从文件中读取通道列表的选择情况
 					previewChannelList = new ArrayList<PreviewDeviceItem>();
 					previewChannelList = getPreviewChannelList(cloudAccounts);
-					//补充通道操作。。。。。。。
-					int size = previewChannelList.size();
-					String tt = "一共选择了"+size+"个通道.";	
-					Toast toast1 = Toast.makeText(ChannelListActivity.this, tt, Toast.LENGTH_SHORT);
-					toast1.show();
-					for (int i = 0; i < size; i++) {
-						String text = previewChannelList.get(i).getLoginUser()+"选择了"+"个通道.";	
-						Toast toast = Toast.makeText(ChannelListActivity.this, text, Toast.LENGTH_SHORT);
-						toast.show();
+					
+					if (previewChannelList.size() > 0) {
+						PreviewDeviceItem p = previewChannelList.get(0);
+						
+						Intent intent = ChannelListActivity.this.getIntent();
+						intent.putExtra("DEVICE_ITEM", p);
+						
+						ChannelListActivity.this.setResult(8, intent);
+						ChannelListActivity.this.finish();
 					}
 				}
 			}

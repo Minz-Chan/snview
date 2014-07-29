@@ -28,6 +28,7 @@ import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.StreamDataFormat;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 import com.starnet.snview.protocol.message.VideoFrameInfo;
+import com.starnet.snview.protocol.message.VideoFrameInfoEx;
 import com.starnet.snview.protocol.message.VideoIFrameData;
 import com.starnet.snview.protocol.message.VideoPFrameData;
 import com.starnet.snview.protocol.message.handler.ChannelResponseMessageHandler;
@@ -36,6 +37,7 @@ import com.starnet.snview.protocol.message.handler.IoBufferMessageHandler;
 import com.starnet.snview.protocol.message.handler.StreamDataFormatMessageHandler;
 import com.starnet.snview.protocol.message.handler.VersionInfoRequestMessageHandler;
 import com.starnet.snview.protocol.message.handler.VideoFrameDataMessageHandler;
+import com.starnet.snview.protocol.message.handler.VideoFrameInfoExMessageHandler;
 import com.starnet.snview.protocol.message.handler.VideoFrameInfoMessageHandler;
 import com.starnet.snview.util.RandomUtils;
 
@@ -82,6 +84,7 @@ public class Connection extends DemuxingIoHandler {
         this.addReceivedMessageHandler(ChannelResponse.class, new ChannelResponseMessageHandler());
         this.addReceivedMessageHandler(StreamDataFormat.class, new StreamDataFormatMessageHandler());
         this.addReceivedMessageHandler(VideoFrameInfo.class, new VideoFrameInfoMessageHandler());
+        this.addReceivedMessageHandler(VideoFrameInfoEx.class, new VideoFrameInfoExMessageHandler());
 //        this.addReceivedMessageHandler(VideoIFrameData.class, new VideoIFrameDataMessageHandler());
 //        this.addReceivedMessageHandler(VideoPFrameData.class, new VideoPFrameDataMessageHandler());
         this.addReceivedMessageHandler(IoBuffer.class, new IoBufferMessageHandler());

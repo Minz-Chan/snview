@@ -6,6 +6,7 @@ import com.starnet.snview.protocol.codec.decoder.ChannelResponseMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.DVSInfoRequestMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.StreamDataFormatMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.VersionInfoRequestMessageDecoder;
+import com.starnet.snview.protocol.codec.decoder.VideoFrameInfoExMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.VideoFrameInfoMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.VideoIFrameDataMessageDeocder;
 import com.starnet.snview.protocol.codec.decoder.VideoPFrameDataMessageDecoder;
@@ -30,6 +31,7 @@ public class TlvMessageFactory extends DemuxingProtocolCodecFactory {
 		addMessageDecoder(new ChannelResponseMessageDecoder());
 		addMessageDecoder(new StreamDataFormatMessageDecoder());
 		addMessageDecoder(new VideoFrameInfoMessageDecoder());
+		addMessageDecoder(new VideoFrameInfoExMessageDecoder());
 		addMessageDecoder(new VideoIFrameDataMessageDeocder());
 		addMessageDecoder(new VideoPFrameDataMessageDecoder());
 		

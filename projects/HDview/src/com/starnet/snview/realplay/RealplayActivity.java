@@ -1,10 +1,12 @@
 package com.starnet.snview.realplay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.component.ConnectionManager;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
@@ -61,7 +63,13 @@ public class RealplayActivity extends BaseActivity {
     }
     
     private void test() {
-  
+    	mLiveView1 = (LiveView) findViewById(R.id.liveview1);
+    	
+    	
+    	List<LiveView> l = new ArrayList<LiveView>();
+    	l.add(mLiveView1);
+    	
+    	ConnectionManager.getInstance().bindLiveViewList(l); 
     }
     
     private void initView() {
@@ -72,7 +80,7 @@ public class RealplayActivity extends BaseActivity {
 			public void onClick(View v) {
 				Intent intent = new Intent();
 				intent.setClass(RealplayActivity.this, ChannelListActivity.class);
-				RealplayActivity.this.startActivity(intent);
+				RealplayActivity.this.startActivityForResult(intent, 0);
 			}		
     	});
     	
@@ -455,4 +463,25 @@ public class RealplayActivity extends BaseActivity {
 			bPTZPressed = true;
     	}
     }
+    
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	
+		switch(resultCode) {
+		case 8:
+			PreviewDeviceItem p = (PreviewDeviceItem) data.getExtras().get("DEVICE_ITEM");
+			
+			Connection conn = new Connection(p.getSvrIp(), Integer.valueOf(p.getSvrPort()));
+			conn.setUsername(p.getLoginUser());
+			conn.setPassword(p.getLoginPass());
+			conn.setChannel(p.getChannel());
+			
+			ConnectionManager.getInstance().startPreview(conn);
+			break;
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+    
 }

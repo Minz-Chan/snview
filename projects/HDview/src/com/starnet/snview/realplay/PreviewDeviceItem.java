@@ -1,6 +1,10 @@
 package com.starnet.snview.realplay;
 
-public class PreviewDeviceItem {
+import java.io.Serializable;
+
+public class PreviewDeviceItem implements Serializable {
+	private static final long serialVersionUID = -5459363336503217539L;
+	
 	private String svrIp;              // 服务器IP
 	private String svrPort;            // 服务器端口
 	private String loginUserName;      // 登录用户名

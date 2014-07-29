@@ -11,7 +11,20 @@
     
    <RelativeLayout android:id="@id/realplay_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/realplay_controlbar" android:layout_alignParentTop="true">
 		
-       <ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
+<!--        <ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/> -->
+       
+<!--        <LinearLayout android:orientation="vertical" android:id="@+id/view_video_linear"  android:layout_width="fill_parent" android:layout_height="300dp" android:layout_marginBottom="2.0dip" > -->
+<!-- 	        <LinearLayout android:orientation="horizontal" android:id="@+id/view_video_linear1"  android:layout_width="fill_parent" android:layout_height="150dp" android:layout_marginTop="2.0dip" android:layout_marginBottom="1.0dip" android:layout_marginLeft="2.0dip" android:layout_marginRight="2.0dip"  android:weightSum="2.0"> -->
+<!-- 	            <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview1" android:layout_width="0dp" android:layout_height="fill_parent" android:layout_weight="1" /> -->
+<!-- 	            <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview2" android:layout_width="0dp" android:layout_height="fill_parent" android:layout_weight="1" android:layout_marginLeft="2.0dip"/> -->
+<!-- 	        </LinearLayout> -->
+<!-- 	        <LinearLayout android:orientation="horizontal" android:id="@+id/view_video_linear2"  android:layout_width="fill_parent" android:layout_height="150dp" android:layout_marginTop="1.0dip" android:layout_marginBottom="2.0dip" android:layout_marginLeft="2.0dip" android:layout_marginRight="2.0dip" android:weightSum="2.0"> -->
+<!-- 	            <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview3" android:layout_width="0dp" android:layout_height="fill_parent" android:layout_weight="1"/> -->
+<!-- 	            <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview4" android:layout_width="0dp" android:layout_height="fill_parent" android:layout_weight="1" android:layout_marginLeft="2.0dip"/> -->
+<!-- 	        </LinearLayout> -->
+<!--     	</LinearLayout> -->
+    	
+       <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview1" android:layout_width="fill_parent" android:layout_height="300dip" android:layout_margin="2.0dip" />
        
         <LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">
 		    <!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->

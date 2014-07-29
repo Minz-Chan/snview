@@ -9,8 +9,9 @@ public final class Constants {
 		static final int CHANNEL_ANSWER = 65;
 		static final int STREAM_FORMAT_INFO = 200;
 		static final int VIDEO_FRAME_INFO = 99;
+		static final int VIDEO_FRAME_INFO_EX = 101;
 		static final int VIDEO_IFRAME_DATA = 100;
-		static final int VIDEO_PFRAME_DATA = 102;
+		static final int VIDEO_PFRAME_DATA = 102;		
 	}
 	
 	public interface MSG_LEN {
@@ -21,5 +22,6 @@ public final class Constants {
 		static final int CHANNEL_ANSWER = 4;
 		static final int STREAM_FORMAT_INFO = 40;
 		static final int VIDEO_FRAME_INFO = 12;
+		static final int VIDEO_FRAME_INFO_EX = 16;
 	}
 }

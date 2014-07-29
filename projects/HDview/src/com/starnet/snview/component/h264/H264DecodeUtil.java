@@ -22,7 +22,7 @@ package com.starnet.snview.component.h264;
  */
 public class H264DecodeUtil {
 	H264Decoder decoder = new H264Decoder();       
-	byte [] NalBuf = new byte[65536]; // 64k
+	byte [] NalBuf = new byte[65535]; // 64k
 	int NalBufUsed = 0;
 	boolean bFirst = true;
 	boolean bFindPPS = true;
@@ -51,6 +51,8 @@ public class H264DecodeUtil {
 	 */
 	public int decodePacket(byte[] packet, int len, byte[] byteBitmap)   
     {   
+		NalBuf = makesureBufferEnough(NalBuf, NalBufUsed + len);
+		
 		int result = 0;
     	int iTemp = 0;
     	int nalLen;
@@ -195,5 +197,18 @@ public class H264DecodeUtil {
 		this.bFirst = bFirst;
 	}
     
-    
+	private byte[] makesureBufferEnough(byte[] buffer, int realSize) {
+		byte[] result = buffer;
+		int size = buffer.length;
+		
+		if (size < realSize) {
+			byte[] new_buffer = new byte[(int) (realSize * 1.2)];
+			
+			System.arraycopy(buffer, 0, new_buffer, 0, size);
+			buffer = null;
+			result = new_buffer;
+		}
+		
+		return result;
+	}
 }
