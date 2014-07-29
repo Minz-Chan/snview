@@ -29,5 +29,11 @@
     <color name="channel_listview_text_selected">#FF3BC7FF</color>
     <color name="channel_listview_text_unselected">#FFFFFFFF</color>
     
+    <color name="system_setting_listview_selected">#1E90FF</color>
+    <color name="system_setting_listview_background">#FFFFFF</color>
+    <color name="system_setting_listview_line">#000000</color>
+    <color name="system_setting_button_selected">#FF0000</color>
+    <color name="system_setting_about_line">#8C8C8C</color>
+    <color name="system_setting_about_build">#000000</color>
     
 </resources>

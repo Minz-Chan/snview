@@ -51,6 +51,19 @@
     <dimen name="device_list_item_spacing_5dp">5.0dip</dimen>
     <dimen name="device_list_item_spacing_10dp">10.0dip</dimen>
     
+    <dimen name="cloudaccout_list_item_leftpadding">10.0dip</dimen>
+    <dimen name="cloudaccout_list_item_toppadding">7.0dip</dimen>
+    <dimen name="cloudaccout_list_item_rightpadding">10.0dip</dimen>
+    <dimen name="cloudaccout_list_item_bottompadding">7.0dip</dimen>
+    <dimen name="cloudaccout_list_item_imgcontainer_height">60.0dip</dimen>
+    <dimen name="cloudaccout_list_item_imgcontainer_width">78.0dip</dimen>
+    <dimen name="cloudaccout_list_item_spacing_5dp">5.0dip</dimen>
+    <dimen name="cloudaccout_list_item_spacing_10dp">10.0dip</dimen>
+    
+    <dimen name="cloudaccout_setting_marginleft">20.0dip</dimen>
+    <dimen name="cloudaccout_setting_margintop">30.0dip</dimen>
+    <dimen name="cloudaccout_setting_marginright">20.0dip</dimen>
+    
     <dimen name="channel_listview_account_item_height">33.0dip</dimen>
     <dimen name="channel_listview_device_item_height">30.0dip</dimen>
     

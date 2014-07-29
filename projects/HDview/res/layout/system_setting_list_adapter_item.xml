@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	 android:layout_width="fill_parent"
+	 android:layout_height="wrap_content"
+	 android:gravity="center_horizontal"
+	 >
+	<TextView android:id="@+id/tvColorSet"
+		android:layout_height="wrap_content" 
+		android:layout_marginLeft="15dp"
+		android:textColor="#0A0A0A"
+		android:textSize="16sp"
+		android:layout_width="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_alignParentLeft="true"
+		android:layout_marginTop="20dp"
+		android:layout_marginBottom="20dp">
+	</TextView>
+	<ImageView android:id="@+id/ivConfirm"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:layout_marginRight="15dp"
+		android:layout_centerVertical="true"
+		android:layout_alignParentRight="true"
+		android:layout_marginTop="20dp"
+		android:layout_marginBottom="20dp">
+	</ImageView>
+</RelativeLayout>
