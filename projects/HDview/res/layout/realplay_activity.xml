@@ -24,7 +24,7 @@
 <!-- 	        </LinearLayout> -->
 <!--     	</LinearLayout> -->
     	
-       <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview1" android:layout_width="fill_parent" android:layout_height="300dip" android:layout_margin="2.0dip" />
+       <com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview1" android:layout_width="fill_parent" android:layout_height="300dip" android:layout_margin="2.0dip" android:layout_centerInParent="true" />
        
         <LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">
 		    <!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->

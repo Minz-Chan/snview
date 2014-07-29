@@ -113,7 +113,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		Canvas canvas = mHolder.lockCanvas();
 		
 		// 刷屏
-		if (mVideoBit != null) {
+		if (mVideoBit != null && canvas != null) {
         	/* 此处rewind用意
          	 * 4.2中对copyPixelsFromBuffer( )执行的缓冲区进行了调整，每次拷贝结束后，将下次拷贝
         	 * 的起始位置置为前一次拷贝结束时的位置。这样，如果对同一个ByteBuffer执行多次连续拷贝，
@@ -133,11 +133,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
             		, 0, 0, null); 
         	
+        	mHolder.unlockCanvasAndPost(canvas); 
+        	
         }
-		
-		
-
-		mHolder.unlockCanvasAndPost(canvas); 
 	}
 
 	
