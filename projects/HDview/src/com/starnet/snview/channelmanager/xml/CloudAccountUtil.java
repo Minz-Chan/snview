@@ -110,7 +110,7 @@ public class CloudAccountUtil {
 		cloudAccount.setDeviceList(deviceList);
 		return cloudAccount;
 	}
-	
+
 	
 	/**
 	 * 
@@ -132,8 +132,8 @@ public class CloudAccountUtil {
 			collectDevice.setRotate(true);
 			collectDevice.setUsername("收藏设备");
 			collectDevice.setDomain("com");
-			collectDevice.setPort("80");
-			collectDevice.setPassword("00000");
+			collectDevice.setPort("808");
+			collectDevice.setPassword("0208");
 			accoutInfo.add(collectDevice);
 		}catch(Exception e){
 			e.printStackTrace();

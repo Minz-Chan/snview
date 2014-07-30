@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#666666"
     android:orientation="vertical" >
 
     <EditText
         android:id="@+id/device_choose_search"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="请输入设备名称"
-        android:ems="10" >
+        android:ems="10"
+        android:hint="请输入设备名称" >
 
         <requestFocus />
     </EditText>
@@ -17,7 +18,18 @@
     <ListView
         android:id="@+id/device_choose_listView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="326dp"
+        android:layout_weight="0.90"
+        android:background="#666666"
+        android:divider="@color/channel_listview_device_divider"
+        android:dividerHeight="1.0dip" >
     </ListView>
+
+    <Button
+        android:id="@+id/device_choose_add_btn"
+        android:layout_width="fill_parent"
+        android:layout_height="26dp"
+        android:layout_weight="0.53"
+        android:text="添加" />
 
 </LinearLayout>

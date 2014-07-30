@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -29,6 +31,15 @@ public class DeviceViewActivity extends BaseActivity {
 		setContentView(R.layout.device_manager_activity);
 		
 		initView();
+		
+		mDeviceList.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				//进入该设备的信息界面
+				
+			}
+		});
 	}
 	
 	
@@ -50,23 +61,6 @@ public class DeviceViewActivity extends BaseActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		ArrayList<DeviceItem> deviceList = new ArrayList<DeviceItem>();
-		
-		DeviceItem d1 = new DeviceItem();
-		d1.setDeviceName("公司门口");
-		d1.setSecurityProtectionOpen(true);
-		
-		DeviceItem d2 = new DeviceItem();
-		d2.setDeviceName("小区门口");
-		d2.setSecurityProtectionOpen(false);
-		
-		DeviceItem d3 = new DeviceItem();
-		d3.setDeviceName("上海");
-		d3.setSecurityProtectionOpen(true);
-		
-		deviceList.add(d1);
-		deviceList.add(d2);
-		deviceList.add(d3);
 		navigation_bar_add_btn.setOnClickListener(new OnClickListener() {//zk
 			
 			@Override

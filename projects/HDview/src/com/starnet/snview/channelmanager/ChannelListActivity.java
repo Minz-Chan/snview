@@ -138,19 +138,10 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		});
 		
-		startScanButton.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表
+		startScanButton.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表，从cloudAccounts中就可以选择。。。
 			
 			@Override
 			public void onClick(View v) {
-				//考虑文档为空时；文档不存在时；文档中包含数据时
-				CloudAccountXML csxml = new CloudAccountXML();
-				File file = new File(CLOUD_ACCOUNT_PATH);
-				if (!file.exists()) {
-					String text = "您暂时还没有做通道选择";
-					Toast toast = Toast.makeText(ChannelListActivity.this, text, Toast.LENGTH_SHORT);
-					toast.show();
-				}else {
-					List<CloudAccount> cloudAccounts = csxml.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);//从文件中读取通道列表的选择情况
 					previewChannelList = new ArrayList<PreviewDeviceItem>();
 					previewChannelList = getPreviewChannelList(cloudAccounts);
 					
@@ -163,7 +154,7 @@ public class ChannelListActivity extends BaseActivity {
 						ChannelListActivity.this.setResult(8, intent);
 						ChannelListActivity.this.finish();
 					}
-				}
+				
 			}
 		});
 	}
@@ -251,12 +242,33 @@ public class ChannelListActivity extends BaseActivity {
 			cloudAccounts.set(pos, cloudAccount3);
 			chExpandableListAdapter.notifyDataSetChanged();
 			caXML = new CloudAccountXML();
-			Thread thread = new Thread(){
-				public void run(){
-					caXML.writeNewCloudAccountToXML(cloudAccount3, CLOUD_ACCOUNT_PATH);//考虑多线程写文件的冲突问题，比如，用户选择了之后，立马取消了，需要重新写入，测试。。。。
-				}
-			};
-			thread.start();
+			
+			//判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
+			if(cloudAccount3.getUsername().equals("收藏设备")&&(cloudAccount3.getDomain().equals("com"))
+					&&(cloudAccount3.getPort().equals("808"))&&(cloudAccount3.getPassword().equals("0208"))){
+				Thread thread = new Thread(){
+					@Override
+					public void run() {
+						super.run();
+						List<DeviceItem> deviceList = cloudAccount3.getDeviceList();
+						int size = deviceList.size();
+						for(int i =0 ;i<size;i++){
+							try {
+								caXML.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+				thread.start();
+			}
+//			Thread thread = new Thread(){
+//				public void run(){
+//					caXML.writeNewCloudAccountToXML(cloudAccount3, CLOUD_ACCOUNT_PATH);//考虑多线程写文件的冲突问题，比如，用户选择了之后，立马取消了，需要重新写入，测试。。。。
+//				}
+//			};
+//			thread.start();
 		}	
 	}
 }
