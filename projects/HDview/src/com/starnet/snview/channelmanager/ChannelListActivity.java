@@ -47,17 +47,15 @@ public class ChannelListActivity extends BaseActivity {
 	private ExpandableListView mExpandableListView;
 	private CloudAccountXML caXML;
 
-	ImageButton startScanButton;// 开始预览按钮；
-
-	private List<CloudAccount> groupList = new ArrayList<CloudAccount>();// 用于通道列表选择的显示,(选择前和选择后)
-	List<CloudAccount> cloudAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
+	private ImageButton startScanButton;// 开始预览按钮；// 用于通道列表选择的显示,(选择前和选择后)
+	private List<CloudAccount> cloudAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
 	private Context curContext;
 	private ChannelExpandableListviewAdapter chExpandableListAdapter;
 
 	private NetCloudAccountThread netThread;
-	CloudAccount cloudAccount3;
+	private CloudAccount cloudAccount3;
 	
-	List<PreviewDeviceItem> previewChannelList;//当前预览通道
+	private List<PreviewDeviceItem> previewChannelList;//当前预览通道
 
 	private Handler netHandler = new Handler() {// 处理线程的handler
 
@@ -78,8 +76,9 @@ public class ChannelListActivity extends BaseActivity {
 				cloudAccount.setRotate(false);
 				cloudAccounts.set(pos, cloudAccount);
 			}
-			chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
-			mExpandableListView.setAdapter(chExpandableListAdapter);
+			chExpandableListAdapter.notifyDataSetChanged();
+//			chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+//			mExpandableListView.setAdapter(chExpandableListAdapter);
 		}
 	};
 
@@ -194,8 +193,10 @@ public class ChannelListActivity extends BaseActivity {
 					}
 				}else {
 					String printSentence = "用户设备数据尚未加载成功,请等待...";
-					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
-					toast.show();
+					System.out.println(printSentence);
+					
+//					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
+//					toast.show();
 				}
 			}
 		}
@@ -263,12 +264,6 @@ public class ChannelListActivity extends BaseActivity {
 				};
 				thread.start();
 			}
-//			Thread thread = new Thread(){
-//				public void run(){
-//					caXML.writeNewCloudAccountToXML(cloudAccount3, CLOUD_ACCOUNT_PATH);//考虑多线程写文件的冲突问题，比如，用户选择了之后，立马取消了，需要重新写入，测试。。。。
-//				}
-//			};
-//			thread.start();
 		}	
 	}
 }

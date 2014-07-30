@@ -32,6 +32,7 @@ public class ButtonOnclickListener implements OnClickListener {
 	
 	@SuppressLint("SdCardPath")
 	private final String CLOUDACCOUNTFILEPATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
 	private Context context;//上下文环境
 	private int parentPos;//父元素的位置
@@ -45,6 +46,7 @@ public class ButtonOnclickListener implements OnClickListener {
 	private CloudAccount clickCloudAccount;//星云账号信息
 	
 	List<PreviewDeviceItem> previewChannelList;
+	CloudAccount selectCloudAccount;
 	
 	public ButtonOnclickListener(int parentPos, int childPos,Button state_button, ButtonState bs,List<CloudAccount> cloudAccountList) {
 		super();
@@ -83,15 +85,16 @@ public class ButtonOnclickListener implements OnClickListener {
 			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 			intent.putExtras(bundle);
 			
-//			ChannelListViewActivity clva = new ChannelListViewActivity(state_button);
 			((ChannelListActivity) context).startActivityForResult(intent, 31);
 			break;
 		case R.id.button_state:
+			selectCloudAccount = cloudAccountList.get(parentPos);
+			csxml = new CloudAccountXML();
+			
 			if ((bs.getState() == "half")||(bs.getState().equals("half"))) {
 				state_button.setBackgroundResource(R.drawable.zz_half_select);
 				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
-				CloudAccount selectCloudAccount = cloudAccountList.get(parentPos);
 				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 				List<Channel> channels = deviceItem.getChannelList();
 				int channelSize = channels.size();
@@ -103,7 +106,7 @@ public class ButtonOnclickListener implements OnClickListener {
 				bs.setState("empty");					
 				//将通道列表的状态写入到指定的XML状态文件中
 				//1、修改某一组中某一个选项的通道列表的信息
-				DeviceItem deviceItem = cloudAccountList.get(parentPos).getDeviceList().get(childPos);
+				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 				List<Channel> channels = deviceItem.getChannelList();
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -114,21 +117,32 @@ public class ButtonOnclickListener implements OnClickListener {
 				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中	
 				//1、修改某一组中某一个选项的通道列表的信息
-				DeviceItem deviceItem = cloudAccountList.get(parentPos).getDeviceList().get(childPos);
+				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 				List<Channel> channels = deviceItem.getChannelList();
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(false);
 				}
 			}
-			Thread thread = new Thread(){//采用多线程操作写操作文件，需要注意，写同步问题。。。。。？？？？
-				@Override
-				public void run() {
-					super.run();
-			        csxml.writeNewCloudAccountToXML(cloudAccountList.get(parentPos), CLOUDACCOUNTFILEPATH);
-				}
-			};
-			thread.start();
+			if(selectCloudAccount.getUsername().equals("收藏设备")&&(selectCloudAccount.getDomain().equals("com"))
+					&&(selectCloudAccount.getPort().equals("808"))&&(selectCloudAccount.getPassword().equals("0208"))){
+				Thread thread = new Thread(){
+					@Override
+					public void run() {
+						super.run();
+						List<DeviceItem> deviceList = selectCloudAccount.getDeviceList();
+						int size = deviceList.size();
+						for(int i =0 ;i<size;i++){
+							try {
+								csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+				thread.start();
+			}
 		    break;
 		default:
 			break;

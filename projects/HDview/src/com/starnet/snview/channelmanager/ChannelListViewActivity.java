@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,10 +29,7 @@ import android.widget.ListView;
  * @Modify date Jul 7, 2014
  * @Modify description TODO 主要完成通道列表操作的类，包含
  */
-@SuppressLint("SdCardPath")
 public class ChannelListViewActivity extends Activity {// 被观察的对象
-
-	private final String CLOUDACCOUNTFILEPATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 
 	private ChannelListViewAdapter adapter = null;// ListView的适配器
 	private ListView myListView = null; // 显示列表listview
@@ -43,21 +38,17 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 	private List<Channel> channelList;// 通道列表
 
 	private Button button_ok;// 确定按钮
-
 	private Button button_cancel;// 取消按钮
 
 	private Intent intent;
 	private CloudAccount writeCloudAccount;
-	int childPos;
-	int parentPos;
+	private int childPos;
+	private int parentPos;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		channelList = new ArrayList<Channel>();
-		//cloudAccountList = new ArrayList<CloudAccount>();
-//		caxml = new CloudAccountXML();
-		//cloudAccountList = caxml.readCloudAccountFromXML(CLOUDACCOUNTFILEPATH);// 从指定的文件中获取星云账号的全部信息
 
 		intent = getIntent();
 		Bundle bundle = intent.getExtras();
@@ -129,10 +120,5 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 				ChannelListViewActivity.this.finish();
 			}
 		});
-	}
-
-	public ChannelListViewActivity() {
-		super();
-	}
-	
+	}	
 }
