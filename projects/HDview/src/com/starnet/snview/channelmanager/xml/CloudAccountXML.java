@@ -260,89 +260,63 @@ public class CloudAccountXML {
 	 * 
 	 * @author zhaohongxu
 	 * @Date Jul 13, 2014
-	 * @Description 添加新的用户信息到指定的文件中
-	 * @param fileName
-	 * @param cloudAccount
-	 * @return
+	 * @Description 添加新的用户信息到指定的文件中,如果包含旧的用户，则覆盖；
+	 * @param fileName 文件路径
+	 * @param cloudAccount 星云账户
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean addNewCloudAccoutNodeToRootXML(String fileName,CloudAccount cloudAccount) {
+	public synchronized boolean addNewCloudAccoutNodeToRootXML(String fileName,CloudAccount cloudAccount) {//
 		boolean result = false;
-		SAXReader saxReader = new SAXReader();
-		File file = new File(fileName);
 		try {
+		    File file = new File(fileName);
+		    SAXReader saxReader = new SAXReader();
+		    if(!file.exists()){//如果文件不存在，则创建文件，并打开文件进行读写操作
+		    	file.createNewFile();
+		    	//创建根
+		    	Document doc = DocumentHelper.createDocument();
+		    	doc.addElement("cloundAccounts");
+		    	OutputFormat opf = new OutputFormat("", true, "UTF-8");
+				XMLWriter writer = new XMLWriter(new FileOutputStream(fileName),opf);
+				writer.write(doc);
+				writer.close();
+		    }
 			Document document = saxReader.read(file);
 			Element rootElement = document.getRootElement();
 			List<Element> subElements = rootElement.elements();
-			boolean contain = judgeContainCloudAccount(subElements,
-					cloudAccount);// 遍历跟元素是否包含了包含cloudAccount
-			if (!contain) {// 如果不包含，则添加；否则，不添加
-				addCloudAccoutToRootXML(fileName, cloudAccount);
+			
+			String caDomain = cloudAccount.getDomain();
+			String caPort = cloudAccount.getPort();
+			String caPassword = cloudAccount.getPassword();
+			String caUsername = cloudAccount.getUsername();
+			
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				Element subElement = subElements.get(i);
+				String domain = subElement.attributeValue("domain");
+				String port = subElement.attributeValue("port");
+				String username = subElement.attributeValue("username");
+				String password = subElement.attributeValue("password");
+				if (domain.equals(caDomain)&& port.equals(caPort)&& username.equals(caUsername)&& password.equals(caPassword)) {
+					subElement.detach();
+					break;
+				}
 			}
-			result = true;
-		} catch (Exception e) {
-			System.out.println("Wrong!");
-			e.printStackTrace();
-			result = false;
-		}
-		return result;
-	}
-
-	private boolean judgeContainCloudAccount(List<Element> subElements,CloudAccount cloudAccount) {
-		boolean result = false;
-		int size = subElements.size();
-		for (int i = 0; i < size; i++) {
-			Element subElement = subElements.get(i);
-			String domain = subElement.attributeValue("domain");
-			String port = subElement.attributeValue("port");
-			String username = subElement.attributeValue("username");
-			String password = subElement.attributeValue("password");
-			if (domain.equals(cloudAccount.getDomain())
-					&& port.equals(cloudAccount.getPort())
-					&& username.equals(cloudAccount.getUsername())
-					&& password.equals(cloudAccount.getPassword())) {
-				result = true;
-				break;
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * @author zhaohongxu
-	 * @Date Jul 12, 2014
-	 * @Description 添加一个星云账户
-	 * @param fileName
-	 *            文件的名称
-	 * @param cloudAccount
-	 *            要添加的用户信息
-	 */
-	private boolean addCloudAccoutToRootXML(String fileName,CloudAccount cloudAccount) {
-		// 需要遍历原来的数据，查看是否有与现在的结点是否相同？(domain/port/username/password),不相同，则增加；否则不增加；
-		boolean result = false;
-		SAXReader saxReader = new SAXReader();
-		File file = new File(fileName);
-		try {
-			Document document = saxReader.read(file);
-			Element rootElement = document.getRootElement();
-			Element subElement = rootElement.addElement("cloudAccount");
-			subElement.addAttribute("domain", cloudAccount.getDomain());
-			subElement.addAttribute("port", cloudAccount.getPort());
-			subElement.addAttribute("username", cloudAccount.getUsername());
-			subElement.addAttribute("password", cloudAccount.getPassword());
-			subElement.addAttribute("isEnabled",String.valueOf(cloudAccount.isEnabled()));
-			subElement.addAttribute("isRotate", String.valueOf(cloudAccount.isRotate()));
-			// 开始输入到文档中
-			OutputFormat format = new OutputFormat("    ", true, "UTF-8");
-			FileWriter fw = new FileWriter(fileName);
-			XMLWriter writer = new XMLWriter(fw, format);
+			//开始写入
+			Element cloudAccountElement = rootElement.addElement("cloudAccount");
+			cloudAccountElement.addAttribute("username", caUsername);
+			cloudAccountElement.addAttribute("password", caPassword);
+			cloudAccountElement.addAttribute("domain", caDomain);
+			cloudAccountElement.addAttribute("port", caPort);
+			boolean isEnabled = cloudAccount.isEnabled();
+			cloudAccountElement.addAttribute("isEnabled", String.valueOf(isEnabled));
+			
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			XMLWriter writer = new XMLWriter(new FileOutputStream(fileName),opf);
 			writer.write(document);
-			fw.close();
-			System.out.println("Generate Over!");
+			writer.close();
 			result = true;
 		} catch (Exception e) {
 			System.out.println("Wrong!");
-			e.printStackTrace();
 			result = false;
 		}
 		return result;
@@ -488,6 +462,7 @@ public class CloudAccountXML {
 		return result;
 	}
 	//从指定的xml文档中获取收藏设备列表...
+	@SuppressWarnings("unchecked")
 	public List<DeviceItem> getCollectDeviceListFromXML(String fileName) throws Exception{
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		SAXReader saxReader = new SAXReader();
@@ -554,5 +529,40 @@ public class CloudAccountXML {
 			deviceList.add(deviceItem);
 		}
 		return deviceList;	
+	}
+	
+	//从指定的文档中获取内容
+	@SuppressWarnings("unchecked")
+	public List<CloudAccount>  getCloudAccountList(String filePath) throws Exception{
+		List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
+		File file = new File(filePath);
+		if(!file.exists()){
+			return cloudAccountList;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		
+		for( Element subElement : subElements){
+			CloudAccount cloudAccount = new CloudAccount();
+			
+			String username = subElement.attributeValue("username");
+			String password = subElement.attributeValue("password");
+			String domain = subElement.attributeValue("domain");
+			String port = subElement.attributeValue("port");
+			String isEnabled = subElement.attributeValue("isEnabled");
+			
+			cloudAccount.setDeviceList(null);
+			cloudAccount.setRotate(false);
+			cloudAccount.setEnabled(Boolean.valueOf(isEnabled));
+			cloudAccount.setDomain(domain);
+			cloudAccount.setPort(port);
+			cloudAccount.setUsername(username);
+			cloudAccount.setPassword(password);
+			
+			cloudAccountList.add(cloudAccount);
+		}
+		return cloudAccountList;
 	}
 }

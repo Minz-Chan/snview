@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.starnet.snview.R;
 
 public class SystemSettingAdapter extends BaseAdapter {
+	
 	private LayoutInflater layoutInflater;
 	private String inflater = Context.LAYOUT_INFLATER_SERVICE;
 	private List<HashMap<String, Object>> mData;

@@ -2,11 +2,16 @@ package com.starnet.snview.channelmanager.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
+
 import com.starnet.snview.syssetting.CloudAccount;
+
 import java.io.IOException;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 
@@ -25,6 +30,7 @@ public class CloudAccountUtil {
 	
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//收藏设备的存放地址；获取得打的数据放在ExpandableListView的第一个位置
 	private CloudService cloudService ;
+	private final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	
 	//请求星云账号中设备平台的信息
 	private String domain;//域名设置
@@ -121,10 +127,9 @@ public class CloudAccountUtil {
 	 */
 	public List<CloudAccount> getCloudAccountInfoFromUI() {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
-			
+		CloudAccountXML caXML = new CloudAccountXML();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
-			CloudAccountXML caXML = new CloudAccountXML();
 			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);
 			collectDevice.setDeviceList(deviceItemList);
 			collectDevice.setEnabled(false);
@@ -135,35 +140,16 @@ public class CloudAccountUtil {
 			collectDevice.setPort("808");
 			collectDevice.setPassword("0208");
 			accoutInfo.add(collectDevice);
+			List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(filePathOfCloudAccount);
+			int size = cloudAccountList.size();
+			for(int i =0 ;i<size;i++){
+				CloudAccount cloudAccount = cloudAccountList.get(i);
+				accoutInfo.add(cloudAccount);					
+			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			String domain1 = "xy.star-netsecurity.com";
-			String port1 = "80";
-			String username1 = "jtpt";
-			String password1 = "xwrj123";
-			CloudAccount cloudAccount1 = new CloudAccount();
-			cloudAccount1.setEnabled(false);
-			cloudAccount1.setExpanded(false);
-			cloudAccount1.setDomain(domain1);
-			cloudAccount1.setPassword(password1);
-			cloudAccount1.setPort(port1);
-			cloudAccount1.setUsername(username1);
-		
-			String domain3 = "xy.star-netsecurity.com";
-			String port3 = "80";
-			String username3 = "why";
-			String password3 = "1";
-			CloudAccount cloudAccount3 = new CloudAccount();
-			cloudAccount3.setEnabled(false);
-			cloudAccount3.setExpanded(false);
-			cloudAccount3.setDomain(domain3);
-			cloudAccount3.setPassword(password3);
-			cloudAccount3.setPort(port3);
-			cloudAccount3.setUsername(username3);
-			
-			accoutInfo.add(cloudAccount1);
-			accoutInfo.add(cloudAccount3);
+			System.out.println("Read Over!");
 		}
 		return accoutInfo;
 	}

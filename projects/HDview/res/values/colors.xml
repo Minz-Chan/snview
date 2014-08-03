@@ -1,6 +1,7 @@
 <resources>
 
     <color name="md__transparent">#00000000</color>
+    <color name="black">#000000</color><!--黑色 --> 
 
     <color name="md__defaultBackground">#FF555555</color>
     

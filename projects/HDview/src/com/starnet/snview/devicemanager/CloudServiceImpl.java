@@ -57,8 +57,8 @@ public class CloudServiceImpl implements CloudService {
 	 * @throws IOException
 	 * @throws DocumentException 
 	 */
-	public Document SendURLPost(String domain,String port,String username,String password) throws IOException, DocumentException {
-		try {
+	public Document SendURLPost(String domain,String port,String username,String password) throws IOException, DocumentException , SocketTimeoutException {
+		
 			String urlStr;
 			URL url;
 			HttpURLConnection httpURLConnection;
@@ -81,11 +81,6 @@ public class CloudServiceImpl implements CloudService {
 			Document doc = sr.read(inputStr);
 			inputStr.close();
 			return doc;
-		} catch (DocumentException e) {
-			throw e;
-		} catch (SocketTimeoutException e) {
-			throw e;
-		}
 	}
 
 

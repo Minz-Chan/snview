@@ -50,9 +50,8 @@ public class SystemSettingActivity extends BaseActivity {
         firstCornerListView = (CornerListView)findViewById(R.id.first_setting_list); 
         firstCornerListView.setAdapter(settingListAdapter);          
         firstCornerListView.setOnItemClickListener(new OnItemClickListener() {
-      	@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int index, long id) {
+    @Override
+	public void onItemClick(AdapterView<?> parent, View view,int index, long id) {
       		switch (index) {
 				case 0:
 					gotoCloudAccount();
@@ -78,9 +77,14 @@ public class SystemSettingActivity extends BaseActivity {
         secondCornerListView.setAdapter(settingListAdapter);          
         secondCornerListView.setOnItemClickListener(new OnItemClickListener() {
         	@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int index, long id) {
+			public void onItemClick(AdapterView<?> parent, View view,int index, long id) {
       			switch (index) {
+      			case 0:
+      				gotoUpdate();
+      				break;
+      			case 1:
+      				gotoHelp();
+      				break;
 				case 2:
 					gotoAbout();
 					break;
@@ -97,6 +101,18 @@ public class SystemSettingActivity extends BaseActivity {
 				Toast.makeText(getApplicationContext(), "ButtonPressed", Toast.LENGTH_LONG).show();
 			}
 		});
+	}
+	
+	protected void gotoUpdate(){//zk。进入 更新界面。。。
+		Intent intent = new Intent();
+		//。。。。
+//        intent.setClass(SystemSettingActivity.this, AboutActivity.class); 
+//        startActivity(intent);
+	}
+	
+	protected void gotoHelp() {//zk。进入 帮助界面。。。
+		Intent intent = new Intent();
+		//。。。。。
 	}
 	
 	protected void gotoCloudAccount() {
