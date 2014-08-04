@@ -333,7 +333,7 @@ public class CloudAccountXML {
 	 * @return 移除成功与否，true表示移除成功；FALSE，表示移除失败；
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean removeCloudAccoutFromXML(String fileName,CloudAccount cloudAccount) {
+	public synchronized boolean removeCloudAccoutFromXML(String fileName,CloudAccount cloudAccount) {
 		// 首先从文档中构造出一个对象，如果该对象的数据和cloudAccount的属性值相同的话，那么则删除该用户
 		boolean result = false;
 		SAXReader saxReader = new SAXReader();
@@ -356,7 +356,7 @@ public class CloudAccountXML {
 					subElement.detach();
 				}
 			}
-			OutputFormat opf = new OutputFormat("    ", true, "UTF-8");
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
 			XMLWriter writer = new XMLWriter(new FileOutputStream(fileName),opf);
 			writer.write(document);
 			writer.close();

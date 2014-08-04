@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
 import com.starnet.snview.R;
@@ -28,6 +31,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private CloudAccountXML caXML;
 	private List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 	private int pos;
+	private String titleName;
+	private CloudAccount deleteCA;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,48 @@ public class CloudAccountViewActivity extends BaseActivity {
 				startActivityForResult(intent,20);
 			}
 		});
+		
+		mNetWorkSettingList.setOnItemLongClickListener(new OnItemLongClickListener(){
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
+				//弹出删除对话框。。。
+				deleteCA = (CloudAccount) parent.getItemAtPosition(position);
+				titleName = deleteCA.getUsername();
+				Builder builder = new Builder(CloudAccountViewActivity.this);
+				builder.setTitle(titleName);
+				builder.setPositiveButton("确认",new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						//列表中删除操作....
+						cloudAccountList.remove(deleteCA);
+						caAdapter.notifyDataSetChanged();
+						//文件中删除操作....
+						Thread thread = new Thread(){
+							@Override
+							public void run() {
+								super.run();
+								caXML = new CloudAccountXML();
+								caXML.removeCloudAccoutFromXML(filePath, deleteCA);
+							}
+						};
+						thread.start();
+					}
+				 });
+				 builder.setNegativeButton("取消",new DialogInterface.OnClickListener(){
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							
+						} 
+					 });
+				builder.show();
+				return false;
+			}
+		});
+		
+		
 	}
 
 	private void initView() {

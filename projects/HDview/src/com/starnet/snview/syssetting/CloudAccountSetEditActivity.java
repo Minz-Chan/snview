@@ -20,6 +20,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
@@ -35,7 +36,12 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 
 	private CloudAccount clickCloudAccount = new CloudAccount();
 	private String printMessage;
-
+	
+	private String server;
+	private String port;
+	private String username;
+	private String psd;
+	
 	private Thread thread;
 	private Handler hanler = new Handler() {
 		@Override
@@ -46,13 +52,26 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 			case 0:
 				serverSentence = "信息编辑正确，保存成功...";
 				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
+				dismissDialog(1);
+				//未改变数据之前进行删除操作...
+				CloudAccountXML caXML = new CloudAccountXML();
+				String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";
+				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);
+				
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
+				clickCloudAccount.setDomain(server);
+				clickCloudAccount.setPort(port);
+				clickCloudAccount.setPassword(psd);
+				clickCloudAccount.setUsername(username);
+				
+				caXML.addNewCloudAccoutNodeToRootXML(fileName, clickCloudAccount);
+				
 				bundle.putSerializable("ca",clickCloudAccount);
 				intent.putExtras(bundle);
 				setResult(20, intent);
-				dismissDialog(1);
-				//写入文档中；
+				
+				//写入文档中；替换掉原来的星云账号....?????????????策略：先删除后替换....
 				break;
 			case 1:
 				serverSentence = printMessage;
@@ -97,25 +116,25 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 					@Override
 					public void onClick(View v) {
 						showDialog(1);
-						final String server = serverEditText.getText().toString();
+						server = serverEditText.getText().toString();
 						if (server.equals("")) {
 							String serverSentence = "域名不能为空，请重设...";
 							Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
-						final String port = portEditText.getText().toString();
+						port = portEditText.getText().toString();
 						if (port.equals("")) {
 							String portSentence = "端口号不能为空，请重设...";
 							Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
-						final String username = usernameEditText.getText().toString();
+						username = usernameEditText.getText().toString();
 						if (username.equals("")) {
 							String usernameSentence = "用户名不能为空，请重设...";
 							Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
-						final String psd = passwordEditText.getText().toString();
+						psd = passwordEditText.getText().toString();
 						if (psd.equals("")) {
 							String psdSentence = "用户名不能为空，请重设...";
 							Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
