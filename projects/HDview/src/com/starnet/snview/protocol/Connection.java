@@ -62,12 +62,22 @@ public class Connection extends DemuxingIoHandler {
     
     private OnLiveViewChangedListener mLiveViewChangedListener;
     
+    public Connection() {
+    	this.channel = 1;
+    	init();
+    }
+    
     public Connection(String host, int port) {
         this.host = host;
         this.port = port;
         this.channel = 1;
         
-        mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
+        init();
+    }
+    
+    
+    private void init() {
+    	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
         connector = new NioSocketConnector();
         //connector.getFilterChain().addLast("owsp-codec", new ProtocolCodecFilter(new OwspMessageFactory()));
@@ -92,7 +102,17 @@ public class Connection extends DemuxingIoHandler {
         this.addReceivedMessageHandler(VideoPFrameData.class, new VideoFrameDataMessageHandler());
     }
     
-    public void setUsername(String username) {
+    
+    
+    public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setUsername(String username) {
 		this.username = username;
 	}
 

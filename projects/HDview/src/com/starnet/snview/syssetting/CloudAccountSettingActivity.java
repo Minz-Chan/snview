@@ -189,6 +189,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 											setResult(3, intent);
 										}
 									} catch (IOException e) {
+										e.printStackTrace();
 										message.what = 2;// 代表“端口号错误”
 										handler.sendMessage(message);
 									}catch (DocumentException e) {

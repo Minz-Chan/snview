@@ -146,7 +146,10 @@ public class ChannelListActivity extends BaseActivity {
 						PreviewDeviceItem p = previewChannelList.get(0);
 						
 						Intent intent = ChannelListActivity.this.getIntent();
-						intent.putExtra("DEVICE_ITEM", p);
+						intent.putExtra("DEVICE_ITEM_LIST", p);
+						//intent.put
+						
+						
 						
 						ChannelListActivity.this.setResult(8, intent);
 						ChannelListActivity.this.finish();
