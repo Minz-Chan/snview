@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/device_list_item_bottompadding"
+    android:paddingLeft="@dimen/device_list_item_leftpadding"
+    android:paddingRight="@dimen/device_list_item_rightpadding"
+    android:paddingTop="@dimen/device_list_item_toppadding"
+    android:weightSum="1.0" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="0.54"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="1.0" >
+
+        <LinearLayout
+            android:layout_width="@dimen/device_list_item_imgcontainer_width"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/list_equipment"
+                android:contentDescription="@string/nothing" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.99"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/device_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="设备名称" />
+
+            <TextView
+                android:id="@+id/device_listview_item_IP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="设备IP" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/device_list_item_arrow_btn" />
+        
+    </LinearLayout>
+
+
+</LinearLayout>

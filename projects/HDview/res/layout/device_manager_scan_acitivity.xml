@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/device_add_recorder"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="记录名"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/device_add_recorder"
+                    android:ems="10"
+                    android:inputType="none"
+                    android:singleLine="true"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/device_add_server"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="服务器"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_server"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/device_add_server"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/device_add_port"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:id="@+id/txt_device_add_port"
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:text="端口"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_port"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/device_add_port"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/txt_device_add_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:text="用户名"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_add_username"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/txt_device_add_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:text="密码"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_add_password"
+                    android:ems="10"
+                    android:inputType="textPassword"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1.0" >
+
+                <LinearLayout
+                    android:id="@+id/txt_device_add_defaultchannel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:text="默认通道"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_defaultChannel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_add_defaultchannel"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/txt_device_add_channelnumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:text="通道数"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_device_add_channelnumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_add_channelnumber"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" 
+        >
+
+        <Button
+            android:id="@+id/device_scan_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="开始预览"
+            android:textSize="18sp" />
+
+    </RelativeLayout>
+
+</LinearLayout>

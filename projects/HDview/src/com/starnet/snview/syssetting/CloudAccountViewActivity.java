@@ -64,9 +64,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 				deleteCA = (CloudAccount) parent.getItemAtPosition(position);
 				titleName = deleteCA.getUsername();
 				Builder builder = new Builder(CloudAccountViewActivity.this);
-				builder.setTitle(titleName);
-				builder.setPositiveButton("确认",new DialogInterface.OnClickListener(){
-
+				builder.setTitle(getString(R.string.system_setting_delete_user)+titleName);
+				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener(){
+					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						//列表中删除操作....
@@ -84,8 +84,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 						thread.start();
 					}
 				 });
-				 builder.setNegativeButton("取消",new DialogInterface.OnClickListener(){
-
+				 builder.setNegativeButton(getString(R.string.channel_listview_cancel),new DialogInterface.OnClickListener(){
+					 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							

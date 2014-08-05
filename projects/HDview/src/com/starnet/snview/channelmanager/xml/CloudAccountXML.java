@@ -565,4 +565,41 @@ public class CloudAccountXML {
 		}
 		return cloudAccountList;
 	}
+	//从收藏设备文档中删除指定的设备...
+	public void removeDeviceItemToCollectEquipmentXML(DeviceItem deviceItem,String filePath) throws DocumentException, IOException{
+		File file = new File(filePath);
+		if(!file.exists()){
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		
+		int size = subElements.size();
+		for(int i = 0 ;i < size ; i++){
+			Element subElement = subElements.get(i);
+			
+			String deviceName = subElement.attributeValue("deviceName");
+			String channelNumber = subElement.attributeValue("channelNumber");
+			String loginUser = subElement.attributeValue("loginUser");
+			String loginPass = subElement.attributeValue("loginPass");
+//			String defaultChannel = subElement.attributeValue("defaultChannel");
+			
+			String serverIP = subElement.attributeValue("serverIP");
+			String serverPort = subElement.attributeValue("serverPort");
+			
+			if(deviceItem.getDeviceName().equals(deviceName)&&(deviceItem.getChannelSum().equals(channelNumber))
+				&&(deviceItem.getLoginUser().equals(loginUser))&&(deviceItem.getLoginPass().equals(loginPass))
+				&&(deviceItem.getSvrIp().equals(serverIP))&&(deviceItem.getSvrPort().equals(serverPort))){
+				subElement.detach();
+			}
+		}
+		
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(filePath);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
 }

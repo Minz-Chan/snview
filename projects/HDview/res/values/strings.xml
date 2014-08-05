@@ -63,4 +63,7 @@
     <string name="channel_listview_ok">确定</string>
     <string name="channel_listview_cancel">取消</string>
     
+    <string name="system_setting_delete_user">删除账户:</string>
+    <string name="system_setting_delete_device">删除设备:</string>
+    
 </resources>

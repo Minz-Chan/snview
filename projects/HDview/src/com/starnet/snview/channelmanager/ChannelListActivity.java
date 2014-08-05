@@ -77,8 +77,6 @@ public class ChannelListActivity extends BaseActivity {
 				cloudAccounts.set(pos, cloudAccount);
 			}
 			chExpandableListAdapter.notifyDataSetChanged();
-//			chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
-//			mExpandableListView.setAdapter(chExpandableListAdapter);
 		}
 	};
 
@@ -194,9 +192,6 @@ public class ChannelListActivity extends BaseActivity {
 				}else {
 					String printSentence = "用户设备数据尚未加载成功,请等待...";
 					System.out.println(printSentence);
-					
-//					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
-//					toast.show();
 				}
 			}
 		}

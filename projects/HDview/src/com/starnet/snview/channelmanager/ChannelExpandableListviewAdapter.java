@@ -1,10 +1,12 @@
 package com.starnet.snview.channelmanager;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
+import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
@@ -34,6 +36,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	private Button button_channel_list;
 	private Button state_button;
+	
+	private List<DeviceItem> deviceList;
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList) {
 		super();
@@ -56,7 +60,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	public int getChildrenCount(int groupPosition) {// 获取每个组对应的孩子的个数
 		int size ;
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
-		List<DeviceItem> deviceList = cloudAccount.getDeviceList();
+		deviceList = cloudAccount.getDeviceList();
 		if (deviceList != null) {
 			size = deviceList.size();
 		}else {
@@ -74,7 +78,10 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
-		List<DeviceItem> deviceList = cloudAccount.getDeviceList();
+		deviceList = cloudAccount.getDeviceList();
+		if( !deviceList.isEmpty()){//排序
+			Collections.sort(deviceList, new PinyinComparator());//排序
+		}
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		return deviceItem;
 	}
@@ -131,7 +138,12 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}		
 		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_device_item_name);
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
-		List<DeviceItem> deviceList = cloudAccount.getDeviceList();
+		deviceList = cloudAccount.getDeviceList();
+		
+		if( !deviceList.isEmpty()){//排序...
+			Collections.sort(deviceList, new PinyinComparator());
+		}
+		
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		String deviceName = deviceItem.getDeviceName();
 		title.setText(deviceName);

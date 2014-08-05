@@ -26,8 +26,8 @@ import com.starnet.snview.syssetting.CloudAccount;
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
+	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";//用于从文档中获取所有的设备
 
 	private TextView titleView;// 标题
 	private Button leftButton;// 左边按钮
