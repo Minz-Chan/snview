@@ -108,61 +108,6 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		});
 		
-//		List<String> spinnerData = new ArrayList<String>(); 
-//		deviceItemList = getData();
-//		int deviceItemListSize = deviceItemList.size();
-//		for (int i = 0; i < deviceItemListSize; i++) {
-//			spinnerData.add(deviceItemList.get(i).getDeviceName());
-//		}
-		
-//		ArrayAdapter<String>adapter = new ArrayAdapter<String>(DeviceCollectActivity.this,android.R.layout.simple_spinner_item, spinnerData);
-//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//		device_add_spinner.setAdapter(adapter);		
-		//根据spinnerData选择的数据，加载该DeviceItem的其他数据，显示到其它控件。
-//		device_add_spinner.setOnItemSelectedListener(new OnItemSelectedListener() {//为spinner添加点击事件
-//			@Override
-//			public void onItemSelected(AdapterView<?> parent, View view,int position, long id) {
-//				String recordName = (String) device_add_spinner.getSelectedItem();
-//				int deviceItemListSize = deviceItemList.size();
-//				for (int i = 0; i < deviceItemListSize; i++) {//加载其它控件的显示，根据用户的选择获取DeviceItem
-//					if (deviceItemList.get(i).getDeviceName().equals(recordName)) {//若是有重复的怎么办？？？
-//						saveDeviceItem = deviceItemList.get(i);
-//						break;
-//					}
-//				}
-//				int defaultChannel = saveDeviceItem.getDefaultChannel();
-//				et_device_add_record.setText(recordName);//保存时，记录名唯一
-//				String svrIp = saveDeviceItem.getSvrIp();
-//				if(!svrIp.equals(null)){
-//					et_device_add_server.setText(svrIp);
-//				}
-//				String svrPort = saveDeviceItem.getSvrPort();
-//				if(!svrPort.equals(null)){
-//					et_device_add_port.setText(svrPort);
-//				}
-//				String loginUser = saveDeviceItem.getLoginUser();
-//				if(!loginUser.equals(null)){
-//					et_device_add_username.setText(loginUser);
-//				}
-//				String loginPass = saveDeviceItem.getLoginPass();
-//				if(!loginPass.equals(null)){
-//					et_device_add_password.setText(loginPass);
-//				}
-//				String faultChannel = String.valueOf(defaultChannel);
-//				if(!faultChannel.equals(null)){
-//					et_device_add_defaultchannel.setText(faultChannel);
-//				}
-//				String channelSum =saveDeviceItem.getChannelSum();
-//				if(!channelSum.equals(null)){
-//					et_device_add_channelnumber.setText(channelSum);
-//				}
-//			}
-//			@Override
-//			public void onNothingSelected(AdapterView<?> parent) {
-//					
-//			}
-//		});
-		
 		device_add_button_state.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -183,6 +128,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText("设备管理");
 		super.hideExtendButton();
+		super.setToolbarVisiable(false);
 		
 		caXML = new CloudAccountXML();		
 		et_device_add_record = (EditText) findViewById(R.id.et_device_add_record);
@@ -192,29 +138,10 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_password = (EditText) findViewById(R.id.et_device_add_password);
 		et_device_add_defaultchannel = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
-//		device_add_spinner = (Spinner) findViewById(R.id.device_add_spinner);
 		device_add_button_state = (Button) findViewById(R.id.device_add_button_state);
 	}
 	
-//	private List<DeviceItem> getData() {//从个人用户处获得。。。从文档中读取
-//		List<DeviceItem> data = new ArrayList<DeviceItem>();
-//		List<CloudAccount>cloudAccountList =  caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
-//		int size = cloudAccountList.size();
-//		for (int i = 0; i < size; i++) {
-//			CloudAccount cloudAccount = cloudAccountList.get(i);
-//			if (cloudAccount!=null) {
-//				List <DeviceItem> deviceItemList = cloudAccount.getDeviceList();
-//				if (deviceItemList!=null) {
-//					int deviceItemSize = deviceItemList.size();
-//					for (int j = 0; j < deviceItemSize; j++) {
-//						DeviceItem deviceItem = deviceItemList.get(j);
-//						data.add(deviceItem);
-//					}
-//				}
-//			}
-//		}
-//		return data;
-//	}
+
 	private String getEditTextString(EditText editText) {
 		String content = "";
 		Editable editable = editText.getText();

@@ -45,13 +45,13 @@ public class DeviceChooseAdapter extends BaseAdapter {
 		DeviceItem deviceItem = deviceList.get(position);
 		
 		TextView device_name = (TextView) convertView.findViewById(R.id.device_choose_text);
-		ImageView selectImag = (ImageView) convertView.findViewById(R.id.device_choose_image);
+//		ImageView selectImag = (ImageView) convertView.findViewById(R.id.device_choose_image);
 		
-		if(deviceItem.isExpanded()){
-			selectImag.setImageResource(R.drawable.channel_listview_selected);
-		}else {
-			selectImag.setImageResource(R.drawable.channel_listview_unselected);
-		}
+//		if(deviceItem.isExpanded()){
+//			selectImag.setImageResource(R.drawable.channel_listview_selected);
+//		}else {
+//			selectImag.setImageResource(R.drawable.channel_listview_unselected);
+//		}
 		
 		String deviceItemName = deviceItem.getDeviceName();
 		device_name.setText(deviceItemName);

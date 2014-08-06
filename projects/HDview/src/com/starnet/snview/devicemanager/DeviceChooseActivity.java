@@ -114,21 +114,21 @@ public class DeviceChooseActivity extends BaseActivity {
 			public void afterTextChanged(Editable s) {}
 		});
 		
-//		mListView.setOnItemClickListener(new OnItemClickListener(){
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-//				DeviceItem deviceItem = deviceItemList.get(position);
+		deviceListView.setOnItemClickListener(new OnItemClickListener(){
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				DeviceItem deviceItem = deviceItemList.get(position);
 //				if(deviceItem.isExpanded()){
 //					deviceItem.setExpanded(false);
 //				}else{
 //					deviceItem.setExpanded(true);
 //				}
-//				dcAdapter.notifyDataSetChanged();
-//				clickDeviceItem = deviceItem;
-//				gotoDeviceInfoActivity();
-//				
-//			}
-//		});;
+				clickDeviceItem = deviceItem;
+				gotoDeviceInfoActivity();
+//				DeviceChooseActivity.this.finish();
+				
+			}
+		});
 	}
 
 	protected List<DeviceItem> getSearchDeviceItemList(String searchContent) {

@@ -41,7 +41,7 @@
         <activity android:name="com.starnet.snview.syssetting.CloudAccountSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
 
         <activity android:name="com.starnet.snview.devicemanager.DevicesAddActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>
-        <activity android:name="com.starnet.snview.devicemanager.DeviceCollectActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>
+        <activity android:name="com.starnet.snview.devicemanager.DeviceCollectActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceChooseActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.syssetting.CloudAccountSetEditActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>

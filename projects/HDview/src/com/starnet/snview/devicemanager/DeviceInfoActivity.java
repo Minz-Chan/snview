@@ -1,22 +1,23 @@
 package com.starnet.snview.devicemanager;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 
+@SuppressLint("SdCardPath")
 public class DeviceInfoActivity extends BaseActivity {
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
 	private DeviceItem saveDeviceItem;
 	
-	private EditText choose_et;
+//	private EditText choose_et;
 	private EditText et_device_add_record;
 	private EditText et_device_add_server;
 	private EditText et_device_add_port;
@@ -89,6 +90,15 @@ public class DeviceInfoActivity extends BaseActivity {
 					String status = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
 					Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
 					toast.show();
+					DeviceInfoActivity.this.finish();
+					
+					Intent intent = new Intent();
+					Bundle bundle = new Bundle();
+					bundle.putSerializable("saveDeviceItem", saveDeviceItem);
+					intent.putExtras(bundle);
+					intent.setClass(DeviceInfoActivity.this, DeviceViewActivity.class);
+					startActivity(intent);
+					DeviceInfoActivity.this.finish();
 				} catch (Exception e) {
 					e.printStackTrace();
 					Toast toast = Toast.makeText(DeviceInfoActivity.this, "保存失败...", Toast.LENGTH_LONG);
