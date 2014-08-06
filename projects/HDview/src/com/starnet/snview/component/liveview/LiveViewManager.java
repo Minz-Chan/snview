@@ -12,8 +12,9 @@ import android.widget.FrameLayout;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.util.ClickEventUtil;
 
-public class LiveViewManager {
+public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	private List<LiveViewItemContainer> liveviews; // 至多4个
 	private List<Connection> connections;          // 对应liveviews
 	
@@ -34,6 +35,8 @@ public class LiveViewManager {
 	
 	private Pager pager;
 	
+	private ClickEventUtil clickEventUtil;
+	
 	
 	public LiveViewManager(Context context) {
 		this.context = context;
@@ -44,6 +47,7 @@ public class LiveViewManager {
 		isMultiMode = false;
 		
 		executor = Executors.newFixedThreadPool(4);
+		clickEventUtil = new ClickEventUtil(this);
 	}
 	
 	public void setDeviceList(List<PreviewDeviceItem> devices) {
@@ -100,14 +104,33 @@ public class LiveViewManager {
 		return pager.getTotalCount();
 	}
 	
-	public void nextPage() {
+	public synchronized void nextPage() {
 		if (pager.getTotalCount() <= pager.getPageCapacity()) {
 			return;
 		}
 		
-		closeAllConnection();
-		
 		pager.nextPage();
+		
+		clickEventUtil.makeContinuousClickCalledOnce();
+	}
+	
+	public synchronized void previousPage() {
+		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+			return;
+		}
+
+		pager.previousPage();
+		
+		clickEventUtil.makeContinuousClickCalledOnce();
+	}
+	
+	@Override
+	public void OnAction() {
+		previewCurrentPage();  // 短时间多次调用的情况下只执行一次
+	}
+
+	private void previewCurrentPage() {
+		closeAllConnection();
 		
 		int startIndex = pager.getCurrentIndex();
 		int currPageCount = pager.getCurrentPageCount();
@@ -117,24 +140,6 @@ public class LiveViewManager {
 		selectLiveView(startIndex);
 	}
 	
-	public void previousPage() {
-		if (pager.getTotalCount() <= pager.getPageCapacity()) {
-			return;
-		}
-		
-		closeAllConnection();
-		
-		pager.previousPage();
-		
-		int startIndex = pager.getCurrentIndex();
-		int currPageCount = pager.getCurrentPageCount();
-		
-		preview(startIndex, currPageCount);
-		
-		selectLiveView(startIndex);
-	}
-
-
 	public void addLiveView(LiveViewItemContainer l) {
 		liveviews.add(l);
 	}
@@ -304,5 +309,4 @@ public class LiveViewManager {
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);
 	}
-	
 }
