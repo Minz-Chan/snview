@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -137,6 +138,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         	System.out.println(this + "@unlockCanvasAndPost" );
         	
+        } else {
+        	setBackgroundColor(Color.BLACK);
         }
 	}
 

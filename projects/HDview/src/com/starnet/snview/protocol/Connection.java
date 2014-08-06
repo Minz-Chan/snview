@@ -291,6 +291,13 @@ public class Connection extends DemuxingIoHandler {
 	public void sessionClosed(IoSession session) throws Exception {
 		System.out.println("Session " + session.getId() + " is closed...");
 		connector.dispose();
+		
+		if (mLiveViewChangedListener != null) {
+			System.out.println("Session " + session.getId() + " is closed...   method onDisplayContentUpdated is called");
+			mLiveViewChangedListener.onDisplayContentUpdated();
+		}
+		
+		
 	}
 	
 }

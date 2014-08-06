@@ -31,6 +31,10 @@ public class LiveViewManager {
 	
 	private OnVideoModeChangedListener onVideoModeChangedListener;
 	
+	
+	private Pager pager;
+	
+	
 	public LiveViewManager(Context context) {
 		this.context = context;
 		
@@ -45,6 +49,9 @@ public class LiveViewManager {
 	public void setDeviceList(List<PreviewDeviceItem> devices) {
 		this.devices = devices;
 		devicesCount = devices.size();
+		
+		pager = null;		
+		pager = new Pager(devicesCount, 4);
 	}
 	
 	
@@ -84,6 +91,48 @@ public class LiveViewManager {
 		}
 	}
 
+	
+	public int getSelectedLiveViewIndex() {
+		return pager.getCurrentIndex();
+	}
+	
+	public int getLiveViewTotalCount() {
+		return pager.getTotalCount();
+	}
+	
+	public void nextPage() {
+		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+			return;
+		}
+		
+		closeAllConnection();
+		
+		pager.nextPage();
+		
+		int startIndex = pager.getCurrentIndex();
+		int currPageCount = pager.getCurrentPageCount();
+		
+		preview(startIndex, currPageCount);
+		
+		selectLiveView(startIndex);
+	}
+	
+	public void previousPage() {
+		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+			return;
+		}
+		
+		closeAllConnection();
+		
+		pager.previousPage();
+		
+		int startIndex = pager.getCurrentIndex();
+		int currPageCount = pager.getCurrentPageCount();
+		
+		preview(startIndex, currPageCount);
+		
+		selectLiveView(startIndex);
+	}
 
 
 	public void addLiveView(LiveViewItemContainer l) {
@@ -91,6 +140,11 @@ public class LiveViewManager {
 	}
 	
 	public void clearLiveView() {
+		closeAllConnection();
+		liveviews.clear();
+	}
+	
+	private void closeAllConnection() {
 		int i;
 		int connSize = connections.size();
 		
@@ -99,8 +153,6 @@ public class LiveViewManager {
 				connections.get(i).disconnect();
 			}
 		}
-		
-		liveviews.clear();
 	}
 	
 	public int getIndexOfLiveView(LiveViewItemContainer lv) {
@@ -136,7 +188,7 @@ public class LiveViewManager {
 			
 		}
 		
-		return 1;
+		return currentIndex;
 	}
 	
 	/**
@@ -152,7 +204,11 @@ public class LiveViewManager {
 					+ ", count = " + count);
 		}
 		
-		int n;
+		if (liveviews.size() < count) {
+			throw new IllegalArgumentException("Only " + liveviews.size()
+					+ " LiveView(s) left, can not preview " + count
+					+ "device(s) simultaneously");
+		}
 		
 		// 保证当前connection池资源足够
 //		int connCount = connections.size();
@@ -161,6 +217,7 @@ public class LiveViewManager {
 //		}
 		connections.clear();
 		
+		int n;
 		for (n = 1; n <= count; n++) {
 			connections.add(new Connection());
 		}

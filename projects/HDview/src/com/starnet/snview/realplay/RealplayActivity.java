@@ -230,15 +230,17 @@ public class RealplayActivity extends BaseActivity {
 		public void OnActionClick(View v, ACTION action) {
 			switch (action) {
 			case PREVIOUS:
-
+				liveViewManager.previousPage();				
 				break;
 			case NEXT:
-
+				liveViewManager.nextPage();
 				break;
 			default:
 				break;
 			}
 
+			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 		}
 	};
 
@@ -650,6 +652,10 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			liveViewManager.setDeviceList(devices);
+			
+			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+			
 			liveViewManager.preview();
 			
 			break;

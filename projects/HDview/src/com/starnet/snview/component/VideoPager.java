@@ -22,6 +22,7 @@ public class VideoPager extends LinearLayout {
 	
 	private int amount;
 	private int num;
+	private final String seperator = "/";
 	
 	public static enum ACTION{
 		PREVIOUS,
@@ -120,6 +121,7 @@ public class VideoPager extends LinearLayout {
 
 	public void setAmount(int amount) {
 		this.amount = amount;
+		OnContentChanged();
 	}
 
 	public int getNum() {
@@ -128,6 +130,11 @@ public class VideoPager extends LinearLayout {
 
 	public void setNum(int num) {
 		this.num = num;
+		OnContentChanged();
+	}
+	
+	private void OnContentChanged() {
+		text.setText(num + seperator + amount);
 	}
 	
 	public static abstract interface OnActionClickListener {
