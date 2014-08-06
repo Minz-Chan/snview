@@ -91,22 +91,23 @@ public class LiveViewManager {
 	}
 	
 	public void clearLiveView() {
-		//liveviews.clear();
 		int i;
+		int connSize = connections.size();
 		
-		for (i = 0; i < liveviews.size(); i++) {
+		for (i = 0; i < connSize; i++) {
 			if (connections.get(i).isConnected()) {
 				connections.get(i).disconnect();
 			}
-			
-			liveviews.remove(liveviews.get(i));
 		}
+		
+		liveviews.clear();
 	}
 	
 	public int getIndexOfLiveView(LiveViewItemContainer lv) {
 		int index = -1;
+		int lvSize = liveviews.size();
 		
-		for (int i = 0; i < liveviews.size(); i++) {
+		for (int i = 0; i < lvSize; i++) {
 			if (liveviews.get(i) == lv) {
 				index = i;
 				break;
@@ -117,13 +118,13 @@ public class LiveViewManager {
 	}
 	
 	public int selectLiveView(int index) {
-		
 		currentIndex = index;
 		
 		int pos = ((index % 4) == 0) ? 4 : (index % 4); // 在4个LiveViewItemContainer中的位置
 		int i;
+		int lvSize = liveviews.size();
 		
-		for (i = 0; i < liveviews.size(); i++) {
+		for (i = 0; i < lvSize; i++) {
 			WindowLinearLayout w = liveviews.get(i).getWindowLayout();
 			if (i == (pos - 1)) {
 				w.setWindowSelected(true);
@@ -154,7 +155,13 @@ public class LiveViewManager {
 		int n;
 		
 		// 保证当前connection池资源足够
-		for (n = 1; n <= count - connections.size(); n++) {
+//		int connCount = connections.size();
+//		for (n = 1; n <= count - connCount; n++) {
+//			connections.add(new Connection());
+//		}
+		connections.clear();
+		
+		for (n = 1; n <= count; n++) {
 			connections.add(new Connection());
 		}
 		
@@ -162,11 +169,14 @@ public class LiveViewManager {
 		for (n = 1; n <= count; n++) {
 			final Connection conn = connections.get(n - 1);
 			
-			if (conn.isConnected()) {
-				conn.disconnect();
-			}
+			//if (conn.isConnected()) {
+			//	conn.disconnect();
+			//}
 			
 			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
+			
+			conn.reInit();
+			
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));
 			conn.setUsername(p.getLoginUser());
@@ -185,15 +195,52 @@ public class LiveViewManager {
 		}
 	}
 	
+	/**
+	 * 预览单个指定设备
+	 * @param index 设备索引，从1开始，不能大于设备总数
+	 */
 	public void preview(int index) {
 		preview(index, 1);		
+	}
+	
+	/**
+	 * 预览设备
+	 */
+	public void preview() {
+		if (devices == null || devices.size() <= 0) {
+			throw new IllegalStateException("Found not item in device list.");
+		}
+		
+		int size = devices.size();
+		
+		if (size == 1) {
+			setMultiMode(false);
+			preview(1);
+		} else if (size <= 4) {
+			setMultiMode(true);
+			preview(1, size);
+		} else {
+			setMultiMode(true);
+			preview(1, 4);
+		}
+		
 	}
 	
 	public void stopPreview(int index) {
 		int pos = ((index % 4) == 0) ? 4 : (index % 4); // 在4个LiveViewItemContainer中的位置
 		
-		if (connections.get(pos - 1).isConnected()) {
+		if ((pos - 1 < connections.size()) &&  connections.get(pos - 1).isConnected()) {
 			connections.get(pos - 1).disconnect();
+		}
+	}
+	
+	public void stopPreview() {
+		int connCount = connections.size();
+		
+		for (int i = 0; i < connCount; i++) {
+			if (connections.get(i).isConnected()) {
+				connections.get(i).disconnect();
+			}
 		}
 	}
 	

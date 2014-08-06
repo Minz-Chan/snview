@@ -32,6 +32,8 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 			
 		}
 		
+		
+		
 		// Decode the video data
 		if (message instanceof VideoIFrameData) {
 			System.out.println("$$$VideoIFrameData is arrvied...");
@@ -45,6 +47,7 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 		
 		// Update the video view
 		if (liveViewChangedListener != null) {
+			System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
 			liveViewChangedListener.onDisplayContentUpdated();
 		}
 		

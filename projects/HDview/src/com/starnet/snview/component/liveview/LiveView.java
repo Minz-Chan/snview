@@ -58,19 +58,19 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+		System.out.println(this + "@created...");
 		
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
+		System.out.println(this + "@destroyed...");
 		
 	}
 
@@ -104,7 +104,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         }
 		
-		
+		System.out.println(this + "@onDraw");
 
 		mHolder.unlockCanvasAndPost(canvas); 
 	}
@@ -134,6 +134,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
             		, 0, 0, null); 
         	
         	mHolder.unlockCanvasAndPost(canvas); 
+        	
+        	System.out.println(this + "@unlockCanvasAndPost" );
         	
         }
 	}

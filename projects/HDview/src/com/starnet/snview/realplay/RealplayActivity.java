@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -177,6 +178,7 @@ public class RealplayActivity extends BaseActivity {
 						liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview.findSubViews();
 						liveview.initListener();
+						//liveview.getSurfaceView().setBackgroundColor(Color.BLUE);
 						
 						liveViewManager.addLiveView(liveview);
 					}
@@ -202,6 +204,10 @@ public class RealplayActivity extends BaseActivity {
 				intent.setClass(RealplayActivity.this,
 						ChannelListActivity.class);
 				RealplayActivity.this.startActivityForResult(intent, 0);
+				
+				if (liveViewManager != null) {
+					liveViewManager.stopPreview();
+				}
 			}
 		});
 
@@ -630,24 +636,21 @@ public class RealplayActivity extends BaseActivity {
 
 		switch (resultCode) {
 		case 8:
-			PreviewDeviceItem p = (PreviewDeviceItem) data.getExtras().get(
-					"DEVICE_ITEM");
-
-//			Connection conn = new Connection(p.getSvrIp(), Integer.valueOf(p
-//					.getSvrPort()));
-//			conn.setUsername(p.getLoginUser());
-//			conn.setPassword(p.getLoginPass());
-//			conn.setChannel(p.getChannel());
-//
-//			ConnectionManager.getInstance().startPreview(conn);
+//			PreviewDeviceItem p = (PreviewDeviceItem) data.getExtras().get(
+//					"DEVICE_ITEM");			
+//			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
+//			devices.add(p);
+			
+			Parcelable[] _devices = (Parcelable[]) data.getExtras().get("DEVICE_ITEM_LIST");
 			
 			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
 			
-			devices.add(p);
+			for (int i = 0; i < _devices.length; i++) {
+				devices.add((PreviewDeviceItem)_devices[i]);
+			}
 			
 			liveViewManager.setDeviceList(devices);
-			
-			liveViewManager.preview(1);
+			liveViewManager.preview();
 			
 			break;
 		default:
