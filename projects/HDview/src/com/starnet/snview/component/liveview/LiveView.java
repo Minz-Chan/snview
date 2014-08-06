@@ -138,8 +138,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         	System.out.println(this + "@unlockCanvasAndPost" );
         	
-        } else {
-        	setBackgroundColor(Color.BLACK);
         }
 	}
 
@@ -155,6 +153,18 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	public void onDisplayContentUpdated() {
 		//this.postInvalidate();
 		refreshDisplay();
+	}
+
+	@Override
+	public void onDisplayContentReset() {
+		//setBackgroundColor(Color.RED);	
+		Canvas canvas = mHolder.lockCanvas();
+		
+		if (canvas != null) {
+			canvas.drawColor(Color.BLACK);
+			mHolder.unlockCanvasAndPost(canvas); 
+		}
+		
 	}
 	
 	

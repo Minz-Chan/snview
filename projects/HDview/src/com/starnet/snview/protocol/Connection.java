@@ -294,7 +294,7 @@ public class Connection extends DemuxingIoHandler {
 		
 		if (mLiveViewChangedListener != null) {
 			System.out.println("Session " + session.getId() + " is closed...   method onDisplayContentUpdated is called");
-			mLiveViewChangedListener.onDisplayContentUpdated();
+			mLiveViewChangedListener.onDisplayContentReset();
 		}
 		
 		
