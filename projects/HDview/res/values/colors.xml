@@ -37,4 +37,9 @@
     <color name="system_setting_about_line">#8C8C8C</color>
     <color name="system_setting_about_build">#000000</color>
     
+    <color name="gray_transplate">#66606060</color>
+    
+    <color name="windows_info_text_bg">#FF333333</color>
+    <color name="windows_info_text">#FFF2F2F2</color>
+    
 </resources>

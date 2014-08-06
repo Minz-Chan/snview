@@ -62,20 +62,38 @@ public class Connection extends DemuxingIoHandler {
     
     private OnLiveViewChangedListener mLiveViewChangedListener;
     
+    public Connection() {
+    	this.channel = 1;
+    	init();
+    }
+    
     public Connection(String host, int port) {
         this.host = host;
         this.port = port;
         this.channel = 1;
         
-        mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
+        init();
+    }
+    
+    
+    private void init() {
+    	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
-        connector = new NioSocketConnector();
+    	initConnector();        
+        initMessageHandler();
+    }
+    
+    public void reInit() {
+    	connector = null;
+    	initConnector();
+    }
+    
+    private void initConnector() {
+    	connector = new NioSocketConnector();
         //connector.getFilterChain().addLast("owsp-codec", new ProtocolCodecFilter(new OwspMessageFactory()));
         connector.getFilterChain().addLast("owsp-codec", new OwspProtocolCodecFilter(new OwspFactory()));
         connector.getFilterChain().addLast("tlv-codec", new ProtocolCodecFilter(new TlvMessageFactory()));
         connector.setHandler(this);
-        
-        initMessageHandler();
     }
     
     private void initMessageHandler() {
@@ -92,7 +110,17 @@ public class Connection extends DemuxingIoHandler {
         this.addReceivedMessageHandler(VideoPFrameData.class, new VideoFrameDataMessageHandler());
     }
     
-    public void setUsername(String username) {
+    
+    
+    public void setHost(String host) {
+		this.host = host;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setUsername(String username) {
 		this.username = username;
 	}
 
@@ -218,6 +246,8 @@ public class Connection extends DemuxingIoHandler {
         if (session != null) {
             session.close(true).awaitUninterruptibly(CONNECT_TIMEOUT);
             session = null;
+            
+            System.out.println(this + "(" + host + ":" + port + ")@disconnected...");
         }
     }
     
@@ -229,6 +259,7 @@ public class Connection extends DemuxingIoHandler {
 	public void sessionCreated(IoSession session) throws Exception {
 		if (mLiveViewChangedListener != null) {
 			session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
+			System.out.println(this + "@connected... " + mLiveViewChangedListener + "@liveViewChangedListener");
 		}
 		
 		if (mH264decoder != null) {

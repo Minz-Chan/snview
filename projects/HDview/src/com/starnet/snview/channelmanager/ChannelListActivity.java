@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
@@ -158,8 +159,13 @@ public class ChannelListActivity extends BaseActivity {
 					if (previewChannelList.size() > 0) {
 						PreviewDeviceItem p = previewChannelList.get(0);
 						
+						PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
+						previewChannelList.toArray(l);
+						
 						Intent intent = ChannelListActivity.this.getIntent();
-						intent.putExtra("DEVICE_ITEM", p);
+						intent.putExtra("DEVICE_ITEM_LIST", l);
+						
+						
 						
 						ChannelListActivity.this.setResult(8, intent);
 						ChannelListActivity.this.finish();

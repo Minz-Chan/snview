@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.starnet.snview.component.liveview.LiveViewItemContainer android:padding="@dimen/window_container_space" android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.starnet.snview.component.liveview.WindowLinearLayout android:orientation="vertical" android:id="@id/liveview_surface_infotext_layout" android:background="#00000000" android:padding="@dimen/surface_container_space" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <FrameLayout android:id="@id/liveview_playwindow_frame" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        	<com.starnet.snview.component.liveview.LiveView android:id="@+id/liveview_surfaceview" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        </FrameLayout>
+		
+		<!-- 视频文字信息 -->
+        <TextView android:textSize="@dimen/common_textsize_small_12sp" android:gravity="center_vertical" android:id="@id/liveview_liveinfo_textview" android:background="@color/windows_info_text_bg" android:textColor="@color/windows_info_text" android:layout_width="fill_parent" android:layout_height="@dimen/window_text_height" android:singleLine="true" />
+    </com.starnet.snview.component.liveview.WindowLinearLayout>
+</com.starnet.snview.component.liveview.LiveViewItemContainer>

@@ -83,7 +83,22 @@
 	<item name="channel_listview_device_item_chkbox" type="id" />
     <item name="channel_listview_arrow" type="id" />
     
+
+    <item name="liveview_surface_infotext_layout" type="id" />
+    <item name="liveview_playwindow_frame" type="id" />
+    <item name="liveview_liveinfo_textview" type="id" />
+    
+    <item name="video_region" type="id" />
+    <item name="liveview_liveitem" type="id" />
+    <item name="liveview_liveitem1" type="id" />
+    <item name="liveview_liveitem2" type="id" />
+    <item name="liveview_liveitem3" type="id" />
+    <item name="liveview_liveitem4" type="id" />
     
     
+    
+    
+<!--     <item name="" type="id" /> -->
+<!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->
 </resources>
