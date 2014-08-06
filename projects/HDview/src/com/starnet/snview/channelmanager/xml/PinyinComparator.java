@@ -1,6 +1,9 @@
 package com.starnet.snview.channelmanager.xml;
 
 import java.util.Comparator;
+
+import com.starnet.snview.devicemanager.DeviceItem;
+
 import net.sourceforge.pinyin4j.PinyinHelper;
 
 /**
@@ -14,8 +17,12 @@ import net.sourceforge.pinyin4j.PinyinHelper;
 public class PinyinComparator implements Comparator<Object> {
 
     public int compare(Object o1, Object o2) {  
-    	String key1 = o1.toString();
-     	String key2 = o2.toString();
+    	DeviceItem deviceItem1 = (DeviceItem) o1;
+    	DeviceItem deviceItem2 = (DeviceItem) o2;
+    	String key1 = deviceItem1.getDeviceName();
+    	String key2 = deviceItem2.getDeviceName();
+//    	String key1 = o1.toString();
+//     	String key2 = o2.toString();
      	
      	if (key1.substring(0, 4).equals(key2.substring(0, 4))) {
      		for (int i = 0; i < key1.length() && i < key2.length(); i++) { 

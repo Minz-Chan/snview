@@ -44,6 +44,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
 		this.layoutInflater = ((LayoutInflater) curContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+			
 	}
 	@Override
 	public int getGroupCount() {// 获取组的个数
@@ -79,9 +80,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	public Object getChild(int groupPosition, int childPosition) {
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 		deviceList = cloudAccount.getDeviceList();
-		if( !deviceList.isEmpty()){//排序
-			Collections.sort(deviceList, new PinyinComparator());//排序
-		}
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		return deviceItem;
 	}
@@ -139,10 +137,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_device_item_name);
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 		deviceList = cloudAccount.getDeviceList();
-		
-		if( !deviceList.isEmpty()){//排序...
-			Collections.sort(deviceList, new PinyinComparator());
-		}
 		
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		String deviceName = deviceItem.getDeviceName();

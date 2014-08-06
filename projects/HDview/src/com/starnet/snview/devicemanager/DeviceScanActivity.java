@@ -36,7 +36,7 @@ public class DeviceScanActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {
-		super.setRightButtonBg(R.drawable.navigation_bar_save_btn_selector);
+		super.setRightButtonBg(R.drawable.device_manager_edit);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText("设备管理");
 		super.hideExtendButton();

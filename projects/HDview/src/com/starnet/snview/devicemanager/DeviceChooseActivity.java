@@ -1,20 +1,26 @@
 package com.starnet.snview.devicemanager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 
@@ -29,11 +35,14 @@ public class DeviceChooseActivity extends BaseActivity {
 	
 	private CloudAccountXML caXML;
 
-	private ListView mListView;
-	private List<DeviceItem> deviceItemList;
-	private DeviceChooseAdapter dcAdapter;
+	private ListView deviceListView;
+	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();
+	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();
+	private DeviceChooseAdapter deviceChooseAdapter;
+	private DeviceItem clickDeviceItem;
 	
 	private Button device_add;
+	private EditText device_search_et;//模糊搜索框...
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -81,18 +90,68 @@ public class DeviceChooseActivity extends BaseActivity {
 			}
 		});
 		
-		mListView.setOnItemClickListener(new OnItemClickListener(){
+		device_search_et.addTextChangedListener(new TextWatcher(){//进行模糊搜索...
+
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				DeviceItem deviceItem = deviceItemList.get(position);
-				if(deviceItem.isExpanded()){
-					deviceItem.setExpanded(false);
-				}else{
-					deviceItem.setExpanded(true);
-				}
-				dcAdapter.notifyDataSetChanged();
+			public void beforeTextChanged(CharSequence s, int start, int count,int after) {
+				// TODO Auto-generated method stub
+				
 			}
-		});;
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,int count) {
+				
+				searchDeviceItemList.clear();
+				if( device_search_et.getText() != null){
+					String searchContent = device_search_et.getText().toString();
+					searchDeviceItemList = getSearchDeviceItemList(searchContent);
+					deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,searchDeviceItemList);
+					deviceListView.setAdapter(deviceChooseAdapter);
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
+		
+//		mListView.setOnItemClickListener(new OnItemClickListener(){
+//			@Override
+//			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+//				DeviceItem deviceItem = deviceItemList.get(position);
+//				if(deviceItem.isExpanded()){
+//					deviceItem.setExpanded(false);
+//				}else{
+//					deviceItem.setExpanded(true);
+//				}
+//				dcAdapter.notifyDataSetChanged();
+//				clickDeviceItem = deviceItem;
+//				gotoDeviceInfoActivity();
+//				
+//			}
+//		});;
+	}
+
+	protected List<DeviceItem> getSearchDeviceItemList(String searchContent) {
+		List<DeviceItem> newDeviceItemList = new ArrayList<DeviceItem>(); 
+		int size = deviceItemList.size();
+		for(int i =0 ;i<size;i++){
+			DeviceItem deviceItem = deviceItemList.get(i);
+			String deviceName = deviceItem.getDeviceName();
+			if(deviceName.contains(searchContent)){
+				newDeviceItemList.add(deviceItem);
+			}
+		}
+		return newDeviceItemList;
+	}
+
+	protected void gotoDeviceInfoActivity() {//进入设备信息界面
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("clickDeviceItem", clickDeviceItem);
+		intent.putExtras(bundle);
+		intent.setClass(DeviceChooseActivity.this, DeviceInfoActivity.class);
+		startActivity(intent);
+		
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
@@ -107,30 +166,32 @@ public class DeviceChooseActivity extends BaseActivity {
 		
 		caXML = new CloudAccountXML();
 		device_add = (Button) findViewById(R.id.device_choose_add_btn);
-		mListView = (ListView) findViewById(R.id.device_choose_listView);
+		deviceListView = (ListView) findViewById(R.id.lview_device);
+		device_search_et = (EditText) findViewById(R.id.device_choose_add_et); 
+//		deviceListView = (DeviceListView) findViewById(R.id.lview_device);
 		
-		deviceItemList = getData();
-		dcAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
-		mListView.setAdapter(dcAdapter);
+		getDeviceItemListData();
+		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
+		deviceListView.setAdapter(deviceChooseAdapter);
 	}
 	
-	private List<DeviceItem> getData() {//从个人用户处获得。。。从文档中读取
-		List<DeviceItem> data = new ArrayList<DeviceItem>();
-		List<CloudAccount>cloudAccountList =  caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+	private void getDeviceItemListData() {//从个人用户处获得。。。从文档中读取
+		
+		List<CloudAccount> cloudAccountList =  caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
 		int size = cloudAccountList.size();
 		for (int i = 0; i < size; i++) {
 			CloudAccount cloudAccount = cloudAccountList.get(i);
 			if (cloudAccount!=null) {
-				List <DeviceItem> deviceItemList = cloudAccount.getDeviceList();
-				if (deviceItemList!=null) {
-					int deviceItemSize = deviceItemList.size();
-					for (int j = 0; j < deviceItemSize; j++) {
-						DeviceItem deviceItem = deviceItemList.get(j);
-						data.add(deviceItem);
-					}
+				List<DeviceItem> deviceList = cloudAccount.getDeviceList();
+				int dSize = deviceList.size();
+				for(int j =0 ;j<dSize;j++){
+					deviceItemList.add(deviceList.get(j));
 				}
 			}
 		}
-		return data;
+		
+		if(deviceItemList.size()>0){
+			Collections.sort(deviceItemList, new PinyinComparator());
+		}
 	}
 }

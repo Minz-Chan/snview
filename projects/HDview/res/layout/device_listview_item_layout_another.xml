@@ -40,15 +40,16 @@
                 android:id="@+id/device_item_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="设备名称" />
+                android:gravity="left"
+                android:text="@string/device_manager_name" />
 
             <TextView
                 android:id="@+id/device_listview_item_IP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="设备IP" />
+                android:gravity="left"
+                android:singleLine="true"
+                android:text="@string/device_manager_ip" />
 
         </LinearLayout>
 

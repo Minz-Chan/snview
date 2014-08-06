@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="5.0dip"
         android:layout_weight="1.0"
-        android:gravity="right"
+        android:gravity="center"
         android:text="●"
         android:textSize="@dimen/common_textsize_small_16sp" />
 
@@ -31,20 +31,20 @@
         android:layout_width="90sp"
         android:layout_height="wrap_content"
         android:layout_weight="6.49"
-        android:gravity="center_horizontal"
-        android:hint="通道选择"
+        android:layout_gravity="center"
         android:ellipsize="marquee"
+        android:gravity="left"
+        android:hint="@string/device_channel_choose"
         android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
         android:textSize="@dimen/common_textsize_small_16sp" />
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"        
+        android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:gravity="center"
         android:orientation="horizontal" >
-
-        <!-- 赵康 添加 -->
 
         <Button
             android:id="@+id/button_state"
@@ -53,33 +53,11 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/zz_empty_select" />
 
-        <!-- android:hint="选择状态" -->
-        <!-- 赵康 添加 -->
-
         <Button
             android:id="@+id/button_channel_list"
             android:layout_width="26dp"
             android:layout_height="26dp"
             android:layout_marginLeft="15dp"
             android:background="@drawable/channel_listview_device_channel_btn_selector" />
-
-        <!-- android:text="通道列表" -->
     </LinearLayout>
-
-    <!--
-         <ImageView
-        android:id="@id/channel_listview_device_item_chkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/channel_listview_unselected"
-        android:contentDescription="@string/nothing" />
-    -->
-    <!-- 赵康 添加 -->
-    <!--
-         android:layout_marginLeft="30dp"
-        android:layout_marginRight="10dp"
-    -->
-
 </LinearLayout>

@@ -2,34 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#666666"
+    android:background="#000000"
     android:orientation="vertical" >
 
     <EditText
-        android:id="@+id/device_choose_search"
+        android:id="@+id/device_choose_add_et"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="请输入设备名称" >
-
+        android:singleLine="true"
+        android:inputType="text"
+        android:ems="10" >
         <requestFocus />
     </EditText>
 
     <ListView
-        android:id="@+id/device_choose_listView"
+        android:id="@+id/lview_device"
         android:layout_width="fill_parent"
-        android:layout_height="326dp"
-        android:layout_weight="0.90"
-        android:background="#666666"
-        android:divider="@color/channel_listview_device_divider"
-        android:dividerHeight="1.0dip" >
-    </ListView>
+        android:layout_height="352dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+         />
 
     <Button
         android:id="@+id/device_choose_add_btn"
         android:layout_width="fill_parent"
-        android:layout_height="26dp"
-        android:layout_weight="0.53"
-        android:text="添加" />
+        android:layout_height="wrap_content"
+        android:textSize = "18sp"
+        android:text="@string/device_manage_onealladd" />
 
 </LinearLayout>

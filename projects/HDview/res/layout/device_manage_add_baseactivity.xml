@@ -11,7 +11,7 @@
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <LinearLayout
@@ -39,28 +39,34 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linearLayout2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_marginLeft="45dp"
                         android:layout_toRightOf="@+id/linearLayout1"
+                        android:orientation="horizontal"
                         android:weightSum="1.0" >
 
-                        <Spinner
-                            android:id="@+id/device_add_spinner"
-                            android:layout_width="0dip"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.97"
-                            android:textSize="18sp" />
+                         <EditText
+                             android:id="@+id/device_add_choose_et"
+                             android:layout_width="145dp"
+                             android:layout_height="wrap_content"
+                             android:inputType="none"
+                             android:ems="10" />
 
-                        <Button
-                            android:id="@+id/device_add_button_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="选择" />
+                         <Button
+                             android:id="@+id/device_add_button_state"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="@string/device_manage_choose" />
+
                     </LinearLayout>
+
+                    
+
                 </RelativeLayout>
+
             </LinearLayout>
 
             <RelativeLayout
@@ -231,6 +237,7 @@
                     android:inputType="textPassword"
                     android:singleLine="true"
                     android:textSize="18sp" >
+
                     <requestFocus />
                 </EditText>
             </RelativeLayout>
@@ -254,18 +261,18 @@
                         android:textSize="18sp" />
                 </LinearLayout>
 
-                 <EditText
-                     android:id="@+id/et_device_add_defaultChannel"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_alignParentRight="true"
-                     android:layout_alignParentTop="true"
-                     android:layout_marginLeft="47dp"
-                     android:layout_toRightOf="@id/txt_device_add_defaultchannel"
-                     android:ems="10"
-                     android:inputType="number"
-                     android:singleLine="true"
-                     android:textSize="18sp" >
+                <EditText
+                    android:id="@+id/et_device_add_defaultChannel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_add_defaultchannel"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:textSize="18sp" >
 
                     <requestFocus />
                 </EditText>

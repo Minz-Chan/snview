@@ -2,6 +2,7 @@ package com.starnet.snview.channelmanager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -23,6 +24,7 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
+import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -75,6 +77,17 @@ public class ChannelListActivity extends BaseActivity {
 				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
 				cloudAccount.setRotate(false);
 				cloudAccounts.set(pos, cloudAccount);
+			}
+			
+			int size = cloudAccounts.size();
+			for(int i =0 ;i<size;i++){
+				CloudAccount cloudAccount = cloudAccounts.get(i);
+				if(cloudAccount!=null){
+					List<DeviceItem> deviceList = cloudAccount.getDeviceList();
+					if((deviceList!=null)&&(deviceList.size()>0)){
+						Collections.sort(deviceList, new PinyinComparator());
+					}
+				}
 			}
 			chExpandableListAdapter.notifyDataSetChanged();
 		}

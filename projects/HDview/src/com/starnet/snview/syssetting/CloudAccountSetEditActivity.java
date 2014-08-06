@@ -226,6 +226,7 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				dismissDialog(1);
+//				CloudAccountSetEditActivity.this.finish();
 				if(thread != null){
 					Message msg = new Message();
 					msg.what = 4;
