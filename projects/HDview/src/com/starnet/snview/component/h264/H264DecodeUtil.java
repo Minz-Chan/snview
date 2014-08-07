@@ -211,4 +211,15 @@ public class H264DecodeUtil {
 		
 		return result;
 	}
+
+//	@Override
+//	protected void finalize() throws Throwable {
+//		if (decoder != null) {
+//			decoder.uninit(mInstanceId);
+//		}
+//		
+//		super.finalize();
+//	}
+	
+	
 }

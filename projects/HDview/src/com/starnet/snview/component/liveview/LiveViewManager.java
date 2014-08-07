@@ -6,12 +6,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.widget.FrameLayout;
 
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.realplay.PreviewDeviceItem;
-import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ClickEventUtil;
 
 public class LiveViewManager implements ClickEventUtil.OnActionListener {
@@ -82,7 +79,10 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	}
 
 
-
+	/**
+	 * 切换预览模式
+	 * @param isMultiMode true，多通道预览柜式； false，单画面预览模式
+	 */
 	public void setMultiMode(boolean isMultiMode) {
 		if (this.isMultiMode == isMultiMode) {
 			return;
@@ -104,8 +104,11 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		return pager.getTotalCount();
 	}
 	
+	/**
+	 * 切换通道组至下一页，并根据下一页包含的通道个数进行预览操作。若下一页为当前页，则不执行任何操作。
+	 */
 	public synchronized void nextPage() {
-		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+		if ( pager == null || (pager.getTotalCount() <= pager.getPageCapacity())) {
 			return;
 		}
 		
@@ -114,8 +117,11 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		clickEventUtil.makeContinuousClickCalledOnce();
 	}
 	
+	/**
+	 * 切换通道组至上一页，并根据上一页包含的通道个数进行预览操作。若上一页为当前页，则不执行任何操作。
+	 */
 	public synchronized void previousPage() {
-		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+		if ( pager == null || pager.getTotalCount() <= pager.getPageCapacity()) {
 			return;
 		}
 
@@ -220,6 +226,9 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 //		for (n = 1; n <= count - connCount; n++) {
 //			connections.add(new Connection());
 //		}
+		
+
+		
 		connections.clear();
 		
 		int n;
@@ -247,12 +256,14 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 			
 			conn.bindLiveViewListener(liveviews.get(n - 1).getSurfaceView());
 			
+						
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
 					conn.connect();					
 				}
 			});
+			
 			
 		}
 	}

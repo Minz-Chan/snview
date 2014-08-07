@@ -40,7 +40,10 @@ public class ClickEventUtil {
         };
     }
     
-    
+    /**
+     * 调用此方法确认操作是否结束。若用户操作结束（即超出连击时间间隔internal），则执行预定task；
+     * 否则，继续等待一个时间间隔（interval），直到用户连击间隔超过interval，task被执行
+     */
     public void makeContinuousClickCalledOnce() {
         delay();  // 延迟，用于判断用户的点击操作是否结束
     }

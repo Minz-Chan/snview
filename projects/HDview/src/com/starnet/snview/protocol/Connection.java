@@ -44,8 +44,8 @@ import com.starnet.snview.util.RandomUtils;
 
 public class Connection extends DemuxingIoHandler {
 	private final static Logger LOGGER = LoggerFactory.getLogger(Connection.class);
-	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
-	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+	private AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
+	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 
 	public static final int CONNECT_TIMEOUT = 5000;
 
@@ -84,6 +84,12 @@ public class Connection extends DemuxingIoHandler {
     }
     
     public void reInit() {
+    	
+    	if (!connector.isDisposed()) {
+    		connector.dispose(true);
+    		System.out.println(this + "@connector-disposed");
+    	}
+    	
     	connector = null;
     	initConnector();
     }
@@ -292,12 +298,29 @@ public class Connection extends DemuxingIoHandler {
 		System.out.println("Session " + session.getId() + " is closed...");
 		connector.dispose();
 		
+		
 		if (mLiveViewChangedListener != null) {
 			System.out.println("Session " + session.getId() + " is closed...   method onDisplayContentUpdated is called");
 			mLiveViewChangedListener.onDisplayContentReset();
 		}
 		
 		
+		if (mH264decoder != null) {
+			mH264decoder.uninit();
+		}
+		
+
+		this.mH264decoder = null;
+		this.mLiveViewChangedListener = null;
+		this.connector = null;
+		this.H264DECODER = null;
+		this.LIVEVIEW_LISTENER = null;
+		this.session = null;
 	}
-	
+
+	@Override
+	protected void finalize() throws Throwable {
+		System.out.println(this + "@finalized");
+		super.finalize();
+	}
 }
