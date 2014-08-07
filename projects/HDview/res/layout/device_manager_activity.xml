@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
     
-    <ListView android:id="@id/device_listview"  android:layout_width="wrap_content" android:layout_height="wrap_content" android:divider="@color/md__transparent" />  
+    <ListView android:id="@id/device_listview"  android:layout_width="wrap_content" android:layout_height="wrap_content" android:divider="@color/black" android:dividerHeight="1px"  android:cacheColorHint="#00000000" />  
     
 <!--     <ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent"> -->
 <!--         <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"> -->

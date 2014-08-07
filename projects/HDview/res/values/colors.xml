@@ -42,4 +42,5 @@
     <color name="windows_info_text_bg">#FF333333</color>
     <color name="windows_info_text">#FFF2F2F2</color>
     
+    <color name="windows_info_lavender">#E6E6FA</color>   
 </resources>

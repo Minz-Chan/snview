@@ -23,6 +23,8 @@
         android:layout_marginLeft="7dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
+        android:cacheColorHint="#00000000"
+        android:background="@color/windows_info_lavender"
          />
 
     <Button

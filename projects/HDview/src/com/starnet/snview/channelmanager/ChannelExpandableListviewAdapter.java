@@ -4,15 +4,20 @@ import java.util.Collections;
 import java.util.List;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
@@ -20,6 +25,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 /**
  * 
  * @author zhaohongxu
@@ -29,6 +35,8 @@ import android.widget.TextView;
  */
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
 	
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
 	private Context context;
 	private LayoutInflater layoutInflater;
@@ -36,6 +44,11 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	private Button button_channel_list;
 	private Button state_button;
+	private ButtonState bs;
+	private int groupPos;
+	private int childPos;
+	private CloudAccountXML csxml;
+	private CloudAccount selectCloudAccount;
 	
 	private List<DeviceItem> deviceList;
 		
@@ -130,7 +143,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	}
 
 	@Override
-	public View getChildView(int groupPosition, int childPosition,boolean isLastChild, View convertView, ViewGroup parent) {//加载子元素
+	public View getChildView(int groupPosition,int childPosition,boolean isLastChild, View convertView, ViewGroup parent) {//加载子元素
 		if (convertView == null) {
 			convertView = layoutInflater.inflate(R.layout.channel_listview_channel_item_layout_wadgets, null);
 		}		
@@ -146,12 +159,15 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		state_button = (Button) convertView.findViewById(R.id.button_state);
 		//根据每一组、每一行的通道列表选择情况，来加载对应的state_button的全/半选状态
 		String state = getChannelSelectNum(groupPosition, childPosition);
-		changeStateButton(state_button,state,groupPosition,childPosition);
-		ButtonState bs = new ButtonState();
+		changeStateButton(state_button,state);
+		bs = new ButtonState();
 		bs.setState(state);
-		ButtonOnclickListener bolc = new ButtonOnclickListener(groupPosition,childPosition,state_button,bs,groupAccountList);		
-		state_button.setOnClickListener(bolc);
-		
+//		ButtonOnclickListener bolc = new ButtonOnclickListener(groupPosition,childPosition,state_button,bs,groupAccountList);	
+		ButtonOnTouchListener bolc = new ButtonOnTouchListener(groupPosition, childPosition,state_button,bs,groupAccountList);
+		state_button.setOnTouchListener(bolc);
+//		state_button.setOnClickListener(bolc);
+//		state_button.setFocusable(false);
+
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
@@ -171,7 +187,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	 * @param groupPosition
 	 * @param childPosition
 	 */
-	private void changeStateButton(Button state_button,String state,int groupPosition,int childPosition) {
+	private void changeStateButton(Button state_button,String state) {
 		if ((state == "all")||(state.equals("all"))) {
 			state_button.setBackgroundResource(R.drawable.zz_all_select);
 		}else if ((state == "half")||(state.equals("half"))) {

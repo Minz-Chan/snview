@@ -2,11 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/channel_listview_device_item_bg"
-    android:descendantFocusability="blocksDescendants"
+    android:background="@color/channel_listview_device_item_bg"   
     android:gravity="center_vertical"
     android:weightSum="10.0" >
-
+<!-- android:descendantFocusability="blocksDescendants" -->
     <LinearLayout
         android:layout_width="0.0dip"
         android:layout_height="@dimen/channel_listview_device_item_height"
@@ -40,6 +39,7 @@
         android:textSize="@dimen/common_textsize_small_16sp" />
 
     <LinearLayout
+        
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1.5"

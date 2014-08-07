@@ -56,7 +56,7 @@ public class ChannelListActivity extends BaseActivity {
 	private ChannelExpandableListviewAdapter chExpandableListAdapter;
 
 	private NetCloudAccountThread netThread;
-	private CloudAccount cloudAccount3;
+	private CloudAccount collectCloudAccount;
 	
 	private List<PreviewDeviceItem> previewChannelList;//当前预览通道
 
@@ -251,21 +251,21 @@ public class ChannelListActivity extends BaseActivity {
 		//根据得到的值确定状态框的显示情形,全选、半选或者空选,通知ExpandableListView中状态框的改变
 		if((resultCode == 31)){
 			Bundle bundle = data.getExtras();
-			cloudAccount3 = (CloudAccount) bundle.getSerializable("wca");
+			collectCloudAccount = (CloudAccount) bundle.getSerializable("wca");
 			//更新ExpandableListView指定的按钮
 			int pos = bundle.getInt("parentPos");
-			cloudAccounts.set(pos, cloudAccount3);
+			cloudAccounts.set(pos, collectCloudAccount);
 			chExpandableListAdapter.notifyDataSetChanged();
 			caXML = new CloudAccountXML();
 			
 			//判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
-			if(cloudAccount3.getUsername().equals("收藏设备")&&(cloudAccount3.getDomain().equals("com"))
-					&&(cloudAccount3.getPort().equals("808"))&&(cloudAccount3.getPassword().equals("0208"))){
+			if(collectCloudAccount.getUsername().equals("收藏设备")&&(collectCloudAccount.getDomain().equals("com"))
+					&&(collectCloudAccount.getPort().equals("808"))&&(collectCloudAccount.getPassword().equals("0208"))){
 				Thread thread = new Thread(){
 					@Override
 					public void run() {
 						super.run();
-						List<DeviceItem> deviceList = cloudAccount3.getDeviceList();
+						List<DeviceItem> deviceList = collectCloudAccount.getDeviceList();
 						int size = deviceList.size();
 						for(int i =0 ;i<size;i++){
 							try {
