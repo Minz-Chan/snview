@@ -9,9 +9,9 @@ import android.content.Context;
 
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.realplay.PreviewDeviceItem;
-import com.starnet.snview.util.ClickEventUtil;
+import com.starnet.snview.util.ClickEventUtils;
 
-public class LiveViewManager implements ClickEventUtil.OnActionListener {
+public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private List<LiveViewItemContainer> liveviews; // 至多4个
 	private List<Connection> connections;          // 对应liveviews
 	
@@ -32,8 +32,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	
 	private Pager pager;
 	
-	private ClickEventUtil clickEventUtil;
-	
+	private ClickEventUtils callEventUtil;
 	
 	public LiveViewManager(Context context) {
 		this.context = context;
@@ -44,7 +43,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		isMultiMode = false;
 		
 		executor = Executors.newFixedThreadPool(4);
-		clickEventUtil = new ClickEventUtil(this);
+		callEventUtil = new ClickEventUtils(this);
 	}
 	
 	public void setDeviceList(List<PreviewDeviceItem> devices) {
@@ -93,11 +92,47 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		if (onVideoModeChangedListener != null) {
 			onVideoModeChangedListener.OnVideoModeChanged(isMultiMode);
 		}
+		
+		switchPageMode();
 	}
 
+	private void switchPageMode() {
+		int total = pager.getTotalCount();
+		int pageCapacity = pager.getPageCapacity();
+		int index = pager.getCurrentIndex();
+		
+		if (isMultiMode) { // 多通道模式
+			if (pageCapacity != 4) {
+				pager = null;
+				pager = new Pager(total, 4, index);
+			}
+		} else { // 单多通道模式
+			if (pageCapacity != 1) {
+				pager = null;
+				pager = new Pager(total, 1, index);
+			}
+		}
+		
+	}
+	
+	public void setCurrenSelectedLiveViewtIndex(int index) {
+		pager.setCurrentIndex(index);
+	}
 	
 	public int getSelectedLiveViewIndex() {
 		return pager.getCurrentIndex();
+	}
+	
+	public int getCurrentPageNumber() {
+		return pager.getCurrentPage();
+	}
+	
+	public int getCurrentPageCount() {
+		return pager.getCurrentPageCount();
+	}
+	
+	public int getPageCapacity() {
+		return pager.getPageCapacity();
 	}
 	
 	public int getLiveViewTotalCount() {
@@ -114,7 +149,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		
 		pager.nextPage();
 		
-		clickEventUtil.makeContinuousClickCalledOnce();
+		callEventUtil.makeContinuousClickCalledOnce(0);
 	}
 	
 	/**
@@ -127,13 +162,15 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 
 		pager.previousPage();
 		
-		clickEventUtil.makeContinuousClickCalledOnce();
+		callEventUtil.makeContinuousClickCalledOnce(0);
 	}
 	
 	@Override
-	public void OnAction() {
+	public void OnAction(int clickCount, Object... params) {
 		previewCurrentPage();  // 短时间多次调用的情况下只执行一次
+		
 	}
+
 
 	private void previewCurrentPage() {
 		closeAllConnection();
@@ -155,7 +192,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		liveviews.clear();
 	}
 	
-	private void closeAllConnection() {
+	public void closeAllConnection() {
 		int i;
 		int connSize = connections.size();
 		
@@ -320,4 +357,6 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);
 	}
+
+	
 }

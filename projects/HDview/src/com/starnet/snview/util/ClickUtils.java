@@ -1,6 +1,6 @@
 package com.starnet.snview.util;
 
-public class CommonUtils {
+public class ClickUtils {
     private static long lastClickTime;
     public static boolean isFastDoubleClick() {
         long time = System.currentTimeMillis();

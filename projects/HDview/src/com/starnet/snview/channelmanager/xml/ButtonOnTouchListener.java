@@ -6,7 +6,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CommonUtils;
+import com.starnet.snview.util.ClickUtils;
 
 import android.annotation.SuppressLint;
 import android.view.MotionEvent;
@@ -43,7 +43,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		
-		if (!CommonUtils.isFastDoubleClick()) {
+		if (!ClickUtils.isFastDoubleClick()) {
 			selectCloudAccount = cloudAccountList.get(parentPos);
 			deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 			csxml = new CloudAccountXML();

@@ -15,6 +15,8 @@ import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.ClickEventUtils;
+import com.starnet.snview.util.ClickUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -75,49 +77,80 @@ public class RealplayActivity extends BaseActivity {
 
 	}
 
+	private int currentSelected = -1;
+	
 	private void test() {
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
-		// mLiveView1 = (LiveView) findViewById(R.id.liveview1);
-		//
-		//
-		// List<LiveView> l = new ArrayList<LiveView>();
-		// l.add(mLiveView1);
-		//
-		// ConnectionManager.getInstance().bindLiveViewList(l);
-		
-		// 根据单通道或多通道模式初始化相关控件
+
 		
 		
+		// 视频控件点击事件实际处理方法
+		ClickEventUtils.OnActionListener realVideoContainerClickListener = new ClickEventUtils.OnActionListener() {
+	
+			@Override
+			public void OnAction(int clickCount, Object... params) {
+				LiveViewItemContainer lvContainer = (LiveViewItemContainer) params[0];
+				int pos = liveViewManager.getIndexOfLiveView(lvContainer);
+				int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+				
+				if (index > liveViewManager.getLiveViewTotalCount()) {  
+					return;  // 非有效通道，不作处理 
+				}
+				
+				liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
+				
+				if (clickCount == ClickEventUtils.CLICK) { // 单击事件，视频选择
+					liveViewManager.selectLiveView(index);
+				} else if (clickCount == ClickEventUtils.DOUBLE_CLICK){ // 双击事件，视频模式切换
+					liveViewManager.closeAllConnection();  // 关闭正在预览的设备
+					
+					if (liveViewManager.isMultiMode()) { // 切换到单通道模式
+						liveViewManager.setMultiMode(false);							
+						liveViewManager.preview(index);
+					} else { // 切换到多通道模式
+						liveViewManager.setMultiMode(true);
+						
+						int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+						int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+						
+						liveViewManager.preview(1, currPageEnd - currPageStart + 1);
+						
+					}
+					
+					liveViewManager.selectLiveView(index);					
+				}
+				
+				mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+				mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+				
+				
+				//currentSelected = index;  // 保存当前视频索引
+			}
+		};
+		
+		final ClickEventUtils clickUtils = new ClickEventUtils(realVideoContainerClickListener);
+		
+		// 视频控件点击事件
 		final LiveViewItemContainer.OnLiveViewContainerClickListener onLiveViewContainerClickListener 
 			= new LiveViewItemContainer.OnLiveViewContainerClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				LiveViewItemContainer lvContainer = (LiveViewItemContainer) v;
-				int pos = liveViewManager.getIndexOfLiveView(lvContainer);
-				int index = (page - 1) * 4 + pos;
-
-				liveViewManager.selectLiveView(index);
+				int pos = liveViewManager.getIndexOfLiveView((LiveViewItemContainer)v);
+				clickUtils.makeContinuousClickCalledOnce(pos, v);
 			}
 		};
 		
 		
-//		liveViewContainer1 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem1);
-//
-//		liveViewContainer1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-//		liveViewContainer1.findSubViews();
-//		liveViewContainer1.initListener();
-//		
-//		liveViewContainer1.getSurfaceView().setLayoutParams(param);
-//		
-//		liveViewManager.addLiveView(liveViewContainer1);
-		
+
+		// 初始化视频区域布局大小
 		final int screenWidth = GlobalApplication.getInstance().getScreenWidth();
 		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(screenWidth, screenWidth);
 		
 		mVideoRegion.setLayoutParams(param);
 		
+		// 单通道/多通道模式切换 事件
 		LiveViewManager.OnVideoModeChangedListener onVideoModeChangedListener
 			= new LiveViewManager.OnVideoModeChangedListener() {
 
@@ -191,6 +224,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		liveViewManager.setOnVideoModeChangedListener(onVideoModeChangedListener);
 		
+		// 初始化为多通道模式
 		onVideoModeChangedListener.OnVideoModeChanged(true);
 	}
 
