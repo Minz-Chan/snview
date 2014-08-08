@@ -53,10 +53,11 @@ public class Connection extends DemuxingIoHandler {
     private int port;
     private String username;
     private String password;
+    private int channel;
     private SocketConnector connector;
     private IoSession session;
     
-    private int channel;
+   private boolean isDisposed;
     
     private H264DecodeUtil mH264decoder;
     
@@ -77,6 +78,8 @@ public class Connection extends DemuxingIoHandler {
     
     
     private void init() {
+    	isDisposed = false;
+    	
     	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
     	initConnector();        
@@ -84,6 +87,7 @@ public class Connection extends DemuxingIoHandler {
     }
     
     public void reInit() {
+    	isDisposed = false;
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
@@ -137,12 +141,16 @@ public class Connection extends DemuxingIoHandler {
 	public void setChannel(int channel) {
 		this.channel = channel;
 	}
+	
+	public void setDisposed(boolean isDisposed) {
+		this.isDisposed = isDisposed;
+	}
     
     public boolean isConnected() {
         return (session != null && session.isConnected());
     }
 
-    public void connect() {
+    public synchronized void connect() {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
         try {
@@ -150,6 +158,12 @@ public class Connection extends DemuxingIoHandler {
         }
         catch (RuntimeIoException e) {
             e.printStackTrace();
+        } finally {
+        	if (isDisposed && session != null) {
+        		session.close(true);
+        		//connector.dispose();
+        		System.out.println("isDisposed: true");
+        	}
         }
     }
 
@@ -248,13 +262,15 @@ public class Connection extends DemuxingIoHandler {
     	
     }
 
-    public void disconnect() {
+    public synchronized void disconnect() {
         if (session != null) {
+        	System.out.println("###$$$session " + session + " closed...");
+        	
             session.close(true).awaitUninterruptibly(CONNECT_TIMEOUT);
             session = null;
-            
-            System.out.println(this + "(" + host + ":" + port + ")@disconnected...");
-        }
+        } 
+        
+        isDisposed = true;
     }
     
     public void bindLiveViewListener(OnLiveViewChangedListener listener) {
@@ -265,7 +281,6 @@ public class Connection extends DemuxingIoHandler {
 	public void sessionCreated(IoSession session) throws Exception {
 		if (mLiveViewChangedListener != null) {
 			session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
-			System.out.println(this + "@connected... " + mLiveViewChangedListener + "@liveViewChangedListener");
 		}
 		
 		if (mH264decoder != null) {
@@ -300,7 +315,6 @@ public class Connection extends DemuxingIoHandler {
 		
 		
 		if (mLiveViewChangedListener != null) {
-			System.out.println("Session " + session.getId() + " is closed...   method onDisplayContentUpdated is called");
 			mLiveViewChangedListener.onDisplayContentReset();
 		}
 		

@@ -172,7 +172,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 
 
-	private void previewCurrentPage() {
+	private synchronized void previewCurrentPage() {
 		closeAllConnection();
 		
 		int startIndex = pager.getCurrentIndex();
@@ -199,6 +199,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		for (i = 0; i < connSize; i++) {
 			if (connections.get(i).isConnected()) {
 				connections.get(i).disconnect();
+			} else {
+				connections.get(i).setDisposed(true);  // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
 			}
 		}
 	}
@@ -218,6 +220,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public int selectLiveView(int index) {
+		int lastIndex = currentIndex;
+		
 		currentIndex = index;
 		
 		int pageCapacity = pager.getPageCapacity();
@@ -225,17 +229,23 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		int i;
 		int lvSize = liveviews.size();
 		
+		// 设置新视频项的选择框，并去除上一视频项的选择框
+		WindowLinearLayout w = null;
 		for (i = 0; i < lvSize; i++) {
-			WindowLinearLayout w = liveviews.get(i).getWindowLayout();
 			if (i == (pos - 1)) {
+				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(true);
-			} else {
+				w.invalidate();
+			} else if (i == (lastIndex - 1)) {
+				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(false);
-			}
+				w.invalidate();
+			}	
 			
-			w.requestLayout();
 			
 		}
+		
+		w = null;
 		
 		return currentIndex;
 	}

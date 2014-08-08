@@ -10,18 +10,15 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
-import com.starnet.snview.component.liveview.LiveView;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.ClickEventUtils;
-import com.starnet.snview.util.ClickUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -46,17 +43,17 @@ public class RealplayActivity extends BaseActivity {
 	private LinearLayout mPTZControlbarMenu;
 	private LinearLayout mPTZPopFrame;
 
-	private LiveViewItemContainer liveViewContainer1;
-	// private LinearLayout mToolbarSubMenu;
-	// private TextView mToolbarSubMenuText;
+//	private LiveViewItemContainer liveViewContainer1;
+//	private LinearLayout mToolbarSubMenu;
+//	private TextView mToolbarSubMenuText;
 
-	private LiveView mLiveView1;
-	private LiveView mLiveView2;
-	private LiveView mLiveView3;
-	private LiveView mLiveView4;
-	
-	
-	private int page = 1;
+//	private LiveView mLiveView1;
+//	private LiveView mLiveView2;
+//	private LiveView mLiveView3;
+//	private LiveView mLiveView4;
+//	
+//	
+//	private int page = 1;
 	
 	private LiveViewManager liveViewManager;
 	
@@ -77,7 +74,6 @@ public class RealplayActivity extends BaseActivity {
 
 	}
 
-	private int currentSelected = -1;
 	
 	private void test() {
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
@@ -691,6 +687,8 @@ public class RealplayActivity extends BaseActivity {
 			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 			
 			liveViewManager.preview();
+			
+			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 			
 			break;
 		default:
