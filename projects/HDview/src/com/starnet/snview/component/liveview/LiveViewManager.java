@@ -220,7 +220,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public int selectLiveView(int index) {
 		currentIndex = index;
 		
-		int pos = ((index % 4) == 0) ? 4 : (index % 4); // 在4个LiveViewItemContainer中的位置
+		int pageCapacity = pager.getPageCapacity();
+		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity); // 在4(或1)个LiveViewItemContainer中的位置
 		int i;
 		int lvSize = liveviews.size();
 		
