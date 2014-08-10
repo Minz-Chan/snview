@@ -1,6 +1,7 @@
 package com.starnet.snview.syssetting;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -10,8 +11,8 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,9 +25,11 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
+import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class CloudAccountSettingActivity extends BaseActivity {
@@ -44,50 +47,75 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	private RadioGroup isenableRadioGroup;
 
 	private CloudAccount cloudAccount;
-	private Thread thread;
 	private CloudAccountXML caXML;
 	private String showStatus;
-//	private CloudAccount clickCloudAccount;
 
-	private Handler handler = new Handler() {
+	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
+	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
+	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
+	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
+	private CloudService cloudService = new CloudServiceImpl("conn1");
+	private List<DVRDevice> deviceInfoList;
+	String server;
+	String port;
+	String username;
+	String password;
+
+	// private CloudAccount clickCloudAccount;
+
+	private SynObject synObj = new SynObject();
+
+	private Handler responseHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+
+			if (synObj.getStatus() == SynObject.STATUS_RUN) {
+				return;
+			}
+
+			dismissDialog(1);
+
+			// 解除挂起， 程序往下执行
+			synObj.resume();
+
+			String printSentence = "";
+			String errMsg = "";
+
 			switch (msg.what) {
 			case 0:
 				Toast toast0 = Toast.makeText(CloudAccountSettingActivity.this,showStatus, Toast.LENGTH_LONG);
 				toast0.show();
 				dismissDialog(1);
 				break;
-			case 1:
-				String sentence1 = "添加成功...";
-				Toast toast1 = Toast.makeText(CloudAccountSettingActivity.this,sentence1, Toast.LENGTH_LONG);
+			case DDNS_RESP_SUCC:
+				printSentence = "添加成功...";
+				Toast toast1 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
+				caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
+				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("cloudAccount",cloudAccount);
+				intent.putExtras(bundle);
+				setResult(3, intent);
 				break;
-			case 2:
-				String sentence2 = "端口号错误，请检查端口号...";
-				Toast toast2 = Toast.makeText(CloudAccountSettingActivity.this,sentence2, Toast.LENGTH_SHORT);
-				toast2.show();
-				dismissDialog(1);
+			case DDNS_RESP_FAILURE:
+				errMsg = msg.getData().getString("ERR_MSG");
+				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				CloudAccountSettingActivity.this.finish();
 				break;
-			case 3:
-				String sentence3 = "您还有包含未填写的内容，请填写每一项内容...";
-				Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,sentence3, Toast.LENGTH_LONG);
-				toast3.show();
-				dismissDialog(1);
+			case DDNS_SYS_FAILURE:
+				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
+				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				CloudAccountSettingActivity.this.finish();
 				break;
-			case 4:	
-				String text = "已经包含该用户，不需要再次添加...";
-				Toast toast = Toast.makeText(CloudAccountSettingActivity.this, text,Toast.LENGTH_SHORT);
-				toast.show();
-				dismissDialog(1);
+			case DDNS_REQ_TIMEOUT:
+				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
+				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				CloudAccountSettingActivity.this.finish();
 				break;
-			case 5:	
-				String text5 = "域名错误，请检查域名...";
-				Toast toast5 = Toast.makeText(CloudAccountSettingActivity.this, text5,Toast.LENGTH_SHORT);
-				toast5.show();
-				dismissDialog(1);
+			default:
 				break;
 			}
 		}
@@ -116,7 +144,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 		isenableRadioGroup = (RadioGroup) findViewById(R.id.cloudaccount_setting_isenable_radioGroup);
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
-		
+
 	}
 
 	private void setListeners() {
@@ -136,95 +164,100 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				} else if (isenablNoRadioBtn.isChecked()) {
 					cloudAccount.setEnabled(false);
 				}
-				showDialog(1);
-				thread = new Thread() {
-					private Message message = new Message();
+				
+				// 验证是否有为空的现象
+				server = serverEditText.getText().toString();
+				port = portEditText.getText().toString();
+				username = usernameEditText.getText().toString();
+				password = passwordEditText.getText().toString();
 
-					@Override
-					public void run() {
-						super.run();
-						// 验证是否有为空的现象
-						String server = serverEditText.getText().toString();
-						String port = portEditText.getText().toString();
-						String username = usernameEditText.getText().toString();
-						String password = passwordEditText.getText().toString();
-
-						if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
-							cloudAccount.setDomain(server);
-							cloudAccount.setPassword(password);
-							cloudAccount.setUsername(username);
-							cloudAccount.setPort(port);
-							caXML = new CloudAccountXML();
-							try {
-								List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
-								boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
-								if (result) {
-									message.what = 4;// 代表已经包含...
-									handler.sendMessage(message);
-								} else {
-									CloudService cloudService = new CloudServiceImpl("conn1");
-									try {
-										Document doc = cloudService.SendURLPost(server, port,username, password);
-										String status = cloudService.readXmlStatus(doc);
-										if (status != null) {
-											showStatus = status;
-											message.what = 0;// 代表失败
-											handler.sendMessage(message);
-										} else {
-											message.what = 1;// 代表成功
-											handler.sendMessage(message);
-											Thread thread1 = new Thread() {
-												@Override
-												public void run() {
-													super.run();
-													caXML = new CloudAccountXML();
-													caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。。
-												}
-											};
-											thread1.start();
-											Intent intent = new Intent();
-											Bundle bundle = new Bundle();
-											bundle.putSerializable("cloudAccount",cloudAccount);
-											intent.putExtras(bundle);
-											setResult(3, intent);
-										}
-									} catch (IOException e) {
-										e.printStackTrace();
-										message.what = 2;// 代表“端口号错误”
-										handler.sendMessage(message);
-									}catch (DocumentException e) {
-										message.what = 5;// 代表“域名错误”
-										handler.sendMessage(message);
-									} 
-								}
-							} catch (Exception e1) {
-								System.out.println(e1.toString());
-							}
+				if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
+					cloudAccount.setDomain(server);
+					cloudAccount.setPassword(password);
+					cloudAccount.setUsername(username);
+					cloudAccount.setPort(port);
+					caXML = new CloudAccountXML();
+					try {
+						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
+						boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
+						if (result) {
+							String printSentence = "已经包含该用户，不需要再次添加...";
+							Toast toast = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_SHORT);
+							toast.show();
 						} else {
-							message.what = 3;// 代表“包含”未填写的内容
-							handler.sendMessage(message);
+							requset4DeviceList();
+							synObj.suspend();// 挂起等待请求结果
 						}
+					} catch (Exception e1) {
+						System.out.println(e1.toString());
 					}
-				};
-				thread.start();
+				} else {
+					String printSentence = "您还有包含未填写的内容，请补充完整...";
+					Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+					toast3.show();
+				}
 			}
 		});
 	}
 
+	private void requset4DeviceList() {
+		showDialog(1);
+		(new RequestDeviceInfoThread(responseHandler)).start();
+	}
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		ProgressDialog progress = ProgressDialog.show(this, "","正在验证客户有效性，请等待...", true, true);
-		progress.setOnCancelListener(new OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				dismissDialog(1);
-				if (thread != null) {
-					thread.suspend();
-					return;
+		switch (id) {
+		case 1:
+			ProgressDialog progress = ProgressDialog.show(this, "","正在验证客户有效性，请等待...", true, true);
+			progress.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dismissDialog(1);
+					synObj.resume();
+					CloudAccountSettingActivity.this.finish();
 				}
+			});
+			return progress;
+		default:
+			return null;
+		}
+	}
+
+	class RequestDeviceInfoThread extends Thread {
+		private Handler handler;
+		public RequestDeviceInfoThread(Handler handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			Message msg = new Message();
+			try {
+				Document doc = cloudService.SendURLPost(server, port, username,password);
+				String requestResult = cloudService.readXmlStatus(doc);
+				if (requestResult == null) // 请求成功，返回null
+				{
+					deviceInfoList = cloudService.readXmlDVRDevices(doc);
+					msg.what = DDNS_RESP_SUCC;
+				} else { // 请求失败，返回错误原因
+					Bundle errMsg = new Bundle();
+					msg.what = DDNS_RESP_FAILURE;
+					errMsg.putString("ERR_MSG", requestResult);
+					msg.setData(errMsg);
+				}
+			} catch (DocumentException e) {
+				msg.what = DDNS_SYS_FAILURE;
+				e.printStackTrace();
+			} catch (SocketTimeoutException e) {
+				msg.what = DDNS_REQ_TIMEOUT;
+				e.printStackTrace();
+			} catch (IOException e) {
+				msg.what = DDNS_SYS_FAILURE;
+				e.printStackTrace();
 			}
-		});
-		return progress;
+			handler.sendMessage(msg);
+		}
 	}
 
 	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
@@ -236,10 +269,9 @@ public class CloudAccountSettingActivity extends BaseActivity {
 			String cAPort = cA.getPort();
 			String cAUsername = cA.getUsername();
 			String cAPassword = cA.getPassword();
-			/*boolean isEnabled = cA.isEnabled();*/
+			/* boolean isEnabled = cA.isEnabled(); */
 			if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-				&& cloudAccount.getPassword().equals(cAPassword)&& cloudAccount.getPort().equals(cAPort)
-				) {/*&&(isEnabled == cloudAccount.isEnabled())*/
+				&& cloudAccount.getPassword().equals(cAPassword)&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*/
 				result = true;
 				break;
 			}

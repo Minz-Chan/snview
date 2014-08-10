@@ -121,9 +121,17 @@ public class ChannelListActivity extends BaseActivity {
 		for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
 			String conn_name = "conn1";
 			CloudAccount cAccount = cloudAccounts.get(i);
-			CloudService cloudService = new CloudServiceImpl(conn_name);
-			netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
-			netThread.start();// 线程开启，进行网络访问
+			boolean isEnable = cAccount.isEnabled();
+			if(isEnable){
+				cAccount.setRotate(false);
+			}else{
+				cAccount.setRotate(true);
+			}
+			if(isEnable){//如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
+				CloudService cloudService = new CloudServiceImpl(conn_name);
+				netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
+				netThread.start();// 线程开启，进行网络访问
+			}
 		}
 
 		File file = new File(CLOUD_ACCOUNT_PATH);

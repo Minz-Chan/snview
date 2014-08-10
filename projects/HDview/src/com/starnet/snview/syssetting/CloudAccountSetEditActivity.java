@@ -65,7 +65,7 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 				clickCloudAccount.setPassword(psd);
 				clickCloudAccount.setUsername(username);
 				
-				caXML.addNewCloudAccoutNodeToRootXML(fileName, clickCloudAccount);
+				caXML.addNewCloudAccoutNodeToRootXML(fileName, clickCloudAccount);//添加到文档中。。。
 				
 				bundle.putSerializable("ca",clickCloudAccount);
 				intent.putExtras(bundle);
@@ -143,9 +143,8 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 						boolean isEnable = false;
 						if (isenablYseRadioBtn.isChecked()) {
 							isEnable = true;
-						} else if (isenablNoRadioBtn.isChecked()) {
-							isEnable = false;
 						}
+						clickCloudAccount.setEnabled(isEnable);
 
 						if (!server.equals("") && !port.equals("")&& !psd.equals("") && !username.equals("")) {
 							thread = new Thread() {// 用于验证用户信息的正确，如果正确则写入文档中，否则不写入文档中；

@@ -58,7 +58,6 @@ public class NetCloudAccountThread extends Thread {
 				msg.setData(data);//置为1，表示获取成功
 				netHandler.sendMessage(msg);
 			}else {//网络访问失败
-
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountFail(data,cAccount);//封装数据:将网络访问获取得到的数据打包			
 				data.putSerializable("netCloudAccount", cAccount);
@@ -94,7 +93,7 @@ public class NetCloudAccountThread extends Thread {
 		cloudAccount.setPassword(password);
 		
 		cloudAccount.setExpanded(false);//暂时设置
-		cloudAccount.setEnabled(true);//暂时设置
+//		cloudAccount.setEnabled(true);//暂时设置
 		
 		int dvrDeviceSize = dvrDevices.size();
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();

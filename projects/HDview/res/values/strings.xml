@@ -72,5 +72,8 @@
     <string name="device_manager_ip">设备IP</string>
     
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
+    <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
+    <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>
+    <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查域名和端口设置</string>
     
 </resources>
