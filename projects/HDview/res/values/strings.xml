@@ -76,4 +76,11 @@
     <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>
     <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查域名和端口设置</string>
     
+    <string name="edit_infor_right">信息编辑正确，保存成功</string>
+    <string name="domain_info_not_null">域名不能为空，请填写</string>
+    <string name="port_info_not_null">端口号不能为空，请填写</string>
+    <string name="username_info_not_null">用户名不能为空，请填写</string>
+    <string name="password_info_not_null">密码不能为空，请重设</string>
+    <string name="identify_user_right">正在验证客户有效性，请等待</string>
+        
 </resources>

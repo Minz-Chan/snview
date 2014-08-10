@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 //import java.util.List;
 
+
+
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -28,9 +32,8 @@ import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.SynObject;
 
+@SuppressLint({ "HandlerLeak", "SdCardPath" })
 public class CloudAccountSetEditActivity extends BaseActivity {
-	
-	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	private EditText serverEditText;
 	private EditText portEditText;
@@ -41,18 +44,20 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 
 	private CloudAccount clickCloudAccount = new CloudAccount();
 	private SynObject synObj = new SynObject();
-	
+
 	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
 	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
 	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
 	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
 	private CloudService cloudService = new CloudServiceImpl("conn1");
-	
+
 	private String server;
 	private String port;
 	private String username;
 	private String psd;
 	private Handler responseHandler = new Handler() {
+		@SuppressWarnings("deprecation")
+		@SuppressLint("SdCardPath")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -63,154 +68,41 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 			dismissDialog(1);
 			// 解除挂起， 程序往下执行
 			synObj.resume();
-			String printSentence = "";
 			String errMsg = "";
 			switch (msg.what) {
 			case DDNS_RESP_SUCC:
-				String serverSentence = "信息编辑正确，保存成功...";
+				String serverSentence = getString(R.string.edit_infor_right);
 				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
 				dismissDialog(1);
-				//未改变数据之前进行删除操作...
+				// 未改变数据之前进行删除操作...
 				CloudAccountXML caXML = new CloudAccountXML();
 				String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";
-				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);				
+				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-//				clickCloudAccount.setDomain(server);
-//				clickCloudAccount.setPort(port);
-//				clickCloudAccount.setPassword(psd);
-//				clickCloudAccount.setUsername(username);				
-				caXML.addNewCloudAccoutNodeToRootXML(fileName, clickCloudAccount);//添加到文档中。。。				
-				bundle.putSerializable("ca",clickCloudAccount);
+				caXML.addNewCloudAccoutNodeToRootXML(fileName,clickCloudAccount);// 添加到文档中。。。
+				bundle.putSerializable("ca", clickCloudAccount);
 				intent.putExtras(bundle);
 				setResult(20, intent);
 				CloudAccountSetEditActivity.this.finish();
-				break;			
-//				printSentence = "添加成功...";
-//				Toast toast1 = Toast.makeText(CloudAccountSetEditActivity.this,printSentence, Toast.LENGTH_LONG);
-//				toast1.show();
-//				dismissDialog(1);
-//				caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
-//				Intent intent = new Intent();
-//				Bundle bundle = new Bundle();
-//				bundle.putSerializable("cloudAccount",cloudAccount);
-//				intent.putExtras(bundle);
-//				setResult(3, intent);
-//				CloudAccountSetEditActivity.this.finish();
-				
+				break;
 			case DDNS_RESP_FAILURE:
 				errMsg = msg.getData().getString("ERR_MSG");
-				Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountSetEditActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_SYS_FAILURE:
 				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
-				Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountSetEditActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
-				Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountSetEditActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			default:
 				break;
 			}
 		}
 	};
-	
-	
-	
-//	private Handler hanler = new Handler() {
-//		@Override
-//		public void handleMessage(Message msg) {
-//			super.handleMessage(msg);
-//			String serverSentence="";
-//			switch (msg.what) {
-//			case 0:
-//				serverSentence = "信息编辑正确，保存成功...";
-//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//				dismissDialog(1);
-//				//未改变数据之前进行删除操作...
-//				CloudAccountXML caXML = new CloudAccountXML();
-//				String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";
-//				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);
-//				
-//				Intent intent = new Intent();
-//				Bundle bundle = new Bundle();
-//				clickCloudAccount.setDomain(server);
-//				clickCloudAccount.setPort(port);
-//				clickCloudAccount.setPassword(psd);
-//				clickCloudAccount.setUsername(username);
-//				
-//				caXML.addNewCloudAccoutNodeToRootXML(fileName, clickCloudAccount);//添加到文档中。。。
-//				
-//				bundle.putSerializable("ca",clickCloudAccount);
-//				intent.putExtras(bundle);
-//				setResult(20, intent);
-//				
-//				//写入文档中；替换掉原来的星云账号....?????????????策略：先删除后替换....
-//				break;
-//			case 1:
-//				serverSentence = printMessage;
-//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//				dismissDialog(1);
-//				break;
-//			case 2:
-//				serverSentence = "端口号错误,请检查...";
-//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//				dismissDialog(1);
-//				break;
-//			case 3:
-//				serverSentence = "域名错误,请检查...";
-//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//				dismissDialog(1);
-//				break;
-//				super.handleMessage(msg);
-//
-//				if (synObj.getStatus() == SynObject.STATUS_RUN) {
-//					return;
-//				}
-//
-//				dismissDialog(1);
-//
-//				// 解除挂起， 程序往下执行
-//				synObj.resume();
-//
-//				String printSentence = "";
-//				String errMsg = "";
-//
-//				switch (msg.what) {
-//				case DDNS_RESP_SUCC:
-//					printSentence = "添加成功...";
-//					Toast toast1 = Toast.makeText(CloudAccountSetEditActivity.this,printSentence, Toast.LENGTH_LONG);
-//					toast1.show();
-//					dismissDialog(1);
-//					caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
-//					Intent intent1 = new Intent();
-//					Bundle bundle1 = new Bundle();
-//					bundle.putSerializable("cloudAccount",cloudAccount);
-//					intent.putExtras(bundle);
-//					setResult(3, intent);
-//					CloudAccountSetEditActivity.this.finish();
-//					break;
-//				case DDNS_RESP_FAILURE:
-//					errMsg = msg.getData().getString("ERR_MSG");
-//					Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
-//					break;
-//				case DDNS_SYS_FAILURE:
-//					errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
-//					Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
-//					break;
-//				case DDNS_REQ_TIMEOUT:
-//					errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
-//					Toast.makeText(CloudAccountSetEditActivity.this, errMsg, Toast.LENGTH_LONG).show();
-//					break;
-//				default:
-//					break;
-//				
-//				
-//				
-//			}
-//		}
-//	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -235,25 +127,25 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 					public void onClick(View v) {
 						server = serverEditText.getText().toString();
 						if (server.equals("")) {
-							String serverSentence = "域名不能为空，请重设...";
+							String serverSentence = getString(R.string.domain_info_not_null);
 							Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
 						port = portEditText.getText().toString();
 						if (port.equals("")) {
-							String portSentence = "端口号不能为空，请重设...";
+							String portSentence = getString(R.string.port_info_not_null);
 							Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
 						username = usernameEditText.getText().toString();
 						if (username.equals("")) {
-							String usernameSentence = "用户名不能为空，请重设...";
+							String usernameSentence = getString(R.string.username_info_not_null);
 							Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
 						psd = passwordEditText.getText().toString();
 						if (psd.equals("")) {
-							String psdSentence = "用户名不能为空，请重设...";
+							String psdSentence = getString(R.string.password_info_not_null);
 							Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
 							return;
 						}
@@ -263,7 +155,8 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 						}
 						clickCloudAccount.setEnabled(isEnable);
 
-						if (!server.equals("") && !port.equals("")&& !psd.equals("") && !username.equals("")) {
+						if (!server.equals("") && !port.equals("")
+								&& !psd.equals("") && !username.equals("")) {
 							clickCloudAccount.setDomain(server);
 							clickCloudAccount.setPort(port);
 							clickCloudAccount.setPassword(psd);
@@ -316,10 +209,11 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		switch(id){
+		switch (id) {
 		case 1:
-			ProgressDialog progress = ProgressDialog.show(this, "","正在验证客户有效性，请等待...", true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.identify_user_right), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					dismissDialog(1);
@@ -327,18 +221,20 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 				}
 			});
 			return progress;
-		default :return null;	
+		default:
+			return null;
 		}
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	private void requset4DeviceList() {
 		showDialog(1);
 		(new RequestDeviceInfoThread(responseHandler)).start();
 	}
-	
+
 	class RequestDeviceInfoThread extends Thread {
 		private Handler handler;
-		
+
 		public RequestDeviceInfoThread(Handler handler) {
 			this.handler = handler;
 		}
@@ -351,7 +247,6 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 				String requestResult = cloudService.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
-//					deviceInfoList = cloudService.readXmlDVRDevices(doc);
 					msg.what = DDNS_RESP_SUCC;
 				} else { // 请求失败，返回错误原因
 					Bundle errMsg = new Bundle();
