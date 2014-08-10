@@ -12,8 +12,13 @@ public class Pager {
 
 	private List<PageNode> pageList;
 	private PageNode current;
-
+	
+	
 	public Pager(int total, int pageCapacity) {
+		this(total, pageCapacity, 1);
+	}
+
+	public Pager(int total, int pageCapacity, int initIndex) {
 
 		this.total = total;
 		this.pageCapacity = pageCapacity;
@@ -50,8 +55,18 @@ public class Pager {
 		head.setPrevious(tail);
 		tail.setNext(head);
 
-		index = 1;
+		index = initIndex;
+		
+		int currPage = ((index % pageCapacity) == 0) ? (index / pageCapacity) : (index / pageCapacity + 1);
+		
 		current = head;
+		while (current != null) {
+			if (current.getPageNumber() == currPage) {
+				break;
+			}
+			
+			current = current.getNext();
+		}
 
 	}
 

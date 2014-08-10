@@ -29,16 +29,19 @@ public class H264DecodeUtil {
 	int mTrans = 0x0F0F0F0F;
 	
 	private int mInstanceId;
+	private boolean isCodecOpened = false;
 	
 	public H264DecodeUtil(String connName) {
 		mInstanceId = connName.hashCode();
 	}
 	
 	public int init(int width, int height) {
+		isCodecOpened = true;
 		return decoder.init(mInstanceId, width, height);  
 	}
 	
 	public int uninit() {
+		isCodecOpened = false;
 		return decoder.uninit(mInstanceId);
 	}
 
@@ -211,4 +214,15 @@ public class H264DecodeUtil {
 		
 		return result;
 	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if (decoder != null && isCodecOpened) {
+			decoder.uninit(mInstanceId);
+		}
+		
+		super.finalize();
+	}
+	
+	
 }

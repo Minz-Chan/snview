@@ -5,9 +5,12 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.LinearLayout;
 
 public class WindowLinearLayout extends LinearLayout {
+	public static final String TAG = "WindowLinearLayout";
+	
 	private boolean mIsSelected = false;
 	private int mLayoutHeight;
 	private int mLayoutWidth;
@@ -27,6 +30,8 @@ public class WindowLinearLayout extends LinearLayout {
 	}
 
 	protected void onDraw(Canvas canvas) {
+		long t1 = System.currentTimeMillis();
+		
 		super.onDraw(canvas);
 		this.mLayoutWidth = getMeasuredWidth();
 		this.mLayoutHeight = getMeasuredHeight();
@@ -52,6 +57,10 @@ public class WindowLinearLayout extends LinearLayout {
 					0.0F, paint);
 		}
 
+		long t2 = System.currentTimeMillis();
+		
+		Log.i(TAG, "t1: " + t1 + ", t2: " + t2);
+		Log.i(TAG, "Time consumed during OnDraw: " + (t2 - t1) + "ms");
 		//
 		//
 		//

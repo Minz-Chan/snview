@@ -6,15 +6,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.widget.FrameLayout;
 
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.realplay.PreviewDeviceItem;
-import com.starnet.snview.realplay.RealplayActivity;
-import com.starnet.snview.util.ClickEventUtil;
+import com.starnet.snview.util.ClickEventUtils;
 
-public class LiveViewManager implements ClickEventUtil.OnActionListener {
+public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private List<LiveViewItemContainer> liveviews; // 至多4个
 	private List<Connection> connections;          // 对应liveviews
 	
@@ -35,8 +32,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	
 	private Pager pager;
 	
-	private ClickEventUtil clickEventUtil;
-	
+	private ClickEventUtils callEventUtil;
 	
 	public LiveViewManager(Context context) {
 		this.context = context;
@@ -47,7 +43,7 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		isMultiMode = false;
 		
 		executor = Executors.newFixedThreadPool(4);
-		clickEventUtil = new ClickEventUtil(this);
+		callEventUtil = new ClickEventUtils(this);
 	}
 	
 	public void setDeviceList(List<PreviewDeviceItem> devices) {
@@ -82,7 +78,10 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	}
 
 
-
+	/**
+	 * 切换预览模式
+	 * @param isMultiMode true，多通道预览柜式； false，单画面预览模式
+	 */
 	public void setMultiMode(boolean isMultiMode) {
 		if (this.isMultiMode == isMultiMode) {
 			return;
@@ -93,43 +92,87 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		if (onVideoModeChangedListener != null) {
 			onVideoModeChangedListener.OnVideoModeChanged(isMultiMode);
 		}
+		
+		switchPageMode();
 	}
 
+	private void switchPageMode() {
+		int total = pager.getTotalCount();
+		int pageCapacity = pager.getPageCapacity();
+		int index = pager.getCurrentIndex();
+		
+		if (isMultiMode) { // 多通道模式
+			if (pageCapacity != 4) {
+				pager = null;
+				pager = new Pager(total, 4, index);
+			}
+		} else { // 单多通道模式
+			if (pageCapacity != 1) {
+				pager = null;
+				pager = new Pager(total, 1, index);
+			}
+		}
+		
+	}
+	
+	public void setCurrenSelectedLiveViewtIndex(int index) {
+		pager.setCurrentIndex(index);
+	}
 	
 	public int getSelectedLiveViewIndex() {
 		return pager.getCurrentIndex();
+	}
+	
+	public int getCurrentPageNumber() {
+		return pager.getCurrentPage();
+	}
+	
+	public int getCurrentPageCount() {
+		return pager.getCurrentPageCount();
+	}
+	
+	public int getPageCapacity() {
+		return pager.getPageCapacity();
 	}
 	
 	public int getLiveViewTotalCount() {
 		return pager.getTotalCount();
 	}
 	
+	/**
+	 * 切换通道组至下一页，并根据下一页包含的通道个数进行预览操作。若下一页为当前页，则不执行任何操作。
+	 */
 	public synchronized void nextPage() {
-		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+		if ( pager == null || (pager.getTotalCount() <= pager.getPageCapacity())) {
 			return;
 		}
 		
 		pager.nextPage();
 		
-		clickEventUtil.makeContinuousClickCalledOnce();
+		callEventUtil.makeContinuousClickCalledOnce(0);
 	}
 	
+	/**
+	 * 切换通道组至上一页，并根据上一页包含的通道个数进行预览操作。若上一页为当前页，则不执行任何操作。
+	 */
 	public synchronized void previousPage() {
-		if (pager.getTotalCount() <= pager.getPageCapacity()) {
+		if ( pager == null || pager.getTotalCount() <= pager.getPageCapacity()) {
 			return;
 		}
 
 		pager.previousPage();
 		
-		clickEventUtil.makeContinuousClickCalledOnce();
+		callEventUtil.makeContinuousClickCalledOnce(0);
 	}
 	
 	@Override
-	public void OnAction() {
+	public void OnAction(int clickCount, Object... params) {
 		previewCurrentPage();  // 短时间多次调用的情况下只执行一次
+		
 	}
 
-	private void previewCurrentPage() {
+
+	private synchronized void previewCurrentPage() {
 		closeAllConnection();
 		
 		int startIndex = pager.getCurrentIndex();
@@ -149,13 +192,15 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 		liveviews.clear();
 	}
 	
-	private void closeAllConnection() {
+	public void closeAllConnection() {
 		int i;
 		int connSize = connections.size();
 		
 		for (i = 0; i < connSize; i++) {
 			if (connections.get(i).isConnected()) {
 				connections.get(i).disconnect();
+			} else {
+				connections.get(i).setDisposed(true);  // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
 			}
 		}
 	}
@@ -175,23 +220,32 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	}
 	
 	public int selectLiveView(int index) {
+		int lastIndex = currentIndex;
+		
 		currentIndex = index;
 		
-		int pos = ((index % 4) == 0) ? 4 : (index % 4); // 在4个LiveViewItemContainer中的位置
+		int pageCapacity = pager.getPageCapacity();
+		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity); // 在4(或1)个LiveViewItemContainer中的位置
 		int i;
 		int lvSize = liveviews.size();
 		
+		// 设置新视频项的选择框，并去除上一视频项的选择框
+		WindowLinearLayout w = null;
 		for (i = 0; i < lvSize; i++) {
-			WindowLinearLayout w = liveviews.get(i).getWindowLayout();
 			if (i == (pos - 1)) {
+				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(true);
-			} else {
+				w.invalidate();
+			} else if (i == (lastIndex - 1)) {
+				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(false);
-			}
+				w.invalidate();
+			}	
 			
-			w.requestLayout();
 			
 		}
+		
+		w = null;
 		
 		return currentIndex;
 	}
@@ -220,6 +274,9 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 //		for (n = 1; n <= count - connCount; n++) {
 //			connections.add(new Connection());
 //		}
+		
+
+		
 		connections.clear();
 		
 		int n;
@@ -247,12 +304,14 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 			
 			conn.bindLiveViewListener(liveviews.get(n - 1).getSurfaceView());
 			
+						
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
 					conn.connect();					
 				}
 			});
+			
 			
 		}
 	}
@@ -309,4 +368,6 @@ public class LiveViewManager implements ClickEventUtil.OnActionListener {
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);
 	}
+
+	
 }

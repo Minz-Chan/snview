@@ -27,8 +27,8 @@ public class H264Decoder {
         System.loadLibrary("H264Decoder");
     }
 
-	private static native int InitDecoder(int instance_id, int width, int height);
-    private static native int UninitDecoder(int instance_id); 
+	private static synchronized native int InitDecoder(int instance_id, int width, int height);
+    private static synchronized native int UninitDecoder(int instance_id); 
     private static native int DecoderNal(int instance_id, byte[] in, int insize, byte[] out);
     private static native int ProbeSPS(byte[] in, int insize, byte[] para);
     
