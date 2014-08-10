@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.ActivityManager;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,7 +15,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
@@ -98,9 +101,27 @@ public class SystemSettingActivity extends BaseActivity {
         logoutBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(getApplicationContext(), "ButtonPressed", Toast.LENGTH_LONG).show();
+//				Toast.makeText(getApplicationContext(), "ButtonPressed", Toast.LENGTH_LONG).show();
+				showTips();
 			}
 		});
+	}
+	private void showTips(){
+		Builder builder = new Builder(SystemSettingActivity.this);
+		builder.setTitle(getString(R.string.logout_ok));
+		builder.setPositiveButton(getString(R.string.channel_listview_ok), new DialogInterface.OnClickListener(){
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+//				ActivityManager activityMgr= (ActivityManager) SystemSettingActivity.this.getSystemService(Context.ACTIVITY_SERVICE );
+////				activityMgr.restartPackage();
+//				activityMgr.killBackgroundProcesses(getPackageName());
+				SystemSettingActivity.this.finish();
+			}
+		});
+		builder.setNegativeButton(getString(R.string.channel_listview_cancel), null);
+		
+		builder.show();
+//		AlertDialog alertDialog = 
 	}
 	
 	protected void gotoUpdate(){//zk。进入 更新界面。。。

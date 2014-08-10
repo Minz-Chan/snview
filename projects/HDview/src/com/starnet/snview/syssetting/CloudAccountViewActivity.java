@@ -46,6 +46,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				pos = position;
 				CloudAccount cloudAccount = cloudAccountList.get(position);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
@@ -84,13 +85,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 						thread.start();
 					}
 				 });
-				 builder.setNegativeButton(getString(R.string.channel_listview_cancel),new DialogInterface.OnClickListener(){
-					 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							
-						} 
-					 });
+				 builder.setNegativeButton(getString(R.string.channel_listview_cancel),null);
 				builder.show();
 				return false;
 			}

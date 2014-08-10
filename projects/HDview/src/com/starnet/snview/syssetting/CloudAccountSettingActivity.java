@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
-import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;

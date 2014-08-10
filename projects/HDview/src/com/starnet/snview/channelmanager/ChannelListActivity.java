@@ -86,7 +86,7 @@ public class ChannelListActivity extends BaseActivity {
 				if(cloudAccount!=null){
 					List<DeviceItem> deviceList = cloudAccount.getDeviceList();
 					if((deviceList!=null)&&(deviceList.size()>0)){
-						Collections.sort(deviceList, new PinyinComparator());
+						Collections.sort(deviceList, new PinyinComparator());//排序...
 					}
 				}
 			}

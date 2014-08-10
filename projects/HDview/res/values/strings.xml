@@ -82,5 +82,7 @@
     <string name="username_info_not_null">用户名不能为空，请填写</string>
     <string name="password_info_not_null">密码不能为空，请重设</string>
     <string name="identify_user_right">正在验证客户有效性，请等待</string>
+    
+    <string name="logout_ok">确定退出</string>
         
 </resources>

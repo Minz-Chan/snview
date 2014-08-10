@@ -1,6 +1,5 @@
 package com.starnet.snview.channelmanager;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.starnet.snview.R;
@@ -8,16 +7,12 @@ import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
-import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
@@ -25,7 +20,6 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 /**
  * 
  * @author zhaohongxu
@@ -116,6 +110,17 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		if (convertView == null) {
 			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout, null);
 		}
+		
+		//为组元素设置背景颜色...
+//		if((groupPosition == 0) ||(groupPosition == 1)){
+////			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_specific, null);
+////			parent.setBackgroundResource(R.color.gray_transplate);
+////			parent.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
+//			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
+//		}else{
+//			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
+//		}
+		
 		ProgressBar progressBar_net_load = (ProgressBar) convertView.findViewById(R.id.progressBar_net_load);
 		if (groupAccountList.get(groupPosition).isRotate()) {//判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
 			progressBar_net_load.setVisibility(View.GONE);
