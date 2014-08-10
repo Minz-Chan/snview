@@ -55,7 +55,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
 	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
 	private CloudService cloudService = new CloudServiceImpl("conn1");
-	private List<DVRDevice> deviceInfoList;
+//	private List<DVRDevice> deviceInfoList;
 	String server;
 	String port;
 	String username;
@@ -99,21 +99,19 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				bundle.putSerializable("cloudAccount",cloudAccount);
 				intent.putExtras(bundle);
 				setResult(3, intent);
+				CloudAccountSettingActivity.this.finish();
 				break;
 			case DDNS_RESP_FAILURE:
 				errMsg = msg.getData().getString("ERR_MSG");
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
-				CloudAccountSettingActivity.this.finish();
 				break;
 			case DDNS_SYS_FAILURE:
 				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
-				CloudAccountSettingActivity.this.finish();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
-				CloudAccountSettingActivity.this.finish();
 				break;
 			default:
 				break;
@@ -215,7 +213,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				public void onCancel(DialogInterface dialog) {
 					dismissDialog(1);
 					synObj.resume();
-					CloudAccountSettingActivity.this.finish();
+//					CloudAccountSettingActivity.this.finish();
 				}
 			});
 			return progress;
@@ -238,7 +236,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				String requestResult = cloudService.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
-					deviceInfoList = cloudService.readXmlDVRDevices(doc);
+//					deviceInfoList = cloudService.readXmlDVRDevices(doc);
 					msg.what = DDNS_RESP_SUCC;
 				} else { // 请求失败，返回错误原因
 					Bundle errMsg = new Bundle();

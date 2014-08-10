@@ -47,7 +47,7 @@ public class SynObject{
 	public void suspend() {
 		try {
 			status = STATUS_SUSPEND;
-	        Looper.getMainLooper();
+	        //Looper.getMainLooper();
 	        mHandler = new SynHandler();
 	        Looper.loop();
 		} catch (Exception e) {
