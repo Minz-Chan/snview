@@ -1,4 +1,4 @@
-package com.starnet.snview.channelmanager.xml;
+package com.starnet.snview.util;
 
 import android.os.Handler;
 import android.os.Looper;
