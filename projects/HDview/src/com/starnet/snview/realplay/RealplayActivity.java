@@ -13,6 +13,7 @@ import com.starnet.snview.component.VideoPager.ACTION;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.ClickEventUtils;
 
@@ -20,6 +21,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -57,14 +61,19 @@ public class RealplayActivity extends BaseActivity {
 //	private int page = 1;
 	
 	private LiveViewManager liveViewManager;
-	
 	private FrameLayout mVideoRegion;
+	
+	
 
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
 		super.onCreate(inState);
 		setContentView(R.layout.realplay_activity);
+		
+		
+		
+		 
 
 		GlobalApplication.getInstance().setScreenWidth(
 				ActivityUtility.getScreenSize(this).x);
@@ -75,6 +84,21 @@ public class RealplayActivity extends BaseActivity {
 
 	}
 
+	
+	private Handler mHandler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+
+			
+			
+			
+			super.handleMessage(msg);
+		}
+		
+		
+	};
+	
 	
 	private void test() {
 		Log.i(TAG, "In function test()");
@@ -226,9 +250,90 @@ public class RealplayActivity extends BaseActivity {
 		};
 		
 		liveViewManager.setOnVideoModeChangedListener(onVideoModeChangedListener);
-		
 		// 初始化为多通道模式
 		onVideoModeChangedListener.OnVideoModeChanged(true);
+		
+		StatusListener connectionStatusListener = new StatusListener() {
+
+			@Override
+			public void OnConnectionTrying(View v) {
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				//updateProgressbarStatus(c.getProgressBar(), true);
+				mHandler.post( new Runnable() {
+					@Override
+					public void run() {
+						if (c != null) {
+							c.getProgressBar().setVisibility(View.VISIBLE);	
+							c.getRefreshImageView().setVisibility(View.GONE);
+							Log.i(TAG, "ProgressBar@" + c.getProgressBar() + ", visible");
+						}
+					}
+				});
+						
+			}
+
+			@Override
+			public void OnConnectionFailed(View v) {
+				Log.i(TAG, "OnConnectionFailed");
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				mHandler.post( new Runnable() {
+					@Override
+					public void run() {
+						if (c != null) {
+							c.getProgressBar().setVisibility(View.INVISIBLE);
+							c.getRefreshImageView().setVisibility(View.VISIBLE);
+							
+						}
+					}
+				});
+				
+			}
+
+			@Override
+			public void OnConnectionEstablished(View v) {
+				
+				
+			}
+			
+			@Override
+			public void OnConnectionBusy(View v) {
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				//updateProgressbarStatus(c.getProgressBar(), false);
+				mHandler.post( new Runnable() {
+					@Override
+					public void run() {
+						if (c != null) {
+							c.getProgressBar().setVisibility(View.INVISIBLE);	
+							c.getRefreshImageView().setVisibility(View.GONE);
+							Log.i(TAG, "ProgressBar@" + c.getProgressBar() + ", invisible");
+						}
+					}
+				});
+				
+			}
+
+			@Override
+			public void OnConnectionClosed(View v) {
+				// TODO Auto-generated method stub
+				
+			}
+
+		};
+		
+		liveViewManager.setConnectionStatusListener(connectionStatusListener);
+		
+		
+	}
+	
+	private void updateProgressbarStatus(ProgressBar p, boolean visiable) {
+		if (visiable) {
+			p.setVisibility(View.VISIBLE);
+		} else {
+			p.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	private void initView() {

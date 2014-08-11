@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import android.content.Context;
 
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.ClickEventUtils;
 
@@ -28,6 +29,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private Context context;
 	
 	private OnVideoModeChangedListener onVideoModeChangedListener;
+	
+	private StatusListener connectionStatusListener;
 	
 	
 	private Pager pager;
@@ -71,6 +74,10 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public void setOnVideoModeChangedListener(
 			OnVideoModeChangedListener onVideoModeChangedListener) {
 		this.onVideoModeChangedListener = onVideoModeChangedListener;
+	}
+	
+	public void setConnectionStatusListener(StatusListener listener) {
+		this.connectionStatusListener = listener;
 	}
 
 	public Pager getPager() {
@@ -230,6 +237,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		int pageCapacity = pager.getPageCapacity();
 		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity); // 在4(或1)个LiveViewItemContainer中的位置
+		int lastPos = ((lastIndex % pageCapacity) == 0) ? pageCapacity : (lastIndex % pageCapacity);
 		int i;
 		int lvSize = liveviews.size();
 		
@@ -240,7 +248,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(true);
 				w.invalidate();
-			} else if (i == (lastIndex - 1)) {
+			} else if (i == (lastPos - 1)) {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(false);
 				w.invalidate();
@@ -298,6 +306,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			
 			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
 			
+			// 注册连接状态监听器
+			if (connectionStatusListener != null) {
+				conn.SetConnectionListener(connectionStatusListener); 
+			}
+			
 			conn.reInit();
 			
 			conn.setHost(p.getSvrIp());
@@ -306,7 +319,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
-			conn.bindLiveViewListener(liveviews.get(n - 1).getSurfaceView());
+			conn.bindLiveViewItem(liveviews.get(n - 1));
 			
 						
 			executor.execute(new Runnable() {

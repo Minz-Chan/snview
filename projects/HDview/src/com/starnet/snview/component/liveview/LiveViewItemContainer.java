@@ -6,6 +6,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -15,6 +17,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private WindowLinearLayout mWindowLayout;
 	private ViewGroup mPlaywindowFrame;
 	private LiveView mSurfaceView;
+	private ProgressBar mProgressBar;
+	private ImageView mRefresh;
 	private TextView mWindowInfoText;
 	
 	
@@ -34,6 +38,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	public void findSubViews() {
 		mWindowLayout = (WindowLinearLayout) findViewById(R.id.liveview_surface_infotext_layout);
 		mSurfaceView = (LiveView) findViewById(R.id.liveview_surfaceview);
+		mProgressBar = (ProgressBar) findViewById(R.id.liveview_progressbar);
+		mRefresh = (ImageView) findViewById(R.id.liveview_refresh_imageview);
 		mWindowInfoText = (TextView) findViewById(R.id.liveview_liveinfo_textview);
 	}
 	
@@ -52,15 +58,27 @@ public class LiveViewItemContainer extends RelativeLayout {
 			OnLiveViewContainerClickListener lvContainerClickListener) {
 		this.lvContainerClickListener = lvContainerClickListener;
 	}
+	
 	public WindowLinearLayout getWindowLayout() {
 		return mWindowLayout;
 	}
+	
 	public ViewGroup getPlaywindowFrame() {
 		return mPlaywindowFrame;
 	}
+	
 	public LiveView getSurfaceView() {
 		return mSurfaceView;
 	}
+	
+	public ProgressBar getProgressBar() {
+		return mProgressBar;
+	}
+	
+	public ImageView getRefreshImageView() {
+		return mRefresh;
+	}
+	
 	public TextView getWindowInfoText() {
 		return mWindowInfoText;
 	}

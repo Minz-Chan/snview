@@ -15,7 +15,11 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.view.View;
+
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.liveview.LiveView;
+import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.OnLiveViewChangedListener;
 import com.starnet.snview.protocol.codec.factory.OwspFactory;
 import com.starnet.snview.protocol.codec.factory.TlvMessageFactory;
@@ -44,7 +48,10 @@ import com.starnet.snview.util.RandomUtils;
 
 public class Connection extends DemuxingIoHandler {
 	private final static Logger LOGGER = LoggerFactory.getLogger(Connection.class);
+	
+	private AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
 	private AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
+	private AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
 	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 
 	public static final int CONNECT_TIMEOUT = 5000;
@@ -57,11 +64,14 @@ public class Connection extends DemuxingIoHandler {
     private SocketConnector connector;
     private IoSession session;
     
-   private boolean isDisposed;
+    private boolean isDisposed;
+   
     
     private H264DecodeUtil mH264decoder;
     
+    private LiveViewItemContainer mLiveViewItem;
     private OnLiveViewChangedListener mLiveViewChangedListener;
+    private StatusListener mConnectionListener;
     
     public Connection() {
     	this.channel = 1;
@@ -145,12 +155,43 @@ public class Connection extends DemuxingIoHandler {
 	public void setDisposed(boolean isDisposed) {
 		this.isDisposed = isDisposed;
 	}
+	
+	public void SetConnectionListener(StatusListener listener) {
+		if (listener == null) {
+			throw new IllegalArgumentException("Connection Listener can not be null");
+		}
+		
+		this.mConnectionListener = listener;
+	}
     
     public boolean isConnected() {
         return (session != null && session.isConnected());
     }
 
+    private void checkIfEverythingPrepared() {
+    	if (mH264decoder == null) {
+    		throw new IllegalStateException("H264 decoder should be initialized.");
+    	}
+    	
+    	if (mLiveViewItem == null) {
+    		throw new IllegalStateException("LiveViewItemContainer should be initialized.");
+    	}
+    	
+    	if (mLiveViewChangedListener == null) {
+    		throw new IllegalStateException("Surface view of LiveViewItemContainer should be initialized.");
+    	}
+    	
+    	if (mConnectionListener == null) {
+    		throw new IllegalStateException("Connection status listener should be initialized.");
+    	}
+    }
+    
     public synchronized void connect() {
+    	checkIfEverythingPrepared();
+    	
+    	
+    	mConnectionListener.OnConnectionTrying(mLiveViewItem);
+    	
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
         try {
@@ -159,11 +200,19 @@ public class Connection extends DemuxingIoHandler {
         catch (RuntimeIoException e) {
             e.printStackTrace();
         } finally {
-        	if (isDisposed && session != null) {
-        		session.close(true);
-        		//connector.dispose();
-        		System.out.println("isDisposed: true");
+        	if (isDisposed) {
+        		if (session != null) {
+        			session.close(true);
+            		System.out.println("isDisposed: true");
+            		
+                	mConnectionListener.OnConnectionFailed(mLiveViewItem);
+        		}
+        	} else {
+        		if (session == null) { // 连接建立失败
+                	mConnectionListener.OnConnectionFailed(mLiveViewItem);
+        		}
         	}
+        	
         }
     }
 
@@ -273,24 +322,36 @@ public class Connection extends DemuxingIoHandler {
         isDisposed = true;
     }
     
-    public void bindLiveViewListener(OnLiveViewChangedListener listener) {
-    	this.mLiveViewChangedListener = listener;
+    public void bindLiveViewItem(LiveViewItemContainer item) {
+    	if (item == null) {
+    		throw new IllegalArgumentException("Parameter LiveViewItemContainer can not be null");
+    	}
+    	
+    	this.mLiveViewItem = item;
+    	
+    	if (item.getSurfaceView() == null) {
+    		throw new IllegalArgumentException("Found not surface view in LiveViewItemContainer");
+    	}
+    	
+    	this.mLiveViewChangedListener = item.getSurfaceView();
+    	
+    	
     }
 
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
-		if (mLiveViewChangedListener != null) {
-			session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
-		}
-		
-		if (mH264decoder != null) {
-			session.setAttribute(H264DECODER, mH264decoder);
-		}
+		session.setAttribute(LIVEVIEW_ITEM, mLiveViewItem);
+		session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
+		session.setAttribute(CONNECTION_LISTENER, mConnectionListener);
+		session.setAttribute(H264DECODER, mH264decoder);
+
 		
 	}
 
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
+		mConnectionListener.OnConnectionEstablished(mLiveViewItem);
+		
 		login(session, username, password);
 	}
 
@@ -307,16 +368,19 @@ public class Connection extends DemuxingIoHandler {
 		// TODO Auto-generated method stub
 		//super.messageSent(session, message);
 	}
-
+	
+	
 	@Override
 	public void sessionClosed(IoSession session) throws Exception {
 		System.out.println("Session " + session.getId() + " is closed...");
 		connector.dispose();
 		
 		
-		if (mLiveViewChangedListener != null) {
-			mLiveViewChangedListener.onDisplayContentReset();
-		}
+		mLiveViewChangedListener.onDisplayContentReset();
+		
+		mConnectionListener.OnConnectionClosed(mLiveViewItem);
+		
+		
 		
 		
 		if (mH264decoder != null) {
@@ -325,10 +389,15 @@ public class Connection extends DemuxingIoHandler {
 		
 
 		this.mH264decoder = null;
+		this.mLiveViewItem = null;
 		this.mLiveViewChangedListener = null;
+		this.mConnectionListener = null;
 		this.connector = null;
 		this.H264DECODER = null;
+		this.LIVEVIEW_ITEM = null;
 		this.LIVEVIEW_LISTENER = null;
+		this.CONNECTION_LISTENER = null;
+
 		this.session = null;
 	}
 
@@ -336,5 +405,14 @@ public class Connection extends DemuxingIoHandler {
 	protected void finalize() throws Throwable {
 		System.out.println(this + "@finalized");
 		super.finalize();
+	}
+	
+	
+	public static interface StatusListener {
+		public void OnConnectionTrying(View v);      // 尝试建立连接事件
+		public void OnConnectionFailed(View v);      // 连接建立失败
+		public void OnConnectionEstablished(View v); // 连接建立成功事件
+		public void OnConnectionBusy(View v);        // 连接正在使用
+		public void OnConnectionClosed(View v);      // 连接关闭事件
 	}
 }
