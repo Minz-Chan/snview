@@ -23,7 +23,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	
 	
-	private OnLiveViewContainerClickListener lvContainerClickListener;
+	private OnLiveViewContainerClickListener mLvContainerClickListener;
+	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
 	
 	public LiveViewItemContainer(Context context, AttributeSet attrs) {
@@ -44,8 +45,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void initListener() {
-		if (lvContainerClickListener != null) {
-			this.setOnClickListener(lvContainerClickListener);
+		if (mLvContainerClickListener != null) {
+			this.setOnClickListener(mLvContainerClickListener);
+		}
+		
+		if (mRefreshButtonClickListener != null) {
+			mRefresh.setOnClickListener(mRefreshButtonClickListener);
 		}
 		
 		mWindowInfoText.setText("test...");
@@ -56,9 +61,14 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public void setLiveViewContainerClickListener(
 			OnLiveViewContainerClickListener lvContainerClickListener) {
-		this.lvContainerClickListener = lvContainerClickListener;
+		this.mLvContainerClickListener = lvContainerClickListener;
 	}
 	
+	
+	public void setRefreshButtonClickListener(
+			OnRefreshButtonClickListener RefreshButtonClickListener) {
+		this.mRefreshButtonClickListener = RefreshButtonClickListener;
+	}
 	public WindowLinearLayout getWindowLayout() {
 		return mWindowLayout;
 	}
@@ -84,7 +94,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	
-	public static interface OnLiveViewContainerClickListener extends View.OnClickListener{
-		
-	}
+	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
+	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
 }

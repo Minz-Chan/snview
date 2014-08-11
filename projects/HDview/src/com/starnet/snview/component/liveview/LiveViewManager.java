@@ -382,6 +382,23 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		}
 	}
 	
+	
+	public void tryPreview(int index) {
+		int pageCapacity = pager.getPageCapacity();
+		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity);
+		
+		final Connection conn = connections.get(pos - 1);  // 取得对应的连接
+		if (conn != null) {
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					conn.connect();					
+				}
+			});
+		}
+	}
+	
+	
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);
 	}

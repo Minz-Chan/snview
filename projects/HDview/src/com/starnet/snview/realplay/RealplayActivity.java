@@ -28,12 +28,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -85,6 +85,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 
 	
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 
 		@Override
@@ -169,6 +170,28 @@ public class RealplayActivity extends BaseActivity {
 			}
 		};
 		
+		final LiveViewItemContainer.OnRefreshButtonClickListener onRefreshButtonClickListener
+			= new LiveViewItemContainer.OnRefreshButtonClickListener() {
+				
+			@Override
+			public void onClick(View v) {
+				if (liveViewManager.getPager() == null) {
+					return;
+				}
+				
+				LiveViewItemContainer c = findVideoContainerByView(v);
+				
+				if (c != null) {
+					int pos = liveViewManager.getIndexOfLiveView(c);
+					int page = liveViewManager.getCurrentPageNumber();
+					int index = (page - 1 ) * liveViewManager.getPageCapacity() + pos;
+					
+					liveViewManager.tryPreview(index);
+				}
+				
+			}
+		};
+		
 		
 
 		// 初始化视频区域布局大小
@@ -204,21 +227,25 @@ public class RealplayActivity extends BaseActivity {
 						LiveViewItemContainer liveview4 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem4);
 						
 						liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						liveview1.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview1.findSubViews();
 						liveview1.initListener();
 						//liveview1.getSurfaceView().setBackgroundColor(Color.RED);
 						
 						liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						liveview2.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview2.findSubViews();
 						liveview2.initListener();
 						//liveview2.getSurfaceView().setBackgroundColor(Color.YELLOW);
 						
 						liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						liveview3.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview3.findSubViews();
 						liveview3.initListener();
 						//liveview3.getSurfaceView().setBackgroundColor(Color.WHITE);
 						
 						liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						liveview4.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview4.findSubViews();
 						liveview4.initListener();
 						//liveview4.getSurfaceView().setBackgroundColor(Color.GREEN);
@@ -236,6 +263,7 @@ public class RealplayActivity extends BaseActivity {
 						LiveViewItemContainer liveview = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem);
 						
 						liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						liveview.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview.findSubViews();
 						liveview.initListener();
 						//liveview.getSurfaceView().setBackgroundColor(Color.BLUE);
@@ -328,13 +356,20 @@ public class RealplayActivity extends BaseActivity {
 		
 	}
 	
-	private void updateProgressbarStatus(ProgressBar p, boolean visiable) {
-		if (visiable) {
-			p.setVisibility(View.VISIBLE);
-		} else {
-			p.setVisibility(View.INVISIBLE);
+	private LiveViewItemContainer findVideoContainerByView(View v) {
+		View curr = v;
+		
+		while (curr != null) {
+			if (curr instanceof LiveViewItemContainer) {
+				break;
+			}
+			
+			curr = (View) curr.getParent();
 		}
+		
+		return (LiveViewItemContainer) curr;
 	}
+
 
 	private void initView() {
 		Button deviceList = super.getRightButton();
