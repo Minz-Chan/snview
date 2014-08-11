@@ -138,7 +138,7 @@ public class RealplayActivity extends BaseActivity {
 						int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
 						int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
 						
-						liveViewManager.preview(1, currPageEnd - currPageStart + 1);
+						liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
 						
 					}
 					

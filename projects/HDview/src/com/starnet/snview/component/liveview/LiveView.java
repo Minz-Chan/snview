@@ -25,6 +25,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
     private ByteBuffer mBuffer;
 	private Bitmap mVideoBit;  
 	
+	private boolean isValid = true;
+	
 	public LiveView(Context context) {
 		super(context);
 		init();
@@ -55,6 +57,14 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
 	}
 	
+	
+	
+	public void setValid(boolean isValid) {
+		this.isValid = isValid;
+		
+		onDisplayContentReset();
+	}
+
 	public byte[] retrievetDisplayBuffer() {
 		return mPixel;
 	}
@@ -69,13 +79,12 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		System.out.println(this + "@created...");
-		
+		onDisplayContentReset();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		System.out.println(this + "@destroyed...");
-		
+		System.out.println(this + "@destroyed...");	
 	}
 
 	@SuppressLint("DrawAllocation")
@@ -151,7 +160,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         }
 	}
-
 	
 	@Override
 	public void onDisplayResulotionChanged(int width, int height) {
@@ -167,12 +175,17 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 
 	@Override
-	public void onDisplayContentReset() {
-		//setBackgroundColor(Color.RED);	
+	public void onDisplayContentReset() {	
 		Canvas canvas = mHolder.lockCanvas();
 		
 		if (canvas != null) {
-			canvas.drawColor(Color.BLACK);
+			if (isValid) {
+				canvas.drawColor(Color.BLACK);
+			} else {
+				canvas.drawColor(Color.LTGRAY);
+			}
+			
+			
 			mHolder.unlockCanvasAndPost(canvas); 
 		}
 		

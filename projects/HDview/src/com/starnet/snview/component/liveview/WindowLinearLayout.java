@@ -2,6 +2,7 @@ package com.starnet.snview.component.liveview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -41,7 +42,8 @@ public class WindowLinearLayout extends LinearLayout {
 			paint.setStyle(Paint.Style.STROKE);
 
 			if (!this.mIsSelected) {
-				paint.setColor(-3355444); // 搂黑色
+				//paint.setColor(-3355444); // 搂黑色
+				paint.setColor(Color.BLACK);
 				
 			} else {
 				paint.setColor(-13312); // 暗绿色

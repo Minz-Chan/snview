@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.View;
 
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
@@ -247,11 +249,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			if (i == (pos - 1)) {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(true);
-				w.invalidate();
+				//w.invalidate();
 			} else if (i == (lastPos - 1)) {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(false);
-				w.invalidate();
+				//w.invalidate();
 			}	
 			
 			
@@ -281,6 +283,18 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 					+ "device(s) simultaneously");
 		}
 		
+		int n;
+		
+		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
+		int lvCount = liveviews.size();
+		for (n = 0; n < lvCount; n++) {
+			if (n < count) {
+				liveviews.get(n).getSurfaceView().setValid(true);
+			} else {
+				liveviews.get(n).getSurfaceView().setValid(false);
+			}
+		}
+		
 		// 保证当前connection池资源足够
 //		int connCount = connections.size();
 //		for (n = 1; n <= count - connCount; n++) {
@@ -291,7 +305,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		connections.clear();
 		
-		int n;
+		
 		for (n = 1; n <= count; n++) {
 			connections.add(new Connection());
 		}
