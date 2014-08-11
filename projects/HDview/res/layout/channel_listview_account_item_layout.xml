@@ -7,7 +7,7 @@
     android:background="@color/channel_listview_account_item_bg_collapsed"
     android:weightSum="10.0">
     
-    <LinearLayout android:layout_width="0.0dip" android:layout_height="@dimen/channel_listview_account_item_height" android:layout_weight="0.7" >
+    <LinearLayout android:layout_width="0.0dip" android:layout_height="@dimen/channel_listview_account_item_height" android:layout_weight="1.0" >
 
         <ProgressBar
             android:id="@+id/progressBar_net_load"
@@ -18,10 +18,10 @@
     </LinearLayout>
     
     <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
-        <ImageView android:id="@id/channel_listview_account_item_icon" android:background="@drawable/channel_listview_account" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
+        <ImageView android:id="@id/channel_listview_account_item_icon" android:background="@drawable/channel_listview_account_sel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
     </LinearLayout>
     
-    <TextView android:id="@id/channel_listview_account_item_name" android:textSize="@dimen/common_textsize_small_18sp" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="6.8"/>
+    <TextView android:id="@id/channel_listview_account_item_name" android:textSize="@dimen/common_textsize_small_18sp" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="6.8" android:text="@string/system_setting_cloudaccount_username" android:paddingLeft="15sp"/>
     
     <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.5" >
         <ImageView android:id="@id/channel_listview_arrow" android:background="@drawable/channel_listview_right_arrow_selector" android:layout_width="wrap_content" android:layout_height="wrap_content"  android:contentDescription="@string/nothing"/>

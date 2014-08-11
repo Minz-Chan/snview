@@ -51,7 +51,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 			String state = getChannelSelectNum(deviceItem);
 			
 			if ((state == "half")||(state.equals("half"))) {
-				state_button.setBackgroundResource(R.drawable.zz_all_select);
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 //				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
 				int channelSize = channels.size();
@@ -59,7 +59,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					channels.get(i).setSelected(true);
 				}			
 			}else if ((state == "all")||(state.equals("all"))) {
-				state_button.setBackgroundResource(R.drawable.zz_empty_select);
+				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 //				bs.setState("empty");					
 				//将通道列表的状态写入到指定的XML状态文件中,1、修改某一组中某一个选项的通道列表的信息		
 				int channelSize = channels.size();
@@ -67,7 +67,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					channels.get(i).setSelected(false);
 				}				
 			}else {					/*zz_empty_select*/
-				state_button.setBackgroundResource(R.drawable.zz_all_select);
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 //				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中 ;1、修改某一组中某一个选项的通道列表的信息
 //				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);

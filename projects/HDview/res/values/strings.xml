@@ -89,5 +89,10 @@
     <string name="default_channel">默认通道</string>
     <string name="channel_number">通道数</string>
     <string name="start_scan">开始预览</string>
+    <string name="adding_device_wait">正在添加设备到列表中，请等待</string>
+    <string name="add_null_content">您还有包含未填写的内容，请补充完整</string>
+    <string name="already_contain_no_need">已经包含该用户，不需要再次添加</string>
+    <string name="add_sucess">添加成功</string>
+   
       
 </resources>

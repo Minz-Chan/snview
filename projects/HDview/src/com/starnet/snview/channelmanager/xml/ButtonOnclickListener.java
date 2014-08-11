@@ -92,7 +92,7 @@ public class ButtonOnclickListener implements OnClickListener {
 			csxml = new CloudAccountXML();
 			
 			if ((bs.getState() == "half")||(bs.getState().equals("half"))) {
-				state_button.setBackgroundResource(R.drawable.zz_half_select);
+				state_button.setBackgroundResource(R.drawable.channel_selected_half);
 				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
 				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
@@ -102,7 +102,7 @@ public class ButtonOnclickListener implements OnClickListener {
 					channels.get(i).setSelected(false);
 				}			
 			}else if ((bs.getState() == "all")||(bs.getState().equals("all"))) {
-				state_button.setBackgroundResource(R.drawable.zz_all_select);
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 				bs.setState("empty");					
 				//将通道列表的状态写入到指定的XML状态文件中
 				//1、修改某一组中某一个选项的通道列表的信息
@@ -113,7 +113,7 @@ public class ButtonOnclickListener implements OnClickListener {
 					channels.get(i).setSelected(true);
 				}				
 			}else {					
-				state_button.setBackgroundResource(R.drawable.zz_empty_select);
+				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 				bs.setState("all");					
 				//将通道列表的状态写入到指定的XML状态文件中	
 				//1、修改某一组中某一个选项的通道列表的信息

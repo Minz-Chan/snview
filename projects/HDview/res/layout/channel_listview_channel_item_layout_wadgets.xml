@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="0.0dip"
         android:layout_height="@dimen/channel_listview_device_item_height"
+        android:layout_marginLeft="35sp"
         android:layout_weight="0.6" />
 
     <!-- <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" > -->
@@ -51,7 +52,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/zz_empty_select" />
+            android:background="@drawable/channellist_select_empty" />
 
         <Button
             android:id="@+id/button_channel_list"

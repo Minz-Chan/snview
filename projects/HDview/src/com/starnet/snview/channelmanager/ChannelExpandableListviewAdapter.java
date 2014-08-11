@@ -9,8 +9,6 @@ import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-
-import android.R.integer;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -140,6 +138,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		boolean isContain = containPositon(groupPosition,posList);
 		if (isContain) {
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+//			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
 //			convertView.setClickable(false);
 //			convertView.setEnabled(false);
 		}
@@ -205,11 +204,11 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	 */
 	private void changeStateButton(Button state_button,String state) {
 		if ((state == "all")||(state.equals("all"))) {
-			state_button.setBackgroundResource(R.drawable.zz_all_select);
+			state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 		}else if ((state == "half")||(state.equals("half"))) {
-			state_button.setBackgroundResource(R.drawable.zz_half_select);
+			state_button.setBackgroundResource(R.drawable.channel_selected_half);
 		}else {
-			state_button.setBackgroundResource(R.drawable.zz_empty_select);
+			state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
 	}
 	/**

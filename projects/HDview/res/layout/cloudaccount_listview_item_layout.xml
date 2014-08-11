@@ -20,9 +20,9 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/cloudaccount_item_imageViewArrow"
-            android:layout_toRightOf="@+id/imageView1"
+            android:layout_toRightOf="@+id/imageView_user_photo"
             android:gravity="center_horizontal"
-            android:text="设备名称"
+            android:text="@string/device_manager_name"
             android:textSize="18sp" />
 
         <ImageView
@@ -31,16 +31,18 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:contentDescription="@string/nothing"
             android:src="@drawable/channel_listview_right_arrow_sel" />
 
         <ImageView
-            android:id="@+id/imageView1"
+            android:id="@+id/imageView_user_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="22dp"
-            android:src="@drawable/list_equipment" />
+            android:contentDescription="@string/nothing"
+            android:background="@drawable/user_photo_select" />
        
     </RelativeLayout>
 

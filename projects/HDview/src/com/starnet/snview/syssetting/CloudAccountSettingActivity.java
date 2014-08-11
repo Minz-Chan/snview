@@ -88,7 +88,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				dismissDialog(1);
 				break;
 			case DDNS_RESP_SUCC:
-				printSentence = "添加成功...";
+				printSentence = getString(R.string.add_sucess);
 				Toast toast1 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
@@ -178,7 +178,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
 						if (result) {
-							String printSentence = "已经包含该用户，不需要再次添加...";
+							String printSentence = getString(R.string.already_contain_no_need);
 							Toast toast = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
 						} else {
@@ -189,7 +189,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 						System.out.println(e1.toString());
 					}
 				} else {
-					String printSentence = "您还有包含未填写的内容，请补充完整...";
+					String printSentence = getString(R.string.add_null_content);
 					Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
 					toast3.show();
 				}
@@ -206,7 +206,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case 1:
-			ProgressDialog progress = ProgressDialog.show(this, "","正在验证客户有效性，请等待...", true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.identify_user_right), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
