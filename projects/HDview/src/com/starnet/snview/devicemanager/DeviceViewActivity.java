@@ -133,7 +133,7 @@ public class DeviceViewActivity extends BaseActivity {
 			//
 			
 			
-		}else if(requestCode == 20){//从添加设备界面返回后...
+		}else if(requestCode == 20){//从查看设备界面返回后...
 			dLAdapter.notifyDataSetChanged();
 		}
 	}

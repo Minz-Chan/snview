@@ -31,7 +31,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 
 //	private TextView titleView;// 标题
-	private Button rightButton;// 右边按钮
+	private Button leftButton;// 左边按钮
 	
 	private CloudAccountXML caXML;
 
@@ -51,7 +51,7 @@ public class DeviceChooseActivity extends BaseActivity {
 
 		superChangeViewFromBase();
 
-		rightButton.setOnClickListener(new OnClickListener() {
+		leftButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				DeviceChooseActivity.this.finish();
@@ -156,13 +156,13 @@ public class DeviceChooseActivity extends BaseActivity {
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
 		super.getTitleView();
-		rightButton = super.getRightButton();
+		leftButton = super.getLeftButton();
 
 		super.setToolbarVisiable(false);
-		super.setRightButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText("星云平台");
 		super.hideExtendButton();
-		super.hideLeftButton();
+		super.hideRightButton();
 		
 		caXML = new CloudAccountXML();
 		device_add = (Button) findViewById(R.id.device_choose_add_btn);

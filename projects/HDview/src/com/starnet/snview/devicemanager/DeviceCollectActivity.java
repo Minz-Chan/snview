@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
@@ -22,9 +21,10 @@ import com.starnet.snview.component.BaseActivity;
 public class DeviceCollectActivity extends BaseActivity {
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
+	@SuppressWarnings("unused")
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";//用于从文档中获取所有的设备
 
-	private TextView titleView;// 标题
+//	private TextView titleView;// 标题
 	private Button leftButton;// 左边按钮
 	private Button rightButton;// 右边按钮
 	
@@ -120,11 +120,11 @@ public class DeviceCollectActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
-		titleView = super.getTitleView();
+
 		leftButton = super.getLeftButton();
 		rightButton = super.getRightButton();
 
-		super.setRightButtonBg(R.drawable.navigation_bar_save_btn_selector);
+		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText("设备管理");
 		super.hideExtendButton();

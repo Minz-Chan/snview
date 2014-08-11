@@ -1,15 +1,16 @@
 package com.starnet.snview.channelmanager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
+import android.R.integer;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,8 +30,6 @@ import android.widget.TextView;
  */
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
 	
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
 	private Context context;
 	private LayoutInflater layoutInflater;
@@ -38,20 +37,23 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	private Button button_channel_list;
 	private Button state_button;
-	private ButtonState bs;
-	private int groupPos;
-	private int childPos;
-	private CloudAccountXML csxml;
-	private CloudAccount selectCloudAccount;
-	
+	private ButtonState bs;	
 	private List<DeviceItem> deviceList;
+	
+	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList) {
 		super();
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
 		this.layoutInflater = ((LayoutInflater) curContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
-			
+		int size = groupAccountList.size();
+		for(int i = 0; i < size; i++){
+			CloudAccount cloudAccount = groupAccountList.get(i);
+			if(!cloudAccount.isEnabled()){//不需要网络加载的用户，记录其位置...
+				posList.add(i);
+			}
+		}
 	}
 	@Override
 	public int getGroupCount() {// 获取组的个数
@@ -102,7 +104,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 
 	@Override
 	public boolean hasStableIds() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -112,21 +114,11 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 		
 		//为组元素设置背景颜色...
-//		if((groupPosition == 0) ||(groupPosition == 1)){
-////			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_specific, null);
-////			parent.setBackgroundResource(R.color.gray_transplate);
-////			parent.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
-//			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
-//		}else{
-//			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
-//		}
-		
 		ProgressBar progressBar_net_load = (ProgressBar) convertView.findViewById(R.id.progressBar_net_load);
 		if (groupAccountList.get(groupPosition).isRotate()) {//判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
 			progressBar_net_load.setVisibility(View.GONE);
-		}else {
-			progressBar_net_load.setBackgroundResource(R.drawable.net_visit_failed);
-		}		
+		}	
+		
 		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_account_item_name);
 		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
 		String tileName = cloudAccount.getUsername();
@@ -144,7 +136,26 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);// 设置小箭头的图像
 			((ExpandableListView) parent).collapseGroup(groupPosition);
 		}
+		
+		boolean isContain = containPositon(groupPosition,posList);
+		if (isContain) {
+			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+//			convertView.setClickable(false);
+//			convertView.setEnabled(false);
+		}
 		return convertView;
+	}
+	
+	private boolean containPositon(int groupPosition,List<Integer> pList){
+		boolean result = false;
+		int size = pList.size();
+		for(int i =0 ;i<size;i++){
+			if(pList.get(i) == groupPosition){
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 
 	@Override

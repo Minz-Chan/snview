@@ -2,36 +2,39 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#000000"
+    android:background="@color/md__transparent"
     android:orientation="vertical" >
 
     <EditText
         android:id="@+id/device_choose_add_et"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:inputType="text"
-        android:ems="10" >
-        <requestFocus />
+        
+        android:singleLine="true" >     
     </EditText>
 
     <ListView
         android:id="@+id/lview_device"
         android:layout_width="fill_parent"
-        android:layout_height="352dp"
-        android:layout_marginBottom="5dp"
+        android:layout_height="0.0dp"
+        android:layout_marginTop="0.0dp"
+        android:layout_weight="1.0"
+        android:background="@color/windows_info_lavender"
+        android:cacheColorHint="#00000000" />
+
+    <!--
+         android:layout_marginBottom="5dp"
         android:layout_marginLeft="7dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:cacheColorHint="#00000000"
-        android:background="@color/windows_info_lavender"
-         />
+    -->
 
     <Button
         android:id="@+id/device_choose_add_btn"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize = "18sp"
-        android:text="@string/device_manage_onealladd" />
+        android:text="@string/device_manage_onealladd"
+        android:textSize="18sp" />
 
 </LinearLayout>

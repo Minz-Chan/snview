@@ -132,7 +132,7 @@ public class CloudAccountUtil {
 			CloudAccount collectDevice = new CloudAccount();
 			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);
 			collectDevice.setDeviceList(deviceItemList);
-			collectDevice.setEnabled(false);
+			collectDevice.setEnabled(true);
 			collectDevice.setExpanded(false);
 			collectDevice.setRotate(true);
 			collectDevice.setUsername("收藏设备");

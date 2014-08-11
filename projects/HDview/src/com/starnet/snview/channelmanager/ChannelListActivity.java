@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
@@ -105,6 +104,9 @@ public class ChannelListActivity extends BaseActivity {
 
 		super.setTitleViewText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
 		super.setToolbarVisiable(false);
+		super.hideRightButton();
+		super.hideExtendButton();
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 
 		curContext = ChannelListActivity.this;
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
@@ -112,7 +114,7 @@ public class ChannelListActivity extends BaseActivity {
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);	
 		caXML = new CloudAccountXML();		
 		//当用户选择了1以后，便是每次打开软件后，都从从网络上读取设备信息；
-		//当用户选择了0以后，即用户从此便从上次保存的文档中获取用户信息；根据用户的选择而改变		
+		//当用户选择了0以后，即用户从此便从上次保存的文档中获取用户信息；根据用户的选择而改变	
 
 		caXML = new CloudAccountXML();
 		cloudAccounts = getCloudAccountInfoFromUI();//获取收藏设备，以及用户信息
@@ -142,7 +144,21 @@ public class ChannelListActivity extends BaseActivity {
 		curContext = ChannelListActivity.this;
 		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
 		mExpandableListView.setAdapter(chExpandableListAdapter);
-
+		
+//		boolean enabled = chExpandableListAdapter.areAllItemsEnabled();
+//		if( !enabled ){//如果所有的条目有不可用的，则不支持点击事件；
+//			mExpandableListView.setEnabled(false);
+//		}
+		
+//		for(int i = 1; i < netSize; i++){
+//			CloudAccount cAccount = cloudAccounts.get(i);
+//			boolean isEnable = cAccount.isEnabled();
+//			if(isEnable){
+//				mExpandableListView.setSelection(i);
+//				mExpandableListView.
+//			}
+//		}	
+		
 		mExpandableListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
@@ -179,6 +195,13 @@ public class ChannelListActivity extends BaseActivity {
 						ChannelListActivity.this.finish();
 					}
 				
+			}
+		});
+		
+		super.getLeftButton().setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {	
+				ChannelListActivity.this.finish();
 			}
 		});
 	}

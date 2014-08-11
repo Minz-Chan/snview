@@ -7,11 +7,14 @@
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:layout_marginTop="10.0dip" >
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical" >
 
             <RelativeLayout
@@ -28,7 +31,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="记录名"
+                        android:text="@string/record_name"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -60,7 +63,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="服务器"
+                        android:text="@string/server_name"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -96,7 +99,7 @@
                         android:id="@+id/txt_device_add_port"
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="端口"
+                        android:text="@string/system_setting_cloudaccount_port"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -131,7 +134,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="用户名"
+                        android:text="@string/system_setting_cloudaccount_username"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -166,7 +169,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="密码"
+                        android:text="@string/system_setting_cloudaccount_password"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -202,7 +205,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="默认通道"
+                        android:text="@string/default_channel"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -237,7 +240,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="通道数"
+                        android:text="@string/channel_number"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -257,23 +260,21 @@
                     <requestFocus />
                 </EditText>
             </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/device_scan_btn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/start_scan"
+                    android:textSize="18sp" />
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" 
-        >
-
-        <Button
-            android:id="@+id/device_scan_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="开始预览"
-            android:textSize="18sp" />
-
-    </RelativeLayout>
 
 </LinearLayout>

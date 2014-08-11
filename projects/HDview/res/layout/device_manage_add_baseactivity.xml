@@ -7,7 +7,10 @@
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+        android:layout_marginTop="10.0dip" >
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -34,8 +37,8 @@
                             android:id="@+id/txt_choose"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="选择"
-                            android:textSize="18sp" />
+                            android:text="@string/device_manage_choose"
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -46,27 +49,23 @@
                         android:layout_marginLeft="45dp"
                         android:layout_toRightOf="@+id/linearLayout1"
                         android:orientation="horizontal"
-                        android:weightSum="1.0" >
+                        >
 
-                         <EditText
-                             android:id="@+id/device_add_choose_et"
-                             android:layout_width="145dp"
-                             android:layout_height="wrap_content"
-                             android:inputType="none"
-                             android:ems="10" />
+                        <EditText
+                            android:id="@+id/device_add_choose_et"
+                            android:layout_width="0.0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ems="10"
+                            android:inputType="none" />
 
-                         <Button
-                             android:id="@+id/device_add_button_state"
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:text="@string/device_manage_choose" />
-
+                        <Button
+                            android:id="@+id/device_add_button_state"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/device_manage_choose" />
                     </LinearLayout>
-
-                    
-
                 </RelativeLayout>
-
             </LinearLayout>
 
             <RelativeLayout
@@ -83,8 +82,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="记录名"
-                        android:textSize="18sp" />
+                        android:text="@string/record_name"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -115,8 +114,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="服务器"
-                        android:textSize="18sp" />
+                        android:text="@string/server_name"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -151,8 +150,8 @@
                         android:id="@+id/txt_device_add_port"
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="端口"
-                        android:textSize="18sp" />
+                        android:text="@string/system_setting_cloudaccount_port"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -186,8 +185,8 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="用户名"
-                        android:textSize="18sp" />
+                        android:text="@string/system_setting_cloudaccount_username"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -221,8 +220,8 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="密码"
-                        android:textSize="18sp" />
+                        android:text="@string/system_setting_cloudaccount_password"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -257,8 +256,8 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="默认通道"
-                        android:textSize="18sp" />
+                        android:text="@string/default_channel"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -292,8 +291,8 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="通道数"
-                        android:textSize="18sp" />
+                        android:text="@string/channel_number"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText

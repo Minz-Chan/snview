@@ -84,5 +84,10 @@
     <string name="identify_user_right">正在验证客户有效性，请等待</string>
     
     <string name="logout_ok">确定退出</string>
-        
+    <string name="record_name">记录名</string>
+    <string name="server_name">服务器</string>
+    <string name="default_channel">默认通道</string>
+    <string name="channel_number">通道数</string>
+    <string name="start_scan">开始预览</string>
+      
 </resources>
