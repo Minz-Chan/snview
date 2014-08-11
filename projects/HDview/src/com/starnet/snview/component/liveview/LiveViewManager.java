@@ -73,6 +73,10 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		this.onVideoModeChangedListener = onVideoModeChangedListener;
 	}
 
+	public Pager getPager() {
+		return pager;
+	}
+	
 	public boolean isMultiMode() {
 		return isMultiMode;
 	}

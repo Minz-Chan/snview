@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,7 +35,7 @@ import android.widget.Toast;
 
 public class RealplayActivity extends BaseActivity {
 
-	// private static final String TAG = "RealplayActivity";
+	private static final String TAG = "RealplayActivity";
 
 	private Toolbar mToolbar;
 
@@ -76,6 +77,8 @@ public class RealplayActivity extends BaseActivity {
 
 	
 	private void test() {
+		Log.i(TAG, "In function test()");
+		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
 
@@ -133,6 +136,10 @@ public class RealplayActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
+				if (liveViewManager.getPager() == null) {
+					return;
+				}
+				
 				int pos = liveViewManager.getIndexOfLiveView((LiveViewItemContainer)v);
 				clickUtils.makeContinuousClickCalledOnce(pos, v);
 			}
@@ -258,6 +265,10 @@ public class RealplayActivity extends BaseActivity {
 	private VideoPager.OnActionClickListener mPagerOnActionClickListener = new VideoPager.OnActionClickListener() {
 		@Override
 		public void OnActionClick(View v, ACTION action) {
+			if (liveViewManager.getPager() == null) {
+				return;
+			}
+			
 			switch (action) {
 			case PREVIOUS:
 				liveViewManager.previousPage();				

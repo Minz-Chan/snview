@@ -9,10 +9,13 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
+	public static final String TAG = "LiveView";
+	
 	private SurfaceHolder mHolder = null;
 	
 	private int width = 352;
@@ -78,6 +81,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
+		Log.i(TAG, "onDraw begin");
+		Log.i(TAG, "mVideoBit: " + mVideoBit + ", canvas: " + canvas);
+		
+		
 		super.onDraw(canvas);
 		
 		canvas = mHolder.lockCanvas();
@@ -103,11 +110,15 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
             		, 0, 0, null); 
         	
+        	Log.i(TAG, "onDraw redraw");
+        	
         }
 		
 		System.out.println(this + "@onDraw");
 
 		mHolder.unlockCanvasAndPost(canvas); 
+		
+		Log.i(TAG, "onDraw end");
 	}
 	
 	private void refreshDisplay() {
