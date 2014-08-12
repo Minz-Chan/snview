@@ -71,6 +71,11 @@
     <string name="device_channel_choose">通道选择</string>
     <string name="device_manager_ip">设备IP</string>
     
+    <string name="connection_status_connecting">连接中…</string>
+    <string name="connection_status_established">连接建立</string>
+    <string name="connection_status_closed">已断开</string>
+    <string name="connection_status_failed">连接服务器失败</string>
+    
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
     <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
     <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>

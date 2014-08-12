@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 public class PreviewDeviceItem implements Parcelable {
 	
+	
+	private String deviceRecordName;   // 设备记录名
 	private String svrIp;              // 服务器IP
 	private String svrPort;            // 服务器端口
 	private String loginUserName;      // 登录用户名
@@ -17,6 +19,7 @@ public class PreviewDeviceItem implements Parcelable {
 	}
 	
 	private PreviewDeviceItem(Parcel in) {
+		this.deviceRecordName = in.readString();
 		this.svrIp = in.readString();
 		this.svrPort = in.readString();
 		this.loginUserName = in.readString();
@@ -25,6 +28,16 @@ public class PreviewDeviceItem implements Parcelable {
 		
 	}
 	
+	
+	
+	public String getDeviceRecordName() {
+		return deviceRecordName;
+	}
+
+	public void setDeviceRecordName(String deviceRecordName) {
+		this.deviceRecordName = deviceRecordName;
+	}
+
 	public String getSvrIp() {
 		return svrIp;
 	}
@@ -61,6 +74,7 @@ public class PreviewDeviceItem implements Parcelable {
 	}
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
+		out.writeString(deviceRecordName);
 		out.writeString(svrIp);
 		out.writeString(svrPort);
 		out.writeString(loginUserName);

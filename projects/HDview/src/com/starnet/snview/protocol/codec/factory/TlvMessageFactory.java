@@ -4,6 +4,7 @@ import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 
 import com.starnet.snview.protocol.codec.decoder.ChannelResponseMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.DVSInfoRequestMessageDecoder;
+import com.starnet.snview.protocol.codec.decoder.LoginResponseMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.StreamDataFormatMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.VersionInfoRequestMessageDecoder;
 import com.starnet.snview.protocol.codec.decoder.VideoFrameInfoExMessageDecoder;
@@ -34,6 +35,7 @@ public class TlvMessageFactory extends DemuxingProtocolCodecFactory {
 		addMessageDecoder(new VideoFrameInfoExMessageDecoder());
 		addMessageDecoder(new VideoIFrameDataMessageDeocder());
 		addMessageDecoder(new VideoPFrameDataMessageDecoder());
+		addMessageDecoder(new LoginResponseMessageDecoder());
 		
 		// Register encoder
 		//addMessageEncoder(ByteBuffer.class, new TlvMessageEncoder());

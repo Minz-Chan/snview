@@ -5,7 +5,7 @@ import com.starnet.snview.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -14,8 +14,10 @@ import android.widget.TextView;
 public class LiveViewItemContainer extends RelativeLayout {
 	
 	
+	private String deviceRecordName;
+	
 	private WindowLinearLayout mWindowLayout;
-	private ViewGroup mPlaywindowFrame;
+	private FrameLayout mPlaywindowFrame;
 	private LiveView mSurfaceView;
 	private ProgressBar mProgressBar;
 	private ImageView mRefresh;
@@ -38,13 +40,14 @@ public class LiveViewItemContainer extends RelativeLayout {
 
 	public void findSubViews() {
 		mWindowLayout = (WindowLinearLayout) findViewById(R.id.liveview_surface_infotext_layout);
+		mPlaywindowFrame = (FrameLayout) findViewById(R.id.liveview_playwindow_frame);
 		mSurfaceView = (LiveView) findViewById(R.id.liveview_surfaceview);
 		mProgressBar = (ProgressBar) findViewById(R.id.liveview_progressbar);
 		mRefresh = (ImageView) findViewById(R.id.liveview_refresh_imageview);
 		mWindowInfoText = (TextView) findViewById(R.id.liveview_liveinfo_textview);
 	}
 	
-	public void initListener() {
+	public void init() {
 		if (mLvContainerClickListener != null) {
 			this.setOnClickListener(mLvContainerClickListener);
 		}
@@ -53,11 +56,20 @@ public class LiveViewItemContainer extends RelativeLayout {
 			mRefresh.setOnClickListener(mRefreshButtonClickListener);
 		}
 		
-		mWindowInfoText.setText("test...");
+		mWindowInfoText.setText(null);
 		
 	}
 	
 	
+	
+	
+	public String getDeviceRecordName() {
+		return deviceRecordName;
+	}
+	
+	public void setDeviceRecordName(String deviceRecordName) {
+		this.deviceRecordName = deviceRecordName;
+	}
 	
 	public void setLiveViewContainerClickListener(
 			OnLiveViewContainerClickListener lvContainerClickListener) {
@@ -73,7 +85,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		return mWindowLayout;
 	}
 	
-	public ViewGroup getPlaywindowFrame() {
+	public FrameLayout getPlaywindowFrame() {
 		return mPlaywindowFrame;
 	}
 	
@@ -93,7 +105,28 @@ public class LiveViewItemContainer extends RelativeLayout {
 		return mWindowInfoText;
 	}
 	
+	public void setWindowInfoContent(String info) {
+		final StringBuffer s;
+		
+		if (deviceRecordName != null && info != null) {
+			s = new StringBuffer(deviceRecordName);
+			s.append("[");
+			s.append(info);
+			s.append("]");
+		} else {
+			s = new StringBuffer("");
+		}
+		
+		mWindowInfoText.post(new Runnable() {
+			@Override
+			public void run() {
+				mWindowInfoText.setText(s.toString());
+			}
+		});
+	}
+	
 	
 	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
+
 }

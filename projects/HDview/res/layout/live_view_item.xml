@@ -13,6 +13,6 @@
         </FrameLayout>
         
 		<!-- 视频文字信息 -->
-        <TextView android:textSize="@dimen/common_textsize_small_12sp" android:gravity="center_vertical" android:id="@id/liveview_liveinfo_textview" android:background="@color/windows_info_text_bg" android:textColor="@color/windows_info_text" android:layout_width="fill_parent" android:layout_height="@dimen/window_text_height" android:singleLine="true" />
+        <TextView android:textSize="@dimen/common_textsize_small_11sp" android:gravity="center_vertical" android:id="@id/liveview_liveinfo_textview" android:background="@color/windows_info_text_bg" android:textColor="@color/windows_info_text" android:layout_width="fill_parent" android:layout_height="@dimen/window_text_height" android:paddingLeft="1.0dip" android:paddingRight="1.0dip" android:ellipsize="end" android:singleLine="true" />
     </com.starnet.snview.component.liveview.WindowLinearLayout>
 </com.starnet.snview.component.liveview.LiveViewItemContainer>

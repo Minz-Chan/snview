@@ -234,6 +234,8 @@ public class ChannelListActivity extends BaseActivity {
 									previewDeviceItem.setLoginUser(deviceItem.getLoginUser());
 									previewDeviceItem.setSvrIp(deviceItem.getSvrIp());
 									previewDeviceItem.setSvrPort(deviceItem.getSvrPort());
+									previewDeviceItem.setDeviceRecordName(deviceItem.getDeviceName().substring(4));
+									
 									previewList.add(previewDeviceItem);
 								}
 							}

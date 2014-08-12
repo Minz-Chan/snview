@@ -333,6 +333,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
+			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			conn.bindLiveViewItem(liveviews.get(n - 1));
 			
 						
