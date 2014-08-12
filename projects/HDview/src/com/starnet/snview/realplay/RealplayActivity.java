@@ -293,7 +293,7 @@ public class RealplayActivity extends BaseActivity {
 					public void run() {
 						if (c != null) {
 							c.getProgressBar().setVisibility(View.VISIBLE);	
-							c.getRefreshImageView().setVisibility(View.GONE);
+							c.getRefreshImageView().setVisibility(View.INVISIBLE); // 若使用View.GONE会导致部分情况下ProgressBar消失
 							Log.i(TAG, "ProgressBar@" + c.getProgressBar() + ", visible");
 						}
 					}
