@@ -28,7 +28,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -209,6 +208,10 @@ public class RealplayActivity extends BaseActivity {
 					mVideoRegion.removeAllViews();
 					liveViewManager.clearLiveView();
 					
+					Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
+					
+					
+					
 					if (isMultiMode) { // 多通道模式
 						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
 								.inflate(R.layout.surfaceview_multi_layout,
@@ -221,6 +224,9 @@ public class RealplayActivity extends BaseActivity {
 						linear1.setLayoutParams(param1);
 						linear2.setLayoutParams(param1);
 						
+						int surfaceHeight = (int) (screenWidth / 2.0 - getResources().getDimension(R.dimen.window_text_height) 
+								- 2 * getResources().getDimension(R.dimen.surface_container_space));
+						
 						LiveViewItemContainer liveview1 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem1);
 						LiveViewItemContainer liveview2 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem2);
 						LiveViewItemContainer liveview3 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem3);
@@ -229,26 +235,34 @@ public class RealplayActivity extends BaseActivity {
 						liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview1.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview1.findSubViews();
-						liveview1.initListener();
+						liveview1.init();
 						//liveview1.getSurfaceView().setBackgroundColor(Color.RED);
+						liveview1.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+								surfaceHeight));
 						
 						liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview2.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview2.findSubViews();
-						liveview2.initListener();
+						liveview2.init();
 						//liveview2.getSurfaceView().setBackgroundColor(Color.YELLOW);
+						liveview2.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+								surfaceHeight));
 						
 						liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview3.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview3.findSubViews();
-						liveview3.initListener();
+						liveview3.init();
 						//liveview3.getSurfaceView().setBackgroundColor(Color.WHITE);
+						liveview3.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+								surfaceHeight));
 						
 						liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview4.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview4.findSubViews();
-						liveview4.initListener();
+						liveview4.init();
 						//liveview4.getSurfaceView().setBackgroundColor(Color.GREEN);
+						liveview4.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+								surfaceHeight));
 						
 						liveViewManager.addLiveView(liveview1);
 						liveViewManager.addLiveView(liveview2);
@@ -260,13 +274,19 @@ public class RealplayActivity extends BaseActivity {
 						.inflate(R.layout.surfaceview_single_layout,
 								mVideoRegion, true);
 						
+						
+						int surfaceHeight = (int) (screenWidth - getResources().getDimension(R.dimen.window_text_height) 
+								- 2 * getResources().getDimension(R.dimen.surface_container_space));
+						
 						LiveViewItemContainer liveview = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem);
 						
 						liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview.setRefreshButtonClickListener(onRefreshButtonClickListener);
 						liveview.findSubViews();
-						liveview.initListener();
+						liveview.init();
 						//liveview.getSurfaceView().setBackgroundColor(Color.BLUE);
+						liveview.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+								surfaceHeight));
 						
 						liveViewManager.addLiveView(liveview);
 					}

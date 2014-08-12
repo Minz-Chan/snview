@@ -154,6 +154,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
             		, 0, 0, null); 
         	
+        	Log.i(TAG, "refreshDisplay, width: " + getWidth() + ", height: " + getHeight());
+        	
         	mHolder.unlockCanvasAndPost(canvas); 
         	
         	System.out.println(this + "@unlockCanvasAndPost" );

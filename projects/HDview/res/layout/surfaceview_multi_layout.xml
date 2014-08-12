@@ -2,21 +2,20 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:orientation="vertical" 
     android:layout_width="fill_parent" 
-    android:layout_height="fill_parent" 
-    android:layout_margin="2.0dip">
+    android:layout_height="fill_parent">
    <LinearLayout android:orientation="horizontal" android:id="@+id/view_video_linear1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:layout_marginBottom="1.0dip" android:weightSum="2.0" >
-		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_margin="1.0dip">
+		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
 		    <include android:id="@id/liveview_liveitem1" layout="@layout/live_view_item" />
 		</LinearLayout>
-		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_margin="1.0dip">
+		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
 		    <include android:id="@id/liveview_liveitem2" layout="@layout/live_view_item" />
 		</LinearLayout>		  
     </LinearLayout>
     <LinearLayout android:orientation="horizontal"  android:id="@+id/view_video_linear2"  android:layout_width="fill_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:layout_marginTop="1.0dip" android:weightSum="2.0" >
-        <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_margin="1.0dip">
+        <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
 		    <include android:id="@id/liveview_liveitem3" layout="@layout/live_view_item" />
 		</LinearLayout>
-		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:layout_margin="1.0dip">
+		<LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" >
 		    <include android:id="@id/liveview_liveitem4" layout="@layout/live_view_item" />
 		</LinearLayout>	
     </LinearLayout>
