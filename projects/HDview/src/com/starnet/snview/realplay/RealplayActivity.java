@@ -71,7 +71,7 @@ public class RealplayActivity extends BaseActivity {
 		setContentView(R.layout.realplay_activity);
 		
 		
-		
+		setBackPressedExitEventValid(true);
 		 
 
 		GlobalApplication.getInstance().setScreenWidth(
@@ -82,8 +82,17 @@ public class RealplayActivity extends BaseActivity {
 		test();
 
 	}
+	
+	
 
 	
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		liveViewManager.invalidateLiveViews();
+
+		super.onPostCreate(savedInstanceState);
+	}
+
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 
@@ -881,7 +890,48 @@ public class RealplayActivity extends BaseActivity {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
-	
 
+	@Override
+	protected void gotoRealtimePreview() {
+		
+	}
+
+	@Override
+	protected void gotoPictureManagement() {
+		if (liveViewManager != null) {
+			liveViewManager.closeAllConnection();
+		}
+		
+		super.gotoPictureManagement();
+	}
+
+	@Override
+	protected void gotoPlayback() {
+		if (liveViewManager != null) {
+			liveViewManager.closeAllConnection();
+		}
+		
+		super.gotoPlayback();
+	}
+
+	@Override
+	protected void gotoDeviceManagement() {
+		if (liveViewManager != null) {
+			liveViewManager.closeAllConnection();
+		}
+		
+		super.gotoDeviceManagement();
+	}
+
+	@Override
+	protected void gotoSystemSetting() {
+		if (liveViewManager != null) {
+			liveViewManager.closeAllConnection();
+		}
+		
+		super.gotoSystemSetting();
+	}
+	
+	
+	
 }

@@ -58,10 +58,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 		mWindowInfoText.setText(null);
 		
-	}
-	
-	
-	
+	}	
 	
 	public String getDeviceRecordName() {
 		return deviceRecordName;

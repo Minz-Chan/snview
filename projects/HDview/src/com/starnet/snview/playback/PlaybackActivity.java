@@ -24,6 +24,8 @@ public class PlaybackActivity extends BaseActivity {
 		
 		setContentView(R.layout.playback_activity);
 		
+		setBackPressedExitEventValid(true);
+		
 		initView();
 		
 		

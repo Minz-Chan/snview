@@ -90,6 +90,13 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		return isMultiMode;
 	}
 
+	public void invalidateLiveViews() {
+		int i;
+		
+		for (i = 0; i < liveviews.size(); i++) {
+			liveviews.get(i).getSurfaceView().invalidate();
+		}
+	}
 
 	/**
 	 * 切换预览模式
