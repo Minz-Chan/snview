@@ -196,6 +196,11 @@ public class Connection extends DemuxingIoHandler {
     public synchronized void connect() {
     	checkIfEverythingPrepared();
     	
+    	if (connector.isDisposed()) {
+    		initConnector();
+    		isDisposed = false;
+    	}
+    	
     	
     	mConnectionListener.OnConnectionTrying(mLiveViewItem);
     	
@@ -348,17 +353,17 @@ public class Connection extends DemuxingIoHandler {
 			mH264decoder.uninit();
 		}
 
-		this.mH264decoder = null;
-		this.mLiveViewItem = null;
-		this.mLiveViewChangedListener = null;
-		this.mConnectionListener = null;
-		this.connector = null;
-		this.H264DECODER = null;
-		this.LIVEVIEW_ITEM = null;
-		this.LIVEVIEW_LISTENER = null;
-		this.CONNECTION_LISTENER = null;
-
-		this.session = null;
+//		this.mH264decoder = null;
+//		this.mLiveViewItem = null;
+//		this.mLiveViewChangedListener = null;
+//		this.mConnectionListener = null;
+//		this.connector = null;
+//		this.H264DECODER = null;
+//		this.LIVEVIEW_ITEM = null;
+//		this.LIVEVIEW_LISTENER = null;
+//		this.CONNECTION_LISTENER = null;
+//
+//		this.session = null;
 	}
 
 	@Override
