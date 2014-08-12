@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 
 import com.starnet.snview.protocol.Connection;
@@ -15,6 +16,8 @@ import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.ClickEventUtils;
 
 public class LiveViewManager implements ClickEventUtils.OnActionListener {
+	private static final String TAG = "LiveViewManager";
+	
 	private List<LiveViewItemContainer> liveviews; // 至多4个
 	private List<Connection> connections;          // 对应liveviews
 	
@@ -90,6 +93,13 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		return isMultiMode;
 	}
 
+	public void invalidateLiveViews() {
+		int i;
+		
+		for (i = 0; i < liveviews.size(); i++) {
+			liveviews.get(i).getSurfaceView().invalidate();
+		}
+	}
 
 	/**
 	 * 切换预览模式
@@ -151,6 +161,19 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public int getLiveViewTotalCount() {
 		return pager.getTotalCount();
 	}
+	
+	public void sendControlRequest(int cmdCode) {
+		int index = pager.getCurrentIndex();
+		int capacity = pager.getPageCapacity();
+		int pos = ((index % capacity) == 0) ? capacity : (index % capacity);
+		
+		if (connections.get(pos - 1) != null) {
+			connections.get(pos - 1).sendControlRequest(cmdCode);
+			
+			Log.i(TAG, "Send Control Request... pos: " + pos + ", cmdcode: " + cmdCode);
+		}
+	}
+	
 	
 	/**
 	 * 切换通道组至下一页，并根据下一页包含的通道个数进行预览操作。若下一页为当前页，则不执行任何操作。

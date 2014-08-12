@@ -3,12 +3,15 @@ package com.starnet.snview.component;
 import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,7 +57,9 @@ public class BaseActivity extends Activity {
     private FrameLayout mToolbarContainer;
     private ImageView mLeftArrow;
     private ImageView mRightArrow;
-	
+    
+    /* 退出对话框 */
+	private boolean mIsBackPressedExitEventValid;
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,7 @@ public class BaseActivity extends Activity {
             mActiveViewId = savedInstanceState.getInt(STATE_ACTIVE_VIEW_ID);
         }
 
+		mIsBackPressedExitEventValid = false;
 		
 		mSuperContentView = getLayoutInflater().inflate(R.layout.base_activity, null);
 	    super.setContentView(this.mSuperContentView);
@@ -127,7 +133,9 @@ public class BaseActivity extends Activity {
 		});
 	}
 
-	
+	protected void setBackPressedExitEventValid(boolean b) {
+		this.mIsBackPressedExitEventValid = b;
+	}
 
 	protected TextView getTitleView() {
 		return mTitle;
@@ -246,13 +254,12 @@ public class BaseActivity extends Activity {
 	        	break;
 	        case R.id.menu_drawer_sys_setting:
 	        	gotoSystemSetting();
-	        	return;
-	        	//break;
+	        	break;
 	        }
 	        
 	        
 	        
-	        BaseActivity.this.finish();
+	        //BaseActivity.this.finish();
 	        
 		}
 		
@@ -300,6 +307,15 @@ public class BaseActivity extends Activity {
         outState.putParcelable(STATE_MENUDRAWER, mMenuDrawer.saveState());
         outState.putInt(STATE_ACTIVE_VIEW_ID, mActiveViewId);
     }
+    
+    protected void closeMenuDrawer() {
+    	final int drawerState = mMenuDrawer.getDrawerState();
+        if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
+            mMenuDrawer.closeMenu();
+            return;
+        }
+    }
+    
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -314,15 +330,41 @@ public class BaseActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        final int drawerState = mMenuDrawer.getDrawerState();
-        if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
-            mMenuDrawer.closeMenu();
-            return;
-        }
+    	closeMenuDrawer();
 
         super.onBackPressed();
     }
+    
+    
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		
+		if (mIsBackPressedExitEventValid) {
+			if (keyCode == KeyEvent.KEYCODE_BACK
+					&& event.getAction() == KeyEvent.ACTION_DOWN) {
+				new AlertDialog.Builder(this)
+						.setMessage(getString(R.string.exit_dialog_content))
+						.setPositiveButton(getString(R.string.exit_dialog_ensure),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										android.os.Process
+												.killProcess(android.os.Process
+														.myPid());
+									}
+								}).setNegativeButton(R.string.exit_dialog_dispose, null)
+						.show();
+				return true;
+			} else {
+				return super.onKeyDown(keyCode, event);
+			}
+		} 
+		
+		return super.onKeyDown(keyCode, event);
+	}
+
 	private void initMenuDrawer() {
     	mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
         //mMenuDrawer.setContentView(R.layout.base_activity); 

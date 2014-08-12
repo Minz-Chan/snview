@@ -76,6 +76,10 @@
     <string name="connection_status_closed">已断开</string>
     <string name="connection_status_failed">连接服务器失败</string>
     
+    <string name="exit_dialog_content">退出程序？</string>
+    <string name="exit_dialog_ensure">确定</string>
+    <string name="exit_dialog_dispose">取消</string>
+    
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
     <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
     <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>

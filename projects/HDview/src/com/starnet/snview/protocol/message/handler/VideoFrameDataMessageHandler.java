@@ -15,14 +15,14 @@ import com.starnet.snview.protocol.message.VideoFrameData;
 import com.starnet.snview.protocol.message.VideoIFrameData;
 
 public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameData> {
-	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
 	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
-	private final AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
+//	private final AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
 	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 	
 	private H264DecodeUtil h264;
 	private OnLiveViewChangedListener liveViewChangedListener;
-	private boolean isDataArrived = false;
+//	private boolean isDataArrived = false;
 	
 	@Override
 	public void handleMessage(IoSession session, VideoFrameData message) throws Exception {
@@ -37,15 +37,15 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 			
 		}
 		
-		if (!isDataArrived) {
-			isDataArrived = true;
-			
-			LiveViewItemContainer liveViewItemConatainer = (LiveViewItemContainer)  session.getAttribute(LIVEVIEW_ITEM);
-			StatusListener connectionStatusListener = (StatusListener) session.getAttribute(CONNECTION_LISTENER);
-			if (liveViewItemConatainer != null && connectionStatusListener != null) {
-				connectionStatusListener.OnConnectionBusy(liveViewItemConatainer);
-			}
-		}
+//		if (!isDataArrived) {
+//			isDataArrived = true;
+//			
+//			LiveViewItemContainer liveViewItemConatainer = (LiveViewItemContainer)  session.getAttribute(LIVEVIEW_ITEM);
+//			StatusListener connectionStatusListener = (StatusListener) session.getAttribute(CONNECTION_LISTENER);
+//			if (liveViewItemConatainer != null && connectionStatusListener != null) {
+//				connectionStatusListener.OnConnectionBusy(liveViewItemConatainer);
+//			}
+//		}
 		
 		
 		

@@ -11,8 +11,8 @@ public class VersionInfoRequestMessageEncoder extends AbstractMessageEncoder<Ver
 	@Override
 	protected void encodeBody(IoSession session, VersionInfoRequest message,
 			IoBuffer out) {
-		out.putShort((short)message.getVersionMajor());
-		out.putShort((short)message.getVersionMinor());		
+		out.putUnsignedShort(message.getVersionMajor());
+		out.putUnsignedShort(message.getVersionMinor());		
 	}
 
 	@Override

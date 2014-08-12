@@ -37,6 +37,8 @@ public class ImagesManagerActivity extends BaseActivity {
 		
 		setContentView(R.layout.images_manager_activity);
 		
+		setBackPressedExitEventValid(true);
+		
 		initViews();
 		
 		setListeners();
