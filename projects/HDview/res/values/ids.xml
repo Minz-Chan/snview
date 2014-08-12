@@ -94,7 +94,8 @@
     <item name="liveview_liveitem2" type="id" />
     <item name="liveview_liveitem3" type="id" />
     <item name="liveview_liveitem4" type="id" />
-    
+    <item name="liveview_progressbar" type="id" />
+    <item name="liveview_refresh_imageview" type="id" />
     
     
     

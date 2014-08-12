@@ -9,10 +9,13 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
+	public static final String TAG = "LiveView";
+	
 	private SurfaceHolder mHolder = null;
 	
 	private int width = 352;
@@ -21,6 +24,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	private byte [] mPixel = new byte[width * height * 2];
     private ByteBuffer mBuffer;
 	private Bitmap mVideoBit;  
+	
+	private boolean isValid = true;
 	
 	public LiveView(Context context) {
 		super(context);
@@ -52,6 +57,14 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
 	}
 	
+	
+	
+	public void setValid(boolean isValid) {
+		this.isValid = isValid;
+		
+		onDisplayContentReset();
+	}
+
 	public byte[] retrievetDisplayBuffer() {
 		return mPixel;
 	}
@@ -65,19 +78,22 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		System.out.println(this + "@created...");
-		
+		System.out.println(this + "@created... ProgressBar");
+		onDisplayContentReset();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		System.out.println(this + "@destroyed...");
-		
+		System.out.println(this + "@destroyed...");	
 	}
 
 	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
+		Log.i(TAG, "onDraw begin");
+		Log.i(TAG, "mVideoBit: " + mVideoBit + ", canvas: " + canvas);
+		
+		
 		super.onDraw(canvas);
 		
 		canvas = mHolder.lockCanvas();
@@ -103,11 +119,15 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
             		, 0, 0, null); 
         	
+        	Log.i(TAG, "onDraw redraw");
+        	
         }
 		
 		System.out.println(this + "@onDraw");
 
 		mHolder.unlockCanvasAndPost(canvas); 
+		
+		Log.i(TAG, "onDraw end");
 	}
 	
 	private void refreshDisplay() {
@@ -140,7 +160,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         }
 	}
-
 	
 	@Override
 	public void onDisplayResulotionChanged(int width, int height) {
@@ -156,12 +175,17 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 
 	@Override
-	public void onDisplayContentReset() {
-		//setBackgroundColor(Color.RED);	
+	public void onDisplayContentReset() {	
 		Canvas canvas = mHolder.lockCanvas();
 		
 		if (canvas != null) {
-			canvas.drawColor(Color.BLACK);
+			if (isValid) {
+				canvas.drawColor(Color.BLACK);
+			} else {
+				canvas.drawColor(Color.LTGRAY);
+			}
+			
+			
 			mHolder.unlockCanvasAndPost(canvas); 
 		}
 		

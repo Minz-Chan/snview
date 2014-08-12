@@ -6,8 +6,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.View;
 
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.ClickEventUtils;
 
@@ -28,6 +31,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private Context context;
 	
 	private OnVideoModeChangedListener onVideoModeChangedListener;
+	
+	private StatusListener connectionStatusListener;
 	
 	
 	private Pager pager;
@@ -72,7 +77,15 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			OnVideoModeChangedListener onVideoModeChangedListener) {
 		this.onVideoModeChangedListener = onVideoModeChangedListener;
 	}
+	
+	public void setConnectionStatusListener(StatusListener listener) {
+		this.connectionStatusListener = listener;
+	}
 
+	public Pager getPager() {
+		return pager;
+	}
+	
 	public boolean isMultiMode() {
 		return isMultiMode;
 	}
@@ -226,6 +239,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		int pageCapacity = pager.getPageCapacity();
 		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity); // 在4(或1)个LiveViewItemContainer中的位置
+		int lastPos = ((lastIndex % pageCapacity) == 0) ? pageCapacity : (lastIndex % pageCapacity);
 		int i;
 		int lvSize = liveviews.size();
 		
@@ -235,11 +249,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			if (i == (pos - 1)) {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(true);
-				w.invalidate();
-			} else if (i == (lastIndex - 1)) {
+				//w.invalidate();
+			} else if (i == (lastPos - 1)) {
 				w = liveviews.get(i).getWindowLayout();
 				w.setWindowSelected(false);
-				w.invalidate();
+				//w.invalidate();
 			}	
 			
 			
@@ -269,6 +283,18 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 					+ "device(s) simultaneously");
 		}
 		
+		int n;
+		
+		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
+		int lvCount = liveviews.size();
+		for (n = 0; n < lvCount; n++) {
+			if (n < count) {
+				liveviews.get(n).getSurfaceView().setValid(true);
+			} else {
+				liveviews.get(n).getSurfaceView().setValid(false);
+			}
+		}
+		
 		// 保证当前connection池资源足够
 //		int connCount = connections.size();
 //		for (n = 1; n <= count - connCount; n++) {
@@ -279,7 +305,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		connections.clear();
 		
-		int n;
+		
 		for (n = 1; n <= count; n++) {
 			connections.add(new Connection());
 		}
@@ -294,6 +320,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			
 			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
 			
+			// 注册连接状态监听器
+			if (connectionStatusListener != null) {
+				conn.SetConnectionListener(connectionStatusListener); 
+			}
+			
 			conn.reInit();
 			
 			conn.setHost(p.getSvrIp());
@@ -302,7 +333,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
-			conn.bindLiveViewListener(liveviews.get(n - 1).getSurfaceView());
+			conn.bindLiveViewItem(liveviews.get(n - 1));
 			
 						
 			executor.execute(new Runnable() {
@@ -364,6 +395,23 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			}
 		}
 	}
+	
+	
+	public void tryPreview(int index) {
+		int pageCapacity = pager.getPageCapacity();
+		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity);
+		
+		final Connection conn = connections.get(pos - 1);  // 取得对应的连接
+		if (conn != null) {
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					conn.connect();					
+				}
+			});
+		}
+	}
+	
 	
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);

@@ -38,7 +38,7 @@ public class ConnectionManager {
 			return;
 		}
 		
-		conn.bindLiveViewListener(liveviewList.get(0));
+//		conn.bindLiveViewListener(liveviewList.get(0));
 		
 		connections.put(liveviewList.get(0), conn);
 		
