@@ -36,9 +36,10 @@ public class DeviceScanActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {
-		super.setRightButtonBg(R.drawable.device_manager_edit);
+		super.setRightButtonBg(R.drawable.device_scan_edit_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-		super.setTitleViewText("设备管理");
+		String tileName = getString(R.string.common_drawer_device_management);
+		super.setTitleViewText(tileName);
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
 		
@@ -73,7 +74,7 @@ public class DeviceScanActivity extends BaseActivity {
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
 		
-		record_et.setText(deviceName);
+		record_et.setText(deviceName.substring(4));
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);
 		username_et.setText(loginUser);

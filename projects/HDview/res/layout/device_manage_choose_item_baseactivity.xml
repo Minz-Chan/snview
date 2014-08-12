@@ -19,9 +19,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:paddingLeft="10sp"
         android:gravity="left"
         android:singleLine="true"
         android:text="@string/device_manager_name"
+        android:textColor="@color/md__defaultBackground"
         android:textSize="16sp" />
 
 </LinearLayout>

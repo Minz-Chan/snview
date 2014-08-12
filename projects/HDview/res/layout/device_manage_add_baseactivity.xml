@@ -38,6 +38,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/device_manage_choose"
+                            android:textColor="@color/md__defaultBackground"
                             android:textSize="16sp" />
                     </LinearLayout>
 
@@ -48,8 +49,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_marginLeft="45dp"
                         android:layout_toRightOf="@+id/linearLayout1"
-                        android:orientation="horizontal"
-                        >
+                        android:orientation="horizontal" >
 
                         <EditText
                             android:id="@+id/device_add_choose_et"
@@ -83,8 +83,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/record_name"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0px"
+                    android:layout_height="0px"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" />
 
                 <EditText
                     android:id="@+id/et_device_add_record"
@@ -97,7 +104,10 @@
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:singleLine="true"
-                    android:textSize="18sp" />
+                    android:textSize="18sp" >
+
+                    <requestFocus />
+                </EditText>
             </RelativeLayout>
 
             <RelativeLayout
@@ -115,6 +125,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/server_name"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -129,10 +140,7 @@
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -151,6 +159,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_port"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -165,10 +174,7 @@
                     android:ems="10"
                     android:inputType="number"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -186,6 +192,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_username"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -200,10 +207,7 @@
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -221,6 +225,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_password"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -235,10 +240,7 @@
                     android:ems="10"
                     android:inputType="textPassword"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -257,6 +259,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/default_channel"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -271,10 +274,7 @@
                     android:ems="10"
                     android:inputType="number"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -292,6 +292,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/channel_number"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -306,10 +307,7 @@
                     android:ems="10"
                     android:inputType="number"
                     android:singleLine="true"
-                    android:textSize="18sp" >
-
-                    <requestFocus />
-                </EditText>
+                    android:textSize="18sp" />
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>

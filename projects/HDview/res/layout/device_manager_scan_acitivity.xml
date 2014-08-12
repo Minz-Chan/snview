@@ -32,6 +32,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/record_name"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -50,11 +51,11 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
 
                 <LinearLayout
-                    android:id="@+id/device_add_server"
+                    android:id="@+id/server_name"
                     android:layout_width="75dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
@@ -63,8 +64,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:text="@string/server_name"
-                        android:textSize="18sp" />
+                        android:textColor="@color/md__defaultBackground"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -73,12 +76,12 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/device_add_server"
+                    android:layout_marginLeft="47sp"
+                    android:layout_toRightOf="@id/server_name"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:singleLine="true"
-                    android:textSize="18sp" >
+                    android:textSize="16sp" >
 
                     <requestFocus />
                 </EditText>
@@ -89,17 +92,17 @@
                 android:layout_height="wrap_content" >
 
                 <LinearLayout
-                    android:id="@+id/device_add_port"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/txt_device_add_port"
+                    android:layout_width="75dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
-                        android:id="@+id/txt_device_add_port"
-                        android:layout_width="75dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_port"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -109,8 +112,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/device_add_port"
+                    android:layout_marginLeft="47sp"
+                    android:layout_toRightOf="@id/txt_device_add_port"
                     android:ems="10"
                     android:inputType="number"
                     android:singleLine="true"
@@ -135,6 +138,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_username"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -170,6 +174,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/system_setting_cloudaccount_password"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -206,6 +211,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/default_channel"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -241,6 +247,7 @@
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
                         android:text="@string/channel_number"
+                        android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
 
@@ -272,6 +279,7 @@
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
                     android:text="@string/start_scan"
+                    android:textColor="@color/black"
                     android:textSize="18sp" />
             </RelativeLayout>
         </LinearLayout>

@@ -64,9 +64,9 @@
     <string name="channel_listview_cancel">取消</string>
     
     <string name="system_setting_delete_user">删除账户:</string>
-    <string name="system_setting_delete_device">删除设备:</string>
+    <string name="system_setting_delete_device">删除设备</string>
     <string name="device_manage_choose">选择</string>
-    <string name="device_manage_onealladd">全部添加到设备列表</string>
+    <string name="device_manage_onealladd">一键全部加入设备列表</string>
     <string name="device_manager_name">设备名称</string>
     <string name="device_channel_choose">通道选择</string>
     <string name="device_manager_ip">设备IP</string>
@@ -93,6 +93,10 @@
     <string name="add_null_content">您还有包含未填写的内容，请补充完整</string>
     <string name="already_contain_no_need">已经包含该用户，不需要再次添加</string>
     <string name="add_sucess">添加成功</string>
-   
-      
+    <string name="back">返回</string>
+    <string name="check_account_enabled">请检查用户是否启用</string>
+    <string name="check_account_addable">请检查用户是否添加</string>
+    
+    
+    
 </resources>

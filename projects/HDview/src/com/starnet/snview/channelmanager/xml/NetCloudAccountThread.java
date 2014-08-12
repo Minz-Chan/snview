@@ -116,7 +116,7 @@ public class NetCloudAccountThread extends Thread {
 			deviceItem.setSvrPort(svrPort);
 			deviceItem.setLoginPass(loginPass);
 			deviceItem.setLoginUser(loginUser);
-			deviceItem.setSecurityProtectionOpen(false);
+			deviceItem.setSecurityProtectionOpen(true);
 			deviceItem.setExpanded(false);
 			deviceItem.setDeviceType(deviceType);			
 			String channelSum = dvrDevice.getChannelNumber();//用于为设备添加通道列表而准备

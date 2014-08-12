@@ -61,7 +61,8 @@ public class DeviceViewActivity extends BaseActivity {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,final int position, long id) {
 				Builder builder = new Builder(DeviceViewActivity.this);
 				deleteDeviceItem = deviceItemList.get(position);
-				builder.setTitle(getString(R.string.system_setting_delete_device)+deleteDeviceItem.getDeviceName());
+				String titleName = deleteDeviceItem.getDeviceName().substring(4);
+				builder.setTitle(getString(R.string.system_setting_delete_device)+" "+titleName+" ?");
 				
 				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener(){
 					@Override
@@ -129,10 +130,7 @@ public class DeviceViewActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == 10){//从添加设备界面返回后...
-			dLAdapter.notifyDataSetChanged();
-			//
-			
-			
+			dLAdapter.notifyDataSetChanged();	
 		}else if(requestCode == 20){//从查看设备界面返回后...
 			dLAdapter.notifyDataSetChanged();
 		}

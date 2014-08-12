@@ -13,7 +13,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class DeviceListAdapter extends BaseAdapter {
-	private static final String TAG = "DeviceListAdapter";
+//	private static final String TAG = "DeviceListAdapter";
 	
 	private Context mContext;
 	
@@ -25,8 +25,7 @@ public class DeviceListAdapter extends BaseAdapter {
 		super();
 		this.mContext = context;
 		this.mDeviceList = mDeviceList;
-		this.mLayoutInflater = ((LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+		this.mLayoutInflater = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 	}
 
 	@Override
@@ -51,24 +50,25 @@ public class DeviceListAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout_another, null);
+			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout_other, null);
 		}
 		
 		DeviceItem item  = mDeviceList.get(position);
 		
 		TextView deviceItemName = (TextView) convertView.findViewById(R.id.device_item_name);
-		TextView deviceIp  = (TextView) convertView.findViewById(R.id.device_listview_item_IP);
+		/*TextView deviceIp  = (TextView) convertView.findViewById(R.id.device_listview_item_ip);*/
 		
-		deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+",通道数:"+item.getChannelSum());
+		/*deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+"  "+item.getChannelSum());*/
+		String deviceName = item.getDeviceName();
+		deviceName = deviceName.substring(4);
+		deviceItemName.setText(deviceName);
 		
-		deviceItemName.setText(item.getDeviceName());
-		
-//		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);
-//		if (item.isSecurityProtectionOpen()) {
-//			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
-//		} else {
-//			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
-//		}
+		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);
+		if (item.isSecurityProtectionOpen()) {
+			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
+		} else {
+			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
+		}
 		
 		return convertView;
 	}

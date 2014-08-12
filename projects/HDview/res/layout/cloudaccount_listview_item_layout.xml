@@ -21,8 +21,9 @@
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/cloudaccount_item_imageViewArrow"
             android:layout_toRightOf="@+id/imageView_user_photo"
-            android:gravity="center_horizontal"
+            android:paddingLeft="20sp"
             android:text="@string/device_manager_name"
+            android:textColor="@color/md__defaultBackground"
             android:textSize="18sp" />
 
         <ImageView

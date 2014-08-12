@@ -16,6 +16,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -46,7 +49,6 @@ public class DeviceChooseActivity extends BaseActivity {
 	private DeviceChooseAdapter deviceChooseAdapter;
 	private DeviceItem clickDeviceItem;
 
-	private Button device_add;
 	private EditText device_search_et;// 模糊搜索框...
 	private SynObject synObject = new SynObject();
 	private final int ADD_SUCCESS = 1;
@@ -89,14 +91,6 @@ public class DeviceChooseActivity extends BaseActivity {
 				DeviceChooseActivity.this.finish();
 			}
 		});
-
-		device_add.setOnClickListener(new OnClickListener() {// 一键添加所有设备....
-
-					@Override
-					public void onClick(View v) {
-						showAddDeviceTips();
-					}
-				});
 
 		device_search_et.addTextChangedListener(new TextWatcher() {// 进行模糊搜索...
 
@@ -227,13 +221,12 @@ public class DeviceChooseActivity extends BaseActivity {
 		super.hideRightButton();
 
 		caXML = new CloudAccountXML();
-		device_add = (Button) findViewById(R.id.device_choose_add_btn);
 		deviceListView = (ListView) findViewById(R.id.lview_device);
 		device_search_et = (EditText) findViewById(R.id.device_choose_add_et);
 
-		getDeviceItemListData();
-		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this, deviceItemList);
-		deviceListView.setAdapter(deviceChooseAdapter);
+//		getDeviceItemListData();
+//		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this, deviceItemList);
+//		deviceListView.setAdapter(deviceChooseAdapter);
 	}
 
 	private void getDeviceItemListData() {// 从个人用户处获得。。。从文档中读取
@@ -252,5 +245,19 @@ public class DeviceChooseActivity extends BaseActivity {
 		if (deviceItemList.size() > 0) {
 			Collections.sort(deviceItemList, new PinyinComparator());
 		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {//一键添加按钮...
+		super.onOptionsItemSelected(item);
+		showAddDeviceTips();
+		return true;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.device_choose_menu, menu);
+		return true;
 	}
 }

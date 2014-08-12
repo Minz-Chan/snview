@@ -1,6 +1,5 @@
 package com.starnet.snview.devicemanager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -16,15 +15,14 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.syssetting.CloudAccount;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
-	@SuppressWarnings("unused")
-	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";//用于从文档中获取所有的设备
-
-//	private TextView titleView;// 标题
+	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";//用于从文档中获取所有的设备
+	
 	private Button leftButton;// 左边按钮
 	private Button rightButton;// 右边按钮
 	
@@ -39,9 +37,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	
 	private EditText et_device_choose;
 	
-	private Button device_add_button_state;
-
-	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();
+	private Button device_add_choose_btn;
+	
 	private DeviceItem saveDeviceItem = new DeviceItem();
 
 	@Override
@@ -88,6 +85,7 @@ public class DeviceCollectActivity extends BaseActivity {
 						String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);//保存
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult, Toast.LENGTH_SHORT);
 						toast.show();
+						DeviceCollectActivity.this.finish();//添加成功后，关闭页面...
 						}else{
 							//文档读写异常
 							String text = "默认通道的数字应小于通道数量...";
@@ -108,15 +106,53 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		});
 		
-		device_add_button_state.setOnClickListener(new OnClickListener(){
+		device_add_choose_btn.setOnClickListener(new OnClickListener(){
 
+			//从网络获取数据，获取后，进入DeviceChooseActivity界面；单击返回后，则不进入；
+			
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent();
-				intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
-				startActivity(intent);
+				String printSentence ;
+				//检查用户的可用性，否则不跳转到DeviceChooseActivity；
+				try {
+					List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(fileName);
+					if (cloudAccountList.size() > 0) {
+						boolean usable = checkAccountUsable(cloudAccountList);
+						if (usable) {
+							Intent intent = new Intent();
+							intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
+							startActivity(intent);
+						}else {
+							printSentence = getString(R.string.check_account_enabled);
+							Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+							toast.show();
+						}
+					}else{
+						printSentence = getString(R.string.check_account_addable);
+						Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+						toast.show();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					printSentence = getString(R.string.check_account_addable);
+					Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+					toast.show();
+				}
 			}
 		});
+	}
+
+	protected boolean checkAccountUsable(List<CloudAccount> cloudAccountList) {
+		boolean usable = false;
+		int size = cloudAccountList.size();
+		for(int i =0 ;i<size;i++){
+			CloudAccount cloudAccount = cloudAccountList.get(i);
+			if (cloudAccount.isEnabled()) {
+				usable = true;
+				break;
+			}
+		}
+		return usable;
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
@@ -138,7 +174,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_password = (EditText) findViewById(R.id.et_device_add_password);
 		et_device_add_defaultchannel = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
-		device_add_button_state = (Button) findViewById(R.id.device_add_button_state);
+		device_add_choose_btn = (Button) findViewById(R.id.device_add_button_state);
 	}
 	
 

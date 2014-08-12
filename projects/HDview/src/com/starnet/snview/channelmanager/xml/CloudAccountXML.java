@@ -602,4 +602,46 @@ public class CloudAccountXML {
 		xmlWriter.write(document);
 		fileWriter.close();
 	}
+	//一键添加"设备列表"到指定的文档中?????????测试.........
+	public void addDeviceItemListToXML(List<DeviceItem> deviceItemList,String filePath) throws IOException{
+		File file = new File(filePath);
+		if(file.exists()){
+			file.delete();
+		}
+		file.createNewFile();//创建文件抛出异常...
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("deviceItems");//增加了一个根...
+		int size = deviceItemList.size();
+		for(int i =0 ;i<size;i++){
+			DeviceItem deviceItem = deviceItemList.get(i);
+			Element subElement = root.addElement("deviceItem");
+			subElement.addAttribute("deviceName", deviceItem.getDeviceName());
+			subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
+			subElement.addAttribute("loginUser", deviceItem.getLoginUser());
+			subElement.addAttribute("loginPass", deviceItem.getLoginPass());
+			
+			subElement.addAttribute("defaultChannel", String.valueOf(deviceItem.getDefaultChannel()));
+			subElement.addAttribute("serverIP", deviceItem.getSvrIp());
+			subElement.addAttribute("serverPort", deviceItem.getSvrPort());
+			subElement.addAttribute("deviceType",String.valueOf(deviceItem.getDeviceType()));
+			subElement.addAttribute("isSecurityProtectionOpen",String.valueOf(deviceItem.isSecurityProtectionOpen()));
+			subElement.addAttribute("isExpanded",String.valueOf(deviceItem.isExpanded()));
+			List<Channel> channelList = deviceItem.getChannelList();
+			if (channelList != null) {
+				int channelSize = channelList.size();
+				for (int k = 0; k < channelSize; k++) {
+					Channel channel = channelList.get(k);
+					Element chnnelElement = subElement.addElement("channel");
+					chnnelElement.addAttribute("channelName",channel.getChannelName());
+					chnnelElement.addAttribute("channelNo",String.valueOf(channel.getChannelNo()));
+					chnnelElement.addAttribute("isSelected",String.valueOf(channel.isSelected()));
+				}
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(filePath);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
 }

@@ -44,15 +44,6 @@
                    android:contentDescription="@string/nothing" />
            </LinearLayout>
 
-           <TextView
-               android:id="@+id/device_listview_item_IP"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_alignParentLeft="true"
-               android:layout_centerVertical="true"
-               android:layout_toLeftOf="@+id/linearLayout1"
-               android:text="TextView" />
-
        </RelativeLayout>
            
 </LinearLayout>
