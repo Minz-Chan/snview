@@ -64,6 +64,10 @@
     <item name="ptz_pop_aperture_frame" type="id" />
     <item name="ptz_pop_focal_length_increase" type="id" />
     <item name="ptz_pop_focal_length_decrease" type="id" />
+    <item name="ptz_pop_focus_increase" type="id" />
+    <item name="ptz_pop_focus_decrease" type="id" />
+    <item name="ptz_pop_aperture_increase" type="id" />
+    <item name="ptz_pop_aperture_decrease" type="id" />
     
     <item name="playback_controlbar" type="id" />
     <item name="playback_container" type="id" />

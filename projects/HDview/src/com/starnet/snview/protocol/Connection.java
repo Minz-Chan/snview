@@ -24,6 +24,8 @@ import com.starnet.snview.component.liveview.OnLiveViewChangedListener;
 import com.starnet.snview.protocol.codec.factory.OwspFactory;
 import com.starnet.snview.protocol.codec.factory.TlvMessageFactory;
 import com.starnet.snview.protocol.message.ChannelResponse;
+import com.starnet.snview.protocol.message.ControlRequest;
+import com.starnet.snview.protocol.message.ControlResponse;
 import com.starnet.snview.protocol.message.DVSInfoRequest;
 import com.starnet.snview.protocol.message.LoginRequest;
 import com.starnet.snview.protocol.message.LoginResponse;
@@ -37,6 +39,7 @@ import com.starnet.snview.protocol.message.VideoFrameInfoEx;
 import com.starnet.snview.protocol.message.VideoIFrameData;
 import com.starnet.snview.protocol.message.VideoPFrameData;
 import com.starnet.snview.protocol.message.handler.ChannelResponseMessageHandler;
+import com.starnet.snview.protocol.message.handler.ControlResponseMessageHandler;
 import com.starnet.snview.protocol.message.handler.DVSInfoRequestMessageHandler;
 import com.starnet.snview.protocol.message.handler.IoBufferMessageHandler;
 import com.starnet.snview.protocol.message.handler.LoginResponseMessageHandler;
@@ -123,6 +126,7 @@ public class Connection extends DemuxingIoHandler {
     	this.addReceivedMessageHandler(LoginResponse.class, new LoginResponseMessageHandler());
         this.addReceivedMessageHandler(DVSInfoRequest.class, new DVSInfoRequestMessageHandler());  
         this.addReceivedMessageHandler(ChannelResponse.class, new ChannelResponseMessageHandler());
+        this.addReceivedMessageHandler(ControlResponse.class, new ControlResponseMessageHandler());
         this.addReceivedMessageHandler(StreamDataFormat.class, new StreamDataFormatMessageHandler());
         this.addReceivedMessageHandler(VideoFrameInfo.class, new VideoFrameInfoMessageHandler());
         this.addReceivedMessageHandler(VideoFrameInfoEx.class, new VideoFrameInfoExMessageHandler());
@@ -220,59 +224,6 @@ public class Connection extends DemuxingIoHandler {
     }
 
     private void login(IoSession session, String username, String password) {
-    	/*
-    	ByteBuffer buf = ByteBuffer.allocate(116);
-    	ByteBuffer tmp = ByteBuffer.allocate(16);
-    	
-    	// Owsp header
-    	buf.order(ByteOrder.BIG_ENDIAN).putInt(112);
-    	buf.order(ByteOrder.LITTLE_ENDIAN).putInt(0);
-    	
-    	// Version Info Request
-    	buf.putShort((short)Constants.MSG_TYPE.VERSION_INFO_REQUEST);
-    	buf.putShort((short)Constants.MSG_LEN.VERSION_INFO_REQUEST);
-    	buf.putShort((short)3);  // major version
-    	buf.putShort((short)8);  // minor version
-    	
-    	// Phone Info Request
-    	buf.putShort((short)Constants.MSG_TYPE.PHONE_INFO_REQUEST);
-    	buf.putShort((short)Constants.MSG_LEN.PHONE_INFO_REQUEST);
-    	
-    	tmp.put(new String("111111").getBytes());
-    	tmp.rewind();
-    	buf.put(tmp);	// equipmentIdentity[STR_LEN_16]
-    	
-    	tmp.clear();
-    	tmp.put(new String("Android").getBytes());
-    	tmp.rewind();
-    	buf.put(tmp);	// equipmentOS[STR_LEN_16]
-    	
-    	buf.putInt(0);  // reserve1,2,3,4
-    	
-    	// Login Request
-    	buf.putShort((short)Constants.MSG_TYPE.LOGIN_REQUEST);
-    	buf.putShort((short)Constants.MSG_LEN.LOGIN_REQUEST);
-    	
-    	tmp = ByteBuffer.allocate(32);
-    	tmp.put(new String("admin").getBytes());
-    	tmp.rewind();
-    	buf.put(tmp);  // userName[STR_LEN_32]
-    	
-    	tmp = ByteBuffer.allocate(16);
-    	tmp.put(new String("123456").getBytes());
-    	tmp.rewind();
-    	buf.put(tmp);  // password[STR_LEN_16]
-    	
-    	buf.putInt(0);  // deviceId
-    	buf.put((byte)1);  // flag , should be set to 1 to be compatible with the previous version.
-    	buf.put((byte)0);  // channel
-    	buf.putShort((short)0); // u_int8 reserve[2]
-    	
-    	buf.flip();
-    	
-    	session.write(buf);
-    	*/
-    	
     	VersionInfoRequest v = new VersionInfoRequest();
     	v.setVersionMajor(3);
     	v.setVersionMinor(8);
@@ -312,6 +263,18 @@ public class Connection extends DemuxingIoHandler {
     	});*/
     	
     	
+    }
+    
+    public void sendControlRequest(int cmdCode) {
+    	ControlRequest c = new ControlRequest();
+    	c.setDeviceId(1);
+    	c.setChannel(channel);
+    	c.setCmdCode(cmdCode);
+    	c.setSize(0);
+    	
+    	session.write(new OwspBegin());
+    	session.write(c);
+    	session.write(new OwspEnd());
     }
 
     public synchronized void disconnect() {
@@ -380,16 +343,10 @@ public class Connection extends DemuxingIoHandler {
 		
 		mConnectionListener.OnConnectionClosed(mLiveViewItem);
 		mLiveViewChangedListener.onDisplayContentReset();
-		
-		
-		
-		
-		
-		
+
 		if (mH264decoder != null) {
 			mH264decoder.uninit();
 		}
-		
 
 		this.mH264decoder = null;
 		this.mLiveViewItem = null;

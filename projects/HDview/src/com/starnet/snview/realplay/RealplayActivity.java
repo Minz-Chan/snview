@@ -46,6 +46,15 @@ public class RealplayActivity extends BaseActivity {
 	private LinearLayout mQualityControlbarMenu;
 	private LinearLayout mPTZControlbarMenu;
 	private LinearLayout mPTZPopFrame;
+	
+	private ImageButton mPTZPopFocalLengthIncrease;  
+	private ImageButton mPTZPopFocalLengthDecrease;
+	private ImageButton mPTZPopFocusIncrease;  
+	private ImageButton mPTZPopFocusDecrease;
+	private ImageButton mPTZPopApertureIncrease;  
+	private ImageButton mPTZPopApertureDecrease;
+	
+	private PTZControl ptzControl;
 
 //	private LiveViewItemContainer liveViewContainer1;
 //	private LinearLayout mToolbarSubMenu;
@@ -114,7 +123,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
-
+		ptzControl = new PTZControl(liveViewManager);
 		
 		
 		// 视频控件点击事件实际处理方法
@@ -388,7 +397,18 @@ public class RealplayActivity extends BaseActivity {
 			public void OnConnectionClosed(View v) {
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
 				
-				c.setWindowInfoContent(getString(R.string.connection_status_closed));	
+				c.setWindowInfoContent(getString(R.string.connection_status_closed));
+				
+				mHandler.post( new Runnable() {
+					@Override
+					public void run() {
+						if (c != null) {
+							c.getProgressBar().setVisibility(View.INVISIBLE);
+							c.getRefreshImageView().setVisibility(View.VISIBLE);
+							
+						}
+					}
+				});
 				
 			}
 
@@ -724,6 +744,42 @@ public class RealplayActivity extends BaseActivity {
 
 		}
 	};
+	
+	private OnClickListener mOnPTZPopClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			
+			switch (v.getId()) {
+			case R.id.ptz_pop_focal_length_increase:
+				Log.i(TAG, "ptz_pop_focal_length_increase");
+				ptzControl.focalLengthIncrease();
+				break;
+			case R.id.ptz_pop_focal_length_decrease:
+				Log.i(TAG, "ptz_pop_focal_length_decrease");
+				ptzControl.focalLengthDecrease();
+				break;
+			case R.id.ptz_pop_focus_increase:
+				Log.i(TAG, "ptz_pop_focus_increase");
+				ptzControl.focusIncrease();
+				break;
+			case R.id.ptz_pop_focus_decrease:
+				Log.i(TAG, "ptz_pop_focus_decrease");
+				ptzControl.focusDecrease();
+				break;
+			case R.id.ptz_pop_aperture_increase:
+				Log.i(TAG, "ptz_pop_aperture_increase");
+				ptzControl.apertureIncrease();
+				break;
+			case R.id.ptz_pop_aperture_decrease:
+				Log.i(TAG, "ptz_pop_aperture_decrease");
+				ptzControl.apertureDecrease();
+				break;
+			}
+			
+		}
+		
+	};
 
 	private void showPTZFrame(PTZ_POP_FRAME ppf, boolean isShow) {
 		if (isShow) {
@@ -796,6 +852,22 @@ public class RealplayActivity extends BaseActivity {
 		mPTZMenuFocus.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuAperture.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuPreset.setOnClickListener(mOnPTZMenuClickListener);
+		
+		
+		mPTZPopFocalLengthIncrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_increase);  
+		mPTZPopFocalLengthDecrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_decrease);
+		mPTZPopFocusIncrease = (ImageButton) findViewById(R.id.ptz_pop_focus_increase);  
+		mPTZPopFocusDecrease = (ImageButton) findViewById(R.id.ptz_pop_focus_decrease);
+		mPTZPopApertureIncrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_increase);  
+		mPTZPopApertureDecrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_decrease);
+		
+		mPTZPopFocalLengthIncrease.setOnClickListener(mOnPTZPopClickListener);  
+		mPTZPopFocalLengthDecrease.setOnClickListener(mOnPTZPopClickListener);
+		mPTZPopFocusIncrease.setOnClickListener(mOnPTZPopClickListener);  
+		mPTZPopFocusDecrease.setOnClickListener(mOnPTZPopClickListener);
+		mPTZPopApertureIncrease.setOnClickListener(mOnPTZPopClickListener);  
+		mPTZPopApertureDecrease.setOnClickListener(mOnPTZPopClickListener);
+		
 
 		mPTZPopFrame = (LinearLayout) findViewById(R.id.ptz_pop_frame);
 
