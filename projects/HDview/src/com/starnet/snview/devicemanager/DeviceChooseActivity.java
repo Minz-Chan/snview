@@ -211,7 +211,19 @@ public class DeviceChooseActivity extends BaseActivity {
 		boolean contain = false;
 		int size = oldDeviceList.size();
 		for (int i = 0; i < size; i++) {
-			if (oldDeviceList.get(i).equals(deviceItem) || oldDeviceList.get(i) == deviceItem) {
+			DeviceItem oldDeviceItem = oldDeviceList.get(i);
+			String oldDeviceName = oldDeviceItem.getDeviceName();
+			String deviceName = deviceItem.getDeviceName();
+//			String oldDevicePasd = oldDeviceItem.getLoginPass();
+//			String devicePasd = deviceItem.getLoginPass();
+//			String oldDeviceUsrName = oldDeviceItem.getLoginUser();
+//			String deviceUsrName = deviceItem.getLoginUser();
+//			String oldDevicePort = oldDeviceItem.getSvrPort();
+			
+			if ((oldDeviceName.equals(deviceName) || (oldDeviceName == deviceName))){
+//				&&(oldDevicePasd.equals(devicePasd) || (oldDevicePasd == devicePasd))
+//				&&(oldDeviceUsrName.equals(deviceUsrName) || (oldDeviceUsrName == deviceUsrName))
+//				&&(oldDeviceUsrName.equals(deviceUsrName) || (oldDeviceUsrName == deviceUsrName))) 
 				contain = true;
 				break;
 			}
