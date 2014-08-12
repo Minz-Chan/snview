@@ -22,16 +22,12 @@ public class PreviewItemXMLUtils {
 	 * 
 	 * @param pdiList
 	 *            ：预览列表
-	 * @param page
-	 *            :所在页
-	 * @param channelMode
-	 *            :通道模式(多/单)
 	 * @param filePath
 	 *            :文件路径；
 	 * @return :true表示正常写入，FALSE，表示写入错误；
 	 * @throws IOException
 	 */
-	public boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList, int page, boolean channelMode,String filePath) throws IOException {
+	public boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList,String filePath) throws IOException {
 		boolean result = false;
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -53,9 +49,6 @@ public class PreviewItemXMLUtils {
 			String svPort = previewDeviceItem.getSvrPort();
 			String channl = String.valueOf(previewDeviceItem.getChannel());
 			
-			String pageWR = String.valueOf(page);
-			String chnlMd = String.valueOf(channelMode);
-			
 			subElement.addAttribute("dRName", dRName);
 			subElement.addAttribute("lgPass", lgPass);
 			subElement.addAttribute("lgUser", lgUser);
@@ -63,9 +56,6 @@ public class PreviewItemXMLUtils {
 			subElement.addAttribute("dSvrIp", dSvrIp);
 			subElement.addAttribute("svPort", svPort);
 			subElement.addAttribute("channl", channl);
-			
-			subElement.addAttribute("pageWR", pageWR);
-			subElement.addAttribute("chnlMd", chnlMd);
 		}
 		
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
@@ -75,6 +65,120 @@ public class PreviewItemXMLUtils {
 		writer.close();
 		result = true;
 		return result;
+	}
+	/**
+	 * 
+	 * @param page:页数
+	 * @param filePath：文件路径
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean writePageInfoToXML( int page,String filePath) throws IOException {
+		boolean result = false;
+		if ((filePath == null)||(filePath.equals(null))||(page < 0)) {
+			return result;
+		}
+		File file = new File(filePath);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("pages");
+		
+		Element subElement = root.addElement("page");
+		subElement.addAttribute("pageth", String.valueOf(page));
+		
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter writer = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(writer,opf);
+		xmlWriter.write(document);
+		writer.close();
+		result = true;
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @param channelMode：通道模式(1/4)
+	 * @param filePath:文件路径
+	 * @return
+	 * @throws IOException
+	 */
+	public boolean writeModeInfoToXML( int channelMode,String filePath) throws IOException {
+		boolean result = false;
+		if ((filePath == null)||(filePath.equals(null))||(channelMode < 0)) {
+			return result;
+		}
+		File file = new File(filePath);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("channelModes");
+		
+		Element subElement = root.addElement("channelMode");
+		subElement.addAttribute("chMode", String.valueOf(channelMode));
+		
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter writer = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(writer,opf);
+		xmlWriter.write(document);
+		writer.close();
+		result = true;
+		return result;
+	}
+	/**
+	 * 
+	 * @param filePath:文件路径
+	 * @return 页数
+	 * @throws IOException
+	 */
+	public List<Integer> getModeInfoFromXML(String filePath) throws IOException {
+		List<Integer> modeList = new ArrayList<Integer>();
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return modeList;
+		}
+		SAXReader saxReader = new SAXReader();
+		try {
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				Element subElement = subElements.get(i);
+				String chMode = subElement.attributeValue("chMode");
+				modeList.add(Integer.valueOf(chMode));
+			}
+		}catch (DocumentException e) {
+			e.printStackTrace();
+			return modeList;
+		}
+		return modeList;
+	}
+	
+	public List<Integer> getPageInfoFromXML(String filePath) throws IOException {
+		List<Integer> modeList = new ArrayList<Integer>();
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return modeList;
+		}
+		SAXReader saxReader = new SAXReader();
+		try {
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				Element subElement = subElements.get(i);
+				String chMode = subElement.attributeValue("pageth");
+				modeList.add(Integer.valueOf(chMode));
+			}
+		}catch (DocumentException e) {
+			e.printStackTrace();
+			return modeList;
+		}
+		return modeList;
 	}
 	
 	/**
@@ -97,15 +201,14 @@ public class PreviewItemXMLUtils {
 			for (int i = 0; i < size; i++) {
 				Element subElement = subElements.get(i);
 				PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
+				
 				String dRName = subElement.attributeValue("dRName");
 				String lgPass = subElement.attributeValue("lgPass");
 				String lgUser = subElement.attributeValue("lgUser");
 				String dSvrIp = subElement.attributeValue("dSvrIp");
-				
 				String svPort = subElement.attributeValue("svPort");
 				String channl = subElement.attributeValue("channl");
-				String pageWR = subElement.attributeValue("pageWR");
-				String chnlMd = subElement.attributeValue("chnlMd");
+				
 				int channel = Integer.valueOf(channl);
 				
 				previewDeviceItem.setDeviceRecordName(dRName);
