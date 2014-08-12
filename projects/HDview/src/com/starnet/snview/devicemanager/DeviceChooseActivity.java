@@ -1,8 +1,6 @@
 package com.starnet.snview.devicemanager;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -16,6 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,48 +29,64 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
-import com.starnet.snview.channelmanager.xml.PinyinComparator;
+import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.CloudAccountUtils;
 import com.starnet.snview.util.SynObject;
 
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class DeviceChooseActivity extends BaseActivity {
-
-	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+	
+	private final String TAG = "DeviceChooseActivity";
+	private final String oldDevicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list_another.xml";// 一键保存设备的路径...
-	private CloudAccountXML caXML;
+	// 用于从文档中获取所有的用户，根据用户信息获取设备
 
 	private Button leftButton;// 左边按钮
 	private ListView deviceListView;
-	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();
-	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();
+	private ArrayList <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();//保存全部数据
+	private CloudAccountUtils caUtils= new CloudAccountUtils();
+	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();//保存全部数据
+	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();//保存模糊搜索数据
 	private DeviceChooseAdapter deviceChooseAdapter;
 	private DeviceItem clickDeviceItem;
-
+	
 	private EditText device_search_et;// 模糊搜索框...
 	private SynObject synObject = new SynObject();
 	private final int ADD_SUCCESS = 1;
-	private final int ADD_FAILED = 0;
+	private final int ADD_FAILED = 2;
+	private final int ADDDATESTOXMLDialog = 3;// 一键添加数据到文档...
+	private final int EMPTY_MSG = 110;
+
 	private Handler mHandler = new Handler() {
+		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-
+			String printSentence;
 			if (synObject.getStatus() == SynObject.STATUS_RUN) {
 				return;
 			}
 			synObject.resume();// 解除线程挂起,向下继续执行....
-
 			switch (msg.what) {
 			case ADD_SUCCESS:
-				dismissDialog(1);
+				dismissDialog(ADDDATESTOXMLDialog);
+				printSentence = "添加成功...";
+				Toast toast1 = Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT);
+				toast1.show();
+				Intent intent = new Intent();
+				intent.setClass(DeviceChooseActivity.this, DeviceViewActivity.class);
+				startActivity(intent);				
 				DeviceChooseActivity.this.finish();
 			case ADD_FAILED:
-				dismissDialog(1);
-				String printSentence = "添加失败...";
-				Toast toast = Toast.makeText(DeviceChooseActivity.this, printSentence, Toast.LENGTH_SHORT);
-				toast.show();
+				dismissDialog(ADDDATESTOXMLDialog);
+//				printSentence = "添加失败...";
+//				Toast toast = Toast.makeText(DeviceChooseActivity.this,printSentence, 1);
+//				toast.show();
+//				DeviceChooseActivity.this.finish();
+				break;
+			case EMPTY_MSG:
 				break;
 			default:
 				break;
@@ -83,6 +98,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.device_manage_choose_baseactivity);
+
 		superChangeViewFromBase();
 
 		leftButton.setOnClickListener(new OnClickListener() {
@@ -95,13 +111,11 @@ public class DeviceChooseActivity extends BaseActivity {
 		device_search_et.addTextChangedListener(new TextWatcher() {// 进行模糊搜索...
 
 					@Override
-					public void beforeTextChanged(CharSequence s, int start,
-							int count, int after) {
+					public void beforeTextChanged(CharSequence s, int start,int count, int after) {
 					}
 
 					@Override
-					public void onTextChanged(CharSequence s, int start,
-							int before, int count) {
+					public void onTextChanged(CharSequence s, int start,int before, int count) {
 						searchDeviceItemList.clear();
 						if (device_search_et.getText() != null) {
 							String searchContent = device_search_et.getText().toString();
@@ -112,8 +126,7 @@ public class DeviceChooseActivity extends BaseActivity {
 					}
 
 					@Override
-					public void afterTextChanged(Editable s) {
-					}
+					public void afterTextChanged(Editable s) {  }
 				});
 
 		deviceListView.setOnItemClickListener(new OnItemClickListener() {
@@ -126,66 +139,84 @@ public class DeviceChooseActivity extends BaseActivity {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	private void showAddDeviceTips() {
-		showDialog(1);
-		AddDeviceThread adThread = new AddDeviceThread(mHandler);
-		adThread.start();
+		showDialog(ADDDATESTOXMLDialog);
+		new AddDeviceDataThread(mHandler).start();
 		synObject.suspend();
+		Log.i(TAG, "");
 	}
 
-	class AddDeviceThread extends Thread {
+	class AddDeviceDataThread extends Thread {
 		private Handler handler;
 
-		public AddDeviceThread(Handler handler) {
+		public AddDeviceDataThread(Handler handler) {
 			this.handler = handler;
 		}
-
-		private CloudAccountXML caXML;
-		
-		Message msg = new Message();
+		private Message msg = new Message();
 
 		@Override
 		public void run() {
 			super.run();
-			caXML = new CloudAccountXML();
-			int size = deviceItemList.size();
 			try {
-				for (int i = 0; i < size; i++) {
-					DeviceItem deviceItem = deviceItemList.get(i);
-					caXML.addNewDeviceItemToCollectEquipmentXML(deviceItem,filePath);
-				}
-				msg.what = 1;// 添加成功
+				// 检查重复性，若已经包含则不添加，若不包含，则添加到新的通道列表中；
+				CloudAccountXML caXML = new CloudAccountXML();
+				List<DeviceItem> oldDeviceList = caXML.getCollectDeviceListFromXML(oldDevicefilePath);
+				deviceItemList = recreateDeviceList(oldDeviceList,deviceItemList);//重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
+				
+				caXML.addDeviceItemListToXML(deviceItemList, oldDevicefilePath);
+				msg.what = ADD_SUCCESS;// 添加成功
 				handler.sendMessage(msg);
 			} catch (Exception e) {
 				e.printStackTrace();
-				msg.what = 0;// 添加成功
+				msg.what = ADD_FAILED;// 添加失败
 				handler.sendMessage(msg);
 			}
-			
 		}
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case 1:
+		case ADDDATESTOXMLDialog:
 			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.adding_device_wait), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
 				@Override
 				public void onCancel(DialogInterface dialog) {
-					dismissDialog(1);
-					File file = new File(filePath);
-					if (file.exists()) {
-						file.delete();
-					}
+					dismissDialog(ADDDATESTOXMLDialog);
 					synObject.resume();
 				}
 			});
 			return progress;
-
 		default:
 			return null;
 		}
+	}
+
+	//将新的列表添加到老的列表中；
+	public List<DeviceItem> recreateDeviceList(List<DeviceItem> oldDeviceList,List<DeviceItem> deviceItemList2) {
+		int size = deviceItemList2.size();
+		for (int i = 0; i < size; i++) {
+			DeviceItem deviceItem = deviceItemList2.get(i);
+			boolean contain = judgeContainable(oldDeviceList,deviceItem);//判断列表中是否包含
+			if (!contain) {
+				oldDeviceList.add(deviceItem);
+			}
+		}
+		return oldDeviceList;
+	}
+
+	private boolean judgeContainable(List<DeviceItem> oldDeviceList,DeviceItem deviceItem) {
+		boolean contain = false;
+		int size = oldDeviceList.size();
+		for (int i = 0; i < size; i++) {
+			if (oldDeviceList.get(i).equals(deviceItem) || oldDeviceList.get(i) == deviceItem) {
+				contain = true;
+				break;
+			}
+		}
+		return contain;
 	}
 
 	protected List<DeviceItem> getSearchDeviceItemList(String searchContent) {
@@ -208,7 +239,6 @@ public class DeviceChooseActivity extends BaseActivity {
 		intent.putExtras(bundle);
 		intent.setClass(DeviceChooseActivity.this, DeviceInfoActivity.class);
 		startActivity(intent);
-
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
@@ -219,38 +249,25 @@ public class DeviceChooseActivity extends BaseActivity {
 		super.setTitleViewText("星云平台");
 		super.hideExtendButton();
 		super.hideRightButton();
-
-		caXML = new CloudAccountXML();
+		
 		deviceListView = (ListView) findViewById(R.id.lview_device);
 		device_search_et = (EditText) findViewById(R.id.device_choose_add_et);
-
-//		getDeviceItemListData();
-//		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this, deviceItemList);
-//		deviceListView.setAdapter(deviceChooseAdapter);
-	}
-
-	private void getDeviceItemListData() {// 从个人用户处获得。。。从文档中读取
-		List<CloudAccount> cloudAccountList = caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
-		int size = cloudAccountList.size();
-		for (int i = 0; i < size; i++) {
-			CloudAccount cloudAccount = cloudAccountList.get(i);
-			if (cloudAccount != null) {
-				List<DeviceItem> deviceList = cloudAccount.getDeviceList();
-				int dSize = deviceList.size();
-				for (int j = 0; j < dSize; j++) {
-					deviceItemList.add(deviceList.get(j));
-				}
-			}
-		}
-		if (deviceItemList.size() > 0) {
-			Collections.sort(deviceItemList, new PinyinComparator());
-		}
+		
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		dvrDeviceList = bundle.getParcelableArrayList("dvrDeviceList");
+		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(dvrDeviceList);
+		deviceItemList = cloudAccount.getDeviceList();
+		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
+		deviceListView.setAdapter(deviceChooseAdapter);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {//一键添加按钮...
+	public boolean onOptionsItemSelected(MenuItem item) {// 一键添加按钮...
 		super.onOptionsItemSelected(item);
 		showAddDeviceTips();
+//		synObject.suspend();
+		Log.i(TAG, "");
 		return true;
 	}
 

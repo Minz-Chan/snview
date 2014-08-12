@@ -1,10 +1,23 @@
 package com.starnet.snview.devicemanager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,14 +27,17 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.PinyinComparatorUtils;
+import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
-	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";//用于从文档中获取所有的设备
+	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";//用于从文档中获取所有的用户
 	
 	private Button leftButton;// 左边按钮
 	private Button rightButton;// 右边按钮
@@ -35,19 +51,60 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText et_device_add_channelnumber;
 	private EditText et_device_add_defaultchannel;
 	
+	@SuppressWarnings("unused")
 	private EditText et_device_choose;
 	
 	private Button device_add_choose_btn;
 	
 	private DeviceItem saveDeviceItem = new DeviceItem();
+	
+	private final int LOADNETDATADialog = 1;// 从网络下载数据
+	private final int LOAD_SUCCESS = 2;
+	private final int LOAD_FAILED = 3;
+	private final int LOAD_WRONG = 100;
+	private SynObject synObject = new SynObject();
+	private List <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();//保存全部数据
+	
+	private Handler mHandler = new Handler() {
+		@SuppressWarnings("deprecation")
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);		
+			String printSentence;
+			if (synObject.getStatus() == SynObject.STATUS_RUN) {
+				return;
+			}
+			dismissDialog(LOADNETDATADialog);
+			synObject.resume();// 解除线程挂起,向下继续执行....
+			switch (msg.what) {
+			case LOAD_SUCCESS:
+				if (dvrDeviceList.size() > 0) {
+					Collections.sort(dvrDeviceList, new PinyinComparatorUtils());
+				}
+				dismissDialog(LOADNETDATADialog);
+				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putParcelableArrayList("dvrDeviceList", (ArrayList<? extends Parcelable>) dvrDeviceList);
+				intent.putExtras(bundle);
+				intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
+				startActivity(intent);
+				DeviceCollectActivity.this.finish();
+				break;
+			case LOAD_WRONG:
+				break;
+			case LOAD_FAILED:
+				break;
+			default:
+				break;
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.device_manage_add_baseactivity);
-
 		superChangeViewFromBase();
-
 		leftButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -112,22 +169,21 @@ public class DeviceCollectActivity extends BaseActivity {
 			
 			@Override
 			public void onClick(View v) {
-				String printSentence ;
-				//检查用户的可用性，否则不跳转到DeviceChooseActivity；
+				String printSentence;
 				try {
 					List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(fileName);
-					if (cloudAccountList.size() > 0) {
+					int size = cloudAccountList.size();
+					if (size > 0) {
 						boolean usable = checkAccountUsable(cloudAccountList);
 						if (usable) {
-							Intent intent = new Intent();
-							intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
-							startActivity(intent);
+							requestNetDataFromNet();// 请求网络数据；
+							synObject.suspend();// 挂起线程
 						}else {
 							printSentence = getString(R.string.check_account_enabled);
 							Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
 							toast.show();
 						}
-					}else{
+					}else {
 						printSentence = getString(R.string.check_account_addable);
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
 						toast.show();
@@ -141,8 +197,14 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		});
 	}
-
-	protected boolean checkAccountUsable(List<CloudAccount> cloudAccountList) {
+	
+	@SuppressWarnings("deprecation")
+	private void requestNetDataFromNet() {
+		showDialog(LOADNETDATADialog);// 显示从网络的加载圈...
+		new ObtainDeviceDataFromNetThread(mHandler).start();
+	}
+	
+	private boolean checkAccountUsable(List<CloudAccount> cloudAccountList) {
 		boolean usable = false;
 		int size = cloudAccountList.size();
 		for(int i =0 ;i<size;i++){
@@ -185,5 +247,89 @@ public class DeviceCollectActivity extends BaseActivity {
 			content = editable.toString();
 		}
 		return content;
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case LOADNETDATADialog:
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.loading_devicedata_wait), true, true);
+			progress.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dismissDialog(LOADNETDATADialog);
+					synObject.resume();
+				}
+			});
+			return progress;
+		default:
+			return null;
+		}
+	}
+	class ObtainDeviceDataFromNetThread extends Thread {
+		private Handler handler;
+
+		public ObtainDeviceDataFromNetThread(Handler handler) {
+			super();
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			super.run();
+			Message msg = new Message();
+			caXML = new CloudAccountXML();
+			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
+			try {
+				cloudAccountList = caXML.getCloudAccountList(fileName);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			CloudService cloudService = new CloudServiceImpl("");
+			int size = cloudAccountList.size();
+			try {
+				for (int i = 0; i < size; i++) {
+					CloudAccount cloudAccount = cloudAccountList.get(i);
+					if (cloudAccount.isEnabled()) {
+						String dman = cloudAccount.getDomain();
+						String port = cloudAccount.getPort();
+						String usnm = cloudAccount.getUsername();
+						String pasd = cloudAccount.getPassword();
+						Document document = cloudService.SendURLPost(dman, port,usnm, pasd);
+						String status = cloudService.readXmlStatus(document);
+						if (status == null) {//加载成功...
+							List<DVRDevice> deviceList = cloudService.readXmlDVRDevices(document);
+							int deviceListSize = deviceList.size();
+							for (int j = 0; j < deviceListSize; j++) {
+								dvrDeviceList.add(deviceList.get(j));
+							}
+						}else {//加载不成功...
+							
+						}
+					}
+				}
+				msg.what = LOAD_SUCCESS ;
+				handler.sendMessage(msg);
+			} catch (IOException e) {
+				e.printStackTrace();
+				if (dvrDeviceList.size()>0) {
+					msg.what = LOAD_SUCCESS ;
+					handler.sendMessage(msg);
+				}else {
+					msg.what = LOAD_WRONG ;
+					handler.sendMessage(msg);
+				}
+			} catch (DocumentException e) {
+				e.printStackTrace();
+				if (dvrDeviceList.size()>0) {
+					msg.what = LOAD_SUCCESS ;
+					handler.sendMessage(msg);
+				}else {
+					msg.what = LOAD_WRONG ;
+					handler.sendMessage(msg);
+				}
+			}
+		}
 	}
 }

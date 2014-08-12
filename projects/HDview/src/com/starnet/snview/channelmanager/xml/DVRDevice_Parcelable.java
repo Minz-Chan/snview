@@ -3,7 +3,17 @@ package com.starnet.snview.channelmanager.xml;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class DVRDevice implements Parcelable {
+/***
+ * 
+ * 平台设备
+ * @author  	创建人                 肖远东
+ * @date        创建日期           2013-03-18
+ * @author      修改人                 肖远东
+ * @date        修改日期           2013-03-18
+ * @description 修改说明	             首次增加
+ *
+ */
+public class DVRDevice_Parcelable implements Parcelable{
 	
 	private String loginUsername;	// <du>登陆设备用户名</du>
 	private String loginPassword;	// <dp>登陆设备密码</dp>
@@ -30,6 +40,7 @@ public class DVRDevice implements Parcelable {
 	private String WEBPort;			// <dwp>设备WEB端口</dwp>
 	private String deviceName;		// <dna>(在线、离线)设备名称</dna>
 	private String mobliePhonePort;		// <mp>手机端口号</mp>
+	private String isUPNP;              //<up>是否通过upnp上网(0.否，1.是)</up>
 	
 	public String getLoginUsername() {
 		return loginUsername;
@@ -192,15 +203,9 @@ public class DVRDevice implements Parcelable {
 	public String toString() {
 		return deviceName;
 	}
-
-	/***
-	 * <up>是否通过upnp上网(0.否，1.是)</up>
-	 */
-	private String isUPNP;
 	
 	
-	
-	public DVRDevice() { }
+	public DVRDevice_Parcelable() { }
 	@Override
 	public int describeContents() {
 		return 0;
@@ -241,7 +246,7 @@ public class DVRDevice implements Parcelable {
 		dest.writeString(isUPNP);
 	}
 	
-	private DVRDevice(Parcel in){
+	private DVRDevice_Parcelable(Parcel in){
 		this.loginUsername = in.readString() ;	// <du>登陆设备用户名</du>
 		this.loginPassword = in.readString() ;	// <dp>登陆设备密码</dp>
 		this.loginMode = in.readString() ;		// <dm>登陆设备模式(0.IP  1.域名)</dm>
@@ -270,16 +275,16 @@ public class DVRDevice implements Parcelable {
 		this.isUPNP = in.readString() ;              
 	}
 	
-	public static final Parcelable.Creator<DVRDevice> CREATOR = new Parcelable.Creator<DVRDevice>() {
+	public static final Parcelable.Creator<DVRDevice_Parcelable> CREATOR = new Parcelable.Creator<DVRDevice_Parcelable>() {
 
 		@Override
-		public DVRDevice createFromParcel(Parcel source) {
-			return new DVRDevice(source);
+		public DVRDevice_Parcelable createFromParcel(Parcel source) {
+			return new DVRDevice_Parcelable(source);
 		}
 
 		@Override
-		public DVRDevice[] newArray(int size) {
-			return new DVRDevice[size];
+		public DVRDevice_Parcelable[] newArray(int size) {
+			return new DVRDevice_Parcelable[size];
 		}
 	};
 }

@@ -607,8 +607,11 @@ public class CloudAccountXML {
 		File file = new File(filePath);
 		if(file.exists()){
 			file.delete();
+			file.createNewFile();
+		}else {
+			file.createNewFile();
 		}
-		file.createNewFile();//创建文件抛出异常...
+		//创建文件抛出异常...
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("deviceItems");//增加了一个根...
 		int size = deviceItemList.size();
@@ -639,7 +642,7 @@ public class CloudAccountXML {
 			}
 		}
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
-		FileWriter fileWriter = new FileWriter(filePath);
+		FileWriter fileWriter = new FileWriter(file);
 		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
 		xmlWriter.write(document);
 		fileWriter.close();

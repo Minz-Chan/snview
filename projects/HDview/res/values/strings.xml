@@ -96,7 +96,6 @@
     <string name="back">返回</string>
     <string name="check_account_enabled">请检查用户是否启用</string>
     <string name="check_account_addable">请检查用户是否添加</string>
-    
-    
+    <string name="loading_devicedata_wait">正在从网络加载数据，请等待</string>
     
 </resources>
