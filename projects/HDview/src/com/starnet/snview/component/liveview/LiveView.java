@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	public static final String TAG = "LiveView";
@@ -185,12 +186,33 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 				canvas.drawColor(Color.BLACK);
 			} else {
 				canvas.drawColor(Color.LTGRAY);
+				
+				LiveViewItemContainer c = findVideoContainerByView(this);
+				if (c != null) {
+					c.setWindowInfoContent(null);
+				}
 			}
 			
 			
 			mHolder.unlockCanvasAndPost(canvas); 
 		}
 		
+		
+		
+	}
+	
+	private LiveViewItemContainer findVideoContainerByView(View v) {
+		View curr = v;
+		
+		while (curr != null) {
+			if (curr instanceof LiveViewItemContainer) {
+				break;
+			}
+			
+			curr = (View) curr.getParent();
+		}
+		
+		return (LiveViewItemContainer) curr;
 	}
 	
 	

@@ -26,6 +26,7 @@ import com.starnet.snview.protocol.codec.factory.TlvMessageFactory;
 import com.starnet.snview.protocol.message.ChannelResponse;
 import com.starnet.snview.protocol.message.DVSInfoRequest;
 import com.starnet.snview.protocol.message.LoginRequest;
+import com.starnet.snview.protocol.message.LoginResponse;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
@@ -38,6 +39,7 @@ import com.starnet.snview.protocol.message.VideoPFrameData;
 import com.starnet.snview.protocol.message.handler.ChannelResponseMessageHandler;
 import com.starnet.snview.protocol.message.handler.DVSInfoRequestMessageHandler;
 import com.starnet.snview.protocol.message.handler.IoBufferMessageHandler;
+import com.starnet.snview.protocol.message.handler.LoginResponseMessageHandler;
 import com.starnet.snview.protocol.message.handler.StreamDataFormatMessageHandler;
 import com.starnet.snview.protocol.message.handler.VersionInfoRequestMessageHandler;
 import com.starnet.snview.protocol.message.handler.VideoFrameDataMessageHandler;
@@ -118,6 +120,7 @@ public class Connection extends DemuxingIoHandler {
     
     private void initMessageHandler() {
     	this.addReceivedMessageHandler(VersionInfoRequest.class, new VersionInfoRequestMessageHandler());
+    	this.addReceivedMessageHandler(LoginResponse.class, new LoginResponseMessageHandler());
         this.addReceivedMessageHandler(DVSInfoRequest.class, new DVSInfoRequestMessageHandler());  
         this.addReceivedMessageHandler(ChannelResponse.class, new ChannelResponseMessageHandler());
         this.addReceivedMessageHandler(StreamDataFormat.class, new StreamDataFormatMessageHandler());
@@ -375,10 +378,10 @@ public class Connection extends DemuxingIoHandler {
 		System.out.println("Session " + session.getId() + " is closed...");
 		connector.dispose();
 		
-		
+		mConnectionListener.OnConnectionClosed(mLiveViewItem);
 		mLiveViewChangedListener.onDisplayContentReset();
 		
-		mConnectionListener.OnConnectionClosed(mLiveViewItem);
+		
 		
 		
 		

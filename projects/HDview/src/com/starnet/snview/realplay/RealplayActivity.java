@@ -301,11 +301,18 @@ public class RealplayActivity extends BaseActivity {
 		// 初始化为多通道模式
 		onVideoModeChangedListener.OnVideoModeChanged(true);
 		
-		StatusListener connectionStatusListener = new StatusListener() {
+		
+				
+				
+		
+		
+		final StatusListener connectionStatusListener = new StatusListener() {
 
 			@Override
 			public void OnConnectionTrying(View v) {
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				c.setWindowInfoContent(getString(R.string.connection_status_connecting));
 				
 				//updateProgressbarStatus(c.getProgressBar(), true);
 				mHandler.post( new Runnable() {
@@ -328,6 +335,8 @@ public class RealplayActivity extends BaseActivity {
 				Log.i(TAG, "OnConnectionFailed");
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
 				
+				c.setWindowInfoContent(getString(R.string.connection_status_failed));
+				
 				mHandler.post( new Runnable() {
 					@Override
 					public void run() {
@@ -343,8 +352,9 @@ public class RealplayActivity extends BaseActivity {
 
 			@Override
 			public void OnConnectionEstablished(View v) {
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;
 				
-				
+				c.setWindowInfoContent(getString(R.string.connection_status_established));				
 			}
 			
 			@Override
@@ -367,7 +377,9 @@ public class RealplayActivity extends BaseActivity {
 
 			@Override
 			public void OnConnectionClosed(View v) {
-				// TODO Auto-generated method stub
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				c.setWindowInfoContent(getString(R.string.connection_status_closed));	
 				
 			}
 
@@ -869,5 +881,7 @@ public class RealplayActivity extends BaseActivity {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	
+	
 
 }

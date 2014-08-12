@@ -17,8 +17,8 @@ public class VersionInfoRequestMessageDecoder extends AbstractMessageDecoder<Ver
 	protected VersionInfoRequest decodeBody(IoSession session, IoBuffer body)
 			throws Exception {
 		VersionInfoRequest v = new VersionInfoRequest();
-		v.setVersionMajor(body.getShort());
-		v.setVersionMinor(body.getShort());
+		v.setVersionMajor(body.getUnsignedShort());
+		v.setVersionMinor(body.getUnsignedShort());
 
 		return v;
 	}

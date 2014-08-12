@@ -7,14 +7,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
 
 public class LiveViewItemContainer extends RelativeLayout {
 	
+	
+	private String deviceRecordName;
 	
 	private WindowLinearLayout mWindowLayout;
 	private FrameLayout mPlaywindowFrame;
@@ -56,11 +56,20 @@ public class LiveViewItemContainer extends RelativeLayout {
 			mRefresh.setOnClickListener(mRefreshButtonClickListener);
 		}
 		
-		mWindowInfoText.setText("test...");
+		mWindowInfoText.setText(null);
 		
 	}
 	
 	
+	
+	
+	public String getDeviceRecordName() {
+		return deviceRecordName;
+	}
+	
+	public void setDeviceRecordName(String deviceRecordName) {
+		this.deviceRecordName = deviceRecordName;
+	}
 	
 	public void setLiveViewContainerClickListener(
 			OnLiveViewContainerClickListener lvContainerClickListener) {
@@ -96,7 +105,28 @@ public class LiveViewItemContainer extends RelativeLayout {
 		return mWindowInfoText;
 	}
 	
+	public void setWindowInfoContent(String info) {
+		final StringBuffer s;
+		
+		if (deviceRecordName != null && info != null) {
+			s = new StringBuffer(deviceRecordName);
+			s.append("[");
+			s.append(info);
+			s.append("]");
+		} else {
+			s = new StringBuffer("");
+		}
+		
+		mWindowInfoText.post(new Runnable() {
+			@Override
+			public void run() {
+				mWindowInfoText.setText(s.toString());
+			}
+		});
+	}
+	
 	
 	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
+
 }
