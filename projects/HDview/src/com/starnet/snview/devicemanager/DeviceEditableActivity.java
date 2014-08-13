@@ -7,11 +7,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceEditableActivity extends BaseActivity {
+	
+	
 
 	private EditText record_et;
 	private EditText server_et;
@@ -23,7 +24,7 @@ public class DeviceEditableActivity extends BaseActivity {
 
 	private DeviceItem clickDeviceItem;
 
-	private Button editButton;
+	private Button saveButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,7 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 		});
 
-		editButton.setOnClickListener(new OnClickListener() {
+		saveButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// 获取信息
@@ -94,7 +95,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
 
-		editButton = super.getRightButton();
+		saveButton = super.getRightButton();
 
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);

@@ -1,16 +1,22 @@
 package com.starnet.snview.devicemanager;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceScanActivity extends BaseActivity {
+	
+	@SuppressLint("SdCardPath")
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
 	private EditText record_et;
 	private EditText server_et;
@@ -82,6 +88,15 @@ public class DeviceScanActivity extends BaseActivity {
 						password_et.setText(lPass);
 						defaultChannel_et.setText(dfChl);
 						channelnumber_et.setText(chSum);
+						CloudAccountXML caXml = new CloudAccountXML();
+						try {
+							caXml.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
+							caXml.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
+						}catch (Exception e) {
+							String text = "保存失败";
+							Toast toast = Toast.makeText(DeviceScanActivity.this, text, Toast.LENGTH_LONG);
+							toast.show();
+						}
 					}
 				}
 			}

@@ -17,6 +17,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
@@ -144,9 +145,18 @@ public class DeviceViewActivity extends BaseActivity {
 					}
 				}
 			}
-			dLAdapter.notifyDataSetChanged();	
-		}else if(requestCode == 20){//从查看\编辑设备界面返回后...
 			dLAdapter.notifyDataSetChanged();
+		}else if(requestCode == 20){//从查看\编辑设备界面返回后...
+			try {
+				deviceItemList = caxml.getCollectDeviceListFromXML(filePath);//以读文件的形式，进行更新...
+				dLAdapter = new DeviceListAdapter(this, deviceItemList);
+				mDeviceList.setAdapter(dLAdapter);
+			} catch (Exception e) {
+				e.printStackTrace();
+				String text = "请确保您已经添加了设备";
+				Toast toast = Toast.makeText(DeviceViewActivity.this, text, Toast.LENGTH_LONG);
+				toast.show();
+			}
 		}
 	}
 
