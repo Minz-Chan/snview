@@ -27,7 +27,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private int devicesCount;
 	private int currentIndex;  // 当前LiveViewItemContainer在设备总数中的位置，从1开始
 	
-	private boolean isMultiMode; // 是否支持多画面显示
+	private Boolean isMultiMode; // 是否支持多画面显示
 	
 	private ExecutorService executor;
 	
@@ -48,11 +48,16 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		this.liveviews = new ArrayList<LiveViewItemContainer>();
 		this.connections = new ArrayList<Connection>();
 		
-		isMultiMode = false;
+		isMultiMode = null;
 		
 		executor = Executors.newFixedThreadPool(4);
 		callEventUtil = new ClickEventUtils(this);
 	}
+	
+	public List<PreviewDeviceItem> getDeviceList() {
+		return devices;
+	}
+	
 	
 	public void setDeviceList(List<PreviewDeviceItem> devices) {
 		this.devices = devices;
@@ -103,10 +108,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 	/**
 	 * 切换预览模式
-	 * @param isMultiMode true，多通道预览柜式； false，单画面预览模式
+	 * @param isMultiMode true，多通道预览柜式； false，单画面预览模式 ；null, 页面不作初始化
 	 */
-	public void setMultiMode(boolean isMultiMode) {
-		if (this.isMultiMode == isMultiMode) {
+	public void setMultiMode(Boolean isMultiMode) {
+		if ((this.isMultiMode != null && this.isMultiMode.booleanValue() == isMultiMode)
+				|| isMultiMode == null) {
 			return;
 		}
 		
@@ -228,6 +234,19 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		liveviews.clear();
 	}
 	
+	public void resetLiveView(int validCount) {
+		int lvSize = liveviews.size();
+		
+		for (int i = 0; i < lvSize; i++) {
+			if ( i < validCount) {
+				liveviews.get(i).getSurfaceView().setValid(true);
+				liveviews.get(i).getRefreshImageView().setVisibility(View.VISIBLE);
+			} else {
+				liveviews.get(i).getSurfaceView().setValid(false);
+			}
+		}
+	}
+	
 	public void closeAllConnection() {
 		int i;
 		int connSize = connections.size();
@@ -311,6 +330,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
 		int lvCount = liveviews.size();
 		for (n = 0; n < lvCount; n++) {
+			liveviews.get(n).getRefreshImageView().setVisibility(View.INVISIBLE);
+			
 			if (n < count) {
 				liveviews.get(n).getSurfaceView().setValid(true);
 			} else {
@@ -420,10 +441,54 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		}
 	}
 	
+	private void reloadConnections(int startIndex) {
+		int pageCount = pager.getCurrentPageCount();
+		int i;
+		
+		for (i = 0; i < pageCount; i++) {
+			Connection conn = connections.get(i);
+			
+			PreviewDeviceItem p = devices.get(startIndex - 1 + i);
+			
+			conn.reInit();
+			
+			conn.setHost(p.getSvrIp());
+			conn.setPort(Integer.valueOf(p.getSvrPort()));
+			conn.setUsername(p.getLoginUser());
+			conn.setPassword(p.getLoginPass());
+			conn.setChannel(p.getChannel());
+			
+			liveviews.get(i).setDeviceRecordName(p.getDeviceRecordName());
+		}
+	}	
 	
 	public void tryPreview(int index) {
 		int pageCapacity = pager.getPageCapacity();
 		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity);
+		
+		if (connections.size() < pageCapacity) { // 现存connection数不够时
+			int i = 0;
+			
+			connections.clear();
+			
+			// 初始化connections
+			for (i = 0; i < pageCapacity; i++) {
+				Connection newConn = null;
+				
+				newConn = new Connection();
+				
+				// 注册连接状态监听器
+				if (connectionStatusListener != null) {
+					newConn.SetConnectionListener(connectionStatusListener); 
+				}
+				
+				newConn.bindLiveViewItem(liveviews.get(i));
+				connections.add(newConn);
+			}
+			
+			// 将当前页通道数据装载进connections
+			reloadConnections((pager.getCurrentPage() - 1) * pageCapacity + 1);
+		}
 		
 		final Connection conn = connections.get(pos - 1);  // 取得对应的连接
 		if (conn != null) {

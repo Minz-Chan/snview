@@ -27,7 +27,7 @@ public class PreviewItemXMLUtils {
 	 * @return :true表示正常写入，FALSE，表示写入错误；
 	 * @throws IOException
 	 */
-	public boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList,String filePath) throws IOException {
+	public static boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList,String filePath) throws IOException {
 		boolean result = false;
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -36,9 +36,11 @@ public class PreviewItemXMLUtils {
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("previewDeviceItems");
 		
-		Element subElement = root.addElement("previewDeviceItem");
+		
 		int size = previewDeviceItemList.size();
 		for (int i = 0; i < size; i++) {
+			Element subElement = root.addElement("previewDeviceItem");
+			
 			PreviewDeviceItem previewDeviceItem = previewDeviceItemList.get(i);
 			
 			String dRName = previewDeviceItem.getDeviceRecordName();
@@ -186,7 +188,7 @@ public class PreviewItemXMLUtils {
 	 * @param filePath:文件路径
 	 * @return 预览列表
 	 */
-	public List<PreviewDeviceItem> getPreviewItemListInfoFromXML(String filePath){
+	public static List<PreviewDeviceItem> getPreviewItemListInfoFromXML(String filePath){
 		List<PreviewDeviceItem> previewDeviceItemList = new ArrayList<PreviewDeviceItem>();
 		File file = new File(filePath);
 		if (!file.exists()) {
