@@ -136,12 +136,18 @@ public class DeviceCollectActivity extends BaseActivity {
 					saveDeviceItem.setDefaultChannel(dChannel);
 					saveDeviceItem.setSvrIp(serverIP);
 					saveDeviceItem.setSvrPort(serverPort);
+					saveDeviceItem.setSecurityProtectionOpen(true);
 					
 					try {//测试saveDeviceItem的数据；？？？？？？？？？？？？
 						if(dChannel <= channelNum){
 						String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);//保存
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult, Toast.LENGTH_SHORT);
 						toast.show();
+						Intent intent = new Intent();
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("saveDeviceItem", saveDeviceItem);
+						intent.putExtras(bundle);
+						setResult(10, intent);
 						DeviceCollectActivity.this.finish();//添加成功后，关闭页面...
 						}else{
 							//文档读写异常
@@ -156,7 +162,7 @@ public class DeviceCollectActivity extends BaseActivity {
 						toast.show();
 					}//保存到指定的文档中
 				}else{
-					String text = "包含有尚未赋值的部分,请检查...";
+					String text = "包含有尚未填写的部分,请检查...";
 					Toast toast = Toast.makeText(DeviceCollectActivity.this, text, Toast.LENGTH_SHORT);
 					toast.show();
 				}

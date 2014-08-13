@@ -113,7 +113,7 @@ public class DeviceViewActivity extends BaseActivity {
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
-		navigation_bar_add_btn.setOnClickListener(new OnClickListener() {//增加设备...
+		navigation_bar_add_btn.setOnClickListener(new OnClickListener() {//手动与选择增加设备...
 			
 			@Override
 			public void onClick(View v) {
@@ -128,9 +128,26 @@ public class DeviceViewActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == 10){//从添加设备界面返回后...
+			if (data != null) {
+				Bundle bundle = data.getExtras();
+				if (bundle != null) {
+					DeviceItem saveDeviceItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
+					boolean result = checkContainDeviceItem(saveDeviceItem,deviceItemList);//检查设备中是否包含saveDeviceItem
+					if (!result) {
+						deviceItemList.add(saveDeviceItem);
+					}
+				}
+			}
 			dLAdapter.notifyDataSetChanged();	
-		}else if(requestCode == 20){//从查看设备界面返回后...
+		}else if(requestCode == 20){//从查看\编辑设备界面返回后...
 			dLAdapter.notifyDataSetChanged();
 		}
+	}
+
+
+	private boolean checkContainDeviceItem(DeviceItem saveDeviceItem,List<DeviceItem> deviceItemList) {
+		boolean result = false;
+		
+		return result;
 	}
 }

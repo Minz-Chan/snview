@@ -60,7 +60,10 @@ public class DeviceListAdapter extends BaseAdapter {
 		
 		/*deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+"  "+item.getChannelSum());*/
 		String deviceName = item.getDeviceName();
-		deviceName = deviceName.substring(4);
+		if(deviceName.contains("在线")){
+			deviceName = deviceName.substring(4);
+		}
+		
 		deviceItemName.setText(deviceName);
 		
 		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);
