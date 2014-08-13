@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
@@ -36,12 +37,12 @@ import com.starnet.snview.util.SynObject;
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
-	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";//用于从文档中获取所有的用户
-	
+	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";// 用于保存收藏设备...
+	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
+
 	private Button leftButton;// 左边按钮
 	private Button rightButton;// 右边按钮
-	
+
 	private CloudAccountXML caXML;
 	private EditText et_device_add_record;
 	private EditText et_device_add_server;
@@ -50,26 +51,26 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText et_device_add_password;
 	private EditText et_device_add_channelnumber;
 	private EditText et_device_add_defaultchannel;
-	
+
 	@SuppressWarnings("unused")
 	private EditText et_device_choose;
-	
+
 	private Button device_add_choose_btn;
-	
+
 	private DeviceItem saveDeviceItem = new DeviceItem();
-	
+
 	private final int LOADNETDATADialog = 1;// 从网络下载数据
 	private final int LOAD_SUCCESS = 2;
 	private final int LOAD_FAILED = 3;
 	private final int LOAD_WRONG = 100;
 	private SynObject synObject = new SynObject();
-	private List <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();//保存全部数据
-	
+	private List<DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();// 保存全部数据
+
 	private Handler mHandler = new Handler() {
 		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
-			super.handleMessage(msg);		
+			super.handleMessage(msg);
 			String printSentence;
 			if (synObject.getStatus() == SynObject.STATUS_RUN) {
 				return;
@@ -84,9 +85,9 @@ public class DeviceCollectActivity extends BaseActivity {
 				dismissDialog(LOADNETDATADialog);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putParcelableArrayList("dvrDeviceList", (ArrayList<? extends Parcelable>) dvrDeviceList);
+				bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
+				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
 				startActivity(intent);
 				DeviceCollectActivity.this.finish();
 				break;
@@ -115,7 +116,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		rightButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//判断用户设置为空的时候				
+				// 判断用户设置为空的时候
 				String recordName = getEditTextString(et_device_add_record);
 				String serverIP = getEditTextString(et_device_add_server);
 				String serverPort = getEditTextString(et_device_add_port);
@@ -123,10 +124,13 @@ public class DeviceCollectActivity extends BaseActivity {
 				String password = getEditTextString(et_device_add_password);
 				String channelNumber = getEditTextString(et_device_add_channelnumber);
 				String defaultChannel = getEditTextString(et_device_add_defaultchannel);
-				
-				//当所有的内容都不为空的时候，则保存到指定的文档中
-				if (!recordName.equals("")&&!serverIP.equals("")&&!serverPort.equals("")&&!userName.equals("")&&!password.equals("")&&!defaultChannel.equals("")&&!channelNumber.equals("")) {
-					
+
+				// 当所有的内容都不为空的时候，则保存到指定的文档中
+				if (!recordName.equals("") && !serverIP.equals("")
+						&& !serverPort.equals("") && !userName.equals("")
+						&& !password.equals("") && !defaultChannel.equals("")
+						&& !channelNumber.equals("")) {
+
 					int dChannel = Integer.valueOf(defaultChannel);
 					int channelNum = Integer.valueOf(channelNumber);
 					saveDeviceItem.setDeviceName(recordName);
@@ -137,42 +141,52 @@ public class DeviceCollectActivity extends BaseActivity {
 					saveDeviceItem.setSvrIp(serverIP);
 					saveDeviceItem.setSvrPort(serverPort);
 					saveDeviceItem.setSecurityProtectionOpen(true);
-					
-					try {//测试saveDeviceItem的数据；？？？？？？？？？？？？
-						if(dChannel <= channelNum){
-						String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);//保存
-						Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult, Toast.LENGTH_SHORT);
-						toast.show();
-						Intent intent = new Intent();
-						Bundle bundle = new Bundle();
-						bundle.putSerializable("saveDeviceItem", saveDeviceItem);
-						intent.putExtras(bundle);
-						setResult(10, intent);
-						DeviceCollectActivity.this.finish();//添加成功后，关闭页面...
-						}else{
-							//文档读写异常
-							String text = "默认通道的数字应小于通道数量...";
-							Toast toast = Toast.makeText(DeviceCollectActivity.this, text, Toast.LENGTH_SHORT);
+
+					try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
+						if (dChannel <= channelNum) {
+							List<Channel> channelList = new ArrayList<Channel>();
+							for (int i = 0; i < channelNum; i++) {
+								Channel channel = new Channel();
+								channel.setChannelName("通道"+(i+1));
+								channel.setChannelNo((i+1));
+								channel.setSelected(false);
+								channelList.add(channel);
+							}
+
+							saveDeviceItem.setChannelList(channelList);
+							String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+							Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 							toast.show();
-						}	
+							Intent intent = new Intent();
+							Bundle bundle = new Bundle();
+							bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+							intent.putExtras(bundle);
+							setResult(10, intent);
+							DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
+						} else {
+							// 文档读写异常
+							String text = "默认通道的数字应小于通道数量...";
+							Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
+							toast.show();
+						}
 					} catch (Exception e) {
-						//文档读写异常
+						// 文档读写异常
 						String text = "保存失败";
-						Toast toast = Toast.makeText(DeviceCollectActivity.this, text, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 						toast.show();
-					}//保存到指定的文档中
-				}else{
+					}// 保存到指定的文档中
+				} else {
 					String text = "包含有尚未填写的部分,请检查...";
-					Toast toast = Toast.makeText(DeviceCollectActivity.this, text, Toast.LENGTH_SHORT);
+					Toast toast = Toast.makeText(DeviceCollectActivity.this,text, Toast.LENGTH_SHORT);
 					toast.show();
 				}
 			}
 		});
-		
-		device_add_choose_btn.setOnClickListener(new OnClickListener(){
 
-			//从网络获取数据，获取后，进入DeviceChooseActivity界面；单击返回后，则不进入；
-			
+		device_add_choose_btn.setOnClickListener(new OnClickListener() {
+
+			// 从网络获取数据，获取后，进入DeviceChooseActivity界面；单击返回后，则不进入；
+
 			@Override
 			public void onClick(View v) {
 				String printSentence;
@@ -184,36 +198,36 @@ public class DeviceCollectActivity extends BaseActivity {
 						if (usable) {
 							requestNetDataFromNet();// 请求网络数据；
 							synObject.suspend();// 挂起线程
-						}else {
+						} else {
 							printSentence = getString(R.string.check_account_enabled);
-							Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+							Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);
 							toast.show();
 						}
-					}else {
+					} else {
 						printSentence = getString(R.string.check_account_addable);
-						Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);
 						toast.show();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					printSentence = getString(R.string.check_account_addable);
-					Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence, Toast.LENGTH_SHORT);
+					Toast toast = Toast.makeText(DeviceCollectActivity.this,printSentence, Toast.LENGTH_SHORT);
 					toast.show();
 				}
 			}
 		});
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	private void requestNetDataFromNet() {
 		showDialog(LOADNETDATADialog);// 显示从网络的加载圈...
 		new ObtainDeviceDataFromNetThread(mHandler).start();
 	}
-	
+
 	private boolean checkAccountUsable(List<CloudAccount> cloudAccountList) {
 		boolean usable = false;
 		int size = cloudAccountList.size();
-		for(int i =0 ;i<size;i++){
+		for (int i = 0; i < size; i++) {
 			CloudAccount cloudAccount = cloudAccountList.get(i);
 			if (cloudAccount.isEnabled()) {
 				usable = true;
@@ -233,8 +247,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		super.setTitleViewText("设备管理");
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
-		
-		caXML = new CloudAccountXML();		
+
+		caXML = new CloudAccountXML();
 		et_device_add_record = (EditText) findViewById(R.id.et_device_add_record);
 		et_device_add_server = (EditText) findViewById(R.id.et_device_add_server);
 		et_device_add_port = (EditText) findViewById(R.id.et_device_add_port);
@@ -244,22 +258,22 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		device_add_choose_btn = (Button) findViewById(R.id.device_add_button_state);
 	}
-	
 
 	private String getEditTextString(EditText editText) {
 		String content = "";
 		Editable editable = editText.getText();
-		if (editable!= null) {
+		if (editable != null) {
 			content = editable.toString();
 		}
 		return content;
 	}
-	
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case LOADNETDATADialog:
-			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.loading_devicedata_wait), true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",
+					getString(R.string.loading_devicedata_wait), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override
@@ -273,6 +287,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			return null;
 		}
 	}
+
 	class ObtainDeviceDataFromNetThread extends Thread {
 		private Handler handler;
 
@@ -302,37 +317,37 @@ public class DeviceCollectActivity extends BaseActivity {
 						String port = cloudAccount.getPort();
 						String usnm = cloudAccount.getUsername();
 						String pasd = cloudAccount.getPassword();
-						Document document = cloudService.SendURLPost(dman, port,usnm, pasd);
+						Document document = cloudService.SendURLPost(dman,port, usnm, pasd);
 						String status = cloudService.readXmlStatus(document);
-						if (status == null) {//加载成功...
+						if (status == null) {// 加载成功...
 							List<DVRDevice> deviceList = cloudService.readXmlDVRDevices(document);
 							int deviceListSize = deviceList.size();
 							for (int j = 0; j < deviceListSize; j++) {
 								dvrDeviceList.add(deviceList.get(j));
 							}
-						}else {//加载不成功...
-							
+						} else {// 加载不成功...
+
 						}
 					}
 				}
-				msg.what = LOAD_SUCCESS ;
+				msg.what = LOAD_SUCCESS;
 				handler.sendMessage(msg);
 			} catch (IOException e) {
 				e.printStackTrace();
-				if (dvrDeviceList.size()>0) {
-					msg.what = LOAD_SUCCESS ;
+				if (dvrDeviceList.size() > 0) {
+					msg.what = LOAD_SUCCESS;
 					handler.sendMessage(msg);
-				}else {
-					msg.what = LOAD_WRONG ;
+				} else {
+					msg.what = LOAD_WRONG;
 					handler.sendMessage(msg);
 				}
 			} catch (DocumentException e) {
 				e.printStackTrace();
-				if (dvrDeviceList.size()>0) {
-					msg.what = LOAD_SUCCESS ;
+				if (dvrDeviceList.size() > 0) {
+					msg.what = LOAD_SUCCESS;
 					handler.sendMessage(msg);
-				}else {
-					msg.what = LOAD_WRONG ;
+				} else {
+					msg.what = LOAD_WRONG;
 					handler.sendMessage(msg);
 				}
 			}

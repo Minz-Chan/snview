@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.dom4j.DocumentException;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +22,9 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 
+@SuppressLint("SdCardPath")
 public class DeviceViewActivity extends BaseActivity {
+	@SuppressWarnings("unused")
 	private static final String TAG = "DeviceViewActivity";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	private CloudAccountXML caxml;
@@ -147,7 +150,29 @@ public class DeviceViewActivity extends BaseActivity {
 
 	private boolean checkContainDeviceItem(DeviceItem saveDeviceItem,List<DeviceItem> deviceItemList) {
 		boolean result = false;
-		
+		int size = deviceItemList.size();
+		for (int i = 0; i < size; i++) {
+			DeviceItem deviceItem = deviceItemList.get(i);
+			
+			String dName = deviceItem.getDeviceName();
+			String svrIp = deviceItem.getSvrIp();
+			String sPort = deviceItem.getSvrPort();
+			String lUser = deviceItem.getLoginUser();
+			String lPass = deviceItem.getLoginPass();
+			
+			String saveLPass = saveDeviceItem.getLoginPass();
+			String saveLUser = saveDeviceItem.getLoginUser();
+			String saveSvrIp = saveDeviceItem.getSvrIp();
+			String saveSPort = saveDeviceItem.getSvrPort();
+			String saveDName = saveDeviceItem.getDeviceName();
+			
+			if ((dName.equals(saveDName)||(dName == saveDName))&&(sPort.equals(saveSPort)||(sPort == saveSPort))
+				&&(svrIp.equals(saveSvrIp)||(svrIp == saveSvrIp))&&(lUser.equals(saveLUser)||(lUser == saveLUser))
+				&&(lPass.equals(saveLPass)||(lPass == saveLPass))) {
+				result = true;
+				break;
+			}
+		}
 		return result;
 	}
 }

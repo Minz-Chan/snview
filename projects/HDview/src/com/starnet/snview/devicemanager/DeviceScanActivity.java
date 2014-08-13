@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.starnet.snview.R;
@@ -20,19 +21,101 @@ public class DeviceScanActivity extends BaseActivity {
 	private EditText channelnumber_et;
 	
 	private DeviceItem clickDeviceItem;
+	
+	private Button editButton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.device_manager_scan_acitivity);
 		superChangeViewFromBase();
-		
+		setListeners();
+	}
+
+	private void setListeners() {
 		super.getLeftButton().setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				DeviceScanActivity.this.finish();
 			}
 		});
+		
+		editButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("clickDeviceItem", clickDeviceItem);
+				intent.putExtras(bundle);
+				intent.setClass(DeviceScanActivity.this, DeviceEditableActivity.class);
+				startActivityForResult(intent, 10);
+			}
+		});
+		
+	}
+	
+	
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == 10) {
+			if (data != null) {
+				Bundle bundle = data.getExtras();
+				if (bundle != null) {
+					DeviceItem cDeviceItem = (DeviceItem) bundle.getSerializable("cDeviceItem");
+					boolean result = checkChangeableBetweenTwoItems(cDeviceItem,clickDeviceItem);
+					if (!result) {//重新显示新的信息
+						String dName = cDeviceItem.getDeviceName();
+						String lPass = cDeviceItem.getLoginPass();
+						String lUser = cDeviceItem.getLoginUser();
+						String chSum = cDeviceItem.getChannelSum();
+						
+						String dfChl = String.valueOf(cDeviceItem.getDefaultChannel());
+						String svrIp = cDeviceItem.getSvrIp();
+						String svrPt = cDeviceItem.getSvrPort();
+						
+						record_et.setText(dName);
+						server_et.setText(svrIp);
+						port_et.setText(svrPt);
+						username_et.setText(lUser);
+						password_et.setText(lPass);
+						defaultChannel_et.setText(dfChl);
+						channelnumber_et.setText(chSum);
+					}
+				}
+			}
+		}
+	}
+
+	private boolean checkChangeableBetweenTwoItems(DeviceItem cDeviceItem,DeviceItem clickDeviceItem2) {
+		boolean result =false;
+		
+		String dName = cDeviceItem.getDeviceName();
+		String lPass = cDeviceItem.getLoginPass();
+		String lUser = cDeviceItem.getLoginUser();
+		String chSum = cDeviceItem.getChannelSum();
+		
+		String dfChl = String.valueOf(cDeviceItem.getDefaultChannel());
+		String svrIp = cDeviceItem.getSvrIp();
+		String svrPt = cDeviceItem.getSvrPort();
+		
+		String dName2 = clickDeviceItem2.getDeviceName();
+		String lPass2 = clickDeviceItem2.getLoginPass();
+		String lUser2 = clickDeviceItem2.getLoginUser();
+		String chSum2 = clickDeviceItem2.getChannelSum();
+		
+		String dfChl2 = String.valueOf(clickDeviceItem2.getDefaultChannel());
+		String svrIp2 = clickDeviceItem2.getSvrIp();
+		String svrPt2 = clickDeviceItem2.getSvrPort();
+		
+		if ((dName.equals(dName2)||(dName == dName2))&&(lPass.equals(lPass2)||(lPass == lPass2))
+			&&(lUser.equals(lUser2)||(lUser == lUser2))&&(chSum.equals(chSum2)||(chSum == chSum2))
+			&&(dfChl.equals(dfChl2)||(dfChl == dfChl2))&&(svrIp.equals(svrIp2)||(svrIp == svrIp2))
+			&&(svrPt.equals(svrPt2)||(svrPt == svrPt2))) {
+			result = true;
+		}
+		return result;
 	}
 
 	private void superChangeViewFromBase() {
@@ -42,6 +125,8 @@ public class DeviceScanActivity extends BaseActivity {
 		super.setTitleViewText(tileName);
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
+		
+		editButton = super.getRightButton();
 		
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);
@@ -73,8 +158,10 @@ public class DeviceScanActivity extends BaseActivity {
 		
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
-		
-		record_et.setText(deviceName.substring(4));
+		if ((deviceName.contains("(在线)")||deviceName.contains("（在线）"))&&deviceName.length() > 3) {
+			deviceName = deviceName.substring(4);
+		}
+		record_et.setText(deviceName);
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);
 		username_et.setText(loginUser);

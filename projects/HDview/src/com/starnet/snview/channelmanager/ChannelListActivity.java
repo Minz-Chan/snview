@@ -80,7 +80,7 @@ public class ChannelListActivity extends BaseActivity {
 			}
 			
 			int size = cloudAccounts.size();
-			for(int i =0 ;i<size;i++){
+			for(int i = 1 ;i<size;i++){
 				CloudAccount cloudAccount = cloudAccounts.get(i);
 				if(cloudAccount!=null){
 					List<DeviceItem> deviceList = cloudAccount.getDeviceList();
