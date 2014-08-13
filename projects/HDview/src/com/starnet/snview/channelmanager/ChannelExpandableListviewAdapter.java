@@ -137,6 +137,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		
 		boolean isContain = containPositon(groupPosition,posList);
 		if (isContain) {
+//			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));//原来的颜色
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
 //			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
 //			convertView.setClickable(false);

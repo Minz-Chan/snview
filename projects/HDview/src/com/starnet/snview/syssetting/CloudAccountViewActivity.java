@@ -65,7 +65,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 				deleteCA = (CloudAccount) parent.getItemAtPosition(position);
 				titleName = deleteCA.getUsername();
 				Builder builder = new Builder(CloudAccountViewActivity.this);
-				builder.setTitle(getString(R.string.system_setting_delete_user)+titleName);
+				builder.setTitle(getString(R.string.system_setting_delete_user)+" "+titleName+" ?");
 				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener(){
 					
 					@Override

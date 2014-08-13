@@ -64,9 +64,12 @@ public class DeviceViewActivity extends BaseActivity {
 			public boolean onItemLongClick(AdapterView<?> parent, View view,final int position, long id) {
 				Builder builder = new Builder(DeviceViewActivity.this);
 				deleteDeviceItem = deviceItemList.get(position);
-				String titleName = deleteDeviceItem.getDeviceName().substring(4);
-				builder.setTitle(getString(R.string.system_setting_delete_device)+" "+titleName+" ?");
+				String titleName = deleteDeviceItem.getDeviceName();
 				
+				if ((titleName.contains("（在线）")||titleName.contains("(在线)"))&&(titleName.length() > 3)) {
+					titleName = titleName.substring(4);
+				} 
+				builder.setTitle(getString(R.string.system_setting_delete_device)+" "+titleName+" ?");	
 				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener(){
 					@Override
 					public void onClick(DialogInterface dialog, int which) {

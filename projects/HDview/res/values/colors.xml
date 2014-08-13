@@ -45,5 +45,8 @@
 
     
     <color name="windows_info_lavender">#E6E6FA</color>   
-    <color name="listview_bg_noisenable">#CCCCFF</color> 
+    <color name="listview_bg_noisenable">#999999</color> 
+    <color name="listview_bg_noIsenable">#666666</color> 
+    <color name="listview_bg_NoIsenable">#333333</color> 
+    <color name="listview_bg_NoIsEnable">#CCCCCC</color> 
 </resources>
