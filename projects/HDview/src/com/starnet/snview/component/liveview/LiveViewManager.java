@@ -330,6 +330,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
 		int lvCount = liveviews.size();
 		for (n = 0; n < lvCount; n++) {
+			liveviews.get(n).getRefreshImageView().setVisibility(View.GONE);
+			liveviews.get(n).getProgressBar().setVisibility(View.VISIBLE);
 			liveviews.get(n).getRefreshImageView().setVisibility(View.INVISIBLE);
 			
 			if (n < count) {
