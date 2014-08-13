@@ -1,5 +1,6 @@
 package com.starnet.snview.realplay;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +17,18 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.ClickEventUtils;
+import com.starnet.snview.util.PreviewItemXMLUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,13 +77,14 @@ public class RealplayActivity extends BaseActivity {
 	private FrameLayout mVideoRegion;
 	
 	
+	
+	
 
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
 		super.onCreate(inState);
 		setContentView(R.layout.realplay_activity);
-		
 		
 		setBackPressedExitEventValid(true);
 		 
@@ -89,10 +95,47 @@ public class RealplayActivity extends BaseActivity {
 		initView();
 
 		test();
-
+		
+		loadDataFromPreserved();
 	}
 	
-	
+	private void loadDataFromPreserved() {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		List<PreviewDeviceItem> devices = null;
+		
+		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML("/data/data/com.starnet.snview/LastDevicesList.xml");
+		
+		Log.i(TAG, "Devices size: " + devices.size());
+		
+		if (devices.size() != 0) {
+			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
+			int page = sharedPreferences.getInt("PAGE", -1);
+			int pageCount = sharedPreferences.getInt("PAGE_COUNT", -1);
+			
+			Log.i(TAG, "mode: " + mode + ", page: " + page);
+			if (mode != -1 && page != -1) {
+				liveViewManager.setDeviceList(devices);
+				liveViewManager.setMultiMode(mode == 4 ? true : false);
+				
+				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
+				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
+				liveViewManager.selectLiveView(newCurrPos);
+				
+				liveViewManager.resetLiveView(pageCount);
+				
+				mPager.setAmount(devices.size());
+				mPager.setNum(newCurrPos);
+			}
+			
+		} else { // 首次进入
+			liveViewManager.setMultiMode(null);
+			mPager.setAmount(0);
+			mPager.setNum(0);
+		}
+
+		
+	}
 
 	
 	@Override
@@ -228,6 +271,10 @@ public class RealplayActivity extends BaseActivity {
 					
 					Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
 					
+					List<PreviewDeviceItem> devices = liveViewManager.getDeviceList();
+					if (devices == null || devices.size() == 0) {
+						return;
+					}
 					
 					
 					if (isMultiMode) { // 多通道模式
@@ -316,8 +363,9 @@ public class RealplayActivity extends BaseActivity {
 		};
 		
 		liveViewManager.setOnVideoModeChangedListener(onVideoModeChangedListener);
+		
 		// 初始化为多通道模式
-		onVideoModeChangedListener.OnVideoModeChanged(true);
+		//onVideoModeChangedListener.OnVideoModeChanged(true);
 		
 		
 				
@@ -962,6 +1010,44 @@ public class RealplayActivity extends BaseActivity {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	
+	
+	
+
+	@Override
+	protected void onDestroy() {
+		liveViewManager.closeAllConnection();
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		Editor editor = sharedPreferences.edit();
+		boolean isMultiMode = liveViewManager.isMultiMode();
+		
+		if (isMultiMode) {
+			editor.putInt("PREVIEW_MODE", 4);  // 当前预览模式
+		} else {
+			editor.putInt("PREVIEW_MODE", 1);  
+		}
+
+		editor.putInt("PAGE", liveViewManager.getCurrentPageNumber());       // 当前页数
+		editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount());  // 当前页项数
+		editor.commit();
+		
+		// /data/data/com.starsecurity
+		try {
+			PreviewItemXMLUtils.writePreviewItemListInfoToXML(liveViewManager.getDeviceList(), "/data/data/com.starnet.snview/LastDevicesList.xml");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Log.i(TAG, "onDestroy@Devices size: " + liveViewManager.getDeviceList().size() + ", mode: " + (isMultiMode ? 4 : 1) 
+				+ ", page: " + liveViewManager.getCurrentPageNumber() + ", page count: " + liveViewManager.getCurrentPageCount() );
+		
+		super.onDestroy();
+	}
+
+
+
 
 	@Override
 	protected void gotoRealtimePreview() {
