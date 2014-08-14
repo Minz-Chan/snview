@@ -29,14 +29,14 @@
             </intent-filter>
         </activity>
         
-        <activity android:name="com.starnet.snview.realplay.RealplayActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.images.ImagesManagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.playback.PlaybackActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.realplay.RealplayActivity" android:launchMode="singleTask" android:alwaysRetainTaskState="true" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.images.ImagesManagerActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.playback.PlaybackActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Dialog"/>
 
-        <activity android:name="com.starnet.snview.syssetting.SystemSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.syssetting.SystemSettingActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="com.starnet.snview.syssetting.AboutActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="com.starnet.snview.syssetting.CloudAccountViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="com.starnet.snview.syssetting.CloudAccountSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />

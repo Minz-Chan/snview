@@ -20,11 +20,12 @@ public class PlaybackActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.playback_activity);
 		
-		setBackPressedExitEventValid(true);
+		//setBackPressedExitEventValid(true);
 		
 		initView();
 		
@@ -114,5 +115,5 @@ public class PlaybackActivity extends BaseActivity {
 	    		c8.get(Calendar.HOUR_OF_DAY), c8.get(Calendar.MINUTE));
 	    mTimebar.addFileInfo(1, c7, c8);
 	}
-
+	
 }
