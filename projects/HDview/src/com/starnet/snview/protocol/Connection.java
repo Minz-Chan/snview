@@ -201,8 +201,9 @@ public class Connection extends DemuxingIoHandler {
     		isDisposed = false;
     	}
     	
-    	
-    	mConnectionListener.OnConnectionTrying(mLiveViewItem);
+    	if (this == mLiveViewItem.getCurrentConnection()) {
+    		mConnectionListener.OnConnectionTrying(mLiveViewItem);
+    	}
     	
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
@@ -217,11 +218,16 @@ public class Connection extends DemuxingIoHandler {
         			session.close(true);
             		System.out.println("isDisposed: true");
             		
-                	mConnectionListener.OnConnectionFailed(mLiveViewItem);
+            		if (this == mLiveViewItem.getCurrentConnection()) {
+            			mConnectionListener.OnConnectionFailed(mLiveViewItem);
+            		}
+                	
         		}
         	} else {
         		if (session == null) { // 连接建立失败
-                	mConnectionListener.OnConnectionFailed(mLiveViewItem);
+        			if (this == mLiveViewItem.getCurrentConnection()) {
+        				mConnectionListener.OnConnectionFailed(mLiveViewItem);
+        			}
         		}
         	}
         	
@@ -321,7 +327,9 @@ public class Connection extends DemuxingIoHandler {
 
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
-		mConnectionListener.OnConnectionEstablished(mLiveViewItem);
+		if (this == mLiveViewItem.getCurrentConnection()) {
+			mConnectionListener.OnConnectionEstablished(mLiveViewItem);
+		}
 		
 		login(session, username, password);
 	}
@@ -346,8 +354,10 @@ public class Connection extends DemuxingIoHandler {
 		System.out.println("Session " + session.getId() + " is closed...");
 		connector.dispose();
 		
-		mConnectionListener.OnConnectionClosed(mLiveViewItem);
-		mLiveViewChangedListener.onDisplayContentReset();
+		if (this == mLiveViewItem.getCurrentConnection()) {
+			mConnectionListener.OnConnectionClosed(mLiveViewItem);
+			mLiveViewChangedListener.onDisplayContentReset();
+		}
 
 		if (mH264decoder != null) {
 			mH264decoder.uninit();

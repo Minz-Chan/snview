@@ -331,14 +331,18 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		int lvCount = liveviews.size();
 		for (n = 0; n < lvCount; n++) {
 			liveviews.get(n).getRefreshImageView().setVisibility(View.GONE);
-			liveviews.get(n).getProgressBar().setVisibility(View.VISIBLE);
-			liveviews.get(n).getRefreshImageView().setVisibility(View.INVISIBLE);
+			
+			
 			
 			if (n < count) {
 				liveviews.get(n).getSurfaceView().setValid(true);
+				liveviews.get(n).getProgressBar().setVisibility(View.VISIBLE);
 			} else {
 				liveviews.get(n).getSurfaceView().setValid(false);
+				
 			}
+			
+			liveviews.get(n).getRefreshImageView().setVisibility(View.INVISIBLE);
 		}
 		
 		// 保证当前connection池资源足够
@@ -380,8 +384,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setChannel(p.getChannel());
 			
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
-			conn.bindLiveViewItem(liveviews.get(n - 1));
 			
+			conn.bindLiveViewItem(liveviews.get(n - 1));
+			liveviews.get(n - 1).setCurrentConnection(conn);
 						
 			executor.execute(new Runnable() {
 				@Override
@@ -485,6 +490,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				}
 				
 				newConn.bindLiveViewItem(liveviews.get(i));
+				liveviews.get(i).setCurrentConnection(newConn);
+				
 				connections.add(newConn);
 			}
 			
