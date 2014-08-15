@@ -1,12 +1,17 @@
 package com.starnet.snview.devicemanager;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
@@ -14,10 +19,11 @@ import com.starnet.snview.component.BaseActivity;
 @SuppressLint("SdCardPath")
 public class DeviceInfoActivity extends BaseActivity {
 
+	@SuppressWarnings("unused")
+	private static final String TAG = "DeviceInfoActivity"; 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
 	private DeviceItem saveDeviceItem;
 	
-//	private EditText choose_et;
 	private EditText et_device_add_record;
 	private EditText et_device_add_server;
 	private EditText et_device_add_port;
@@ -26,6 +32,11 @@ public class DeviceInfoActivity extends BaseActivity {
 	private EditText et_device_add_password;
 	private EditText et_device_add_defaultChannel;
 	private EditText et_device_add_channelnumber;
+	
+	private Button identify_save_btn;//验证并保存按钮...
+//	private Button on_off_btn;//单击,控制device_add_choose_et是否可输入
+	private EditText select_et;
+//	private static int clickTime = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +47,13 @@ public class DeviceInfoActivity extends BaseActivity {
 		
 		findViewsAndInitial();
 		
-		setClickListeners();
+		setClickListenersForButton();
 	}
 
 	private void findViewsAndInitial() {
-//		et_device_add_record = (EditText) findViewById(R.id.et_device_add_record);
+//		on_off_btn = (Button) findViewById(R.id.device_add_button_state);''
+		select_et = (EditText) findViewById(R.id.device_add_choose_et);
+
 		et_device_add_server = (EditText) findViewById(R.id.et_device_add_server);
 		et_device_add_port = (EditText) findViewById(R.id.et_device_add_port);
 		et_device_add_record = (EditText) findViewById(R.id.et_device_add_record);
@@ -59,18 +72,39 @@ public class DeviceInfoActivity extends BaseActivity {
 			et_device_add_defaultChannel.setText(String.valueOf(saveDeviceItem.getDefaultChannel()));
 			et_device_add_channelnumber.setText(saveDeviceItem.getChannelSum());
 		}		
-		
-		et_device_add_server.setKeyListener(null);
-		et_device_add_port.setKeyListener(null);
-		et_device_add_record.setKeyListener(null);
-		et_device_add_username.setKeyListener(null);
-		
-		et_device_add_password.setKeyListener(null);
-		et_device_add_defaultChannel.setKeyListener(null);
+//			@Override
+//			public boolean onKeyUp(View view, Editable text, int keyCode, KeyEvent event) {
+//				return false;
+//			}
+//			@Override
+//			public boolean onKeyOther(View view, Editable text, KeyEvent event) {
+//				return false;
+//			}
+//			@Override
+//			public boolean onKeyDown(View view, Editable text, int keyCode,
+//					KeyEvent event) {
+//				return false;
+//			}
+//			@Override
+//			public int getInputType() {
+//				return 0;
+//			}
+//			@Override
+//			public void clearMetaKeyState(View view, Editable content, int states) {
+//			}
+//		});
+//		et_device_add_server.setKeyListener(null);
+//		et_device_add_port.setKeyListener(null);
+//		et_device_add_record.setKeyListener(null);
+//		et_device_add_username.setKeyListener(null);
+//		
+//		et_device_add_password.setKeyListener(null);
+//		et_device_add_defaultChannel.setKeyListener(null);
 		et_device_add_channelnumber.setKeyListener(null);
+		select_et.setKeyListener(null);
 	}
 
-	private void setClickListeners() {
+	private void setClickListenersForButton() {
 		super.getLeftButton().setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -79,34 +113,94 @@ public class DeviceInfoActivity extends BaseActivity {
 			}
 		});
 		
-		super.getRightButton().setOnClickListener(new OnClickListener(){
+//		on_off_btn.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				clickTime++;
+//				if ((clickTime%2 != 0)) {
+//					select_et.setEnabled(true);
+//					select_et.setInputType(InputType.TYPE_CLASS_TEXT);
+//				}else {
+//					String content = select_et.getText().toString();
+//					select_et.setText(content);
+//					select_et.clearFocus();
+//					Context context = DeviceInfoActivity.this;
+//					InputMethodManager im = (InputMethodManager) getSystemService(context.INPUT_METHOD_SERVICE);
+//					im.hideSoftInputFromWindow(select_et.getWindowToken(), 0);
+//					select_et.setKeyListener(null);
+//				}
+//			}
+//		});
+		
+		
+		identify_save_btn.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View v) {
 				
-				CloudAccountXML caXML = new CloudAccountXML();
-				try {
-					//保存到文档中...
-					String status = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
-					Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
-					toast.show();
-					DeviceInfoActivity.this.finish();
-					
-					Intent intent = new Intent();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable("saveDeviceItem", saveDeviceItem);
-					intent.putExtras(bundle);
-					intent.setClass(DeviceInfoActivity.this, DeviceViewActivity.class);
-					startActivity(intent);
-					DeviceInfoActivity.this.finish();
-				} catch (Exception e) {
-					e.printStackTrace();
-					Toast toast = Toast.makeText(DeviceInfoActivity.this, "保存失败...", Toast.LENGTH_LONG);
+				boolean allEdit = examineAllEdit();//检查是否全部输入
+				if (allEdit) {//已经全部输入，将输入的项保存到文档中，并且验证是否可达...
+					CloudAccountXML caXML = new CloudAccountXML();
+					try {
+						//保存到文档中...
+						String status = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
+						Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
+						toast.show();
+						SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);
+						Editor editor = spf.edit();
+						
+						editor.putString("dName", saveDeviceItem.getDeviceName());
+						editor.putString("chSum", saveDeviceItem.getChannelSum());
+						editor.putString("dChnl", String.valueOf(saveDeviceItem.getDefaultChannel()));
+						editor.putString("svrIp", saveDeviceItem.getSvrIp());
+						
+						editor.putString("lgUsr", saveDeviceItem.getLoginUser());
+						editor.putString("lgPas", saveDeviceItem.getLoginPass());
+						editor.putString("svrPt", saveDeviceItem.getSvrPort());
+						
+						editor.commit();
+						DeviceInfoActivity.this.finish();
+						
+//						Intent intent = new Intent();
+//						Bundle bundle = new Bundle();
+//						bundle.putSerializable("saveDeviceItem", saveDeviceItem);
+//						intent.putExtras(bundle);
+//						intent.setClass(DeviceInfoActivity.this, DeviceViewActivity.class);
+//						startActivity(intent);
+//						DeviceInfoActivity.this.finish();
+					} catch (Exception e) {
+						e.printStackTrace();
+						String printSentence = getString(R.string.save_failed);
+						Toast toast = Toast.makeText(DeviceInfoActivity.this, printSentence, Toast.LENGTH_LONG);
+						toast.show();
+						
+					}
+				}else {
+					String printSentence = getString(R.string.exist_input_null_check);
+					Toast toast = Toast.makeText(DeviceInfoActivity.this, printSentence, Toast.LENGTH_LONG);
 					toast.show();
 				}
-				//验证合法性....
 			}
 		});
+	}
+
+	protected boolean examineAllEdit() {
+		boolean allEdit = false;
+		
+		String server = et_device_add_server.getText().toString();
+		String record = et_device_add_record.getText().toString();
+		String ddport = et_device_add_port.getText().toString();
+		String channl = et_device_add_defaultChannel.getText().toString();
+		
+		String number = et_device_add_channelnumber.getText().toString();
+		String usname = et_device_add_username.getText().toString();
+		
+		if (!server.equals("")&&!record.equals("")&&!ddport.equals("")
+			&&!channl.equals("")&&!number.equals("")&&!usname.equals("")) {
+			allEdit = true;
+		}
+		return allEdit;
 	}
 
 	private void superExtendsAndHidenView() {
@@ -115,6 +209,7 @@ public class DeviceInfoActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.hideExtendButton();
+		identify_save_btn = super.getRightButton();
 		
 		Intent intent = getIntent();
 		if(intent!= null){

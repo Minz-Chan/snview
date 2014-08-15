@@ -45,7 +45,7 @@
     
     <string name="device_listview_item_securityprotection">安全防护</string>
     <string name="cloudaccount_listview_item_enable">启用</string>
-    <string name="system_setting_newworksetting">网络配置</string>
+    <string name="system_setting_newworksetting">星云平台</string>
     <string name="system_setting_update">软件更新</string>
     <string name="system_setting_help">帮助</string>
     <string name="system_setting_about">关于</string>
@@ -86,6 +86,7 @@
     <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查域名和端口设置</string>
     
     <string name="edit_infor_right">信息编辑正确，保存成功</string>
+    <string name="edit_info_notnull">选项不能为空，请补充完整</string>
     <string name="domain_info_not_null">域名不能为空，请填写</string>
     <string name="port_info_not_null">端口号不能为空，请填写</string>
     <string name="username_info_not_null">用户名不能为空，请填写</string>
@@ -107,5 +108,13 @@
     <string name="check_account_addable">请检查用户是否添加</string>
     <string name="loading_devicedata_wait">正在从网络加载数据，请等待</string>
     <string name="defaultchannel_channelNumber_small">默认通道要比通道数量小</string>
+    
+    <string name="save_failed">保存失败</string>
+    <string name="exist_input_null_check">含有未输入的项，请检查</string>
+    <string name="device_manage_online_en">(在线)</string>
+    <string name="device_manage_online_cn">（在线）</string>
+    <string name="device_manage_offline_cn">（离线）</string>
+    <string name="device_manage_offline_en">(离线)</string>
+    <string name="device_manage_off_on_line_length">4</string>
     
 </resources>

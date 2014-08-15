@@ -1,7 +1,10 @@
 package com.starnet.snview.devicemanager;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,6 +17,8 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceScanActivity extends BaseActivity {
+	
+	private static final String TAG = "DeviceScanActivity";
 	
 	@SuppressLint("SdCardPath")
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
@@ -39,14 +44,14 @@ public class DeviceScanActivity extends BaseActivity {
 	}
 
 	private void setListeners() {
-		super.getLeftButton().setOnClickListener(new OnClickListener(){
+		super.getLeftButton().setOnClickListener(new OnClickListener(){//返回到设备列表查看界面
 			@Override
 			public void onClick(View v) {
 				DeviceScanActivity.this.finish();
 			}
 		});
 		
-		editButton.setOnClickListener(new OnClickListener(){
+		editButton.setOnClickListener(new OnClickListener(){//进入编辑界面。。。
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
@@ -57,7 +62,6 @@ public class DeviceScanActivity extends BaseActivity {
 				startActivityForResult(intent, 10);
 			}
 		});
-		
 	}
 	
 	
@@ -92,6 +96,20 @@ public class DeviceScanActivity extends BaseActivity {
 						try {
 							caXml.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
 							caXml.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
+							
+							SharedPreferences spf = getSharedPreferences("user", Context.MODE_PRIVATE);
+							Editor editor = spf.edit();
+							editor.putString("dName", dName);
+							editor.putString("lUser", lUser);
+							editor.putString("lPass", lPass);
+							editor.putString("chSum", chSum);
+							
+							editor.putString("dfChl", dfChl);
+							editor.putString("svrIp", svrIp);
+							editor.putString("svrPt", svrPt);
+							editor.commit();
+							setResult(21, data);
+							DeviceScanActivity.this.finish();							
 						}catch (Exception e) {
 							String text = "保存失败";
 							Toast toast = Toast.makeText(DeviceScanActivity.this, text, Toast.LENGTH_LONG);

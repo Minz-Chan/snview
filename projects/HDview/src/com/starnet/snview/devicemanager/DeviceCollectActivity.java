@@ -36,6 +36,8 @@ import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
+	
+	private static final String TAG = "DeviceCollectActivity";
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";// 用于保存收藏设备...
 	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
@@ -55,7 +57,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	@SuppressWarnings("unused")
 	private EditText et_device_choose;
 
-	private Button device_add_choose_btn;
+	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据...
 
 	private DeviceItem saveDeviceItem = new DeviceItem();
 
@@ -76,7 +78,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				return;
 			}
 			dismissDialog(LOADNETDATADialog);
-			synObject.resume();// 解除线程挂起,向下继续执行....
+			synObject.resume();// 解除线程挂起,向下继续执行...
 			switch (msg.what) {
 			case LOAD_SUCCESS:
 				if (dvrDeviceList.size() > 0) {
@@ -89,7 +91,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				intent.putExtras(bundle);
 				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
 				startActivity(intent);
-				DeviceCollectActivity.this.finish();
+//				DeviceCollectActivity.this.finish();
 				break;
 			case LOAD_WRONG:
 				break;
@@ -272,8 +274,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case LOADNETDATADialog:
-			ProgressDialog progress = ProgressDialog.show(this, "",
-					getString(R.string.loading_devicedata_wait), true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.loading_devicedata_wait), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override

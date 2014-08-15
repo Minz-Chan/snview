@@ -129,7 +129,7 @@ public class DeviceChooseActivity extends BaseActivity {
 					public void afterTextChanged(Editable s) {  }
 				});
 
-		deviceListView.setOnItemClickListener(new OnItemClickListener() {
+		deviceListView.setOnItemClickListener(new OnItemClickListener() {//单击进入平台信息界面...
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				DeviceItem deviceItem = deviceItemList.get(position);
@@ -251,6 +251,7 @@ public class DeviceChooseActivity extends BaseActivity {
 		intent.putExtras(bundle);
 		intent.setClass(DeviceChooseActivity.this, DeviceInfoActivity.class);
 		startActivity(intent);
+//		DeviceChooseActivity.this.finish();
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改

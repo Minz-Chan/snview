@@ -208,7 +208,7 @@ public class ChannelListActivity extends BaseActivity {
 	
 	private List<PreviewDeviceItem> getPreviewChannelList(List<CloudAccount> cloudAccounts) {
 		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
-		if (cloudAccounts == null) {
+		if ((cloudAccounts == null)||(cloudAccounts.size() < 1)) {
 			//打印一句话，用户尚未进行选择
 			String printSentence = "您暂时还没有做通道选择,请选择...";
 			Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);

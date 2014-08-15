@@ -112,10 +112,13 @@ public class SystemSettingActivity extends BaseActivity {
 		builder.setPositiveButton(getString(R.string.channel_listview_ok), new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-//				ActivityManager activityMgr= (ActivityManager) SystemSettingActivity.this.getSystemService(Context.ACTIVITY_SERVICE );
+				ActivityManager actMgr= (ActivityManager) getSystemService(ACTIVITY_SERVICE );
+				actMgr.killBackgroundProcesses(getPackageName());
+				android.os.Process.killProcess(android.os.Process.myPid());
+				SystemSettingActivity.this.finish();
 ////				activityMgr.restartPackage();
 //				activityMgr.killBackgroundProcesses(getPackageName());
-				SystemSettingActivity.this.finish();
+				
 			}
 		});
 		builder.setNegativeButton(getString(R.string.channel_listview_cancel), null);

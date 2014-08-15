@@ -32,7 +32,7 @@
         <activity android:name="com.starnet.snview.realplay.RealplayActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.images.ImagesManagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.playback.PlaybackActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- android:launchMode="singleTask"  -->
         <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.channelmanager.ChannelListViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Dialog"/>
 
@@ -41,13 +41,13 @@
         <activity android:name="com.starnet.snview.syssetting.CloudAccountViewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="com.starnet.snview.syssetting.CloudAccountSettingActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
 
-        <activity android:name="com.starnet.snview.devicemanager.DevicesAddActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light"/>
+        <activity android:name="com.starnet.snview.devicemanager.DevicesAddActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.Light" /><!-- android:launchMode="standard" -->
         <activity android:name="com.starnet.snview.devicemanager.DeviceCollectActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceChooseActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.syssetting.CloudAccountSetEditActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.devicemanager.DeviceScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.devicemanager.DeviceScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         <activity android:name="com.starnet.snview.devicemanager.DeviceInfoActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name="com.starnet.snview.devicemanager.DeviceEditableActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.devicemanager.DeviceEditableActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!--  --> 
         
     </application>
 

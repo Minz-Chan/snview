@@ -1,5 +1,8 @@
 package com.starnet.snview.devicemanager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,13 +10,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceEditableActivity extends BaseActivity {
 	
+	private static final String TAG = "DeviceEditableActivity";
 	
-
 	private EditText record_et;
 	private EditText server_et;
 	private EditText port_et;
@@ -25,6 +30,8 @@ public class DeviceEditableActivity extends BaseActivity {
 	private DeviceItem clickDeviceItem;
 
 	private Button saveButton;
+	private int oriChannelNum;//未编辑后的通道数量
+	private int newChannelNum;//编辑后的通道数量
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +67,8 @@ public class DeviceEditableActivity extends BaseActivity {
 						&& !lPass.equals("") && !dfChl.equals("") 
 						&& !chSum.equals(""))) {// 检查信息是否为空
 					int defaultChannl = Integer.valueOf(dfChl);
-					int channelNumber = Integer.valueOf(chSum);
-					if (defaultChannl < channelNumber) {
+					int newChannelNum = Integer.valueOf(chSum);
+					if (defaultChannl < newChannelNum) {
 						clickDeviceItem.setChannelSum(chSum);
 						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 						clickDeviceItem.setDeviceName(dName);
@@ -69,18 +76,33 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setSvrPort(svrPt);
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
+						List<Channel> channelList = new ArrayList<Channel>();
+						if(newChannelNum != oriChannelNum){
+							for (int i = 0; i < newChannelNum; i++) {
+								Channel channel = new Channel();
+								channel.setChannelName("通道"+(i+1));
+								channel.setChannelNo((i+1));
+								channel.setSelected(false);
+								channelList.add(channel);
+							}
+							clickDeviceItem.setChannelList(channelList);
+						}
 						// 并返回原来的界面
 						Intent data = new Intent();
 						Bundle bundle = new Bundle();
 						bundle.putSerializable("cDeviceItem", clickDeviceItem);
 						data.putExtras(bundle);
-						setResult(10, data);
+						setResult(11, data);
 						DeviceEditableActivity.this.finish();
 					}else {
 						String text = getString(R.string.defaultchannel_channelNumber_small);
 						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
 						toast.show();
 					}
+				}else {
+					String text = getString(R.string.edit_info_notnull);
+					Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
+					toast.show();
 				}
 			}
 		});
@@ -110,8 +132,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
 			if (bundle != null) {
-				clickDeviceItem = (DeviceItem) bundle
-						.getSerializable("clickDeviceItem");
+				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
 			}
 		}
 
@@ -119,15 +140,27 @@ public class DeviceEditableActivity extends BaseActivity {
 		String loginPass = clickDeviceItem.getLoginPass();
 		String loginUser = clickDeviceItem.getLoginUser();
 		String channelSum = clickDeviceItem.getChannelSum();
-		String defaultChannel = String.valueOf(clickDeviceItem
-				.getDefaultChannel());
+		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
 
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
-		if ((deviceName.contains("(在线)") || deviceName.contains("（在线）"))
-				&& deviceName.length() > 3) {
-			deviceName = deviceName.substring(4);
+		
+		String word1 = getString(R.string.device_manage_offline_en);
+		String word2 = getString(R.string.device_manage_offline_cn);
+		String word3 = getString(R.string.device_manage_online_cn);
+		String word4 = getString(R.string.device_manage_online_en);
+		
+		String wordLen = getString(R.string.device_manage_off_on_line_length);
+		int len = Integer.valueOf(wordLen);
+		String dName = deviceName.substring(0, len);
+		
+		if ((dName.contains(word1) || dName.contains(word2)|| dName.contains(word3)|| dName.contains(word4))
+				&& deviceName.length() > (len-1)) {
+			deviceName = deviceName.substring(len);
 		}
+		
+		oriChannelNum = Integer.valueOf(channelSum);//获取通道数量...
+		
 		record_et.setText(deviceName);
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);
