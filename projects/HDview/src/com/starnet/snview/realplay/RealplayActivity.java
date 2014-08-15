@@ -83,6 +83,7 @@ public class RealplayActivity extends BaseActivity {
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
+		setContainerMenuDrawer(true);
 		super.onCreate(inState);
 		setContentView(R.layout.realplay_activity);
 		
@@ -1011,8 +1012,29 @@ public class RealplayActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
+
+	
+
+	@Override
+	protected void onRestart() {
+		setActiveMenuId(R.id.menu_drawer_realtime_preview);
+		super.onRestart();
+	}
 	
 	
+
+	@Override
+	protected void onStart() {
+		setActiveMenuId(R.id.menu_drawer_realtime_preview);
+		super.onStart();
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		setActiveMenuId(R.id.menu_drawer_realtime_preview);
+		
+		super.onNewIntent(intent);
+	}
 
 	@Override
 	protected void onDestroy() {
@@ -1020,7 +1042,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
-		boolean isMultiMode = liveViewManager.isMultiMode();
+		boolean isMultiMode = liveViewManager.isMultiMode(); 
 		
 		if (isMultiMode) {
 			editor.putInt("PREVIEW_MODE", 4);  // 当前预览模式
@@ -1045,9 +1067,6 @@ public class RealplayActivity extends BaseActivity {
 		
 		super.onDestroy();
 	}
-
-
-
 
 	@Override
 	protected void gotoRealtimePreview() {

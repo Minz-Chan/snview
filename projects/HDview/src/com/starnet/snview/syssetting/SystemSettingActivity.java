@@ -32,7 +32,9 @@ public class SystemSettingActivity extends BaseActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.system_setting_activity);
 		
 		initView();

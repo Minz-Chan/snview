@@ -31,7 +31,7 @@ import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.syssetting.SystemSettingActivity;
 import com.starnet.snview.util.ActivityUtility;
 
-public class BaseActivity extends Activity {
+public abstract class BaseActivity extends Activity {
 	private static final String TAG = "BaseActivity";
 	
 	
@@ -50,7 +50,8 @@ public class BaseActivity extends Activity {
     private static final String STATE_ACTIVE_VIEW_ID = "net.simonvt.menudrawer.samples.WindowSample.activeViewId";
 	private MenuDrawer mMenuDrawer;
     //private TextView mContentTextView;
-    private int mActiveViewId;
+    private static int mActiveViewId;
+    private boolean mIsContainMenuDrawer = false;
     
     /* 工具栏 */
     private Toolbar mToolbar;
@@ -60,6 +61,7 @@ public class BaseActivity extends Activity {
     
     /* 退出对话框 */
 	private boolean mIsBackPressedExitEventValid;
+	
     
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +78,10 @@ public class BaseActivity extends Activity {
 	    findViews(this.mSuperContentView);
 	    setListener();
 	    
-	    initMenuDrawer();
+	    if (mIsContainMenuDrawer) {
+	    	initMenuDrawer();
+	    }
+	    
 		
 	}
     
@@ -232,6 +237,8 @@ public class BaseActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
+			int oldActivityViewId = mActiveViewId;
+			
 			mMenuDrawer.setActiveView(v);
 	        //mContentTextView.setText("Active item: " + ((TextView) v).getText());
 	        mMenuDrawer.closeMenu();
@@ -257,7 +264,11 @@ public class BaseActivity extends Activity {
 	        	break;
 	        }
 	        
-	        
+	        if (oldActivityViewId != R.id.menu_drawer_realtime_preview
+	        		&& mActiveViewId != R.id.menu_drawer_realtime_preview
+	        		&& oldActivityViewId != mActiveViewId) {
+	        	BaseActivity.this.finish();
+	        }
 	        
 	        //BaseActivity.this.finish();
 	        
@@ -298,17 +309,26 @@ public class BaseActivity extends Activity {
 	@Override
     protected void onRestoreInstanceState(Bundle inState) {
         super.onRestoreInstanceState(inState);
-        mMenuDrawer.restoreState(inState.getParcelable(STATE_MENUDRAWER));
+        if (mMenuDrawer != null) {
+        	mMenuDrawer.restoreState(inState.getParcelable(STATE_MENUDRAWER));
+        }        
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_MENUDRAWER, mMenuDrawer.saveState());
+        if (mMenuDrawer != null) {
+        	outState.putParcelable(STATE_MENUDRAWER, mMenuDrawer.saveState());
+        }
+        
         outState.putInt(STATE_ACTIVE_VIEW_ID, mActiveViewId);
     }
     
     protected void closeMenuDrawer() {
+    	if (mMenuDrawer == null) {
+    		return;
+    	}
+    	
     	final int drawerState = mMenuDrawer.getDrawerState();
         if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
@@ -350,10 +370,10 @@ public class BaseActivity extends Activity {
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
-//										android.os.Process
-//												.killProcess(android.os.Process
-//														.myPid());
-										BaseActivity.this.finish();
+										android.os.Process
+												.killProcess(android.os.Process
+														.myPid());
+										//BaseActivity.this.finish();
 									}
 								}).setNegativeButton(R.string.exit_dialog_dispose, null)
 						.show();
@@ -376,7 +396,7 @@ public class BaseActivity extends Activity {
         mMenuDrawer.setDropShadowEnabled(false);
         
         Log.d(TAG, "screen width: " + screenWidth);
-       
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             //getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -393,14 +413,24 @@ public class BaseActivity extends Activity {
 
         TextView activeView = (TextView) findViewById(mActiveViewId);
         if (activeView != null) {
-            mMenuDrawer.setActiveView(activeView);
+            mMenuDrawer.setActiveView(activeView);  // 新的Activity启动时，活动项设置为上一次所选项
             //mContentTextView.setText("Active item: " + activeView.getText());
+        } else {
+        	mActiveViewId = R.id.menu_drawer_realtime_preview;  // 程序启动时设置【实时预览】为当前活动项
         }
 
         // This will animate the drawer open and closed until the user manually drags it. Usually this would only be
         // called on first launch.
         //mMenuDrawer.peekDrawer();
     }
+	
+	protected void setContainerMenuDrawer(boolean isContainMenuDrawer) {
+		this.mIsContainMenuDrawer = isContainMenuDrawer;
+	}
+	
+	protected void setActiveMenuId(int id) {
+		this.mActiveViewId = id;
+	}
 
 	protected Toolbar getBaseToolbar() {
 		return mToolbar;
@@ -417,6 +447,5 @@ public class BaseActivity extends Activity {
 	protected FrameLayout getToolbarContainer() {
 		return mToolbarContainer;
 	}
-	
 
 }

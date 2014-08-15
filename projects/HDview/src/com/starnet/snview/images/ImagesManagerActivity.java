@@ -3,14 +3,12 @@ package com.starnet.snview.images;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
@@ -24,7 +22,7 @@ public class ImagesManagerActivity extends BaseActivity {
 	private ExpandableListView mExpandableListView;
 	private ImagesExpandableListAdapter mExpandableListAdapter;
 	
-	private final ArrayList<ImagesGroup> mImagesThumbnailGroupList = new ArrayList();
+	private final ArrayList<ImagesGroup> mImagesThumbnailGroupList = new ArrayList<ImagesGroup>();
 	
 	private ImagesManager mImagesManager;
 	
@@ -33,11 +31,12 @@ public class ImagesManagerActivity extends BaseActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.images_manager_activity);
 		
-		setBackPressedExitEventValid(true);
+		//setBackPressedExitEventValid(true);
 		
 		initViews();
 		
@@ -65,7 +64,7 @@ public class ImagesManagerActivity extends BaseActivity {
 	    mExpandableListView = (ExpandableListView) findViewById(R.id.images_listview);
 		
 	}
-	
+
 	private void setListeners() {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
@@ -98,13 +97,13 @@ public class ImagesManagerActivity extends BaseActivity {
 	private void updateImageGroupList()
 	  {
 	    this.mImagesThumbnailGroupList.clear();
-	    List dateList = this.mImagesManager.getDateList();
+	    List<String> dateList = this.mImagesManager.getDateList();
 	    if ((dateList == null) || (dateList.size() == 0)) {
 	    	return;
 	    } else {
 	    	for (int i = 0; i < dateList.size(); i++) {
 	    		String str = (String)dateList.get(i);
-		        List imageList = this.mImagesManager.getImageListForDate(str);
+		        List<Image> imageList = this.mImagesManager.getImageListForDate(str);
 
 		        ImagesGroup imagesGroup = new ImagesGroup(str, imageList);
 		        this.mImagesThumbnailGroupList.add(imagesGroup);
