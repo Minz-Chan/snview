@@ -70,4 +70,8 @@
     
     <dimen name="menu_drawer_divider_height">0.7dip</dimen>
     
+    <dimen name="cloudaccout_setting_mleft">10.0dip</dimen>
+    <dimen name="cloudaccout_setting_mright">10.0dip</dimen>
+    <dimen name="cloudaccout_setting_mtop">5.0dip</dimen>
+    
 </resources>

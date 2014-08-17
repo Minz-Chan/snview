@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -61,6 +62,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	String password;
 
 	// private CloudAccount clickCloudAccount;
+	private Button identify_btn;//验证客户是否网络可达按钮
 
 	private SynObject synObj = new SynObject();
 
@@ -121,7 +123,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.system_setting_cloudaccount_setting_activity);
+		setContentView(R.layout.system_setting_cloudaccount_setting_activity_another);
 
 		initView();
 		setListeners();
@@ -141,7 +143,8 @@ public class CloudAccountSettingActivity extends BaseActivity {
 		isenableRadioGroup = (RadioGroup) findViewById(R.id.cloudaccount_setting_isenable_radioGroup);
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
-
+		
+		identify_btn = (Button) findViewById(R.id.identify_cloudaccount_right);
 	}
 
 	private void setListeners() {
@@ -151,6 +154,15 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				CloudAccountSettingActivity.this.finish();
 			}
 		});
+		
+		identify_btn.setOnClickListener(new OnClickListener() {//验证用户的有效性；
+			@Override
+			public void onClick(View v) {
+				//requset4DeviceList();
+				//synObj.suspend();// 挂起等待请求结果
+			}
+		});
+		
 
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
