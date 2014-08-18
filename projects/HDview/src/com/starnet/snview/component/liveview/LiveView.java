@@ -80,6 +80,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		System.out.println(this + "@created... ProgressBar");
+		
+		setBackgroundColor(Color.TRANSPARENT);
+		
 		onDisplayContentReset();
 	}
 
