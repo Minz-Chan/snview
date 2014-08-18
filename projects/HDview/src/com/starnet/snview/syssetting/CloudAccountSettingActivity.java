@@ -29,6 +29,7 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
+import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
@@ -37,6 +38,9 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	@SuppressWarnings("unused")
 	private static final String TAG = "CloudAccountSettingActivity";
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
+	
+	//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
+	private boolean identifier_flag = false;
 
 	private EditText serverEditText;
 	private EditText portEditText;
@@ -88,33 +92,41 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				Toast toast0 = Toast.makeText(CloudAccountSettingActivity.this,showStatus, Toast.LENGTH_LONG);
 				toast0.show();
 				dismissDialog(1);
+				identifier_flag = false;
 				break;
 			case DDNS_RESP_SUCC:
-				printSentence = getString(R.string.add_sucess);
+				identifier_flag = true;
+				//只验证，不保存
+				
+				printSentence = getString(R.string.system_setting_cloudaccount_useable);
 				Toast toast1 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
-				caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
-				Intent intent = new Intent();
-				Bundle bundle = new Bundle();
-				bundle.putSerializable("cloudAccount",cloudAccount);
-				intent.putExtras(bundle);
-				setResult(3, intent);
-				CloudAccountSettingActivity.this.finish();
+				//caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
+//				Intent intent = new Intent();
+//				Bundle bundle = new Bundle();
+//				bundle.putSerializable("cloudAccount",cloudAccount);
+//				intent.putExtras(bundle);
+//				setResult(3, intent);
+//				CloudAccountSettingActivity.this.finish();
 				break;
 			case DDNS_RESP_FAILURE:
+				identifier_flag = false;
 				errMsg = msg.getData().getString("ERR_MSG");
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_SYS_FAILURE:
+				identifier_flag = false;
 				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
+				identifier_flag = false;
 				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
 				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			default:
+				identifier_flag = false;
 				break;
 			}
 		}
@@ -155,24 +167,65 @@ public class CloudAccountSettingActivity extends BaseActivity {
 			}
 		});
 		
-		identify_btn.setOnClickListener(new OnClickListener() {//验证用户的有效性；
+		identify_btn.setOnClickListener(new OnClickListener() {
+			//验证用户的有效性；首先检查填写信息是否完整，如果不完整，则提示用户不完整信息；否则，进行网络验证，验证之后，保存用户的验证信息，
+			//如果验证通过，
 			@Override
 			public void onClick(View v) {
-				//requset4DeviceList();
-				//synObj.suspend();// 挂起等待请求结果
-			}
+				
+				//检测网络是否连接，若网络并未连接则
+				NetWorkUtils netWorkUtils = new NetWorkUtils();
+				boolean isConn = netWorkUtils.checkNetConnection(CloudAccountSettingActivity.this);
+				if (isConn) {
+					cloudAccount = new CloudAccount();
+					if (isenablYseRadioBtn.isChecked()) {
+						cloudAccount.setEnabled(true);
+					} else if (isenablNoRadioBtn.isChecked()) {
+						cloudAccount.setEnabled(false);
+					}
+					
+					// 验证是否有为空的现象
+					server = serverEditText.getText().toString();
+					port = portEditText.getText().toString();
+					username = usernameEditText.getText().toString();
+					password = passwordEditText.getText().toString();
+
+					if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
+						cloudAccount.setDomain(server);
+						cloudAccount.setPassword(password);
+						cloudAccount.setUsername(username);
+						cloudAccount.setPort(port);
+						caXML = new CloudAccountXML();
+						requset4DeviceList();
+						synObj.suspend();// 挂起等待请求结果
+					} else {
+						String printSentence = getString(R.string.add_null_content);
+						Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+						toast3.show();
+					}
+				}else {
+					String printSentence = getString(R.string.network_not_conn);
+					Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+					toast3.show();
+				}
+			}	
 		});
 		
 
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				//根据identifier_flag的值，直接添加用户
+				
 				cloudAccount = new CloudAccount();
-				if (isenablYseRadioBtn.isChecked()) {
+				if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
 					cloudAccount.setEnabled(true);
-				} else if (isenablNoRadioBtn.isChecked()) {
+				} else {
 					cloudAccount.setEnabled(false);
 				}
+//				else if (isenablNoRadioBtn.isChecked()) {
+//					cloudAccount.setEnabled(false);
+//				}
 				
 				// 验证是否有为空的现象
 				server = serverEditText.getText().toString();
@@ -187,15 +240,21 @@ public class CloudAccountSettingActivity extends BaseActivity {
 					cloudAccount.setPort(port);
 					caXML = new CloudAccountXML();
 					try {
+						//判断是否已经包含该用户
 						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
-						if (result) {
+						if (result) {//如果包含，则不添加
 							String printSentence = getString(R.string.already_contain_no_need);
 							Toast toast = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
-						} else {
-							requset4DeviceList();
-							synObj.suspend();// 挂起等待请求结果
+						} else {//如果不包含，则添加
+							caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);
+							Intent intent = new Intent();
+							Bundle bundle = new Bundle();
+							bundle.putSerializable("cloudAccount",cloudAccount);
+							intent.putExtras(bundle);
+							setResult(3, intent);
+							CloudAccountSettingActivity.this.finish();
 						}
 					} catch (Exception e1) {
 						System.out.println(e1.toString());

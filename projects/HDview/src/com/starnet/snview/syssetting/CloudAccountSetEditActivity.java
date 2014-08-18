@@ -7,12 +7,16 @@ import java.net.SocketTimeoutException;
 
 
 
+
+
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
@@ -30,6 +34,7 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
+import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint({ "HandlerLeak", "SdCardPath" })
@@ -125,44 +130,53 @@ public class CloudAccountSetEditActivity extends BaseActivity {
 		super.getRightButton().setOnClickListener(new OnClickListener() {// 单击保存时，需要验证用户的有效性...
 					@Override
 					public void onClick(View v) {
-						server = serverEditText.getText().toString();
-						if (server.equals("")) {
-							String serverSentence = getString(R.string.domain_info_not_null);
-							Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-							return;
-						}
-						port = portEditText.getText().toString();
-						if (port.equals("")) {
-							String portSentence = getString(R.string.port_info_not_null);
-							Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
-							return;
-						}
-						username = usernameEditText.getText().toString();
-						if (username.equals("")) {
-							String usernameSentence = getString(R.string.username_info_not_null);
-							Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
-							return;
-						}
-						psd = passwordEditText.getText().toString();
-						if (psd.equals("")) {
-							String psdSentence = getString(R.string.password_info_not_null);
-							Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
-							return;
-						}
-						boolean isEnable = false;
-						if (isenablYseRadioBtn.isChecked()) {
-							isEnable = true;
-						}
-						clickCloudAccount.setEnabled(isEnable);
+						NetWorkUtils netWorkUtils = new NetWorkUtils();
+						Context context = CloudAccountSetEditActivity.this;
+						boolean isConn = netWorkUtils.checkNetConnection(context);
+						if (isConn) {
+							server = serverEditText.getText().toString();
+							if (server.equals("")) {
+								String serverSentence = getString(R.string.domain_info_not_null);
+								Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
+								return;
+							}
+							port = portEditText.getText().toString();
+							if (port.equals("")) {
+								String portSentence = getString(R.string.port_info_not_null);
+								Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
+								return;
+							}
+							username = usernameEditText.getText().toString();
+							if (username.equals("")) {
+								String usernameSentence = getString(R.string.username_info_not_null);
+								Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
+								return;
+							}
+							psd = passwordEditText.getText().toString();
+							if (psd.equals("")) {
+								String psdSentence = getString(R.string.password_info_not_null);
+								Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
+								return;
+							}
+							boolean isEnable = false;
+							if (isenablYseRadioBtn.isChecked()) {
+								isEnable = true;
+							}
+							clickCloudAccount.setEnabled(isEnable);
 
-						if (!server.equals("") && !port.equals("")
-								&& !psd.equals("") && !username.equals("")) {
-							clickCloudAccount.setDomain(server);
-							clickCloudAccount.setPort(port);
-							clickCloudAccount.setPassword(psd);
-							clickCloudAccount.setUsername(username);
-							requset4DeviceList();
-							synObj.suspend();// 挂起等待请求结果
+							if (!server.equals("") && !port.equals("")
+									&& !psd.equals("") && !username.equals("")) {
+								clickCloudAccount.setDomain(server);
+								clickCloudAccount.setPort(port);
+								clickCloudAccount.setPassword(psd);
+								clickCloudAccount.setUsername(username);
+								requset4DeviceList();
+								synObj.suspend();// 挂起等待请求结果
+							}
+						}else {
+							String printSentence = getString(R.string.network_not_conn);
+							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+							toast3.show();
 						}
 					}
 				});
