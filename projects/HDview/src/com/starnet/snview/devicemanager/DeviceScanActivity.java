@@ -191,9 +191,10 @@ public class DeviceScanActivity extends BaseActivity {
 		
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
-		if ((deviceName.contains("(在线)")||deviceName.contains("（在线）"))&&deviceName.length() > 3) {
-			deviceName = deviceName.substring(4);
-		}
+		
+//		if ((deviceName.contains("(在线)")||deviceName.contains("（在线）"))&&deviceName.length() > 3) {
+//			deviceName = deviceName.substring(4);
+//		}
 		record_et.setText(deviceName);
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);

@@ -27,7 +27,7 @@ import com.starnet.snview.component.BaseActivity;
 
 @SuppressLint("SdCardPath")
 public class DeviceViewActivity extends BaseActivity {
-	@SuppressWarnings("unused")
+
 	private static final String TAG = "DeviceViewActivity";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	private CloudAccountXML caxml;
@@ -145,38 +145,74 @@ public class DeviceViewActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 10) {// 从添加设备界面返回后...
-			
-			SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);
-			String dName = spf.getString("dName", "defValue");
-			String chSum = spf.getString("chSum", "defValue");
-			String dChnl = spf.getString("dChnl", "defValue");
-			String svrIp = spf.getString("svrIp", "defValue");
-			
-			String lgUsr = spf.getString("lgUsr", "defValue");
-			String lgPas = spf.getString("lgPas", "defValue");
-			String svrPt = spf.getString("svrPt", "defValue");
-			
-			boolean isDefValue = checkDefValueOfSpf(dName,chSum,dChnl,svrIp,lgUsr,lgPas,svrPt);
-			if (!isDefValue) {//表示不包含defValue,
-				//构造新的deviceItem，保存到列表中。。。
-				DeviceItem saveDeviceItem = new DeviceItem();
-				saveDeviceItem.setChannelSum(chSum);
-				saveDeviceItem.setDefaultChannel(Integer.valueOf(dChnl));
-				saveDeviceItem.setDeviceName(dName);
-				saveDeviceItem.setLoginPass(lgPas);
-				saveDeviceItem.setLoginUser(lgUsr);
-				saveDeviceItem.setSvrIp(svrIp);
-				saveDeviceItem.setSvrPort(svrPt);
-				
-				saveDeviceItem.setExpanded(false);
-				saveDeviceItem.setSecurityProtectionOpen(true);
-				boolean result = checkContainDeviceItem(saveDeviceItem,deviceItemList);//检测列表中是否包含该DeviceItem
-				if(!result){
-					deviceItemList.add(saveDeviceItem);
-					Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
+			if (resultCode == 11) {//从手动添加设备界面返回...
+				if (data != null) {
+					Bundle bundle = data.getExtras();
+					if (bundle != null) {
+						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
+						
+						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);//检测列表中是否包含该DeviceItem
+						if(!result){
+							deviceItemList.add(svDevItem);
+							Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
+						}
+						dLAdapter.notifyDataSetChanged();
+					}
 				}
-				dLAdapter.notifyDataSetChanged();
-			}
+			}else {//选择添加
+				
+				//进行文档更新，从文档中读取元素
+				caxml = new CloudAccountXML();
+				try {
+					deviceItemList = caxml.getCollectDeviceListFromXML(filePath);
+					dLAdapter = new DeviceListAdapter(this, deviceItemList);
+					mDeviceList.setAdapter(dLAdapter);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+//				SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);
+//				String dName = spf.getString("dName", "defValue");
+//				String chSum = spf.getString("chSum", "defValue");
+//				String dChnl = spf.getString("dChnl", "defValue");
+//				String svrIp = spf.getString("svrIp", "defValue");
+//				
+//				String lgUsr = spf.getString("lgUsr", "defValue");
+//				String lgPas = spf.getString("lgPas", "defValue");
+//				String svrPt = spf.getString("svrPt", "defValue");
+//				
+//				boolean isDefValue = checkDefValueOfSpf(dName,chSum,dChnl,svrIp,lgUsr,lgPas,svrPt);
+//				if (!isDefValue) {//表示不包含defValue,
+//					//构造新的deviceItem，保存到列表中。。。
+//					DeviceItem saveDeviceItem = new DeviceItem();
+//					saveDeviceItem.setChannelSum(chSum);
+//					saveDeviceItem.setDefaultChannel(Integer.valueOf(dChnl));
+//					saveDeviceItem.setDeviceName(dName);
+//					saveDeviceItem.setLoginPass(lgPas);
+//					saveDeviceItem.setLoginUser(lgUsr);
+//					saveDeviceItem.setSvrIp(svrIp);
+//					saveDeviceItem.setSvrPort(svrPt);
+//					
+//					int channelNum = Integer.valueOf(chSum);
+//					List<Channel>channelList = new ArrayList<Channel>();
+//					for (int i = 0; i < channelNum; i++) {
+//						Channel channel = new Channel();
+//						channel.setChannelName("通道"+(i+1));
+//						channel.setChannelNo((i+1));
+//						channel.setSelected(false);
+//					}
+//					saveDeviceItem.setChannelList(channelList);
+//					saveDeviceItem.setExpanded(false);
+//					saveDeviceItem.setSecurityProtectionOpen(true);
+//					boolean result = checkContainDeviceItem(saveDeviceItem,deviceItemList);//检测列表中是否包含该DeviceItem
+//					if(!result){
+//						deviceItemList.add(saveDeviceItem);
+//						Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
+//					}
+//					dLAdapter.notifyDataSetChanged();
+//				}
+			}			
+
 //			if (data != null) {
 //				Bundle bundle = data.getExtras();
 //				if (bundle != null) {

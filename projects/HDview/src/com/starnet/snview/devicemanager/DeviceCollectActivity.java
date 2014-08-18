@@ -11,6 +11,7 @@ import org.dom4j.DocumentException;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
@@ -31,6 +32,7 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PinyinComparatorUtils;
 import com.starnet.snview.util.SynObject;
 
@@ -43,7 +45,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
 
 	private Button leftButton;// 左边按钮
-	private Button rightButton;// 右边按钮
+	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"选择添加"...
+	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据,"选择添加"...
 
 	private CloudAccountXML caXML;
 	private EditText et_device_add_record;
@@ -56,9 +59,7 @@ public class DeviceCollectActivity extends BaseActivity {
 
 	@SuppressWarnings("unused")
 	private EditText et_device_choose;
-
-	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据...
-
+	
 	private DeviceItem saveDeviceItem = new DeviceItem();
 
 	private final int LOADNETDATADialog = 1;// 从网络下载数据
@@ -73,7 +74,6 @@ public class DeviceCollectActivity extends BaseActivity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			String printSentence;
 			if (synObject.getStatus() == SynObject.STATUS_RUN) {
 				return;
 			}
@@ -115,7 +115,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		});
 
-		rightButton.setOnClickListener(new OnClickListener() {
+		device_add_shdong_btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// 判断用户设置为空的时候
@@ -163,7 +163,7 @@ public class DeviceCollectActivity extends BaseActivity {
 							Bundle bundle = new Bundle();
 							bundle.putSerializable("saveDeviceItem",saveDeviceItem);
 							intent.putExtras(bundle);
-							setResult(10, intent);
+							setResult(11, intent);
 							DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
 						} else {
 							// 文档读写异常
@@ -191,32 +191,42 @@ public class DeviceCollectActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
-				String printSentence;
-				try {
-					List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(fileName);
-					int size = cloudAccountList.size();
-					if (size > 0) {
-						boolean usable = checkAccountUsable(cloudAccountList);
-						if (usable) {
-							requestNetDataFromNet();// 请求网络数据；
-							synObject.suspend();// 挂起线程
+				
+				Context context = DeviceCollectActivity.this;
+				NetWorkUtils netWorkUtils = new NetWorkUtils();
+				boolean isConn = netWorkUtils.checkNetConnection(context);
+				if (isConn) {
+					String printSentence;
+					try {
+						List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(fileName);
+						int size = cloudAccountList.size();
+						if (size > 0) {
+							boolean usable = checkAccountUsable(cloudAccountList);
+							if (usable) {
+								requestNetDataFromNet();// 请求网络数据；
+								synObject.suspend();// 挂起线程
+							} else {
+								printSentence = getString(R.string.check_account_enabled);
+								Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);
+								toast.show();
+							}
 						} else {
-							printSentence = getString(R.string.check_account_enabled);
+							printSentence = getString(R.string.check_account_addable);
 							Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);
 							toast.show();
 						}
-					} else {
+					} catch (Exception e) {
+						e.printStackTrace();
 						printSentence = getString(R.string.check_account_addable);
-						Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(DeviceCollectActivity.this,printSentence, Toast.LENGTH_SHORT);
 						toast.show();
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					printSentence = getString(R.string.check_account_addable);
-					Toast toast = Toast.makeText(DeviceCollectActivity.this,printSentence, Toast.LENGTH_SHORT);
-					toast.show();
+				}else {
+					String printSentence = getString(R.string.network_not_conn);
+					Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+					toast3.show();
 				}
-			}
+			}	
 		});
 	}
 
@@ -242,7 +252,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
 
 		leftButton = super.getLeftButton();
-		rightButton = super.getRightButton();
+		device_add_shdong_btn = super.getRightButton();
 
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);

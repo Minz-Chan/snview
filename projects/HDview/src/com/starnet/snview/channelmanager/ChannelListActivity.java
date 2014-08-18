@@ -189,8 +189,6 @@ public class ChannelListActivity extends BaseActivity {
 						Intent intent = ChannelListActivity.this.getIntent();
 						intent.putExtra("DEVICE_ITEM_LIST", l);
 						
-						
-						
 						ChannelListActivity.this.setResult(8, intent);
 						ChannelListActivity.this.finish();
 					}
@@ -312,5 +310,10 @@ public class ChannelListActivity extends BaseActivity {
 				thread.start();
 			}
 		}	
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 }

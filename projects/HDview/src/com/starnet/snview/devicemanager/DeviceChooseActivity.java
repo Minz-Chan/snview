@@ -40,6 +40,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	
 	private final String TAG = "DeviceChooseActivity";
 	private final String oldDevicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
+	@SuppressWarnings("unused")
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list_another.xml";// 一键保存设备的路径...
 	// 用于从文档中获取所有的用户，根据用户信息获取设备
 
@@ -75,10 +76,11 @@ public class DeviceChooseActivity extends BaseActivity {
 				printSentence = "添加成功...";
 				Toast toast1 = Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT);
 				toast1.show();
-				Intent intent = new Intent();
-				intent.setClass(DeviceChooseActivity.this, DeviceViewActivity.class);
-				startActivity(intent);				
 				DeviceChooseActivity.this.finish();
+//				Intent intent = new Intent();
+//				intent.setClass(DeviceChooseActivity.this, DeviceViewActivity.class);
+//				startActivity(intent);				
+				
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
 //				printSentence = "添加失败...";
@@ -163,7 +165,7 @@ public class DeviceChooseActivity extends BaseActivity {
 				CloudAccountXML caXML = new CloudAccountXML();
 				List<DeviceItem> oldDeviceList = caXML.getCollectDeviceListFromXML(oldDevicefilePath);
 				deviceItemList = recreateDeviceList(oldDeviceList,deviceItemList);//重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
-				
+				//在线(离线)字样的删除...
 				caXML.addDeviceItemListToXML(deviceItemList, oldDevicefilePath);
 				msg.what = ADD_SUCCESS;// 添加成功
 				handler.sendMessage(msg);
@@ -199,6 +201,20 @@ public class DeviceChooseActivity extends BaseActivity {
 		int size = deviceItemList2.size();
 		for (int i = 0; i < size; i++) {
 			DeviceItem deviceItem = deviceItemList2.get(i);
+			String deviceName = deviceItem.getDeviceName();
+			int rdLen = deviceName.length();
+			if (rdLen >= 4) {
+				String word1 = getString(R.string.device_manage_online_en);
+				String word2 = getString(R.string.device_manage_online_cn);
+				String word3 = getString(R.string.device_manage_offline_cn);
+				String word4 = getString(R.string.device_manage_offline_en);
+				String recordName = deviceName.substring(0, 4);
+				if (recordName.contains(word1)||recordName.contains(word2)
+					||recordName.contains(word3)||recordName.contains(word4)) {
+					deviceName = deviceName.substring(4);
+				}
+				deviceItem.setDeviceName(deviceName);
+			}
 			boolean contain = judgeContainable(oldDeviceList,deviceItem);//判断列表中是否包含
 			if (!contain) {
 				oldDeviceList.add(deviceItem);

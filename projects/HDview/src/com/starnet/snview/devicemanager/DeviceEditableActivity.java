@@ -77,16 +77,14 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						List<Channel> channelList = new ArrayList<Channel>();
-						if(newChannelNum != oriChannelNum){
-							for (int i = 0; i < newChannelNum; i++) {
-								Channel channel = new Channel();
-								channel.setChannelName("通道"+(i+1));
-								channel.setChannelNo((i+1));
-								channel.setSelected(false);
-								channelList.add(channel);
-							}
-							clickDeviceItem.setChannelList(channelList);
+						for (int i = 0; i < newChannelNum; i++) {
+							Channel channel = new Channel();
+							channel.setChannelName("通道"+(i+1));
+							channel.setChannelNo((i+1));
+							channel.setSelected(false);
+							channelList.add(channel);
 						}
+						clickDeviceItem.setChannelList(channelList);
 						// 并返回原来的界面
 						Intent data = new Intent();
 						Bundle bundle = new Bundle();
@@ -152,12 +150,13 @@ public class DeviceEditableActivity extends BaseActivity {
 		
 		String wordLen = getString(R.string.device_manage_off_on_line_length);
 		int len = Integer.valueOf(wordLen);
-		String dName = deviceName.substring(0, len);
 		
-		if ((dName.contains(word1) || dName.contains(word2)|| dName.contains(word3)|| dName.contains(word4))
-				&& deviceName.length() > (len-1)) {
-			deviceName = deviceName.substring(len);
-		}
+		if (deviceName.length() > (len-1)) {
+			String dName = deviceName.substring(0, len);
+			if ((dName.contains(word1) || dName.contains(word2)|| dName.contains(word3)|| dName.contains(word4))) {
+				deviceName = deviceName.substring(len);
+			}
+		}		
 		
 		oriChannelNum = Integer.valueOf(channelSum);//获取通道数量...
 		
@@ -168,5 +167,6 @@ public class DeviceEditableActivity extends BaseActivity {
 		password_et.setText(loginPass);
 		defaultChannel_et.setText(defaultChannel);
 		channelnumber_et.setText(channelSum);
+		channelnumber_et.setKeyListener(null);
 	}
 }

@@ -118,6 +118,7 @@ public class SystemSettingActivity extends BaseActivity {
 				actMgr.killBackgroundProcesses(getPackageName());
 				android.os.Process.killProcess(android.os.Process.myPid());
 				SystemSettingActivity.this.finish();
+				System.exit(0);
 ////				activityMgr.restartPackage();
 //				activityMgr.killBackgroundProcesses(getPackageName());
 				

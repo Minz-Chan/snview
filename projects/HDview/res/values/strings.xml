@@ -85,7 +85,7 @@
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
     <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
     <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>
-    <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请稍后再试</string>
+    <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查端口和服务器</string>
     
     <string name="edit_infor_right">信息编辑正确，保存成功</string>
     <string name="edit_info_notnull">选项不能为空，请补充完整</string>
