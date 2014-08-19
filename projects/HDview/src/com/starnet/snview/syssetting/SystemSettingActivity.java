@@ -110,8 +110,8 @@ public class SystemSettingActivity extends BaseActivity {
 	}
 	private void showTips(){
 		Builder builder = new Builder(SystemSettingActivity.this);
-		builder.setTitle(getString(R.string.logout_ok));
-		builder.setPositiveButton(getString(R.string.channel_listview_ok), new DialogInterface.OnClickListener(){
+		builder.setTitle(getString(R.string.system_setting_logout_ok));
+		builder.setPositiveButton(getString(R.string.system_setting_logout_ok), new DialogInterface.OnClickListener(){
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				ActivityManager actMgr= (ActivityManager) getSystemService(ACTIVITY_SERVICE );
@@ -124,7 +124,7 @@ public class SystemSettingActivity extends BaseActivity {
 				
 			}
 		});
-		builder.setNegativeButton(getString(R.string.channel_listview_cancel), null);
+		builder.setNegativeButton(getString(R.string.system_setting_logout_cancel), null);
 		
 		builder.show();
 //		AlertDialog alertDialog = 

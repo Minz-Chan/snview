@@ -1,18 +1,13 @@
 <resources>
 
     <string name="app_name">SNview</string>
-
     <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
         active position is saved through configuration changes.\nAdditionally, if the menu is open, a back press will
-        close it.
-    </string>
-    
+        close it.</string>
     <string name="sample_window">Sample of dragging the entire window.\nThe menu is a simple ScrollView, with a click
         listener set on each item.\nThe drawer will animate slightly open, to make it more discoverable.\nAdditionally,
-        if the menu is open, a back press will close it.
-    </string>
-    
-    
+        if the menu is open, a back press will close it.</string>
+
     <!-- 菜单 -->
     <string name="common_drawer_top">用户名  </string>
     <string name="common_drawer_realtime_preview">实时预览</string>
@@ -21,8 +16,8 @@
     <string name="common_drawer_picture_management">图像管理</string>
     <string name="common_drawer_alarm_management">报警管理</string>
     <string name="common_drawer_sys_setting">系统配置</string>
-    
-    
+    <string name="channel_listview_device_layout_ok">确定</string>
+    <string name="channel_listview_device_layout_cancel">取消</string>
     <string name="navigation_title_realtime_preview">实时预览</string>
     <string name="navigation_title_remote_playback">远程回放</string>
     <string name="navigation_title_device_management">设备管理</string>
@@ -33,7 +28,6 @@
     <string name="navigation_title_system_setting_network_setting">网络配置</string>
     <string name="navigation_title_system_setting_cloudaccount_setting">星云平台</string>
     <string name="navigation_title_system_setting_about">关于</string>
-    
     <string name="nothing" />
     <string name="toolbar_quality_menu_fluency">流畅</string>
     <string name="toolbar_quality_menu_standard">标清</string>
@@ -42,7 +36,6 @@
     <string name="toolbar_sub_menu_focal_length">焦距</string>
     <string name="toolbar_sub_menu_focus">聚焦</string>
     <string name="toolbar_sub_menu_aperture">光圈</string>
-    
     <string name="device_listview_item_securityprotection">安全防护</string>
     <string name="cloudaccount_listview_item_enable">启用</string>
     <string name="system_setting_newworksetting">星云平台</string>
@@ -59,58 +52,78 @@
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
     <string name="system_setting_cloudaccount_isenable_yes">是</string>
     <string name="system_setting_cloudaccount_isenable_no">否</string>
-    <string name="system_setting_cloudaccount_useable">用户可用</string>
+    <string name="system_setting_cloudaccount_useable">账户验证通过</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
+    <string name="system_setting_cloudaccountview_ok">确定</string>
+    <string name="system_setting_cloudaccountview_cancel">取消</string>
+    <string name="system_setting_logout_ok">确定</string>
+    <string name="system_setting_logout_cancel">取消</string>
+    <string name="system_set_setedit_identify_user_right">正在验证账号有效性，请等待</string>
+    <string name="system_setting_cloudaccountview_delete_user">删除账户</string>
+    <string name="system_set_setting_identify_user_right">正在验证账号有效性，请等待</string>
+    <string name="system_setting_cloudaccount_layout_serveName">服务器</string>
+    <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
+    <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
     
-    <string name="channel_listview_ok">确定</string>
-    <string name="channel_listview_cancel">取消</string>
-    
-    <string name="system_setting_delete_user">删除账户</string>
-    <string name="system_setting_delete_device">删除设备</string>
-    <string name="device_manage_choose">选择</string>
-    <string name="device_manage_onealladd">一键全部加入设备列表</string>
+    <string name="device_manager">设备管理</string>
+    <string name="device_manager_channel">通道</string>
+    <string name="device_manager_choose">选择</string>
+    <string name="device_manager_onealladd">一键全部加入设备列表</string>
     <string name="device_manager_name">设备名称</string>
     <string name="device_channel_choose">通道选择</string>
     <string name="device_manager_ip">设备IP</string>
+    <string name="device_manager_save_failed">保存失败</string>
+    <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
+    <string name="device_manager_port_wrong">端口号错误，请重新输入</string>
+    <string name="device_manager_collect_ip_wrong">IP错误，请重新输入</string>
+    <string name="device_manager_collect_null_wrong">包含有尚未填写的部分,请检查</string>
+    <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
+    <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>
+    <string name="device_manager_deviceview_ok">确定</string>
+    <string name="device_manager_deviceview_cancel">取消</string>
+    <string name="device_manager_deviceview_delete_device">删除设备</string>
+    <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
+    <string name="device_manager_add_scan_edit_layout_record_name">记录名</string>
+    <string name="device_manager_add_scan_edit_layout_server_name">服务器</string>
+    <string name="device_manager_add_scan_edit_layout_default_channel">默认通道</string>
+    <string name="device_manager_add_scan_edit_layout_channel_number">通道数</string>
+    <string name="device_manager_scan_layout_start_scan">开始预览</string>
+    <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
+    <string name="device_manager_devicechoose_adding_success">添加成功</string>
+    <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
     
     <string name="connection_status_connecting">连接中…</string>
     <string name="connection_status_established">连接建立</string>
     <string name="connection_status_closed">已断开</string>
     <string name="connection_status_failed">连接服务器失败</string>
-    
     <string name="exit_dialog_content">退出程序？</string>
     <string name="exit_dialog_ensure">确定</string>
     <string name="exit_dialog_dispose">取消</string>
+    
     
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
     <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
     <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>
     <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查端口和服务器</string>
     
-    <string name="edit_infor_right">信息编辑正确，保存成功</string>
-    <string name="edit_info_notnull">选项不能为空，请补充完整</string>
+    <string name="edit_info_right">信息编辑正确，保存成功</string>
     <string name="domain_info_not_null">域名不能为空，请填写</string>
     <string name="port_info_not_null">端口号不能为空，请填写</string>
     <string name="username_info_not_null">用户名不能为空，请填写</string>
     <string name="password_info_not_null">密码不能为空，请重设</string>
-    <string name="identify_user_right">正在验证客户有效性，请等待</string>
     
-    <string name="logout_ok">确定退出</string>
-    <string name="record_name">记录名</string>
-    <string name="server_name">服务器</string>
-    <string name="default_channel">默认通道</string>
-    <string name="channel_number">通道数</string>
-    <string name="start_scan">开始预览</string>
-    <string name="adding_device_wait">正在添加设备到列表中，请等待</string>
-    <string name="add_null_content">您还有包含未填写的内容，请补充完整</string>
-    <string name="already_contain_no_need">已经包含该用户，不需要再次添加</string>
+    
+    
+    
+   
+    <string name="channel_listview_layout_adding_device_wait">正在添加设备到列表中，请等待</string>
+    
     <string name="add_sucess">添加成功</string>
     <string name="back">返回</string>
     <string name="check_account_enabled">请检查用户是否启用</string>
     <string name="check_account_addable">请检查用户是否添加</string>
     <string name="loading_devicedata_wait">正在从网络加载数据，请等待</string>
     <string name="defaultchannel_channelNumber_small">默认通道要比通道数量小</string>
-    
     <string name="save_failed">保存失败</string>
     <string name="exist_input_null_check">含有未输入的项，请检查</string>
     <string name="device_manage_online_en">(在线)</string>
@@ -118,7 +131,7 @@
     <string name="device_manage_offline_cn">（离线）</string>
     <string name="device_manage_offline_en">(离线)</string>
     <string name="device_manage_off_on_line_length">4</string>
-    <string name="identify_cloudaccount_right">验证客户</string>
+    <string name="identify_cloudaccount_right">验证账号</string>
     <string name="network_not_conn">网络未连接,请检查网络是否打开</string>
-    
+
 </resources>

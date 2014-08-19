@@ -98,7 +98,7 @@ public class DeviceEditableActivity extends BaseActivity {
 						toast.show();
 					}
 				}else {
-					String text = getString(R.string.edit_info_notnull);
+					String text = getString(R.string.device_manager_edit_notnull);
 					Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
 					toast.show();
 				}

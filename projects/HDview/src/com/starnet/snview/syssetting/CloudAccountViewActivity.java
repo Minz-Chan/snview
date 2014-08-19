@@ -52,7 +52,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 				Bundle bundle = new Bundle();
 				bundle.putSerializable("cloudAccount", cloudAccount);
 				intent.putExtras(bundle);
-				intent.setClass(CloudAccountViewActivity.this,CloudAccountSetEditActivity.class);
+				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdataActivity.class);
 				startActivityForResult(intent,20);
 			}
 		});
@@ -65,8 +65,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 				deleteCA = (CloudAccount) parent.getItemAtPosition(position);
 				titleName = deleteCA.getUsername();
 				Builder builder = new Builder(CloudAccountViewActivity.this);
-				builder.setTitle(getString(R.string.system_setting_delete_user)+" "+titleName+" ?");
-				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener(){
+				builder.setTitle(getString(R.string.system_setting_cloudaccountview_delete_user)+" "+titleName+" ?");
+				builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),new DialogInterface.OnClickListener(){
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -85,7 +85,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 						thread.start();
 					}
 				 });
-				 builder.setNegativeButton(getString(R.string.channel_listview_cancel),null);
+				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
 				builder.show();
 				return false;
 			}
@@ -125,15 +125,15 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
-				gotoCloudAccountSetting();
+				gotoCloudAccountAddding();
 			}
 		});
 
 	}
 
-	protected void gotoCloudAccountSetting() {
+	protected void gotoCloudAccountAddding() {
 		Intent intent = new Intent();
-		intent.setClass(CloudAccountViewActivity.this,CloudAccountSettingActivity.class);
+		intent.setClass(CloudAccountViewActivity.this,CloudAccountAddingActivity.class);
 		startActivityForResult(intent, 10);
 	}
 
@@ -143,14 +143,26 @@ public class CloudAccountViewActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 //		caAdapter.notifyDataSetChanged();
 		if(requestCode == 20){//从编辑界面返回
-			if(data != null){
-				Bundle bundle = data.getExtras();
-				if(bundle != null){
-					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("ca");
-					cloudAccountList.set(pos, cloudAccount);
-					caAdapter.notifyDataSetChanged();
-				}
+			CloudAccountXML caXml = new CloudAccountXML();
+			try {
+				List<CloudAccount> cAccountList = caXml.getCloudAccountList(filePath);
+				caAdapter = new CloudAccountAdapter(this, cAccountList);
+				mNetWorkSettingList.setAdapter(caAdapter);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			
+			
+			
+			
+//			if(data != null){
+//				Bundle bundle = data.getExtras();
+//				if(bundle != null){
+//					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
+//					cloudAccountList.set(pos, cloudAccount);
+//					caAdapter.notifyDataSetChanged();
+//				}
+//			}
 		}else if (requestCode == 10) {//从添加界面返回
 			if(data != null){
 				Bundle bundle = data.getExtras();

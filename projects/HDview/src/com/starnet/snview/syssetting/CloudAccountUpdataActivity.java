@@ -1,0 +1,461 @@
+package com.starnet.snview.syssetting;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+//import java.util.List;
+
+
+
+
+
+
+
+
+
+
+
+
+
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.Toast;
+
+import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.devicemanager.CloudService;
+import com.starnet.snview.devicemanager.CloudServiceImpl;
+import com.starnet.snview.util.IPAndPortUtils;
+import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.SynObject;
+
+@SuppressLint({ "HandlerLeak", "SdCardPath" })
+public class CloudAccountUpdataActivity extends BaseActivity {
+	
+	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
+
+	private EditText serverEditText;
+	private EditText portEditText;
+	private EditText usernameEditText;
+	private EditText passwordEditText;
+	private RadioButton isenablYseRadioBtn;
+	private RadioButton isenablNoRadioBtn;
+
+	private Button saveBtn;//保存按钮
+	private Button identifyBtn;//验证按钮
+	private boolean identifier_flag = false;//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
+	private CloudAccount clickCloudAccount = new CloudAccount();
+	private CloudAccount saveCloudAccount = new CloudAccount();
+	private SynObject synObj = new SynObject();
+
+	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
+	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
+	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
+	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
+	private CloudService cloudService = new CloudServiceImpl("conn1");
+
+	private String server;
+	private String port;
+	private String username;
+	private String password;
+	private Handler responseHandler = new Handler() {
+		@SuppressWarnings("deprecation")
+		@SuppressLint("SdCardPath")
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+
+			if (synObj.getStatus() == SynObject.STATUS_RUN) {
+				return;
+			}
+			dismissDialog(1);
+			// 解除挂起， 程序往下执行
+			synObj.resume();
+			String printSentence = "";
+			String errMsg = "";
+			Context context = CloudAccountUpdataActivity.this;
+			switch (msg.what) {
+			case DDNS_RESP_SUCC:
+				//只验证，不保存
+				identifier_flag = true;
+				printSentence = getString(R.string.system_setting_cloudaccount_useable);
+				Toast toast1 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+				toast1.show();
+				dismissDialog(1);
+//				String serverSentence = getString(R.string.edit_infor_right);
+//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
+//				dismissDialog(1);
+//				// 未改变数据之前进行删除操作...
+//				CloudAccountXML caXML = new CloudAccountXML();
+//				String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";
+//				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);
+//				Intent intent = new Intent();
+//				Bundle bundle = new Bundle();
+//				caXML.addNewCloudAccoutNodeToRootXML(fileName,clickCloudAccount);// 添加到文档中。。。
+//				bundle.putSerializable("ca", clickCloudAccount);
+//				intent.putExtras(bundle);
+//				setResult(20, intent);
+//				CloudAccountSetEditActivity.this.finish();
+				break;
+			case DDNS_RESP_FAILURE:
+				identifier_flag = false;
+				errMsg = msg.getData().getString("ERR_MSG");
+				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				break;
+			case DDNS_SYS_FAILURE:
+				identifier_flag = false;
+				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
+				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				break;
+			case DDNS_REQ_TIMEOUT:
+				identifier_flag = false;
+				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
+				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				break;
+			default:
+				identifier_flag = false;
+				break;
+			}
+		}
+	};
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.system_setting_cloudaccount_setting_activity_another);
+		initView();
+		loadViewFromData();
+		setListenters();
+	}
+
+	private void setListenters() {
+		
+		identifyBtn.setOnClickListener(new OnClickListener() {
+			//验证用户的有效性；首先检查填写信息是否完整，如果不完整，则提示用户不完整信息；否则，进行网络验证，验证之后，保存用户的验证信息，
+			//如果验证通过，
+			@Override
+			public void onClick(View v) {
+				Context context = CloudAccountUpdataActivity.this;
+				//检测网络是否连接，若网络并未连接则
+				NetWorkUtils netWorkUtils = new NetWorkUtils();
+				boolean isConn = netWorkUtils.checkNetConnection(context);
+				if (isConn) {
+					saveCloudAccount = new CloudAccount();
+					if (isenablYseRadioBtn.isChecked()) {
+						saveCloudAccount.setEnabled(true);
+					} else {
+						saveCloudAccount.setEnabled(false);
+					}
+					
+					// 验证是否有为空的现象
+					server = serverEditText.getText().toString();
+					port = portEditText.getText().toString();
+					username = usernameEditText.getText().toString();
+					password = passwordEditText.getText().toString();
+
+					if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
+						
+						//检测是否是网络端口号
+						IPAndPortUtils ipAndPort = new IPAndPortUtils();
+						boolean isPort = ipAndPort.isNetPort(port);
+						if (isPort) {
+							saveCloudAccount.setDomain(server);
+							saveCloudAccount.setPassword(password);
+							saveCloudAccount.setUsername(username);
+							saveCloudAccount.setPort(port);
+							requset4DeviceList();
+							synObj.suspend();// 挂起等待请求结果
+						}else {
+							String printSentence = getString(R.string.device_manager_editact_port_wrong);
+							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+							toast3.show();
+						}						
+					} else {
+						String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
+						Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+						toast3.show();
+					}
+				}else {
+					String printSentence = getString(R.string.network_not_conn);
+					Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+					toast3.show();
+				}
+			}	
+		});
+		
+		// 直接返回...
+		super.getLeftButton().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				CloudAccountUpdataActivity.this.finish();
+			}// 如果信息无改变，则不刷新ListView
+		});
+
+		saveBtn.setOnClickListener(new OnClickListener() {// 单击保存时，需要验证用户的有效性...
+					@Override
+					public void onClick(View v) {
+						
+						Context context = CloudAccountUpdataActivity.this;
+						CloudAccount cloudAccount = new CloudAccount();
+						if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
+							cloudAccount.setEnabled(true);
+						} else {
+							cloudAccount.setEnabled(false);
+						}
+						
+						// 验证是否有为空的现象
+						server = serverEditText.getText().toString();
+						port = portEditText.getText().toString();
+						username = usernameEditText.getText().toString();
+						password = passwordEditText.getText().toString();
+
+						if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
+							cloudAccount.setDomain(server);
+							cloudAccount.setPassword(password);
+							cloudAccount.setUsername(username);
+							cloudAccount.setPort(port);
+							CloudAccountXML caXML = new CloudAccountXML();
+							try {
+								//检测是否已经存在账户
+								List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
+								boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
+								if (result) {//如果包含，则不添加
+									String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
+									Toast toast = Toast.makeText(context,printSentence, Toast.LENGTH_SHORT);
+									toast.show();
+								} else {//如果不包含，则添加
+									caXML.removeCloudAccoutFromXML(filePath, clickCloudAccount);//删除以前的星云平台账户
+									caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);//添加当前的星云平台账户
+									Intent intent = new Intent();
+									Bundle bundle = new Bundle();
+									bundle.putSerializable("edit_cloudAccount",cloudAccount);
+									intent.putExtras(bundle);
+									setResult(3, intent);
+									CloudAccountUpdataActivity.this.finish();
+								}
+							} catch (Exception e1) {
+								System.out.println(e1.toString());
+							}
+						} else {
+							String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
+							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+							toast3.show();
+						}
+					}
+//						NetWorkUtils netWorkUtils = new NetWorkUtils();
+//						Context context = CloudAccountSetEditActivity.this;
+//						boolean isConn = netWorkUtils.checkNetConnection(context);
+//						if (isConn) {
+//							server = serverEditText.getText().toString();
+//							if (server.equals("")) {
+//								String serverSentence = getString(R.string.domain_info_not_null);
+//								Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
+//								return;
+//							}
+//							port = portEditText.getText().toString();
+//							if (port.equals("")) {
+//								String portSentence = getString(R.string.port_info_not_null);
+//								Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
+//								return;
+//							}
+//							username = usernameEditText.getText().toString();
+//							if (username.equals("")) {
+//								String usernameSentence = getString(R.string.username_info_not_null);
+//								Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
+//								return;
+//							}
+//							psd = passwordEditText.getText().toString();
+//							if (psd.equals("")) {
+//								String psdSentence = getString(R.string.password_info_not_null);
+//								Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
+//								return;
+//							}
+//							boolean isEnable = false;
+//							if (isenablYseRadioBtn.isChecked()) {
+//								isEnable = true;
+//							}
+//							clickCloudAccount.setEnabled(isEnable);
+//
+//							if (!server.equals("") && !port.equals("")
+//									&& !psd.equals("") && !username.equals("")) {
+//								clickCloudAccount.setDomain(server);
+//								clickCloudAccount.setPort(port);
+//								clickCloudAccount.setPassword(psd);
+//								clickCloudAccount.setUsername(username);
+//								requset4DeviceList();
+//								synObj.suspend();// 挂起等待请求结果
+//							}
+//						}else {
+//							String printSentence = getString(R.string.network_not_conn);
+//							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+//							toast3.show();
+//						}
+//					}
+				});
+	}
+
+	private void loadViewFromData() {
+
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		if (bundle != null) {
+			clickCloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
+			String server = clickCloudAccount.getDomain();
+			String port = clickCloudAccount.getPort();
+			String userName = clickCloudAccount.getUsername();
+			String password = clickCloudAccount.getPassword();
+			serverEditText.setText(server);
+			portEditText.setText(port);
+			usernameEditText.setText(userName);
+			passwordEditText.setText(password);
+			boolean isEnabled = clickCloudAccount.isEnabled();
+			if (isEnabled) {
+				isenablYseRadioBtn.setChecked(true);
+				isenablNoRadioBtn.setChecked(false);
+			} else {
+				isenablYseRadioBtn.setChecked(false);
+				isenablNoRadioBtn.setChecked(true);
+			}
+		}
+	}
+
+	private void initView() {
+		super.setTitleViewText(getString(R.string.navigation_title_system_setting_cloudaccount_setting));
+		super.hideExtendButton();
+		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
+		super.setToolbarVisiable(false);
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		saveBtn = super.getRightButton();
+		serverEditText = (EditText) findViewById(R.id.cloudaccount_setting_server_edittext);
+		portEditText = (EditText) findViewById(R.id.cloudaccount_setting_port_edittext);
+		usernameEditText = (EditText) findViewById(R.id.cloudaccount_setting_username_edittext);
+		passwordEditText = (EditText) findViewById(R.id.cloudaccount_setting_password_edittext);
+		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
+		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
+		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case 1:
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.system_set_setedit_identify_user_right), true, true);
+			progress.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dismissDialog(1);
+					synObj.resume();
+				}
+			});
+			return progress;
+		default:
+			return null;
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	private void requset4DeviceList() {
+		showDialog(1);
+		(new RequestDeviceInfoThread(responseHandler)).start();
+	}
+
+	class RequestDeviceInfoThread extends Thread {
+		private Handler handler;
+
+		public RequestDeviceInfoThread(Handler handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			
+			Message msg = new Message();
+			try {
+				Document doc = cloudService.SendURLPost(server, port, username,password);
+				String requestResult = cloudService.readXmlStatus(doc);
+				if (requestResult == null) // 请求成功，返回null
+				{
+					msg.what = DDNS_RESP_SUCC;
+				} else { // 请求失败，返回错误原因
+					Bundle errMsg = new Bundle();
+					msg.what = DDNS_RESP_FAILURE;
+					errMsg.putString("ERR_MSG", requestResult);
+					msg.setData(errMsg);
+				}
+			} catch (DocumentException e) {
+				msg.what = DDNS_SYS_FAILURE;
+				e.printStackTrace();
+			} catch (SocketTimeoutException e) {
+				msg.what = DDNS_REQ_TIMEOUT;
+				e.printStackTrace();
+			} catch (IOException e) {
+				msg.what = DDNS_SYS_FAILURE;
+				e.printStackTrace();
+			}
+			handler.sendMessage(msg);
+			
+//			Message msg = new Message();
+//			try {
+//				Document doc = cloudService.SendURLPost(server, port, username,psd);
+//				String requestResult = cloudService.readXmlStatus(doc);
+//				if (requestResult == null) // 请求成功，返回null
+//				{
+//					msg.what = DDNS_RESP_SUCC;
+//				} else { // 请求失败，返回错误原因
+//					Bundle errMsg = new Bundle();
+//					msg.what = DDNS_RESP_FAILURE;
+//					errMsg.putString("ERR_MSG", requestResult);
+//					msg.setData(errMsg);
+//				}
+//			} catch (DocumentException e) {
+//				msg.what = DDNS_SYS_FAILURE;
+//				e.printStackTrace();
+//			} catch (SocketTimeoutException e) {
+//				msg.what = DDNS_REQ_TIMEOUT;
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				msg.what = DDNS_SYS_FAILURE;
+//				e.printStackTrace();
+//			}
+//			handler.sendMessage(msg);
+		}
+	}
+	
+	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
+		boolean result = false;
+		int size = cloudAccountList2.size();
+		for (int i = 0; i < size; i++) {
+			CloudAccount cA = cloudAccountList2.get(i);
+			String cADomain = cA.getDomain();
+			String cAPort = cA.getPort();
+			String cAUsername = cA.getUsername();
+			/*String cAPassword = cA.getPassword();*/
+			/* boolean isEnabled = cA.isEnabled(); */
+			if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
+				&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*//*mNetWorkSettingList*/
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+}

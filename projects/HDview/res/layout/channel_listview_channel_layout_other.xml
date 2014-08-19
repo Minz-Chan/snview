@@ -23,14 +23,14 @@
             android:id="@+id/channel_listview_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/channel_listview_ok" />
+            android:text="@string/channel_listview_device_layout_ok" />
 
         <Button
             android:id="@+id/channel_listview_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="0dip"
-            android:text="@string/channel_listview_cancel" />
+            android:text="@string/channel_listview_device_layout_cancel" />
 
     </LinearLayout>
 

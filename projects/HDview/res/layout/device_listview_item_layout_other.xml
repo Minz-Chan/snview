@@ -62,7 +62,7 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:text="@string/device_manager_ip"
+                android:text="@string/device_managerr_ip"
                 
                 android:textSize="@dimen/common_textsize_small_14sp" /> -->
         </LinearLayout>

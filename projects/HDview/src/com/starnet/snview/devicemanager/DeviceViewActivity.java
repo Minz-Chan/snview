@@ -86,8 +86,8 @@ public class DeviceViewActivity extends BaseActivity {
 					||(titleName.contains(word3) || titleName.contains(word4)))) {
 					titleName = titleName.substring(4);
 				}
-				builder.setTitle(getString(R.string.system_setting_delete_device)+ " " + titleName + " ?");
-				builder.setPositiveButton(getString(R.string.channel_listview_ok),new DialogInterface.OnClickListener() {
+				builder.setTitle(getString(R.string.device_manager_deviceview_delete_device)+ " " + titleName + " ?");
+				builder.setPositiveButton(getString(R.string.device_manager_deviceview_ok),new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,int which) {
 								// 从文档中删除操作....
@@ -106,7 +106,7 @@ public class DeviceViewActivity extends BaseActivity {
 							}
 						});
 
-				builder.setNegativeButton(getString(R.string.channel_listview_cancel),null);
+				builder.setNegativeButton(getString(R.string.device_manager_deviceview_cancel),null);
 				builder.show();
 				return true;
 			}

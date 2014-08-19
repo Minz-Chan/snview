@@ -54,7 +54,7 @@
 			android:background="@drawable/menu_drawer_divide_line" />  
 
         <TextView
-            android:id="@id/menu_drawer_device_management"
+            android:id="@id/menu_drawer_device_managerment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/menu_drawer_device_management_selector"

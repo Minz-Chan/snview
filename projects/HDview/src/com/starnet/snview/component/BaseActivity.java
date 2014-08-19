@@ -253,7 +253,7 @@ public abstract class BaseActivity extends Activity {
 	        case R.id.menu_drawer_remote_playback:
 	        	gotoPlayback();
 	        	break;
-	        case R.id.menu_drawer_device_management:
+	        case R.id.menu_drawer_device_managerment:
 	        	gotoDeviceManagement();
 	        	break;
 	        case R.id.menu_drawer_picture_management:
@@ -407,7 +407,7 @@ public abstract class BaseActivity extends Activity {
         findViewById(R.id.menu_drawer_top).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_realtime_preview).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_remote_playback).setOnClickListener(mOnMenudrawerItemClickListener);
-        findViewById(R.id.menu_drawer_device_management).setOnClickListener(mOnMenudrawerItemClickListener);
+        findViewById(R.id.menu_drawer_device_managerment).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_picture_management).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_sys_setting).setOnClickListener(mOnMenudrawerItemClickListener);
 

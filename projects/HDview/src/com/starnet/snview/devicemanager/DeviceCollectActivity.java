@@ -32,6 +32,7 @@ import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PinyinComparatorUtils;
 import com.starnet.snview.util.SynObject;
@@ -45,7 +46,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
 
 	private Button leftButton;// 左边按钮
-	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"选择添加"...
+	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"添加"...
 	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据,"选择添加"...
 
 	private CloudAccountXML caXML;
@@ -120,8 +121,8 @@ public class DeviceCollectActivity extends BaseActivity {
 			public void onClick(View v) {
 				// 判断用户设置为空的时候
 				String recordName = getEditTextString(et_device_add_record);
-				String serverIP = getEditTextString(et_device_add_server);
-				String serverPort = getEditTextString(et_device_add_port);
+				String serverIP = getEditTextString(et_device_add_server);//IP地址
+				String serverPort = getEditTextString(et_device_add_port);//端口号
 				String userName = getEditTextString(et_device_add_username);
 				String password = getEditTextString(et_device_add_password);
 				String channelNumber = getEditTextString(et_device_add_channelnumber);
@@ -132,53 +133,68 @@ public class DeviceCollectActivity extends BaseActivity {
 						&& !serverPort.equals("") && !userName.equals("")
 						&& !password.equals("") && !defaultChannel.equals("")
 						&& !channelNumber.equals("")) {
+					
+					
+					//进行IP与端口号的检测
+					IPAndPortUtils ipapu = new IPAndPortUtils();
+					boolean isIP = ipapu.isIPAddress(serverIP);
+					boolean isPort = ipapu.isNetPort(serverPort);
+					if (isPort&&isIP) {
+						int dChannel = Integer.valueOf(defaultChannel);
+						int channelNum = Integer.valueOf(channelNumber);
+						saveDeviceItem.setDeviceName(recordName);
+						saveDeviceItem.setChannelSum(channelNumber);
+						saveDeviceItem.setLoginUser(userName);
+						saveDeviceItem.setLoginPass(password);
+						saveDeviceItem.setDefaultChannel(dChannel);
+						saveDeviceItem.setSvrIp(serverIP);
+						saveDeviceItem.setSvrPort(serverPort);
+						saveDeviceItem.setSecurityProtectionOpen(true);
 
-					int dChannel = Integer.valueOf(defaultChannel);
-					int channelNum = Integer.valueOf(channelNumber);
-					saveDeviceItem.setDeviceName(recordName);
-					saveDeviceItem.setChannelSum(channelNumber);
-					saveDeviceItem.setLoginUser(userName);
-					saveDeviceItem.setLoginPass(password);
-					saveDeviceItem.setDefaultChannel(dChannel);
-					saveDeviceItem.setSvrIp(serverIP);
-					saveDeviceItem.setSvrPort(serverPort);
-					saveDeviceItem.setSecurityProtectionOpen(true);
+						try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
+							if (dChannel <= channelNum) {
+								List<Channel> channelList = new ArrayList<Channel>();
+								for (int i = 0; i < channelNum; i++) {
+									Channel channel = new Channel();
+									String text = getString(R.string.device_manager_channel);
+									channel.setChannelName(text+(i+1));
+									channel.setChannelNo((i+1));
+									channel.setSelected(false);
+									channelList.add(channel);
+								}
 
-					try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
-						if (dChannel <= channelNum) {
-							List<Channel> channelList = new ArrayList<Channel>();
-							for (int i = 0; i < channelNum; i++) {
-								Channel channel = new Channel();
-								channel.setChannelName("通道"+(i+1));
-								channel.setChannelNo((i+1));
-								channel.setSelected(false);
-								channelList.add(channel);
+								saveDeviceItem.setChannelList(channelList);
+								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
+								toast.show();
+								Intent intent = new Intent();
+								Bundle bundle = new Bundle();
+								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+								intent.putExtras(bundle);
+								setResult(11, intent);
+								DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
+							} else {
+								// 文档读写异常
+								String text = getString(R.string.device_manager_deCh_chNum);
+								Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
+								toast.show();
 							}
-
-							saveDeviceItem.setChannelList(channelList);
-							String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-							Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-							toast.show();
-							Intent intent = new Intent();
-							Bundle bundle = new Bundle();
-							bundle.putSerializable("saveDeviceItem",saveDeviceItem);
-							intent.putExtras(bundle);
-							setResult(11, intent);
-							DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
-						} else {
-							// 文档读写异常
-							String text = "默认通道的数字应小于通道数量...";
+						} catch (Exception e) {
+							String text = getString(R.string.device_manager_save_failed);
 							Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 							toast.show();
-						}
-					} catch (Exception e) {
-						// 文档读写异常
-						String text = "保存失败";
+						}// 保存到指定的文档中
+					}else if (!isPort) {
+						String text = getString(R.string.device_manager_port_wrong);
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 						toast.show();
-					}// 保存到指定的文档中
+					}else {
+						String text = getString(R.string.device_manager_collect_ip_wrong);
+						Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
+						toast.show();
+					}
 				} else {
-					String text = "包含有尚未填写的部分,请检查...";
+					String text = getString(R.string.device_manager_collect_null_wrong);
 					Toast toast = Toast.makeText(DeviceCollectActivity.this,text, Toast.LENGTH_SHORT);
 					toast.show();
 				}
@@ -256,7 +272,7 @@ public class DeviceCollectActivity extends BaseActivity {
 
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-		super.setTitleViewText("设备管理");
+		super.setTitleViewText(getString(R.string.device_manager));
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
 

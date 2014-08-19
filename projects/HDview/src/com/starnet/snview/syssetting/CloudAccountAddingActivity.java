@@ -33,7 +33,7 @@ import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
-public class CloudAccountSettingActivity extends BaseActivity {
+public class CloudAccountAddingActivity extends BaseActivity {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "CloudAccountSettingActivity";
@@ -89,7 +89,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 
 			switch (msg.what) {
 			case 0:
-				Toast toast0 = Toast.makeText(CloudAccountSettingActivity.this,showStatus, Toast.LENGTH_LONG);
+				Toast toast0 = Toast.makeText(CloudAccountAddingActivity.this,showStatus, Toast.LENGTH_LONG);
 				toast0.show();
 				dismissDialog(1);
 				identifier_flag = false;
@@ -99,7 +99,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				//只验证，不保存
 				
 				printSentence = getString(R.string.system_setting_cloudaccount_useable);
-				Toast toast1 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+				Toast toast1 = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
 				//caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
@@ -113,17 +113,17 @@ public class CloudAccountSettingActivity extends BaseActivity {
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
 				errMsg = msg.getData().getString("ERR_MSG");
-				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_SYS_FAILURE:
 				identifier_flag = false;
 				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
-				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
 				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
-				Toast.makeText(CloudAccountSettingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			default:
 				identifier_flag = false;
@@ -163,7 +163,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				CloudAccountSettingActivity.this.finish();
+				CloudAccountAddingActivity.this.finish();
 			}
 		});
 		
@@ -175,7 +175,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 				
 				//检测网络是否连接，若网络并未连接则
 				NetWorkUtils netWorkUtils = new NetWorkUtils();
-				boolean isConn = netWorkUtils.checkNetConnection(CloudAccountSettingActivity.this);
+				boolean isConn = netWorkUtils.checkNetConnection(CloudAccountAddingActivity.this);
 				if (isConn) {
 					cloudAccount = new CloudAccount();
 					if (isenablYseRadioBtn.isChecked()) {
@@ -199,13 +199,13 @@ public class CloudAccountSettingActivity extends BaseActivity {
 						requset4DeviceList();
 						synObj.suspend();// 挂起等待请求结果
 					} else {
-						String printSentence = getString(R.string.add_null_content);
-						Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+						String printSentence = getString(R.string.system_setting_cloudaccountsetting_null_content);
+						Toast toast3 = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_LONG);
 						toast3.show();
 					}
 				}else {
 					String printSentence = getString(R.string.network_not_conn);
-					Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+					Toast toast3 = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_LONG);
 					toast3.show();
 				}
 			}	
@@ -244,8 +244,8 @@ public class CloudAccountSettingActivity extends BaseActivity {
 						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
 						if (result) {//如果包含，则不添加
-							String printSentence = getString(R.string.already_contain_no_need);
-							Toast toast = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_SHORT);
+							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
+							Toast toast = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
 						} else {//如果不包含，则添加
 							caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);
@@ -254,14 +254,14 @@ public class CloudAccountSettingActivity extends BaseActivity {
 							bundle.putSerializable("cloudAccount",cloudAccount);
 							intent.putExtras(bundle);
 							setResult(3, intent);
-							CloudAccountSettingActivity.this.finish();
+							CloudAccountAddingActivity.this.finish();
 						}
 					} catch (Exception e1) {
 						System.out.println(e1.toString());
 					}
 				} else {
-					String printSentence = getString(R.string.add_null_content);
-					Toast toast3 = Toast.makeText(CloudAccountSettingActivity.this,printSentence, Toast.LENGTH_LONG);
+					String printSentence = getString(R.string.system_setting_cloudaccountsetting_null_content);
+					Toast toast3 = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_LONG);
 					toast3.show();
 				}
 			}
@@ -277,7 +277,7 @@ public class CloudAccountSettingActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case 1:
-			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.identify_user_right), true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.system_set_setting_identify_user_right), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
@@ -336,10 +336,10 @@ public class CloudAccountSettingActivity extends BaseActivity {
 			String cADomain = cA.getDomain();
 			String cAPort = cA.getPort();
 			String cAUsername = cA.getUsername();
-			String cAPassword = cA.getPassword();
+			/*String cAPassword = cA.getPassword();*/
 			/* boolean isEnabled = cA.isEnabled(); */
 			if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-				&& cloudAccount.getPassword().equals(cAPassword)&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*/
+				&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*//*&& cloudAccount.getPassword().equals(cAPassword)*/
 				result = true;
 				break;
 			}

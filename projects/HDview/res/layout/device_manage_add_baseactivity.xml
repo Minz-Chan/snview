@@ -1,319 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:scrollbarAlwaysDrawVerticalTrack="true"
     android:scrollbarStyle="insideInset"
     android:scrollbars="vertical" >
+-->
 
-    <ScrollView
-        android:id="@+id/scrollView1"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical" >
+
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
-        android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
-        android:layout_marginTop="10.0dip"
-        android:scrollbars="none" >
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <RelativeLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout1"
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true" >
-
-                        <TextView
-                            android:id="@+id/txt_choose"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_manage_choose"
-                            android:textColor="@color/md__defaultBackground"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/linearLayout2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginLeft="45dp"
-                        android:layout_toRightOf="@+id/linearLayout1"
-                        android:orientation="horizontal" >
-
-                        <EditText
-                            android:id="@+id/device_add_choose_et"
-                            android:layout_width="0.0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ems="10"
-                            android:inputType="none" />
-
-                        <Button
-                            android:id="@+id/device_add_button_state"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_manage_choose" />
-                    </LinearLayout>
-                </RelativeLayout>
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
+                android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+                android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+                android:layout_marginTop="10.0dip" >
 
                 <LinearLayout
-                    android:id="@+id/device_add_recorder"
+                    android:id="@+id/linearLayout1"
                     android:layout_width="75dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
+                        android:id="@+id/txt_choose"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/record_name"
+                        android:text="@string/device_manager_choose"
                         android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="0px"
-                    android:layout_height="0px"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true" />
-
-                <EditText
-                    android:id="@+id/et_device_add_record"
+                    android:id="@+id/linearLayout2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/device_add_recorder"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:singleLine="true"
-                    android:textSize="18sp" >
+                    android:layout_marginLeft="45dp"
+                    android:layout_toRightOf="@+id/linearLayout1"
+                    android:orientation="horizontal" >
 
-                    <requestFocus />
-                </EditText>
-            </RelativeLayout>
+                    <EditText
+                        android:id="@+id/device_add_choose_et"
+                        android:layout_width="0.0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ems="10"
+                        android:inputType="none" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <LinearLayout
-                    android:id="@+id/device_add_server"
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
+                    <Button
+                        android:id="@+id/device_add_button_state"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/server_name"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
+                        android:text="@string/device_manager_choose" />
                 </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_server"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/device_add_server"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <LinearLayout
-                    android:id="@+id/device_add_port"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
-                        android:id="@+id/txt_device_add_port"
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/system_setting_cloudaccount_port"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_port"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/device_add_port"
-                    android:ems="10"
-                    android:inputType="number"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <LinearLayout
-                    android:id="@+id/txt_device_add_username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/system_setting_cloudaccount_username"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/txt_device_add_username"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <LinearLayout
-                    android:id="@+id/txt_device_add_password"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/system_setting_cloudaccount_password"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_password"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/txt_device_add_password"
-                    android:ems="10"
-                    android:inputType="textPassword"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="0dip"
-                android:layout_weight="1.0" >
-
-                <LinearLayout
-                    android:id="@+id/txt_device_add_defaultchannel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/default_channel"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_defaultChannel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/txt_device_add_defaultchannel"
-                    android:ems="10"
-                    android:inputType="number"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <LinearLayout
-                    android:id="@+id/txt_device_add_channelnumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true" >
-
-                    <TextView
-                        android:layout_width="75dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/channel_number"
-                        android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/et_device_add_channelnumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginLeft="47dp"
-                    android:layout_toRightOf="@id/txt_device_add_channelnumber"
-                    android:ems="10"
-                    android:inputType="number"
-                    android:singleLine="true"
-                    android:textSize="18sp" />
             </RelativeLayout>
         </LinearLayout>
-    </ScrollView>
 
-</LinearLayout>
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/device_add_recorder"
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device_manager_add_scan_edit_layout_record_name"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+            <EditText
+                android:id="@+id/et_device_add_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/device_add_recorder"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:singleLine="true"
+                android:textSize="18sp" >
+
+                <requestFocus />
+            </EditText>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/device_add_server"
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device_manager_add_scan_edit_layout_server_name"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_server"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/device_add_server"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/device_add_port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:id="@+id/txt_device_add_port"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/system_setting_cloudaccount_port"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_port"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/device_add_port"
+                android:ems="10"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/txt_device_add_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/system_setting_cloudaccount_username"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/txt_device_add_username"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/txt_device_add_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/system_setting_cloudaccount_password"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/txt_device_add_password"
+                android:ems="10"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/txt_device_add_defaultchannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device_manager_add_scan_edit_layout_default_channel"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_defaultChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/txt_device_add_defaultchannel"
+                android:ems="10"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+
+            <LinearLayout
+                android:id="@+id/txt_device_add_channelnumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true" >
+
+                <TextView
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device_manager_add_scan_edit_layout_channel_number"
+                    android:textColor="@color/md__defaultBackground"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/et_device_add_channelnumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="47dp"
+                android:layout_toRightOf="@id/txt_device_add_channelnumber"
+                android:ems="10"
+                android:inputType="number"
+                android:singleLine="true"
+                android:textSize="18sp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</ScrollView> <!-- </LinearLayout> -->

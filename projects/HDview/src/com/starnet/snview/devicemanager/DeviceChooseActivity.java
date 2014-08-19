@@ -73,7 +73,7 @@ public class DeviceChooseActivity extends BaseActivity {
 			switch (msg.what) {
 			case ADD_SUCCESS:
 				dismissDialog(ADDDATESTOXMLDialog);
-				printSentence = "添加成功...";
+				printSentence = getString(R.string.device_manager_devicechoose_adding_success);
 				Toast toast1 = Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT);
 				toast1.show();
 				DeviceChooseActivity.this.finish();
@@ -181,7 +181,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case ADDDATESTOXMLDialog:
-			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.adding_device_wait), true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.device_manager_devicechoose_adding_and_wait), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override

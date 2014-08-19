@@ -4,5 +4,5 @@
 	<item
         android:id="@+id/ddns_requestMenu"
         android:orderInCategory="100"
-        android:title="@string/device_manage_onealladd"/>    
+        android:title="@string/device_manager_onealladd"/>    
 </menu>

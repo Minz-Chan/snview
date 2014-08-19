@@ -31,7 +31,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/record_name"
+                        android:text="@string/device_manager_add_scan_edit_layout_record_name"
                         android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -65,7 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="@string/server_name"
+                        android:text="@string/device_manager_add_scan_edit_layout_server_name"
                         android:textColor="@color/md__defaultBackground"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -210,7 +210,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/default_channel"
+                        android:text="@string/device_manager_add_scan_edit_layout_default_channel"
                         android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -246,7 +246,7 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/channel_number"
+                        android:text="@string/device_manager_add_scan_edit_layout_channel_number"
                         android:textColor="@color/md__defaultBackground"
                         android:textSize="18sp" />
                 </LinearLayout>
@@ -278,7 +278,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
-                    android:text="@string/start_scan"
+                    android:text="@string/device_manager_scan_layout_start_scan"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
             </RelativeLayout>

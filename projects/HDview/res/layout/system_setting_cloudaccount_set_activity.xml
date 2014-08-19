@@ -18,7 +18,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:text="@string/server_name"
+            android:text="@string/system_setting_cloudaccount_layout_serveName"
             android:textColor="@color/md__defaultBackground" />
 
         <EditText
