@@ -647,4 +647,55 @@ public class CloudAccountXML {
 		xmlWriter.write(document);
 		fileWriter.close();
 	}
+	
+	/**
+	 * 
+	 * @param filePath:指定的文档路径
+	 * @param cloudAccounted:被替换用户
+	 * @param cloudAccountes:替换成的用户
+	 */
+	@SuppressWarnings("deprecation")
+	public void replaceSpecifyCloudAccount(String filePath,CloudAccount cloudAccounted,CloudAccount cloudAccountes) throws Exception {
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return ;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		int size = subElements.size();
+		
+		String domained = cloudAccounted.getDomain();
+		String passwded = cloudAccounted.getPassword();
+		String usNameed = cloudAccounted.getUsername();
+		String usPorted = cloudAccounted.getPort();
+		
+		String domaines = cloudAccountes.getDomain();
+		String passwdes = cloudAccountes.getPassword();
+		String usNamees = cloudAccountes.getUsername();
+		String usPortes = cloudAccountes.getPort();
+		
+		for (int i = 0; i < size; i++) {
+			Element subElement = subElements.get(i);
+			String domain = subElement.attributeValue("domain");
+			String port = subElement.attributeValue("port");
+			String username = subElement.attributeValue("username");
+			String password = subElement.attributeValue("password");
+			
+			if (domain.equals(domained)&&password.equals(passwded)
+				&&username.equals(usNameed)&&port.equals(usPorted)) {
+				subElement.setAttributeValue("domain", domaines);
+				subElement.setAttributeValue("port", passwdes);
+				subElement.setAttributeValue("username", usNamees);
+				subElement.setAttributeValue("password", usPortes);
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
 }

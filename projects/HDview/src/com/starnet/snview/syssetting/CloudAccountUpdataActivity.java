@@ -60,10 +60,14 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 	private RadioButton isenablNoRadioBtn;
 
 	private Button saveBtn;//保存按钮
+	private CloudAccount saveCloudAccount;//保存账户
+	
 	private Button identifyBtn;//验证按钮
 	private boolean identifier_flag = false;//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
+	private CloudAccount identifyCloudAccount;//验证后的账户
+	
 	private CloudAccount clickCloudAccount = new CloudAccount();
-	private CloudAccount saveCloudAccount = new CloudAccount();
+	
 	private SynObject synObj = new SynObject();
 
 	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
@@ -158,13 +162,6 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 				NetWorkUtils netWorkUtils = new NetWorkUtils();
 				boolean isConn = netWorkUtils.checkNetConnection(context);
 				if (isConn) {
-					saveCloudAccount = new CloudAccount();
-					if (isenablYseRadioBtn.isChecked()) {
-						saveCloudAccount.setEnabled(true);
-					} else {
-						saveCloudAccount.setEnabled(false);
-					}
-					
 					// 验证是否有为空的现象
 					server = serverEditText.getText().toString();
 					port = portEditText.getText().toString();
@@ -176,11 +173,19 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 						//检测是否是网络端口号
 						IPAndPortUtils ipAndPort = new IPAndPortUtils();
 						boolean isPort = ipAndPort.isNetPort(port);
-						if (isPort) {
-							saveCloudAccount.setDomain(server);
-							saveCloudAccount.setPassword(password);
-							saveCloudAccount.setUsername(username);
-							saveCloudAccount.setPort(port);
+						boolean isIP = ipAndPort.isIPAddress(server);
+						if (isPort && isIP) {
+							identifyCloudAccount = new CloudAccount();	
+							if (isenablYseRadioBtn.isChecked()) {
+								identifyCloudAccount.setEnabled(true);
+							} else {
+								identifyCloudAccount.setEnabled(false);
+							}
+							identifyCloudAccount.setDomain(server);
+							identifyCloudAccount.setPassword(password);
+							identifyCloudAccount.setUsername(username);
+							identifyCloudAccount.setPort(port);
+							
 							requset4DeviceList();
 							synObj.suspend();// 挂起等待请求结果
 						}else {
@@ -214,13 +219,6 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 					public void onClick(View v) {
 						
 						Context context = CloudAccountUpdataActivity.this;
-						CloudAccount cloudAccount = new CloudAccount();
-						if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
-							cloudAccount.setEnabled(true);
-						} else {
-							cloudAccount.setEnabled(false);
-						}
-						
 						// 验证是否有为空的现象
 						server = serverEditText.getText().toString();
 						port = portEditText.getText().toString();
@@ -228,25 +226,37 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 						password = passwordEditText.getText().toString();
 
 						if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
-							cloudAccount.setDomain(server);
-							cloudAccount.setPassword(password);
-							cloudAccount.setUsername(username);
-							cloudAccount.setPort(port);
+							
+							saveCloudAccount = new CloudAccount();
+							saveCloudAccount.setDomain(server);
+							saveCloudAccount.setPassword(password);
+							saveCloudAccount.setUsername(username);
+							saveCloudAccount.setPort(port);
+							saveCloudAccount.setRotate(false);
+							saveCloudAccount.setExpanded(false);
+							identifier_flag = isEqualSaveAndIdentifyCloudAccount(saveCloudAccount,identifyCloudAccount);
+							if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
+								saveCloudAccount.setEnabled(true);
+							} else {
+								saveCloudAccount.setEnabled(false);
+							}
 							CloudAccountXML caXML = new CloudAccountXML();
 							try {
 								//检测是否已经存在账户
 								List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
-								boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
+								boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);
 								if (result) {//如果包含，则不添加
 									String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
 									Toast toast = Toast.makeText(context,printSentence, Toast.LENGTH_SHORT);
 									toast.show();
 								} else {//如果不包含，则添加
-									caXML.removeCloudAccoutFromXML(filePath, clickCloudAccount);//删除以前的星云平台账户
-									caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);//添加当前的星云平台账户
+									
+									caXML.replaceSpecifyCloudAccount(filePath, clickCloudAccount, saveCloudAccount);//替换掉以前的星云账号
+//									caXML.removeCloudAccoutFromXML(filePath, clickCloudAccount);//删除以前的星云平台账户
+//									caXML.addNewCloudAccoutNodeToRootXML(filePath,saveCloudAccount);//添加当前的星云平台账户
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
-									bundle.putSerializable("edit_cloudAccount",cloudAccount);
+									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
 									intent.putExtras(bundle);
 									setResult(3, intent);
 									CloudAccountUpdataActivity.this.finish();
@@ -439,7 +449,29 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 //			handler.sendMessage(msg);
 		}
 	}
-	
+	protected boolean isEqualSaveAndIdentifyCloudAccount(CloudAccount save_CloudAccount2, CloudAccount identify_CloudAccount2) {
+		boolean isEqual = false;
+		if((save_CloudAccount2 == null)||(identify_CloudAccount2 == null)){
+			return isEqual;
+		}else {
+			String sDman = save_CloudAccount2.getDomain();
+			String sPort = save_CloudAccount2.getPort();
+			String sPass = save_CloudAccount2.getPassword();
+			String sName = save_CloudAccount2.getUsername();
+			
+			String iDman = identify_CloudAccount2.getDomain();
+			String iPort = identify_CloudAccount2.getPort();
+			String iPass = identify_CloudAccount2.getPassword();
+			String iName = identify_CloudAccount2.getUsername();
+			
+			if (sDman.equals(iDman)&&sPort.equals(iPort)&&sPass.equals(iPass)&&sName.equals(iName)) {
+				isEqual = true;
+			}else {
+				isEqual = false;
+			}
+			return isEqual;
+		}
+	}
 	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
 		boolean result = false;
 		int size = cloudAccountList2.size();

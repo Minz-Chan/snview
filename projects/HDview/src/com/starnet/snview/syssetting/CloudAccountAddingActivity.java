@@ -67,6 +67,10 @@ public class CloudAccountAddingActivity extends BaseActivity {
 
 	// private CloudAccount clickCloudAccount;
 	private Button identify_btn;//验证客户是否网络可达按钮
+	private CloudAccount identify_CloudAccount;//验证后的账号；
+	
+	private Button save_btn;//右上角保存按钮；
+	private CloudAccount save_CloudAccount;//单击保存时的账号；
 
 	private SynObject synObj = new SynObject();
 
@@ -157,6 +161,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		
 		identify_btn = (Button) findViewById(R.id.identify_cloudaccount_right);
+		save_btn = super.getRightButton();
 	}
 
 	private void setListeners() {
@@ -177,11 +182,14 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				NetWorkUtils netWorkUtils = new NetWorkUtils();
 				boolean isConn = netWorkUtils.checkNetConnection(CloudAccountAddingActivity.this);
 				if (isConn) {
+					identify_CloudAccount = new CloudAccount();
 					cloudAccount = new CloudAccount();
 					if (isenablYseRadioBtn.isChecked()) {
 						cloudAccount.setEnabled(true);
+						identify_CloudAccount.setEnabled(true);
 					} else if (isenablNoRadioBtn.isChecked()) {
 						cloudAccount.setEnabled(false);
+						identify_CloudAccount.setEnabled(false);
 					}
 					
 					// 验证是否有为空的现象
@@ -195,7 +203,12 @@ public class CloudAccountAddingActivity extends BaseActivity {
 						cloudAccount.setPassword(password);
 						cloudAccount.setUsername(username);
 						cloudAccount.setPort(port);
-						caXML = new CloudAccountXML();
+						
+						identify_CloudAccount.setPassword(password);
+						identify_CloudAccount.setDomain(server);
+						identify_CloudAccount.setUsername(username);
+						identify_CloudAccount.setPort(port);
+						
 						requset4DeviceList();
 						synObj.suspend();// 挂起等待请求结果
 					} else {
@@ -212,46 +225,56 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		});
 		
 
-		super.getRightButton().setOnClickListener(new OnClickListener() {
+		save_btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				//根据identifier_flag的值，直接添加用户
-				
-				cloudAccount = new CloudAccount();
-				if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
-					cloudAccount.setEnabled(true);
-				} else {
-					cloudAccount.setEnabled(false);
-				}
-//				else if (isenablNoRadioBtn.isChecked()) {
-//					cloudAccount.setEnabled(false);
-//				}
-				
 				// 验证是否有为空的现象
 				server = serverEditText.getText().toString();
 				port = portEditText.getText().toString();
 				username = usernameEditText.getText().toString();
 				password = passwordEditText.getText().toString();
-
+				
+				
+				//验证用户和
+				
 				if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
-					cloudAccount.setDomain(server);
-					cloudAccount.setPassword(password);
-					cloudAccount.setUsername(username);
-					cloudAccount.setPort(port);
+					save_CloudAccount = new CloudAccount();
+					save_CloudAccount.setDomain(server);
+					save_CloudAccount.setPort(port);
+					save_CloudAccount.setUsername(username);
+					save_CloudAccount.setPassword(password);
+					save_CloudAccount.setExpanded(false);
+					save_CloudAccount.setRotate(false);
+					identifier_flag = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
+					
+//					cloudAccount = new CloudAccount();
+					if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
+//						cloudAccount.setEnabled(true);
+						save_CloudAccount.setEnabled(true);
+					} else {
+//						cloudAccount.setEnabled(false);
+						save_CloudAccount.setEnabled(false);
+					}
+					
+//					cloudAccount.setDomain(server);
+//					cloudAccount.setPassword(password);
+//					cloudAccount.setUsername(username);
+//					cloudAccount.setPort(port);
 					caXML = new CloudAccountXML();
 					try {
 						//判断是否已经包含该用户
 						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
-						boolean result = judgeListContainCloudAccount(cloudAccount, cloudAcountList);
+						boolean result = judgeListContainCloudAccount(save_CloudAccount, cloudAcountList);
 						if (result) {//如果包含，则不添加
 							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
 							Toast toast = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
 						} else {//如果不包含，则添加
-							caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);
+							caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 							Intent intent = new Intent();
 							Bundle bundle = new Bundle();
-							bundle.putSerializable("cloudAccount",cloudAccount);
+							bundle.putSerializable("cloudAccount",save_CloudAccount);
 							intent.putExtras(bundle);
 							setResult(3, intent);
 							CloudAccountAddingActivity.this.finish();
@@ -266,6 +289,30 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				}
 			}
 		});
+	}
+
+	protected boolean isEqualSaveAndIdentifyCloudAccount(CloudAccount save_CloudAccount2, CloudAccount identify_CloudAccount2) {
+		boolean isEqual = false;
+		if((save_CloudAccount2 == null)||(identify_CloudAccount2 == null)){
+			return isEqual;
+		}else {
+			String sDman = save_CloudAccount2.getDomain();
+			String sPort = save_CloudAccount2.getPort();
+			String sPass = save_CloudAccount2.getPassword();
+			String sName = save_CloudAccount2.getUsername();
+			
+			String iDman = identify_CloudAccount2.getDomain();
+			String iPort = identify_CloudAccount2.getPort();
+			String iPass = identify_CloudAccount2.getPassword();
+			String iName = identify_CloudAccount2.getUsername();
+			
+			if (sDman.equals(iDman)&&sPort.equals(iPort)&&sPass.equals(iPass)&&sName.equals(iName)) {
+				isEqual = true;
+			}else {
+				isEqual = false;
+			}
+			return isEqual;
+		}
 	}
 
 	private void requset4DeviceList() {
@@ -283,7 +330,6 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				public void onCancel(DialogInterface dialog) {
 					dismissDialog(1);
 					synObj.resume();
-//					CloudAccountSettingActivity.this.finish();
 				}
 			});
 			return progress;
@@ -306,7 +352,6 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				String requestResult = cloudService.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
-//					deviceInfoList = cloudService.readXmlDVRDevices(doc);
 					msg.what = DDNS_RESP_SUCC;
 				} else { // 请求失败，返回错误原因
 					Bundle errMsg = new Bundle();

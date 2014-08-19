@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
@@ -33,6 +34,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private int pos;
 	private String titleName;
 	private CloudAccount deleteCA;
+	
+	private Button user_save_btn;//账号添加按钮
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,19 +73,24 @@ public class CloudAccountViewActivity extends BaseActivity {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						
+						caXML = new CloudAccountXML();
+						caXML.removeCloudAccoutFromXML(filePath, deleteCA);//文件中删除操作....
+						
 						//列表中删除操作....
 						cloudAccountList.remove(deleteCA);
 						caAdapter.notifyDataSetChanged();
-						//文件中删除操作....
-						Thread thread = new Thread(){
-							@Override
-							public void run() {
-								super.run();
-								caXML = new CloudAccountXML();
-								caXML.removeCloudAccoutFromXML(filePath, deleteCA);
-							}
-						};
-						thread.start();
+//						caAdapter = new CloudAccountAdapter(CloudAccountViewActivity.this, cloudAccountList);
+//						mNetWorkSettingList.setAdapter(caAdapter);
+//						
+//						Thread thread = new Thread(){
+//							@Override
+//							public void run() {
+//								super.run();
+//								
+//							}
+//						};
+//						thread.start();
 					}
 				 });
 				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
@@ -101,6 +109,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 
+		user_save_btn = super.getRightButton();
 		mNetWorkSettingList = (ListView) findViewById(R.id.cloudaccount_listview);
 
 		try {
@@ -121,7 +130,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 			}
 		});
 
-		super.getRightButton().setOnClickListener(new OnClickListener() {//进入用户增加界面？？？？？增加一个账户信息；
+		user_save_btn.setOnClickListener(new OnClickListener() {//进入用户增加界面？？？？？增加一个账户信息；
 
 			@Override
 			public void onClick(View v) {
@@ -137,32 +146,27 @@ public class CloudAccountViewActivity extends BaseActivity {
 		startActivityForResult(intent, 10);
 	}
 
-	// 保存以后，回到该函数中，通知listView的变化；
+	// 保存以后，回到该函数中，通知listView的变化
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-//		caAdapter.notifyDataSetChanged();
 		if(requestCode == 20){//从编辑界面返回
-			CloudAccountXML caXml = new CloudAccountXML();
-			try {
-				List<CloudAccount> cAccountList = caXml.getCloudAccountList(filePath);
-				caAdapter = new CloudAccountAdapter(this, cAccountList);
-				mNetWorkSettingList.setAdapter(caAdapter);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			
-			
-			
-//			if(data != null){
-//				Bundle bundle = data.getExtras();
-//				if(bundle != null){
-//					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
-//					cloudAccountList.set(pos, cloudAccount);
-//					caAdapter.notifyDataSetChanged();
-//				}
+//			CloudAccountXML caXml = new CloudAccountXML();
+//			try {
+//				List<CloudAccount> cAccountList = caXml.getCloudAccountList(filePath);
+//				caAdapter = new CloudAccountAdapter(this, cAccountList);
+//				mNetWorkSettingList.setAdapter(caAdapter);
+//			} catch (Exception e) {
+//				e.printStackTrace();
 //			}
+			if(data != null){
+				Bundle bundle = data.getExtras();
+				if(bundle != null){
+					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
+					cloudAccountList.set(pos, cloudAccount);
+					caAdapter.notifyDataSetChanged();
+				}
+			}
 		}else if (requestCode == 10) {//从添加界面返回
 			if(data != null){
 				Bundle bundle = data.getExtras();
