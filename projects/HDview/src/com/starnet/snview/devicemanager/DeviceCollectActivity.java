@@ -40,10 +40,13 @@ import com.starnet.snview.util.SynObject;
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 	
+	@SuppressWarnings("unused")
 	private static final String TAG = "DeviceCollectActivity";
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";// 用于保存收藏设备...
 	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
+	private final int REQUESTCODE = 10;//用于进入DeviceChooseActivity.java的请求码；
+	private final int RESULTCODE = 11;
 
 	private Button leftButton;// 左边按钮
 	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"添加"...
@@ -57,8 +60,6 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText et_device_add_password;
 	private EditText et_device_add_channelnumber;
 	private EditText et_device_add_defaultchannel;
-
-	@SuppressWarnings("unused")
 	private EditText et_device_choose;
 	
 	private DeviceItem saveDeviceItem = new DeviceItem();
@@ -91,7 +92,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
 				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
-				startActivity(intent);
+				startActivityForResult(intent, REQUESTCODE);
 //				DeviceCollectActivity.this.finish();
 				break;
 			case LOAD_WRONG:
@@ -219,6 +220,9 @@ public class DeviceCollectActivity extends BaseActivity {
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
 							if (usable) {
+								if (dvrDeviceList.size() > 0) {
+									dvrDeviceList.clear();
+								}
 								requestNetDataFromNet();// 请求网络数据；
 								synObject.suspend();// 挂起线程
 							} else {
@@ -284,6 +288,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_password = (EditText) findViewById(R.id.et_device_add_password);
 		et_device_add_defaultchannel = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
+		et_device_choose = (EditText) findViewById(R.id.device_add_choose_et);
 		device_add_choose_btn = (Button) findViewById(R.id.device_add_button_state);
 	}
 
@@ -376,6 +381,42 @@ public class DeviceCollectActivity extends BaseActivity {
 				} else {
 					msg.what = LOAD_WRONG;
 					handler.sendMessage(msg);
+				}
+			}
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if ((requestCode == REQUESTCODE)&&(resultCode == RESULTCODE)) {
+			if (data != null) {
+				Bundle bundle = data.getExtras();
+				if (bundle != null) {
+					DeviceItem chooseDeviceItem = (DeviceItem) bundle.getSerializable("chooseDeviceItem");
+					//填充信息....
+					
+					String lgUsr = chooseDeviceItem.getLoginUser();
+					String lgPas = chooseDeviceItem.getLoginPass();
+					String svrIp = chooseDeviceItem.getSvrIp();
+					String svrPt = chooseDeviceItem.getSvrPort();
+					
+					String dName = chooseDeviceItem.getDeviceName();
+					String chSum = chooseDeviceItem.getChannelSum();
+					int defltChl = chooseDeviceItem.getDefaultChannel();
+					String dChnl = String.valueOf(defltChl);
+					
+					et_device_choose.setText(dName);
+					et_device_add_record.setText(dName);
+					et_device_add_server.setText(svrIp);
+					et_device_add_port.setText(svrPt);
+					et_device_add_username.setText(lgUsr);
+					
+					et_device_add_password.setText(lgPas);
+					et_device_add_channelnumber.setText(chSum);
+					et_device_add_defaultchannel.setText(dChnl);
+					
+					et_device_add_channelnumber.setKeyListener(null);
 				}
 			}
 		}

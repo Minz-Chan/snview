@@ -75,10 +75,10 @@ public class DeviceInfoActivity extends BaseActivity {
 		String record = saveDeviceItem.getDeviceName();
 		int rdLen = record.length();
 		if (rdLen >= 4) {
-			String word1 = getString(R.string.device_manage_online_en);
-			String word2 = getString(R.string.device_manage_online_cn);
-			String word3 = getString(R.string.device_manage_offline_cn);
-			String word4 = getString(R.string.device_manage_offline_en);
+			String word1 = getString(R.string.device_manager_online_en);
+			String word2 = getString(R.string.device_manager_online_cn);
+			String word3 = getString(R.string.device_manager_offline_cn);
+			String word4 = getString(R.string.device_manager_offline_en);
 			String recordName = record.substring(0, 4);
 			if (recordName.contains(word1)||recordName.contains(word2)
 				||recordName.contains(word3)||recordName.contains(word4)) {
@@ -181,10 +181,10 @@ public class DeviceInfoActivity extends BaseActivity {
 			
 			int rdLen = record.length();
 			if (rdLen >= 4) {
-				String word1 = getString(R.string.device_manage_online_en);
-				String word2 = getString(R.string.device_manage_online_cn);
-				String word3 = getString(R.string.device_manage_offline_cn);
-				String word4 = getString(R.string.device_manage_offline_en);
+				String word1 = getString(R.string.device_manager_online_en);
+				String word2 = getString(R.string.device_manager_online_cn);
+				String word3 = getString(R.string.device_manager_offline_cn);
+				String word4 = getString(R.string.device_manager_offline_en);
 				String recordName = record.substring(0, 4);
 				if (recordName.contains(word1)||recordName.contains(word2)
 					||recordName.contains(word3)||recordName.contains(word4)) {

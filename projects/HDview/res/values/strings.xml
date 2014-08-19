@@ -91,6 +91,11 @@
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
     <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
+    <string name="device_manager_online_en">(在线)</string>
+    <string name="device_manager_online_cn">（在线）</string>
+    <string name="device_manager_offline_cn">（离线）</string>
+    <string name="device_manager_offline_en">(离线)</string>
+    <string name="device_manager_off_on_line_length">4</string>
     
     <string name="connection_status_connecting">连接中…</string>
     <string name="connection_status_established">连接建立</string>
@@ -112,10 +117,6 @@
     <string name="username_info_not_null">用户名不能为空，请填写</string>
     <string name="password_info_not_null">密码不能为空，请重设</string>
     
-    
-    
-    
-   
     <string name="channel_listview_layout_adding_device_wait">正在添加设备到列表中，请等待</string>
     
     <string name="add_sucess">添加成功</string>
@@ -126,11 +127,7 @@
     <string name="defaultchannel_channelNumber_small">默认通道要比通道数量小</string>
     <string name="save_failed">保存失败</string>
     <string name="exist_input_null_check">含有未输入的项，请检查</string>
-    <string name="device_manage_online_en">(在线)</string>
-    <string name="device_manage_online_cn">（在线）</string>
-    <string name="device_manage_offline_cn">（离线）</string>
-    <string name="device_manage_offline_en">(离线)</string>
-    <string name="device_manage_off_on_line_length">4</string>
+
     <string name="identify_cloudaccount_right">验证账号</string>
     <string name="network_not_conn">网络未连接,请检查网络是否打开</string>
 

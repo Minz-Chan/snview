@@ -60,21 +60,21 @@ public class DeviceListAdapter extends BaseAdapter {
 		
 		/*deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+"  "+item.getChannelSum());*/
 		String deviceName = item.getDeviceName();
-		if (deviceName.length() >= 4) {
-			String word1 = mContext.getString(R.string.device_manage_offline_en);
-			String word2 = mContext.getString(R.string.device_manage_offline_cn);
-			String word3 = mContext.getString(R.string.device_manage_online_cn);
-			String word4 = mContext.getString(R.string.device_manage_online_en);
-			
-			String wordLen = mContext.getString(R.string.device_manage_off_on_line_length);
-			int len = Integer.valueOf(wordLen);
-			String dName = deviceName.substring(0, len);
-			
-			if(dName.contains(word1)||dName.contains(word2)||dName.contains(word3)||dName.contains(word4)){
-				deviceName = deviceName.substring(len);
-			}
-		}
-		
+//		String wordLen = mContext.getString(R.string.device_manager_off_on_line_length);
+//		int len = Integer.valueOf(wordLen);
+//		if (deviceName.length() >= 4) {
+//			String word1 = mContext.getString(R.string.device_manager_offline_en);
+//			String word2 = mContext.getString(R.string.device_manager_offline_cn);
+//			String word3 = mContext.getString(R.string.device_manager_online_cn);
+//			String word4 = mContext.getString(R.string.device_manager_online_en);
+//			
+//			String dName = deviceName.substring(0, len);
+//			
+//			if(dName.contains(word1)||dName.contains(word2)||dName.contains(word3)||dName.contains(word4)){
+//				deviceName = deviceName.substring(len);
+//			}
+//		}
+//		
 		deviceItemName.setText(deviceName);
 		
 		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);

@@ -43,6 +43,8 @@ public class DeviceChooseActivity extends BaseActivity {
 	@SuppressWarnings("unused")
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list_another.xml";// 一键保存设备的路径...
 	// 用于从文档中获取所有的用户，根据用户信息获取设备
+	
+	private final int RESULTCODE = 11;
 
 	private Button leftButton;// 左边按钮
 	private ListView deviceListView;
@@ -79,7 +81,7 @@ public class DeviceChooseActivity extends BaseActivity {
 				DeviceChooseActivity.this.finish();
 //				Intent intent = new Intent();
 //				intent.setClass(DeviceChooseActivity.this, DeviceViewActivity.class);
-//				startActivity(intent);				
+//				startActivity(intent);
 				
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
@@ -134,9 +136,35 @@ public class DeviceChooseActivity extends BaseActivity {
 		deviceListView.setOnItemClickListener(new OnItemClickListener() {//单击进入平台信息界面...
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				
 				DeviceItem deviceItem = deviceItemList.get(position);
 				clickDeviceItem = deviceItem;
-				gotoDeviceInfoActivity();
+				String dName = deviceItem.getDeviceName();
+				String length = getString(R.string.device_manager_off_on_line_length);
+				int dLen = dName.length();
+				int len = Integer.valueOf(length);
+				if ((dLen >= len)) {
+					String word1 = getString(R.string.device_manager_online_en);
+					String word2 = getString(R.string.device_manager_online_cn);
+					String word3 = getString(R.string.device_manager_offline_cn);
+					String word4 = getString(R.string.device_manager_offline_en);
+					
+					String subDName = dName.substring(0, len);
+					if (subDName.contains(word1)||subDName.contains(word2)
+						||subDName.contains(word3)||subDName.contains(word4)) {
+						dName = dName.substring(len);
+					}
+					clickDeviceItem.setDeviceName(dName);
+				}
+				
+				//返回到DeviceCollectActivity.java界面
+				Intent data = new Intent();
+				Bundle extras = new Bundle();
+				extras.putSerializable("chooseDeviceItem", clickDeviceItem);
+				data.putExtras(extras);
+				setResult(RESULTCODE, data);
+				DeviceChooseActivity.this.finish();
+//				gotoDeviceInfoActivity();
 			}
 		});
 	}
@@ -202,16 +230,18 @@ public class DeviceChooseActivity extends BaseActivity {
 		for (int i = 0; i < size; i++) {
 			DeviceItem deviceItem = deviceItemList2.get(i);
 			String deviceName = deviceItem.getDeviceName();
+			String length = getString(R.string.device_manager_off_on_line_length);
+			int len = Integer.valueOf(length);
 			int rdLen = deviceName.length();
-			if (rdLen >= 4) {
-				String word1 = getString(R.string.device_manage_online_en);
-				String word2 = getString(R.string.device_manage_online_cn);
-				String word3 = getString(R.string.device_manage_offline_cn);
-				String word4 = getString(R.string.device_manage_offline_en);
-				String recordName = deviceName.substring(0, 4);
+			if (rdLen >= len) {
+				String word1 = getString(R.string.device_manager_online_en);
+				String word2 = getString(R.string.device_manager_online_cn);
+				String word3 = getString(R.string.device_manager_offline_cn);
+				String word4 = getString(R.string.device_manager_offline_en);
+				String recordName = deviceName.substring(0, len);
 				if (recordName.contains(word1)||recordName.contains(word2)
 					||recordName.contains(word3)||recordName.contains(word4)) {
-					deviceName = deviceName.substring(4);
+					deviceName = deviceName.substring(len);
 				}
 				deviceItem.setDeviceName(deviceName);
 			}

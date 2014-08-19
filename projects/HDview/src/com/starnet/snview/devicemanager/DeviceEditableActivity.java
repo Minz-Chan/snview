@@ -143,12 +143,12 @@ public class DeviceEditableActivity extends BaseActivity {
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
 		
-		String word1 = getString(R.string.device_manage_offline_en);
-		String word2 = getString(R.string.device_manage_offline_cn);
-		String word3 = getString(R.string.device_manage_online_cn);
-		String word4 = getString(R.string.device_manage_online_en);
+		String word1 = getString(R.string.device_manager_offline_en);
+		String word2 = getString(R.string.device_manager_offline_cn);
+		String word3 = getString(R.string.device_manager_online_cn);
+		String word4 = getString(R.string.device_manager_online_en);
 		
-		String wordLen = getString(R.string.device_manage_off_on_line_length);
+		String wordLen = getString(R.string.device_manager_off_on_line_length);
 		int len = Integer.valueOf(wordLen);
 		
 		if (deviceName.length() > (len-1)) {
