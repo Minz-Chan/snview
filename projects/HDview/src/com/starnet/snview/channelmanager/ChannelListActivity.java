@@ -142,6 +142,11 @@ public class ChannelListActivity extends BaseActivity {
 						
 						ChannelListActivity.this.setResult(8, intent);
 						ChannelListActivity.this.finish();
+					} else {
+						Toast.makeText(
+								ChannelListActivity.this,
+								getString(R.string.channel_manager_channellistview_loadfail),
+								Toast.LENGTH_SHORT).show();
 					}
 				
 			}
@@ -277,12 +282,10 @@ public class ChannelListActivity extends BaseActivity {
 							}
 						}
 					}
-				}else {
-					String printSentence = getString(R.string.channel_manager_channellistview_loadfail);
-					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
-					toast.show();
 				}
+				
 			}
+
 		}
 		return previewList;
 	}
