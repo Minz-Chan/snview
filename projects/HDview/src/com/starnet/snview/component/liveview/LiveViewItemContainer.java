@@ -132,6 +132,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 		});
 	}
 	
+	public void resetView() {
+		mSurfaceView.setValid(true);
+		mProgressBar.setVisibility(View.INVISIBLE);
+		mRefresh.setVisibility(View.GONE);
+	}
+	
 	
 	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}

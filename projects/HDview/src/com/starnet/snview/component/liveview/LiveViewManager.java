@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 
@@ -215,7 +214,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 
 	private synchronized void previewCurrentPage() {
-		closeAllConnection();
+		closeAllConnection(false);
 		
 		int startIndex = pager.getCurrentIndex();
 		int currPageCount = pager.getCurrentPageCount();
@@ -230,7 +229,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public void clearLiveView() {
-		closeAllConnection();
+		closeAllConnection(false);
 		liveviews.clear();
 	}
 	
@@ -247,7 +246,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		}
 	}
 	
-	public void closeAllConnection() {
+	public void closeAllConnection(boolean canUpdateViewAfterClosed) {
 		int i;
 		int connSize = connections.size();
 		
@@ -256,6 +255,10 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				connections.get(i).disconnect();
 			} else {
 				connections.get(i).setDisposed(true);  // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
+			}
+			
+			if (!canUpdateViewAfterClosed) {
+				connections.get(i).getLiveViewItemContainer().setCurrentConnection(null);
 			}
 		}
 	}
@@ -328,29 +331,18 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		int n;
 		
 		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
+		Log.i(TAG, "####$$$$live view count: " + liveviews.size());
 		int lvCount = liveviews.size();
 		for (n = 0; n < lvCount; n++) {
-			liveviews.get(n).getRefreshImageView().setVisibility(View.GONE);
+			liveviews.get(n).resetView();
 			
-			
-			
-			if (n < count) {
-				liveviews.get(n).getSurfaceView().setValid(true);
-				liveviews.get(n).getProgressBar().setVisibility(View.VISIBLE);
-			} else {
+
+			if (n >= count) {
 				liveviews.get(n).getSurfaceView().setValid(false);
-				
-			}
-			
-			liveviews.get(n).getRefreshImageView().setVisibility(View.INVISIBLE);
+			} 
+
 		}
-		
-		// 保证当前connection池资源足够
-//		int connCount = connections.size();
-//		for (n = 1; n <= count - connCount; n++) {
-//			connections.add(new Connection());
-//		}
-		
+
 
 		
 		connections.clear();
@@ -447,13 +439,14 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public void stopPreview() {
-		int connCount = connections.size();
-		
-		for (int i = 0; i < connCount; i++) {
-			if (connections.get(i).isConnected()) {
-				connections.get(i).disconnect();
-			}
-		}
+//		int connCount = connections.size();
+//		
+//		for (int i = 0; i < connCount; i++) {
+//			if (connections.get(i).isConnected()) {
+//				connections.get(i).disconnect();
+//			}
+//		}
+		closeAllConnection(true);
 	}
 	
 	private void reloadConnections(int startIndex) {

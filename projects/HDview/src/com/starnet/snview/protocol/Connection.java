@@ -355,6 +355,7 @@ public class Connection extends DemuxingIoHandler {
 		
 		if (isValid()) {
 			mConnectionListener.OnConnectionClosed(mLiveViewItem);
+			Log.i(TAG, "####$$$$");
 			mLiveViewChangedListener.onDisplayContentReset();
 		}
 
@@ -401,7 +402,7 @@ public class Connection extends DemuxingIoHandler {
 
 	public boolean isValid() {
 		Log.i(TAG, "isDisposed: " + isDisposed + ", this == mLiveViewItem.getCurrentConnection(): " + (this == mLiveViewItem.getCurrentConnection()));
-		return this == mLiveViewItem.getCurrentConnection() && !isDisposed;
+		return this == mLiveViewItem.getCurrentConnection();
 	}
 	
 	
