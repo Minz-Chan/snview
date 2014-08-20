@@ -273,7 +273,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		leftButton = super.getLeftButton();
 		device_add_shdong_btn = super.getRightButton();
 
-		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
+		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.device_manager));
 		super.hideExtendButton();

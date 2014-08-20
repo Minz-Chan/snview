@@ -125,7 +125,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {
-		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
+		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		String tileName = getString(R.string.common_drawer_device_management);
 		super.setTitleViewText(tileName);

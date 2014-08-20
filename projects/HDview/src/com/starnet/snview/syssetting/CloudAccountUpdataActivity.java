@@ -361,7 +361,7 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 	private void initView() {
 		super.setTitleViewText(getString(R.string.navigation_title_system_setting_cloudaccount_setting));
 		super.hideExtendButton();
-		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
+		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		saveBtn = super.getRightButton();

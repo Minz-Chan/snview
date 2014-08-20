@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
@@ -43,6 +45,8 @@ import com.starnet.snview.util.NetWorkUtils;
 
 @SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class ChannelListActivity extends BaseActivity {
+	
+	private static final String TAG = "ChannelListActivity";
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
@@ -60,6 +64,10 @@ public class ChannelListActivity extends BaseActivity {
 	
 	private List<PreviewDeviceItem> previewChannelList;//当前预览通道
 
+	//有关开启线程的操作；
+//	boolean stopThread=false;
+	
+	
 	private Handler netHandler = new Handler() {// 处理线程的handler
 
 		@Override
@@ -171,26 +179,28 @@ public class ChannelListActivity extends BaseActivity {
 		NetWorkUtils netWorkUtils = new NetWorkUtils();
 		boolean isOpen = netWorkUtils.checkNetConnection(ChannelListActivity.this);
 		if (isOpen) {
-			for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
-				String conn_name = "conn1";
-				CloudAccount cAccount = cloudAccounts.get(i);
-				boolean isEnable = cAccount.isEnabled();
-				if(isEnable){
-					cAccount.setRotate(false);
-				}else{
-					cAccount.setRotate(true);
+//			while (!stopThread) {
+				for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
+					String conn_name = "conn1";
+					CloudAccount cAccount = cloudAccounts.get(i);
+					boolean isEnable = cAccount.isEnabled();
+					if(isEnable){
+						cAccount.setRotate(false);
+					}else{
+						cAccount.setRotate(true);
+					}
+					if(isEnable){//如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
+						CloudService cloudService = new CloudServiceImpl(conn_name);
+						netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
+						netThread.start();// 线程开启，进行网络访问
+					}
 				}
-				if(isEnable){//如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
-					CloudService cloudService = new CloudServiceImpl(conn_name);
-					netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
-					netThread.start();// 线程开启，进行网络访问
-				}
-			}
 
-			File file = new File(CLOUD_ACCOUNT_PATH);
-			if (file.exists()) {
-				file.delete();
-			}
+				File file = new File(CLOUD_ACCOUNT_PATH);
+				if (file.exists()) {
+					file.delete();
+				}
+//			}
 		}else {
 			String printSentence = getString(R.string.channel_manager_channellistview_netnotopen);
 			Toast toast = Toast.makeText(ChannelListActivity.this, printSentence,Toast.LENGTH_LONG);
@@ -220,7 +230,7 @@ public class ChannelListActivity extends BaseActivity {
 		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
 		if ((cloudAccounts == null)||(cloudAccounts.size() < 1)) {
 			//打印一句话，用户尚未进行选择
-			String printSentence = "您暂时还没有做通道选择,请选择...";
+			String printSentence = getString(R.string.channel_manager_channellistview_channelnotchoose);
 			Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
 			toast.show();
 		}else {
@@ -244,7 +254,23 @@ public class ChannelListActivity extends BaseActivity {
 									previewDeviceItem.setLoginUser(deviceItem.getLoginUser());
 									previewDeviceItem.setSvrIp(deviceItem.getSvrIp());
 									previewDeviceItem.setSvrPort(deviceItem.getSvrPort());
-									previewDeviceItem.setDeviceRecordName(deviceItem.getDeviceName().substring(4));
+									String deviceName = deviceItem.getDeviceName();
+									int len = deviceName.length();
+									String wordLen = getString(R.string.device_manager_off_on_line_length);
+									int wordLength = Integer.valueOf(wordLen);
+									if (len >= wordLength) {
+										String showName = deviceName.substring(0,wordLength);
+//										String word1 = getString(R.string.device_manager_online_cn);
+//										String word2 = getString(R.string.device_manager_offline_cn);
+										String word3 = getString(R.string.device_manager_online_en);
+										String word4 = getString(R.string.device_manager_offline_en);
+										if (showName.contains(word3)||showName.contains(word4)) {
+											/*||showName.contains(word1)||showName.contains(word2)*/
+											deviceName = deviceName.substring(wordLength);
+										}
+									}
+									
+									previewDeviceItem.setDeviceRecordName(deviceName);
 									
 									previewList.add(previewDeviceItem);
 								}
@@ -252,8 +278,9 @@ public class ChannelListActivity extends BaseActivity {
 						}
 					}
 				}else {
-					String printSentence = "用户设备数据尚未加载成功,请等待...";
-					System.out.println(printSentence);
+					String printSentence = getString(R.string.channel_manager_channellistview_loadfail);
+					Toast toast = Toast.makeText(ChannelListActivity.this, printSentence, Toast.LENGTH_SHORT);
+					toast.show();
 				}
 			}
 		}
@@ -323,9 +350,21 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		}	
 	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+//		boolean isFinished = isFinishing();
+//		Log.i(TAG, ""+isFinished);
+//		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+//			
+//		}
+		ChannelListActivity.this.onDestroy();
+		return super.onKeyDown(keyCode, event);
+	}
 
 	@Override
 	protected void onDestroy() {
+//		stopThread = true;
 		super.onDestroy();
 	}
 }
