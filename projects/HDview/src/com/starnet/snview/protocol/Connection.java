@@ -15,6 +15,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import android.util.Log;
 import android.view.View;
 
 import com.starnet.snview.component.h264.H264DecodeUtil;
@@ -53,11 +54,14 @@ import com.starnet.snview.util.RandomUtils;
 
 public class Connection extends DemuxingIoHandler {
 	private final static Logger LOGGER = LoggerFactory.getLogger(Connection.class);
+	private final static String TAG = "Connection";
 	
 	private AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
 	private AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
 	private AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
 	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+	
+	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
 
 	public static final int CONNECT_TIMEOUT = 5000;
 
@@ -322,7 +326,7 @@ public class Connection extends DemuxingIoHandler {
 		session.setAttribute(CONNECTION_LISTENER, mConnectionListener);
 		session.setAttribute(H264DECODER, mH264decoder);
 
-		
+		session.setAttribute(CONNECTION, this);
 	}
 
 	@Override
@@ -380,6 +384,16 @@ public class Connection extends DemuxingIoHandler {
 	protected void finalize() throws Throwable {
 		System.out.println(this + "@finalized");
 		super.finalize();
+	}
+	
+	
+	public LiveViewItemContainer getLiveViewItemContainer() {
+		return mLiveViewItem;
+	}
+	
+	public boolean isValid() {
+		Log.i(TAG, "isDisposed: " + isDisposed + ", this == mLiveViewItem.getCurrentConnection(): " + (this == mLiveViewItem.getCurrentConnection()));
+		return this == mLiveViewItem.getCurrentConnection() && !isDisposed;
 	}
 	
 	

@@ -388,12 +388,20 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.bindLiveViewItem(liveviews.get(n - 1));
 			liveviews.get(n - 1).setCurrentConnection(conn);
 						
-			executor.execute(new Runnable() {
+			new Thread(new Runnable() {
+
 				@Override
 				public void run() {
-					conn.connect();					
+					conn.connect();
 				}
-			});
+				
+			}).start();
+//			executor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					conn.connect();					
+//				}
+//			});
 			
 			
 		}
