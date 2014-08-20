@@ -49,4 +49,9 @@
     <color name="listview_bg_noIsenable">#666666</color> 
     <color name="listview_bg_NoIsenable">#333333</color> 
     <color name="listview_bg_NoIsEnable">#CCCCCC</color> 
+    
+    <color name="realplay_divider_1">#FFB4B4B4</color>
+    <color name="realplay_divider_2">#FF808080</color>
+    
+    <color name="liveview_bg_invalid">#FF606060</color>
 </resources>

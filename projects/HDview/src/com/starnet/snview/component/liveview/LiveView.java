@@ -2,7 +2,8 @@ package com.starnet.snview.component.liveview;
 
 import java.nio.ByteBuffer;
 
-import android.annotation.SuppressLint;
+import com.starnet.snview.R;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -188,7 +189,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 			if (isValid) {
 				canvas.drawColor(Color.BLACK);
 			} else {
-				canvas.drawColor(Color.LTGRAY);
+				canvas.drawColor(getResources().getColor(R.color.liveview_bg_invalid));
 				
 				LiveViewItemContainer c = findVideoContainerByView(this);
 				if (c != null) {

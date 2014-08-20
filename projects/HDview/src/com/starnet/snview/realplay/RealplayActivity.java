@@ -168,7 +168,7 @@ public class RealplayActivity extends BaseActivity {
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
 		ptzControl = new PTZControl(liveViewManager);
-		
+
 		
 		// 视频控件点击事件实际处理方法
 		ClickEventUtils.OnActionListener realVideoContainerClickListener = new ClickEventUtils.OnActionListener() {
