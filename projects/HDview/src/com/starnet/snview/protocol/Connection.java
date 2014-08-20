@@ -12,14 +12,11 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.handler.demux.DemuxingIoHandler;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import android.util.Log;
 import android.view.View;
 
 import com.starnet.snview.component.h264.H264DecodeUtil;
-import com.starnet.snview.component.liveview.LiveView;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.OnLiveViewChangedListener;
 import com.starnet.snview.protocol.codec.factory.OwspFactory;
@@ -53,13 +50,12 @@ import com.starnet.snview.util.RandomUtils;
 
 
 public class Connection extends DemuxingIoHandler {
-	private final static Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 	private final static String TAG = "Connection";
 	
-	private AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
-	private AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
-	private AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
-	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+//	private AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+//	private AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
+//	private AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
+//	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 	
 	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
 
@@ -110,7 +106,8 @@ public class Connection extends DemuxingIoHandler {
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
-    		System.out.println(this + "@connector-disposed");
+
+    		Log.i(TAG, this + "@connector-disposed");
     	}
     	
     	connector = null;
@@ -205,7 +202,7 @@ public class Connection extends DemuxingIoHandler {
     		isDisposed = false;
     	}
     	
-    	if (this == mLiveViewItem.getCurrentConnection()) {
+    	if (isValid()) {
     		mConnectionListener.OnConnectionTrying(mLiveViewItem);
     	}
     	
@@ -220,16 +217,14 @@ public class Connection extends DemuxingIoHandler {
         	if (isDisposed) {
         		if (session != null) {
         			session.close(true);
-            		System.out.println("isDisposed: true");
             		
-            		if (this == mLiveViewItem.getCurrentConnection()) {
+            		if (isValid()) {
             			mConnectionListener.OnConnectionFailed(mLiveViewItem);
             		}
-                	
         		}
         	} else {
         		if (session == null) { // 连接建立失败
-        			if (this == mLiveViewItem.getCurrentConnection()) {
+        			if (isValid()) {
         				mConnectionListener.OnConnectionFailed(mLiveViewItem);
         			}
         		}
@@ -294,7 +289,7 @@ public class Connection extends DemuxingIoHandler {
 
     public synchronized void disconnect() {
         if (session != null) {
-        	System.out.println("###$$$session " + session + " closed...");
+        	Log.i(TAG, "###$$$session " + session + " closed...");
         	
             session.close(true).awaitUninterruptibly(CONNECT_TIMEOUT);
             session = null;
@@ -321,17 +316,17 @@ public class Connection extends DemuxingIoHandler {
 
 	@Override
 	public void sessionCreated(IoSession session) throws Exception {
-		session.setAttribute(LIVEVIEW_ITEM, mLiveViewItem);
-		session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
-		session.setAttribute(CONNECTION_LISTENER, mConnectionListener);
-		session.setAttribute(H264DECODER, mH264decoder);
+//		session.setAttribute(LIVEVIEW_ITEM, mLiveViewItem);
+//		session.setAttribute(LIVEVIEW_LISTENER, mLiveViewChangedListener);
+//		session.setAttribute(CONNECTION_LISTENER, mConnectionListener);
+//		session.setAttribute(H264DECODER, mH264decoder);
 
 		session.setAttribute(CONNECTION, this);
 	}
 
 	@Override
 	public void sessionOpened(IoSession session) throws Exception {
-		if (this == mLiveViewItem.getCurrentConnection()) {
+		if (isValid()) {
 			mConnectionListener.OnConnectionEstablished(mLiveViewItem);
 		}
 		
@@ -341,7 +336,7 @@ public class Connection extends DemuxingIoHandler {
 	@Override
 	public void exceptionCaught(IoSession session, Throwable cause)
 			throws Exception {
-		LOGGER.warn("Close the session");
+		Log.i(TAG, "Close the session");
 		cause.printStackTrace();
 		session.close(true);
 	}
@@ -355,10 +350,10 @@ public class Connection extends DemuxingIoHandler {
 	
 	@Override
 	public void sessionClosed(IoSession session) throws Exception {
-		System.out.println("Session " + session.getId() + " is closed...");
+		Log.i(TAG, "Session " + session.getId() + " is closed...");
 		connector.dispose();
 		
-		if (this == mLiveViewItem.getCurrentConnection()) {
+		if (isValid()) {
 			mConnectionListener.OnConnectionClosed(mLiveViewItem);
 			mLiveViewChangedListener.onDisplayContentReset();
 		}
@@ -382,7 +377,7 @@ public class Connection extends DemuxingIoHandler {
 
 	@Override
 	protected void finalize() throws Throwable {
-		System.out.println(this + "@finalized");
+		Log.i(TAG,  this + "@finalized");
 		super.finalize();
 	}
 	
@@ -390,7 +385,20 @@ public class Connection extends DemuxingIoHandler {
 	public LiveViewItemContainer getLiveViewItemContainer() {
 		return mLiveViewItem;
 	}
+
 	
+	public H264DecodeUtil getH264decoder() {
+		return mH264decoder;
+	}
+
+	public OnLiveViewChangedListener getLiveViewChangedListener() {
+		return mLiveViewChangedListener;
+	}
+
+	public StatusListener getConnectionListener() {
+		return mConnectionListener;
+	}
+
 	public boolean isValid() {
 		Log.i(TAG, "isDisposed: " + isDisposed + ", this == mLiveViewItem.getCurrentConnection(): " + (this == mLiveViewItem.getCurrentConnection()));
 		return this == mLiveViewItem.getCurrentConnection() && !isDisposed;

@@ -11,15 +11,21 @@ import com.starnet.snview.protocol.message.LoginResponse;
 
 public class LoginResponseMessageHandler implements
 		MessageHandler<LoginResponse> {
-	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
 	
+	private Connection connection;
 	private LiveViewItemContainer lvContainer;
 	@Override
 	public void handleMessage(IoSession session, LoginResponse message)
 			throws Exception {
 		
+		if (connection == null) {
+			connection = (Connection) session.getAttribute(CONNECTION);
+		}
+		
 		if (lvContainer == null) {
-			lvContainer = (LiveViewItemContainer) session.getAttribute(LIVEVIEW_ITEM);
+			lvContainer = connection.getLiveViewItemContainer();
 		}
 		
 		int result = message.getResult();
