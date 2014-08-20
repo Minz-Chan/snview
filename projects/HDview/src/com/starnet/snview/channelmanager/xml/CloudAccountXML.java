@@ -686,9 +686,11 @@ public class CloudAccountXML {
 			if (domain.equals(domained)&&password.equals(passwded)
 				&&username.equals(usNameed)&&port.equals(usPorted)) {
 				subElement.setAttributeValue("domain", domaines);
-				subElement.setAttributeValue("port", passwdes);
+				subElement.setAttributeValue("port", usPortes);
 				subElement.setAttributeValue("username", usNamees);
-				subElement.setAttributeValue("password", usPortes);
+				subElement.setAttributeValue("password", passwdes);
+				boolean isEnabled = cloudAccountes.isEnabled();
+				subElement.setAttributeValue("isEnabled", String.valueOf(isEnabled));
 				break;
 			}
 		}

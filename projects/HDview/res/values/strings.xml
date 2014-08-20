@@ -16,6 +16,13 @@
     <string name="common_drawer_picture_management">图像管理</string>
     <string name="common_drawer_alarm_management">报警管理</string>
     <string name="common_drawer_sys_setting">系统配置</string>
+    <string name="common_connection_wrong_check_port_domain">连接失败，请检查域名和端口设置</string>
+    <string name="common_obtain_device_wrong">获取设备失败</string>
+    <string name="common_request_outtime_check_port_server">设备列表请求超时，请检查端口和服务器</string>
+    
+    
+    <string name="channel_manager_channellistview_netnotopen">网络未打开，请打开网络</string>
+    
     <string name="channel_listview_device_layout_ok">确定</string>
     <string name="channel_listview_device_layout_cancel">取消</string>
     <string name="navigation_title_realtime_preview">实时预览</string>
@@ -52,7 +59,7 @@
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
     <string name="system_setting_cloudaccount_isenable_yes">是</string>
     <string name="system_setting_cloudaccount_isenable_no">否</string>
-    <string name="system_setting_cloudaccount_useable">账户验证通过</string>
+    <string name="system_setting_cloudaccount_useable">平台账户验证通过</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccountview_ok">确定</string>
     <string name="system_setting_cloudaccountview_cancel">取消</string>
@@ -64,13 +71,13 @@
     <string name="system_setting_cloudaccount_layout_serveName">服务器</string>
     <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
+    <string name="system_setting_cloudaccountupdate_edit_right">保存成功</string>
     
     <string name="device_manager">设备管理</string>
     <string name="device_manager_channel">通道</string>
     <string name="device_manager_choose">选择</string>
     <string name="device_manager_onealladd">一键全部加入设备列表</string>
     <string name="device_manager_name">设备名称</string>
-    <string name="device_channel_choose">通道选择</string>
     <string name="device_manager_ip">设备IP</string>
     <string name="device_manager_save_failed">保存失败</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
@@ -91,6 +98,9 @@
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
     <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
+    <string name="device_manager_deviceeditable_ip_wrong">服务器IP有错，请检查</string>
+    <string name="device_manager_deviceeditable_port_wrong">端口号有错，请检查</string>
+    <string name="device_manager_deviceeditable_ip_port_wrong">端口号和服务器IP都有错，请检查</string>
     <string name="device_manager_online_en">(在线)</string>
     <string name="device_manager_online_cn">（在线）</string>
     <string name="device_manager_offline_cn">（离线）</string>
@@ -101,15 +111,13 @@
     <string name="connection_status_established">连接建立</string>
     <string name="connection_status_closed">已断开</string>
     <string name="connection_status_failed">连接服务器失败</string>
+    
     <string name="exit_dialog_content">退出程序？</string>
     <string name="exit_dialog_ensure">确定</string>
     <string name="exit_dialog_dispose">取消</string>
     
-    
     <string name="IDS_PROMPT_DEVICENAMEINPUT">Please input device name</string>
-    <string name="DEVICE_LIST_ErrorReason">连接失败，请检查域名和端口设置</string>
-    <string name="DEVICE_SINGLE_ErrorReason">获取设备失败</string>
-    <string name="DEVICE_LIST_REQ_TIMEOUT">设备列表请求超时，请检查端口和服务器</string>
+    
     
     <string name="edit_info_right">信息编辑正确，保存成功</string>
     <string name="domain_info_not_null">域名不能为空，请填写</string>

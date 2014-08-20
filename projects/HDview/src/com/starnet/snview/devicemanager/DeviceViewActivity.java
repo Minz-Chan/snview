@@ -33,7 +33,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private CloudAccountXML caxml;
 
 	private ListView mDeviceList;
-	private Button navigation_bar_add_btn;// zk
+	private Button navigation_bar_add_btn;// 添加设备按钮
 	private DeviceListAdapter dLAdapter;
 	private List<DeviceItem> deviceItemList;
 	private DeviceItem deleteDeviceItem;

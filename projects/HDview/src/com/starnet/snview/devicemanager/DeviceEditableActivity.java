@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.util.IPAndPortUtils;
 
 public class DeviceEditableActivity extends BaseActivity {
 	
@@ -64,36 +65,52 @@ public class DeviceEditableActivity extends BaseActivity {
 
 				if ((!dName.equals("") && !svrIp.equals("")
 						&& !svrPt.equals("") && !lUser.equals("")
-						&& !lPass.equals("") && !dfChl.equals("") 
-						&& !chSum.equals(""))) {// 检查信息是否为空
-					int defaultChannl = Integer.valueOf(dfChl);
-					int newChannelNum = Integer.valueOf(chSum);
-					if (defaultChannl < newChannelNum) {
-						clickDeviceItem.setChannelSum(chSum);
-						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
-						clickDeviceItem.setDeviceName(dName);
-						clickDeviceItem.setSvrIp(svrIp);
-						clickDeviceItem.setSvrPort(svrPt);
-						clickDeviceItem.setLoginUser(lUser);
-						clickDeviceItem.setLoginPass(lPass);
-						List<Channel> channelList = new ArrayList<Channel>();
-						for (int i = 0; i < newChannelNum; i++) {
-							Channel channel = new Channel();
-							channel.setChannelName("通道"+(i+1));
-							channel.setChannelNo((i+1));
-							channel.setSelected(false);
-							channelList.add(channel);
+						&& !dfChl.equals("") && !chSum.equals(""))) {// 检查信息是否为空
+					IPAndPortUtils ipAndPortUtils = new IPAndPortUtils();
+					boolean isIp = ipAndPortUtils.isIp(svrIp);
+					boolean isPort = ipAndPortUtils.isNetPort(svrPt);
+					if (isPort&&isIp) {
+						int defaultChannl = Integer.valueOf(dfChl);
+						int newChannelNum = Integer.valueOf(chSum);
+						if (defaultChannl < newChannelNum) {
+							clickDeviceItem.setChannelSum(chSum);
+							clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
+							clickDeviceItem.setDeviceName(dName);
+							clickDeviceItem.setSvrIp(svrIp);
+							clickDeviceItem.setSvrPort(svrPt);
+							clickDeviceItem.setLoginUser(lUser);
+							clickDeviceItem.setLoginPass(lPass);
+							List<Channel> channelList = new ArrayList<Channel>();
+							for (int i = 0; i < newChannelNum; i++) {
+								Channel channel = new Channel();
+								channel.setChannelName("通道"+(i+1));
+								channel.setChannelNo((i+1));
+								channel.setSelected(false);
+								channelList.add(channel);
+							}
+							clickDeviceItem.setChannelList(channelList);
+							// 并返回原来的界面
+							Intent data = new Intent();
+							Bundle bundle = new Bundle();
+							bundle.putSerializable("cDeviceItem", clickDeviceItem);
+							data.putExtras(bundle);
+							setResult(11, data);
+							DeviceEditableActivity.this.finish();
+						}else {
+							String text = getString(R.string.defaultchannel_channelNumber_small);
+							Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
+							toast.show();
 						}
-						clickDeviceItem.setChannelList(channelList);
-						// 并返回原来的界面
-						Intent data = new Intent();
-						Bundle bundle = new Bundle();
-						bundle.putSerializable("cDeviceItem", clickDeviceItem);
-						data.putExtras(bundle);
-						setResult(11, data);
-						DeviceEditableActivity.this.finish();
+					}else if(isPort && !isIp){
+						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
+						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
+						toast.show();
+					}else if(!isPort && isIp){
+						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
+						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
+						toast.show();
 					}else {
-						String text = getString(R.string.defaultchannel_channelNumber_small);
+						String text = getString(R.string.device_manager_deviceeditable_ip_port_wrong);
 						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
 						toast.show();
 					}

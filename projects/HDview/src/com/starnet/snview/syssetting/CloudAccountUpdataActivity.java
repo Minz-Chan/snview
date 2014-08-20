@@ -64,9 +64,11 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 	
 	private Button identifyBtn;//验证按钮
 	private boolean identifier_flag = false;//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
+	private boolean identifier_flag_after = false;
 	private CloudAccount identifyCloudAccount;//验证后的账户
 	
 	private CloudAccount clickCloudAccount = new CloudAccount();
+	private int clickPostion;
 	
 	private SynObject synObj = new SynObject();
 
@@ -100,6 +102,7 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 			case DDNS_RESP_SUCC:
 				//只验证，不保存
 				identifier_flag = true;
+				identifier_flag_after = true;
 				printSentence = getString(R.string.system_setting_cloudaccount_useable);
 				Toast toast1 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
@@ -121,21 +124,25 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
+				identifier_flag_after = false;
 				errMsg = msg.getData().getString("ERR_MSG");
 				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_SYS_FAILURE:
 				identifier_flag = false;
-				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
+				identifier_flag_after = false;
+				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
 				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
-				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
+				identifier_flag_after = false;
+				errMsg = getString(R.string.common_request_outtime_check_port_server);
 				Toast.makeText(CloudAccountUpdataActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
 			default:
 				identifier_flag = false;
+				identifier_flag_after = false;
 				break;
 			}
 		}
@@ -173,8 +180,8 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 						//检测是否是网络端口号
 						IPAndPortUtils ipAndPort = new IPAndPortUtils();
 						boolean isPort = ipAndPort.isNetPort(port);
-						boolean isIP = ipAndPort.isIPAddress(server);
-						if (isPort && isIP) {
+//						boolean isIP = ipAndPort.isIPAddress(server);
+						if (isPort) {
 							identifyCloudAccount = new CloudAccount();	
 							if (isenablYseRadioBtn.isChecked()) {
 								identifyCloudAccount.setEnabled(true);
@@ -235,7 +242,8 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 							saveCloudAccount.setRotate(false);
 							saveCloudAccount.setExpanded(false);
 							identifier_flag = isEqualSaveAndIdentifyCloudAccount(saveCloudAccount,identifyCloudAccount);
-							if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
+							
+							if (isenablYseRadioBtn.isChecked()&&(identifier_flag)&&(identifier_flag_after)) {
 								saveCloudAccount.setEnabled(true);
 							} else {
 								saveCloudAccount.setEnabled(false);
@@ -252,6 +260,9 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 								} else {//如果不包含，则添加
 									
 									caXML.replaceSpecifyCloudAccount(filePath, clickCloudAccount, saveCloudAccount);//替换掉以前的星云账号
+									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
+									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+									toast3.show();
 //									caXML.removeCloudAccoutFromXML(filePath, clickCloudAccount);//删除以前的星云平台账户
 //									caXML.addNewCloudAccoutNodeToRootXML(filePath,saveCloudAccount);//添加当前的星云平台账户
 									Intent intent = new Intent();
@@ -361,6 +372,9 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
+		Intent intent = getIntent();
+		Bundle bundle = intent.getExtras();
+		clickPostion = Integer.valueOf(bundle.getString("clickPostion"));
 	}
 
 	@Override
@@ -476,16 +490,18 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 		boolean result = false;
 		int size = cloudAccountList2.size();
 		for (int i = 0; i < size; i++) {
-			CloudAccount cA = cloudAccountList2.get(i);
-			String cADomain = cA.getDomain();
-			String cAPort = cA.getPort();
-			String cAUsername = cA.getUsername();
-			/*String cAPassword = cA.getPassword();*/
-			/* boolean isEnabled = cA.isEnabled(); */
-			if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-				&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*//*mNetWorkSettingList*/
-				result = true;
-				break;
+			if (i != clickPostion) {
+				CloudAccount cA = cloudAccountList2.get(i);
+				String cADomain = cA.getDomain();
+				String cAPort = cA.getPort();
+				String cAUsername = cA.getUsername();
+				/*String cAPassword = cA.getPassword();*/
+				/* boolean isEnabled = cA.isEnabled(); */
+				if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
+					&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*//*mNetWorkSettingList*/
+					result = true;
+					break;
+				}
 			}
 		}
 		return result;

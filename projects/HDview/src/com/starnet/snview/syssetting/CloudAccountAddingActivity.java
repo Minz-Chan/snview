@@ -121,12 +121,12 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				break;
 			case DDNS_SYS_FAILURE:
 				identifier_flag = false;
-				errMsg = getString(R.string.DEVICE_LIST_ErrorReason);
+				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
 				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
-				errMsg = getString(R.string.DEVICE_LIST_REQ_TIMEOUT);
+				errMsg = getString(R.string.common_request_outtime_check_port_server);
 				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			default:

@@ -34,7 +34,7 @@
         android:layout_gravity="center"
         android:ellipsize="marquee"
         android:gravity="left"
-        android:hint="@string/device_channel_choose"
+        android:hint="@string/nothing"
         android:marqueeRepeatLimit="marquee_forever"
         android:singleLine="true"
         android:textSize="@dimen/common_textsize_small_16sp" />

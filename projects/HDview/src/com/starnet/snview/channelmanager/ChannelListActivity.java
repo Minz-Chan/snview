@@ -29,6 +29,7 @@ import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.NetWorkUtils;
 
 /**
  * @author 陈名珍
@@ -98,67 +99,10 @@ public class ChannelListActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.channel_listview_activity);
 		initView();
+		setListenersForWadgets();
 	}
 
-	private void initView() {
-
-		super.setTitleViewText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
-		super.setToolbarVisiable(false);
-		super.hideRightButton();
-		super.hideExtendButton();
-		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-
-		curContext = ChannelListActivity.this;
-		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
-		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
-		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);	
-		caXML = new CloudAccountXML();		
-		//当用户选择了1以后，便是每次打开软件后，都从从网络上读取设备信息；
-		//当用户选择了0以后，即用户从此便从上次保存的文档中获取用户信息；根据用户的选择而改变	
-
-		caXML = new CloudAccountXML();
-		cloudAccounts = getCloudAccountInfoFromUI();//获取收藏设备，以及用户信息
-		int netSize = cloudAccounts.size();
-
-		for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
-			String conn_name = "conn1";
-			CloudAccount cAccount = cloudAccounts.get(i);
-			boolean isEnable = cAccount.isEnabled();
-			if(isEnable){
-				cAccount.setRotate(false);
-			}else{
-				cAccount.setRotate(true);
-			}
-			if(isEnable){//如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
-				CloudService cloudService = new CloudServiceImpl(conn_name);
-				netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
-				netThread.start();// 线程开启，进行网络访问
-			}
-		}
-
-		File file = new File(CLOUD_ACCOUNT_PATH);
-		if (file.exists()) {
-			file.delete();
-		}
-
-		curContext = ChannelListActivity.this;
-		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
-		mExpandableListView.setAdapter(chExpandableListAdapter);
-		
-//		boolean enabled = chExpandableListAdapter.areAllItemsEnabled();
-//		if( !enabled ){//如果所有的条目有不可用的，则不支持点击事件；
-//			mExpandableListView.setEnabled(false);
-//		}
-		
-//		for(int i = 1; i < netSize; i++){
-//			CloudAccount cAccount = cloudAccounts.get(i);
-//			boolean isEnable = cAccount.isEnabled();
-//			if(isEnable){
-//				mExpandableListView.setSelection(i);
-//				mExpandableListView.
-//			}
-//		}	
-		
+	private void setListenersForWadgets() {
 		mExpandableListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
@@ -172,7 +116,6 @@ public class ChannelListActivity extends BaseActivity {
 				return false;
 			}
 		});
-		
 		startScanButton.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表，从cloudAccounts中就可以选择。。。
 			
 			@Override
@@ -202,6 +145,75 @@ public class ChannelListActivity extends BaseActivity {
 				ChannelListActivity.this.finish();
 			}
 		});
+	}
+
+	private void initView() {
+
+		super.setTitleViewText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
+		super.setToolbarVisiable(false);
+		super.hideRightButton();
+		super.hideExtendButton();
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
+
+		curContext = ChannelListActivity.this;
+		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
+		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
+		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);	
+		caXML = new CloudAccountXML();		
+		//当用户选择了1以后，便是每次打开软件后，都从从网络上读取设备信息；
+		//当用户选择了0以后，即用户从此便从上次保存的文档中获取用户信息；根据用户的选择而改变	
+
+		caXML = new CloudAccountXML();
+		cloudAccounts = getCloudAccountInfoFromUI();//获取收藏设备，以及用户信息
+		int netSize = cloudAccounts.size();
+
+		//查看网络是否开启
+		NetWorkUtils netWorkUtils = new NetWorkUtils();
+		boolean isOpen = netWorkUtils.checkNetConnection(ChannelListActivity.this);
+		if (isOpen) {
+			for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
+				String conn_name = "conn1";
+				CloudAccount cAccount = cloudAccounts.get(i);
+				boolean isEnable = cAccount.isEnabled();
+				if(isEnable){
+					cAccount.setRotate(false);
+				}else{
+					cAccount.setRotate(true);
+				}
+				if(isEnable){//如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
+					CloudService cloudService = new CloudServiceImpl(conn_name);
+					netThread = new NetCloudAccountThread(cAccount, cloudService,netHandler, i);
+					netThread.start();// 线程开启，进行网络访问
+				}
+			}
+
+			File file = new File(CLOUD_ACCOUNT_PATH);
+			if (file.exists()) {
+				file.delete();
+			}
+		}else {
+			String printSentence = getString(R.string.channel_manager_channellistview_netnotopen);
+			Toast toast = Toast.makeText(ChannelListActivity.this, printSentence,Toast.LENGTH_LONG);
+			toast.show();
+		}
+		
+		curContext = ChannelListActivity.this;
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+		mExpandableListView.setAdapter(chExpandableListAdapter);
+		
+//		boolean enabled = chExpandableListAdapter.areAllItemsEnabled();
+//		if( !enabled ){//如果所有的条目有不可用的，则不支持点击事件；
+//			mExpandableListView.setEnabled(false);
+//		}
+		
+//		for(int i = 1; i < netSize; i++){
+//			CloudAccount cAccount = cloudAccounts.get(i);
+//			boolean isEnable = cAccount.isEnabled();
+//			if(isEnable){
+//				mExpandableListView.setSelection(i);
+//				mExpandableListView.
+//			}
+//		}
 	}
 	
 	private List<PreviewDeviceItem> getPreviewChannelList(List<CloudAccount> cloudAccounts) {

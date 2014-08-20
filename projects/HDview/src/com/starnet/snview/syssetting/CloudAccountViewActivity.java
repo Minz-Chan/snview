@@ -53,6 +53,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 				CloudAccount cloudAccount = cloudAccountList.get(position);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
+				bundle.putString("clickPostion", ""+pos);
 				bundle.putSerializable("cloudAccount", cloudAccount);
 				intent.putExtras(bundle);
 				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdataActivity.class);

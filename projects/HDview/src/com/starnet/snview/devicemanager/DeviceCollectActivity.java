@@ -131,14 +131,13 @@ public class DeviceCollectActivity extends BaseActivity {
 
 				// 当所有的内容都不为空的时候，则保存到指定的文档中
 				if (!recordName.equals("") && !serverIP.equals("")
-						&& !serverPort.equals("") && !userName.equals("")
-						&& !password.equals("") && !defaultChannel.equals("")
-						&& !channelNumber.equals("")) {
+					&& !serverPort.equals("") && !userName.equals("")
+					&& !defaultChannel.equals("")&& !channelNumber.equals("")) {
 					
 					
 					//进行IP与端口号的检测
 					IPAndPortUtils ipapu = new IPAndPortUtils();
-					boolean isIP = ipapu.isIPAddress(serverIP);
+					boolean isIP = ipapu.isIp(serverIP);
 					boolean isPort = ipapu.isNetPort(serverPort);
 					if (isPort&&isIP) {
 						int dChannel = Integer.valueOf(defaultChannel);
@@ -290,6 +289,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		et_device_choose = (EditText) findViewById(R.id.device_add_choose_et);
 		device_add_choose_btn = (Button) findViewById(R.id.device_add_button_state);
+		et_device_choose.setKeyListener(null);
 	}
 
 	private String getEditTextString(EditText editText) {
@@ -417,6 +417,7 @@ public class DeviceCollectActivity extends BaseActivity {
 					et_device_add_defaultchannel.setText(dChnl);
 					
 					et_device_add_channelnumber.setKeyListener(null);
+					et_device_choose.setKeyListener(null);
 				}
 			}
 		}
