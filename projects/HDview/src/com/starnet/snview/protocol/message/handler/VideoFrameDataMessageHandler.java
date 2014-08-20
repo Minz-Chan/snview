@@ -16,25 +16,37 @@ import com.starnet.snview.protocol.message.VideoIFrameData;
 
 public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameData> {
 //	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
-	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
+//	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
 //	private final AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
-	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+//	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
 	
 	private H264DecodeUtil h264;
 	private OnLiveViewChangedListener liveViewChangedListener;
 //	private boolean isDataArrived = false;
 	
+	private Connection connection;
+	
 	@Override
 	public void handleMessage(IoSession session, VideoFrameData message) throws Exception {
 		
+		if (connection == null) {
+			connection = (Connection) session.getAttribute(CONNECTION);
+		}
+		
+		
 		if (h264 == null) {
-			h264 = (H264DecodeUtil) session.getAttribute(H264DECODER);
+			h264 = connection.getH264decoder();
 		}
 		
 		if (liveViewChangedListener == null) {
-			liveViewChangedListener = (OnLiveViewChangedListener) session
-					.getAttribute(LIVEVIEW_LISTENER);
+			liveViewChangedListener = connection.getLiveViewChangedListener();
 			
+		}
+		
+		
+		if (!connection.isValid()) {
+			session.close(true);
 		}
 		
 //		if (!isDataArrived) {

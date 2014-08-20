@@ -1,6 +1,7 @@
 package com.starnet.snview.component.liveview;
 
 import com.starnet.snview.R;
+import com.starnet.snview.protocol.Connection;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -22,11 +23,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private ProgressBar mProgressBar;
 	private ImageView mRefresh;
 	private TextView mWindowInfoText;
-	
-	
-	
+
 	private OnLiveViewContainerClickListener mLvContainerClickListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
+	
+	private Connection mCurrentConnection;
+	
 	
 	
 	public LiveViewItemContainer(Context context, AttributeSet attrs) {
@@ -59,6 +61,14 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mWindowInfoText.setText(null);
 		
 	}	
+	
+	public Connection getCurrentConnection() {
+		return mCurrentConnection;
+	}
+	
+	public void setCurrentConnection(Connection conn) {
+		this.mCurrentConnection = conn;
+	}
 	
 	public String getDeviceRecordName() {
 		return deviceRecordName;
@@ -120,6 +130,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 				mWindowInfoText.setText(s.toString());
 			}
 		});
+	}
+	
+	public void resetView() {
+		mSurfaceView.setValid(true);
+		mProgressBar.setVisibility(View.INVISIBLE);
+		mRefresh.setVisibility(View.GONE);
 	}
 	
 	

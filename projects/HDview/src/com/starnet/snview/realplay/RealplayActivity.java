@@ -168,7 +168,7 @@ public class RealplayActivity extends BaseActivity {
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
 		ptzControl = new PTZControl(liveViewManager);
-		
+
 		
 		// 视频控件点击事件实际处理方法
 		ClickEventUtils.OnActionListener realVideoContainerClickListener = new ClickEventUtils.OnActionListener() {
@@ -188,7 +188,7 @@ public class RealplayActivity extends BaseActivity {
 				if (clickCount == ClickEventUtils.CLICK) { // 单击事件，视频选择
 					liveViewManager.selectLiveView(index);
 				} else if (clickCount == ClickEventUtils.DOUBLE_CLICK){ // 双击事件，视频模式切换
-					liveViewManager.closeAllConnection();  // 关闭正在预览的设备
+					liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
 					
 					if (liveViewManager.isMultiMode()) { // 切换到单通道模式
 						liveViewManager.setMultiMode(false);							
@@ -445,6 +445,12 @@ public class RealplayActivity extends BaseActivity {
 			@Override
 			public void OnConnectionClosed(View v) {
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				int currPageCount = liveViewManager.getCurrentPageCount();
+				int index = liveViewManager.getIndexOfLiveView(c);
+				
+				if (index > currPageCount) {
+					return;
+				}
 				
 				c.setWindowInfoContent(getString(R.string.connection_status_closed));
 				
@@ -1038,7 +1044,7 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onDestroy() {
-		liveViewManager.closeAllConnection();
+		liveViewManager.closeAllConnection(false);
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
@@ -1076,7 +1082,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoPictureManagement() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection();
+			liveViewManager.closeAllConnection(true);
 		}
 		
 		super.gotoPictureManagement();
@@ -1085,7 +1091,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoPlayback() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection();
+			liveViewManager.closeAllConnection(true);
 		}
 		
 		super.gotoPlayback();
@@ -1094,7 +1100,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoDeviceManagement() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection();
+			liveViewManager.closeAllConnection(true);
 		}
 		
 		super.gotoDeviceManagement();
@@ -1103,7 +1109,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoSystemSetting() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection();
+			liveViewManager.closeAllConnection(true);
 		}
 		
 		super.gotoSystemSetting();

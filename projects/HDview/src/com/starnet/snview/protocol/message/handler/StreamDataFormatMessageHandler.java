@@ -11,21 +11,28 @@ import com.starnet.snview.protocol.message.StreamDataFormat;
 
 public class StreamDataFormatMessageHandler implements
 		MessageHandler<StreamDataFormat> {
-	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
-	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+//	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
+	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
 	private H264DecodeUtil h264;
 	
-	private LiveViewItemContainer lvContainer;
+	private Connection connection;
+	private LiveViewItemContainer lvContainer;	
 	
 	@Override
 	public void handleMessage(IoSession session, StreamDataFormat message)
 			throws Exception {
+		
+		if (connection == null) {
+			connection = (Connection) session.getAttribute(CONNECTION);
+		}
+		
 		if (h264 == null) {
-			h264 = (H264DecodeUtil) session.getAttribute(H264DECODER);
+			h264 = connection.getH264decoder();
 		}
 		
 		if (lvContainer == null) {
-			lvContainer = (LiveViewItemContainer) session.getAttribute(LIVEVIEW_ITEM);
+			lvContainer = connection.getLiveViewItemContainer();
 		}
 		
 		
@@ -40,7 +47,10 @@ public class StreamDataFormatMessageHandler implements
 			h264.init(width, height);
 			
 			// 判断分辨率种类
-			lvContainer.setWindowInfoContent(checkResolution(width, height));
+			if (connection.isValid()) {
+				lvContainer.setWindowInfoContent(checkResolution(width, height));
+			}
+			
 		}
 		
 	}

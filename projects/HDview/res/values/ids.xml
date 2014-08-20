@@ -58,6 +58,7 @@
     
     <item name="realplay_controlbar" type="id" />
     <item name="realplay_container" type="id" />
+    <item name="realplay_divider_1" type="id" />
     <item name="ptz_pop_frame" type="id" />
     <item name="ptz_pop_focal_length_frame" type="id" />
     <item name="ptz_pop_focus_frame" type="id" />
