@@ -17,6 +17,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.ChannelListActivity_Copy;
 import com.starnet.snview.component.BaseActivity;
 
 public class SystemSettingActivity extends BaseActivity {
@@ -89,6 +90,7 @@ public class SystemSettingActivity extends BaseActivity {
       				break;
       			case 1:
       				gotoHelp();
+//      				gotoChannelListActivity_copy();
       				break;
 				case 2:
 					gotoAbout();
@@ -108,6 +110,13 @@ public class SystemSettingActivity extends BaseActivity {
 			}
 		});
 	}
+	protected void gotoChannelListActivity_copy() {
+		Intent intent = new Intent();
+		Context context = SystemSettingActivity.this;
+		intent.setClass(context, ChannelListActivity_Copy.class);
+		startActivity(intent);
+	}
+
 	private void showTips(){
 		Builder builder = new Builder(SystemSettingActivity.this);
 		builder.setTitle(getString(R.string.system_setting_logout_ok));

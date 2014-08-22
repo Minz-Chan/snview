@@ -50,6 +50,8 @@
         <activity android:name="com.starnet.snview.devicemanager.DeviceInfoActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceEditableActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!--  --> 
         
+        <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity_Copy" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
+        
     </application>
 
     

@@ -121,19 +121,18 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				// 判断用户设置为空的时候
-				String recordName = getEditTextString(et_device_add_record);
-				String serverIP = getEditTextString(et_device_add_server);//IP地址
-				String serverPort = getEditTextString(et_device_add_port);//端口号
-				String userName = getEditTextString(et_device_add_username);
-				String password = getEditTextString(et_device_add_password);
-				String channelNumber = getEditTextString(et_device_add_channelnumber);
-				String defaultChannel = getEditTextString(et_device_add_defaultchannel);
+				String recordName = getEditTextString(et_device_add_record).trim();
+				String serverIP = getEditTextString(et_device_add_server).trim();//IP地址
+				String serverPort = getEditTextString(et_device_add_port).trim();//端口号
+				String userName = getEditTextString(et_device_add_username).trim();
+				String password = getEditTextString(et_device_add_password).trim();
+				String channelNumber = getEditTextString(et_device_add_channelnumber).trim();
+				String defaultChannel = getEditTextString(et_device_add_defaultchannel).trim();
 
 				// 当所有的内容都不为空的时候，则保存到指定的文档中
 				if (!recordName.equals("") && !serverIP.equals("")
 					&& !serverPort.equals("") && !userName.equals("")
 					&& !defaultChannel.equals("")&& !channelNumber.equals("")) {
-					
 					
 					//进行IP与端口号的检测
 					IPAndPortUtils ipapu = new IPAndPortUtils();
