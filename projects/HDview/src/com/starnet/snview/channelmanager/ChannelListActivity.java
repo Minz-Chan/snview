@@ -159,9 +159,36 @@ public class ChannelListActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ChannelListActivity.this.finish();
+					previewChannelList = new ArrayList<PreviewDeviceItem>();
+					previewChannelList = getPreviewChannelList(cloudAccounts);
+					
+					if (previewChannelList.size() > 0) {
+						PreviewDeviceItem p = previewChannelList.get(0);
+						
+						PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
+						previewChannelList.toArray(l);
+						
+						Intent intent = ChannelListActivity.this.getIntent();
+						intent.putExtra("DEVICE_ITEM_LIST", l);
+						
+						ChannelListActivity.this.setResult(8, intent);
+						ChannelListActivity.this.finish();
+					} else {
+						Toast.makeText(
+								ChannelListActivity.this,
+								getString(R.string.channel_manager_channellistview_loadfail),
+								Toast.LENGTH_SHORT).show();
+					}
+				
 			}
 		});
+		
+//		super.getLeftButton().setOnClickListener(new OnClickListener(){
+//			@Override
+//			public void onClick(View v) {
+//				ChannelListActivity.this.finish();
+//			}
+//		});
 	}
 
 	private void initView() {
@@ -308,8 +335,8 @@ public class ChannelListActivity extends BaseActivity {
 						}
 					}
 				}
-
 			}
+
 		}
 		return previewList;
 	}
