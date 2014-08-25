@@ -19,6 +19,7 @@
     <string name="common_connection_wrong_check_port_domain">连接失败，请检查域名和端口设置</string>
     <string name="common_obtain_device_wrong">获取设备失败</string>
     <string name="common_request_outtime_check_port_server">设备列表请求超时，请检查端口和服务器</string>
+    <string name="common_last_devicelist_path">/data/data/com.starnet.snview/LastDevicesList.xml</string>
     
     
     <string name="channel_manager_channellistview_channelnotchoose">您暂时还没有做通道选择,请选择</string>
@@ -141,5 +142,8 @@
 
     <string name="identify_cloudaccount_right">验证账号</string>
     <string name="network_not_conn">网络未连接,请检查网络是否打开</string>
+    
+    
+    
 
 </resources>

@@ -31,12 +31,11 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.GestureDetector.OnGestureListener;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
@@ -69,17 +68,6 @@ public class RealplayActivity extends BaseActivity {
 	
 	private PTZControl ptzControl;
 
-//	private LiveViewItemContainer liveViewContainer1;
-//	private LinearLayout mToolbarSubMenu;
-//	private TextView mToolbarSubMenuText;
-
-//	private LiveView mLiveView1;
-//	private LiveView mLiveView2;
-//	private LiveView mLiveView3;
-//	private LiveView mLiveView4;
-//	
-//	
-//	private int page = 1;
 	
 	private LiveViewManager liveViewManager;
 	private FrameLayout mVideoRegion;
@@ -113,7 +101,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		List<PreviewDeviceItem> devices = null;
 		
-		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML("/data/data/com.starnet.snview/LastDevicesList.xml");
+		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 		
 		Log.i(TAG, "Devices size: " + devices.size());
 		
@@ -178,66 +166,18 @@ public class RealplayActivity extends BaseActivity {
 		ptzControl = new PTZControl(liveViewManager);
 
 		
-		// 视频控件点击事件实际处理方法
-		ClickEventUtils.OnActionListener realVideoContainerClickListener = new ClickEventUtils.OnActionListener() {
-	
-			@Override
-			public void OnAction(int clickCount, Object... params) {
-				LiveViewItemContainer lvContainer = (LiveViewItemContainer) params[0];
-				int pos = liveViewManager.getIndexOfLiveView(lvContainer);
-				int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
-				
-				if (index > liveViewManager.getLiveViewTotalCount()) {  
-					return;  // 非有效通道，不作处理 
-				}
-				
-				liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
-				
-				if (clickCount == ClickEventUtils.CLICK) { // 单击事件，视频选择
-					liveViewManager.selectLiveView(index);
-				} else if (clickCount == ClickEventUtils.DOUBLE_CLICK){ // 双击事件，视频模式切换
-					liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
-					
-					if (liveViewManager.isMultiMode()) { // 切换到单通道模式
-						liveViewManager.setMultiMode(false);							
-						liveViewManager.preview(index);
-					} else { // 切换到多通道模式
-						liveViewManager.setMultiMode(true);
-						
-						int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-						int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
-						
-						liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
-						
-					}
-					
-					liveViewManager.selectLiveView(index);					
-				}
-				
-				mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-				mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-				
-				
-				//currentSelected = index;  // 保存当前视频索引
-			}
-		};
+		mGestureDetector =  new GestureDetector(this, new GestureListener(onGestureListener));
 		
-		final ClickEventUtils clickUtils = new ClickEventUtils(realVideoContainerClickListener);
-		
-		// 视频控件点击事件
-		final LiveViewItemContainer.OnLiveViewContainerClickListener onLiveViewContainerClickListener 
-			= new LiveViewItemContainer.OnLiveViewContainerClickListener() {
-
+		mVideoRegion.setOnTouchListener(new OnTouchListener() {
 			@Override
-			public void onClick(View v) {
-				if (liveViewManager.getPager() == null) {
-					return;
-				}
-				
-				int pos = liveViewManager.getIndexOfLiveView((LiveViewItemContainer)v);
-				clickUtils.makeContinuousClickCalledOnce(pos, v);
-			}
-		};
+			public boolean onTouch(View v, MotionEvent event) {
+				Log.i(TAG, "mVideoRegion, onTouch");
+				return mGestureDetector.onTouchEvent(event);
+			}			
+		});
+		
+		Log.i(TAG, "mVideoRegion, Register onTouch <== xxx");
+		
 		
 		final LiveViewItemContainer.OnRefreshButtonClickListener onRefreshButtonClickListener
 			= new LiveViewItemContainer.OnRefreshButtonClickListener() {
@@ -261,33 +201,7 @@ public class RealplayActivity extends BaseActivity {
 			}
 		};
 		
-		final LiveViewItemContainer.OnGestureListener onGestureListener 
-			= new LiveViewItemContainer.OnGestureListener() {
-			
-			@Override
-			public void onSlidingLeft() {
-				if (liveViewManager.getPager() != null) {
-					liveViewManager.nextPage();
-					
-					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-				}
-			}
-			
-			@Override
-			public void onSlidingRight() {
-				if (liveViewManager.getPager() != null) {
-					liveViewManager.previousPage();
-					
-					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-				}
-				
-			}
-			
-		};
-		
-		
+
 
 		// 初始化视频区域布局大小
 		final int screenWidth = GlobalApplication.getInstance().getScreenWidth();
@@ -303,6 +217,7 @@ public class RealplayActivity extends BaseActivity {
 				public void OnVideoModeChanged(boolean isMultiMode) {
 					mVideoRegion.removeAllViews();
 					liveViewManager.clearLiveView();
+
 					
 					Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
 					
@@ -316,6 +231,7 @@ public class RealplayActivity extends BaseActivity {
 						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
 								.inflate(R.layout.surfaceview_multi_layout,
 										mVideoRegion, true);
+
 						
 						ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
 						
@@ -335,45 +251,33 @@ public class RealplayActivity extends BaseActivity {
 						LiveViewItemContainer liveview3 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem3);
 						LiveViewItemContainer liveview4 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem4);
 						
-						liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						//liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview1.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview1.setGestureListener(onGestureListener);
 						liveview1.findSubViews();
 						liveview1.init();
-						//liveview1.getSurfaceView().setBackgroundColor(Color.RED);
 						liveview1.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
-						liveview1.setFlipper(flipper);
 						
-						liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						//liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview2.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview2.setGestureListener(onGestureListener);
 						liveview2.findSubViews();
 						liveview2.init();
-						//liveview2.getSurfaceView().setBackgroundColor(Color.YELLOW);
 						liveview2.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
-						liveview2.setFlipper(flipper);
 						
-						liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						//liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview3.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview3.setGestureListener(onGestureListener);
 						liveview3.findSubViews();
 						liveview3.init();
-						//liveview3.getSurfaceView().setBackgroundColor(Color.WHITE);
 						liveview3.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
-						liveview3.setFlipper(flipper);
 						
-						liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						//liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview4.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview4.setGestureListener(onGestureListener);
 						liveview4.findSubViews();
 						liveview4.init();
-						//liveview4.getSurfaceView().setBackgroundColor(Color.GREEN);
 						liveview4.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-								surfaceHeight));
-						liveview4.setFlipper(flipper);
+								surfaceHeight));;
 						
 						liveViewManager.addLiveView(liveview1);
 						liveViewManager.addLiveView(liveview2);
@@ -392,15 +296,12 @@ public class RealplayActivity extends BaseActivity {
 						
 						LiveViewItemContainer liveview = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem);
 						
-						liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
+						//liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview.setGestureListener(onGestureListener);
 						liveview.findSubViews();
 						liveview.init();
-						//liveview.getSurfaceView().setBackgroundColor(Color.BLUE);
 						liveview.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
-						liveview.setFlipper(flipper);
 						
 						liveViewManager.addLiveView(liveview);
 					}
@@ -1110,9 +1011,8 @@ public class RealplayActivity extends BaseActivity {
 		
 		// /data/data/com.starsecurity
 		try {
-			PreviewItemXMLUtils.writePreviewItemListInfoToXML(liveViewManager.getDeviceList(), "/data/data/com.starnet.snview/LastDevicesList.xml");
+			PreviewItemXMLUtils.writePreviewItemListInfoToXML(liveViewManager.getDeviceList(), getString(R.string.common_last_devicelist_path));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -1166,90 +1066,244 @@ public class RealplayActivity extends BaseActivity {
 	
 	
 	
-//	private GestureDetector detector;
-//    //定义一个动画数组，用于为ViewFlipper指定切换动画效果
-//	private Animation[] animations = new Animation[4];
-//    //定义手势动作两点之间的最小距离
-//	private final int FLIP_DISTANCE = 50;
-//	
-//	class GestureListener extends SimpleOnGestureListener  
-//    {  
-//  
-//        @Override  
-//        public boolean onDoubleTap(MotionEvent e)  
-//        {  
-//            // TODO Auto-generated method stub  
-//            Log.i("TEST", "onDoubleTap");  
-//            return super.onDoubleTap(e);  
-//        }  
-//  
-//        @Override  
-//        public boolean onDown(MotionEvent e)  
-//        {  
-//            // TODO Auto-generated method stub  
-//            Log.i("TEST", "onDown");  
-//            //return super.onDown(e);  
-//            return true;
-//        }  
-//  
-//        @Override  
-//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,  
-//                float velocityY)  
-//        {  
-//        	/*
-//    		 * 如果第一个触点事件的X座标大于第二个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
-//    		 */
-//    		if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
-//    			// 为flipper设置切换的的动画效果
-////    			flipper.setInAnimation(animations[0]);
-////    			flipper.setOutAnimation(animations[1]);
-////    			flipper.showPrevious();
-//    			
-//    			ToastUtils.show(RealplayActivity.this, "向左滑动");
-//
-//    			return true;
-//    		}
-//    		/*
-//    		 * 如果第二个触点事件的X座标大于第一个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
-//    		 */
-//    		else if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
-//    			// 为flipper设置切换的的动画效果
-////    			flipper.setInAnimation(animations[2]);
-////    			flipper.setOutAnimation(animations[3]);
-////    			flipper.showNext();
-//    			
-//    			ToastUtils.show(RealplayActivity.this, "向右滑动");
-//    			return true;
-//    		}
-//    		return false;  
-//        }  
-//  
-//        @Override  
-//        public void onLongPress(MotionEvent e)  
-//        {  
-//            // TODO Auto-generated method stub  
-//            Log.i("TEST", "onLongPress");  
-//            super.onLongPress(e);  
-//        }  
-//  
-//        @Override  
-//        public boolean onScroll(MotionEvent e1, MotionEvent e2,  
-//                float distanceX, float distanceY)  
-//        {  
-//            // TODO Auto-generated method stub  
-//            Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);  
-//            return super.onScroll(e1, e2, distanceX, distanceY);  
-//        }  
-//  
-//        @Override  
-//        public boolean onSingleTapUp(MotionEvent e)  
-//        {  
-//            // TODO Auto-generated method stub  
-//            Log.i("TEST", "onSingleTapUp");  
-//            return super.onSingleTapUp(e);  
-//        }  
-//          
-//    }
+	
+	private OnGestureListener onGestureListener 
+		= new OnGestureListener() {
+		
+		@Override
+		public void onSlidingLeft() {
+			if (liveViewManager.getPager() != null) {
+				liveViewManager.nextPage();
+				
+				mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+				mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+			}
+		}
+		
+		@Override
+		public void onSlidingRight() {
+			if (liveViewManager.getPager() != null) {
+				liveViewManager.previousPage();
+				
+				mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+				mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+			}
+			
+		}
+	
+		@Override
+		public void onSingleClick(MotionEvent e) {		
+			Log.i(TAG, "On single click");
+		
+			int pos = getIndexOfLiveview(e.getX(), e.getY());
+			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+			
+			if (index > liveViewManager.getLiveViewTotalCount()) {  
+				return;  // 非有效通道，不作处理 
+			}
+			
+			liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
+			
+			liveViewManager.selectLiveView(index); 
+			
+			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+		}
+	
+		@Override
+		public void onDoubleClick(MotionEvent e) {
+			Log.i(TAG, "On Double click");
+			
+			int pos;
+			
+			if (liveViewManager.getPageCapacity() == 1) {
+				pos = 1;
+			} else {
+				pos = getIndexOfLiveview(e.getX(), e.getY());
+			}
+			
+			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+			
+			if (index > liveViewManager.getLiveViewTotalCount()) {  
+				return;  // 非有效通道，不作处理 
+			}
+			
+			liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
+			
+			liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
+			
+			if (liveViewManager.isMultiMode()) { // 切换到单通道模式
+				liveViewManager.setMultiMode(false);							
+				liveViewManager.preview(index);
+			} else { // 切换到多通道模式
+				liveViewManager.setMultiMode(true);
+				
+				int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+				int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+				
+				liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+				
+			}
+			
+			liveViewManager.selectLiveView(index); 
+			
+			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+		}
+		
+		private int getIndexOfLiveview(float x, float y) {
+			int sw = GlobalApplication.getInstance().getScreenWidth();
+			
+			if (x < sw / 2) { // 第1或第3个视频区域
+				if (y < sw / 2) {
+					return 1;
+				} else {
+					return 3;
+				}
+			} else { // 第2或第4个视频区域
+				if (y < sw / 2) {
+					return 2;
+				} else {
+					return 4;
+				} 
+			}
+	
+		}
+		
+	};
 	
 	
+	
+	// ViewFlipper实例
+    ViewFlipper mFlipper;
+    // 定义手势检测器实例
+    GestureDetector mGestureDetector;
+    //定义一个动画数组，用于为ViewFlipper指定切换动画效果
+    Animation[] animations = new Animation[4];
+    
+	
+	class GestureListener extends SimpleOnGestureListener  
+    {  	
+	    final int FLIP_DISTANCE = 50;  //定义手势动作两点之间的最小距离
+	    private boolean mIsDoubleClick = false;
+	    
+	    private OnGestureListener mGestureListener;
+		
+		public GestureListener(OnGestureListener listener) {
+			this.mGestureListener = listener;
+		}
+  
+		@Override  
+        public boolean onSingleTapUp(MotionEvent e)  
+        {  
+            
+            return super.onSingleTapUp(e);  
+        }  
+		
+		
+		
+        @Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+        	if (mGestureListener != null) {
+				mGestureListener.onSingleClick(e);
+			}
+        	
+			return true;
+		}
+
+		@Override  
+        public boolean onDoubleTap(MotionEvent e)  
+        {   
+            Log.i("TEST", "onDoubleTap");  
+            final MotionEvent _e = e;
+            
+            mIsDoubleClick = true;
+            
+            if (mGestureListener != null) {
+				mGestureListener.onDoubleClick(_e);;
+			}
+            
+            return true;  
+        }  
+        
+        
+  
+        @Override  
+        public boolean onDown(MotionEvent e)  
+        {  
+            // TODO Auto-generated method stub  
+            Log.i("TEST", "onDown");  
+            //return super.onDown(e);  
+            return true;
+        }  
+  
+        @Override  
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,  
+                float velocityY)  
+        {  
+        	/*
+    		 * 如果第一个触点事件的X座标大于第二个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
+    		 */
+    		if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
+    			// 为flipper设置切换的的动画效果
+//    			mFlipper.setInAnimation(animations[0]);
+//    			mFlipper.setOutAnimation(animations[1]);
+//    			mFlipper.showPrevious();
+    			
+    			ToastUtils.show(RealplayActivity.this, "向左滑动");
+
+    			if (mGestureListener != null) {
+    				mGestureListener.onSlidingLeft();
+    			}
+    			
+    			return true;
+    		}
+    		/*
+    		 * 如果第二个触点事件的X座标大于第一个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
+    		 */
+    		else if (e2.getX() - e1.getX() > FLIP_DISTANCE) {
+    			// 为flipper设置切换的的动画效果
+//    			mFlipper.setInAnimation(animations[2]);
+//    			mFlipper.setOutAnimation(animations[3]);
+//    			mFlipper.showNext();
+    			
+    			ToastUtils.show(RealplayActivity.this, "向右滑动");
+    			
+    			if (mGestureListener != null) {
+    				mGestureListener.onSlidingRight();
+    			}
+    			
+    			return true;
+    		}
+    		return false;  
+        }  
+  
+        @Override  
+        public void onLongPress(MotionEvent e)  
+        {  
+            // TODO Auto-generated method stub  
+            Log.i("TEST", "onLongPress");  
+            super.onLongPress(e);  
+        }  
+  
+        @Override  
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,  
+                float distanceX, float distanceY)  
+        {  
+            // TODO Auto-generated method stub  
+            Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);  
+            return super.onScroll(e1, e2, distanceX, distanceY);  
+        }  
+  
+        
+          
+    }
+
+	
+	public static interface OnGestureListener {
+		public void onSingleClick(MotionEvent e);
+		public void onDoubleClick(MotionEvent e);
+		public void onSlidingLeft();
+		public void onSlidingRight();
+	}
 }

@@ -263,6 +263,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		}
 	}
 	
+	/**
+	 * 获取指定LiveViewItemContainer所在的位置
+	 * @param lv
+	 * @return 1/2/3/4
+	 */
 	public int getIndexOfLiveView(LiveViewItemContainer lv) {
 		int index = -1;
 		int lvSize = liveviews.size();
