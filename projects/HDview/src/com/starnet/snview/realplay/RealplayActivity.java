@@ -18,6 +18,7 @@ import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.ClickEventUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
+import com.starnet.snview.util.ToastUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -30,16 +31,23 @@ import android.os.Message;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 public class RealplayActivity extends BaseActivity {
 
@@ -253,6 +261,32 @@ public class RealplayActivity extends BaseActivity {
 			}
 		};
 		
+		final LiveViewItemContainer.OnGestureListener onGestureListener 
+			= new LiveViewItemContainer.OnGestureListener() {
+			
+			@Override
+			public void onSlidingLeft() {
+				if (liveViewManager.getPager() != null) {
+					liveViewManager.nextPage();
+					
+					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+				}
+			}
+			
+			@Override
+			public void onSlidingRight() {
+				if (liveViewManager.getPager() != null) {
+					liveViewManager.previousPage();
+					
+					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+				}
+				
+			}
+			
+		};
+		
 		
 
 		// 初始化视频区域布局大小
@@ -283,6 +317,9 @@ public class RealplayActivity extends BaseActivity {
 								.inflate(R.layout.surfaceview_multi_layout,
 										mVideoRegion, true);
 						
+						ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
+						
+						
 						LinearLayout linear1 = (LinearLayout) findViewById(R.id.view_video_linear1);
 						LinearLayout linear2 = (LinearLayout) findViewById(R.id.view_video_linear2);
 						LinearLayout.LayoutParams param1 = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, screenWidth / 2);
@@ -300,35 +337,43 @@ public class RealplayActivity extends BaseActivity {
 						
 						liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview1.setRefreshButtonClickListener(onRefreshButtonClickListener);
+						liveview1.setGestureListener(onGestureListener);
 						liveview1.findSubViews();
 						liveview1.init();
 						//liveview1.getSurfaceView().setBackgroundColor(Color.RED);
-						liveview1.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+						liveview1.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
+						liveview1.setFlipper(flipper);
 						
 						liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview2.setRefreshButtonClickListener(onRefreshButtonClickListener);
+						liveview2.setGestureListener(onGestureListener);
 						liveview2.findSubViews();
 						liveview2.init();
 						//liveview2.getSurfaceView().setBackgroundColor(Color.YELLOW);
-						liveview2.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+						liveview2.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
+						liveview2.setFlipper(flipper);
 						
 						liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview3.setRefreshButtonClickListener(onRefreshButtonClickListener);
+						liveview3.setGestureListener(onGestureListener);
 						liveview3.findSubViews();
 						liveview3.init();
 						//liveview3.getSurfaceView().setBackgroundColor(Color.WHITE);
-						liveview3.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+						liveview3.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
+						liveview3.setFlipper(flipper);
 						
 						liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview4.setRefreshButtonClickListener(onRefreshButtonClickListener);
+						liveview4.setGestureListener(onGestureListener);
 						liveview4.findSubViews();
 						liveview4.init();
 						//liveview4.getSurfaceView().setBackgroundColor(Color.GREEN);
-						liveview4.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
+						liveview4.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
+						liveview4.setFlipper(flipper);
 						
 						liveViewManager.addLiveView(liveview1);
 						liveViewManager.addLiveView(liveview2);
@@ -340,6 +385,7 @@ public class RealplayActivity extends BaseActivity {
 						.inflate(R.layout.surfaceview_single_layout,
 								mVideoRegion, true);
 						
+						ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
 						
 						int surfaceHeight = (int) (screenWidth - getResources().getDimension(R.dimen.window_text_height) 
 								- 2 * getResources().getDimension(R.dimen.surface_container_space));
@@ -348,11 +394,13 @@ public class RealplayActivity extends BaseActivity {
 						
 						liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
 						liveview.setRefreshButtonClickListener(onRefreshButtonClickListener);
+						liveview.setGestureListener(onGestureListener);
 						liveview.findSubViews();
 						liveview.init();
 						//liveview.getSurfaceView().setBackgroundColor(Color.BLUE);
 						liveview.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
+						liveview.setFlipper(flipper);
 						
 						liveViewManager.addLiveView(liveview);
 					}
@@ -1115,6 +1163,93 @@ public class RealplayActivity extends BaseActivity {
 		super.gotoSystemSetting();
 	}
 	
+	
+	
+	
+//	private GestureDetector detector;
+//    //定义一个动画数组，用于为ViewFlipper指定切换动画效果
+//	private Animation[] animations = new Animation[4];
+//    //定义手势动作两点之间的最小距离
+//	private final int FLIP_DISTANCE = 50;
+//	
+//	class GestureListener extends SimpleOnGestureListener  
+//    {  
+//  
+//        @Override  
+//        public boolean onDoubleTap(MotionEvent e)  
+//        {  
+//            // TODO Auto-generated method stub  
+//            Log.i("TEST", "onDoubleTap");  
+//            return super.onDoubleTap(e);  
+//        }  
+//  
+//        @Override  
+//        public boolean onDown(MotionEvent e)  
+//        {  
+//            // TODO Auto-generated method stub  
+//            Log.i("TEST", "onDown");  
+//            //return super.onDown(e);  
+//            return true;
+//        }  
+//  
+//        @Override  
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,  
+//                float velocityY)  
+//        {  
+//        	/*
+//    		 * 如果第一个触点事件的X座标大于第二个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
+//    		 */
+//    		if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
+//    			// 为flipper设置切换的的动画效果
+////    			flipper.setInAnimation(animations[0]);
+////    			flipper.setOutAnimation(animations[1]);
+////    			flipper.showPrevious();
+//    			
+//    			ToastUtils.show(RealplayActivity.this, "向左滑动");
+//
+//    			return true;
+//    		}
+//    		/*
+//    		 * 如果第二个触点事件的X座标大于第一个触点事件的X座标超过FLIP_DISTANCE 也就是手势从右向左滑。
+//    		 */
+//    		else if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
+//    			// 为flipper设置切换的的动画效果
+////    			flipper.setInAnimation(animations[2]);
+////    			flipper.setOutAnimation(animations[3]);
+////    			flipper.showNext();
+//    			
+//    			ToastUtils.show(RealplayActivity.this, "向右滑动");
+//    			return true;
+//    		}
+//    		return false;  
+//        }  
+//  
+//        @Override  
+//        public void onLongPress(MotionEvent e)  
+//        {  
+//            // TODO Auto-generated method stub  
+//            Log.i("TEST", "onLongPress");  
+//            super.onLongPress(e);  
+//        }  
+//  
+//        @Override  
+//        public boolean onScroll(MotionEvent e1, MotionEvent e2,  
+//                float distanceX, float distanceY)  
+//        {  
+//            // TODO Auto-generated method stub  
+//            Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);  
+//            return super.onScroll(e1, e2, distanceX, distanceY);  
+//        }  
+//  
+//        @Override  
+//        public boolean onSingleTapUp(MotionEvent e)  
+//        {  
+//            // TODO Auto-generated method stub  
+//            Log.i("TEST", "onSingleTapUp");  
+//            return super.onSingleTapUp(e);  
+//        }  
+//          
+//    }
 	
 	
 }
