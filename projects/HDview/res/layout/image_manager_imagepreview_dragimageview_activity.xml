@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+
+    <com.starnet.snview.images.myutils.DragImageView
+        android:id="@+id/imagepreview_imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/nothing"
+        android:scaleType="fitXY"
+        android:src="@drawable/zz_test_image" />
+
+  <!--   <Button
+        
+        android:id="@+id/imagepreview_delete_btn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/image_manager_imagepreview_delete" /> -->
+
+</LinearLayout>

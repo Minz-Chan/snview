@@ -2,11 +2,11 @@ package com.starnet.snview.images;
 
 public class Image {
 	private String mDate;
-	private String mImagePath;
+	private String mImagePath;//图片的路径...
 	private boolean mIsSelected;
 	private long mLastModified;
 	private String mName;
-	private String mThumbnailsPath;
+	private String mThumbnailsPath;//图片的缩略图路径...
 	private ImageType mType;
 
 	public Image() {

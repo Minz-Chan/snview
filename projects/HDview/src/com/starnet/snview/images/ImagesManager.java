@@ -16,6 +16,7 @@ import java.util.TreeMap;
 
 
 
+
 import android.util.Log;
 
 public class ImagesManager {
@@ -143,7 +144,7 @@ public class ImagesManager {
 		file1.delete();
 		file2.delete();
 	}
-	
+	@SuppressWarnings("rawtypes")
 	public void deleteSelectedImages() {
 		ArrayList foldersToBeDeleted = new ArrayList();
 		LinkedList selectedImages = new LinkedList();
@@ -188,6 +189,46 @@ public class ImagesManager {
 	    
 	}
 
+	//删除空的文件夹
+	public void deleteNullFolders(String filePath) {
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return ;
+		}
+		String[] pathList = file.list();
+		if (pathList.length == 0) {
+			file.delete();
+		}
+	}
+	
+	//删除文件，但是不考虑空的情况...
+	public void deleteSelectedImages_copy() {
+		ArrayList foldersToBeDeleted = new ArrayList();
+		LinkedList selectedImages = new LinkedList();
+		Iterator itEntrySet = mImagesMap.entrySet().iterator();
+		
+		while (itEntrySet.hasNext()) {
+			
+			Map.Entry entry = (Map.Entry)itEntrySet.next();
+			String strDate = (String) entry.getKey();
+			List imageList = (List) entry.getValue();
+			Iterator itImageList = imageList.iterator();
+			
+			while (itImageList.hasNext()) {
+				Image image = (Image) itImageList.next();
+				
+				if (image.isSelected()) {
+					selectedImages.add(image);
+				}
+			}
+			
+			if (!selectedImages.isEmpty()) {
+				imageList.removeAll(selectedImages);
+				deleteImages(strDate, selectedImages);
+			}
+		}
+	}
+	
 	public static ImagesManager getInstance() {
 		if (mInstance == null) {
 			mInstance = new ImagesManager();

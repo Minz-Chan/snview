@@ -1,10 +1,14 @@
 package com.starnet.snview.images;
 
+import java.util.ArrayList;
 import java.util.List;
 
+
 import com.starnet.snview.R;
+import com.starnet.snview.images.Image.ImageType;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -20,6 +25,8 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 	private ImagesManagerActivity mImagesActivity;
 	private LayoutInflater mLayoutInflater;
 	private int mThumbnailSelectedCount = 0;
+	
+	private ArrayList<String> pathList = new ArrayList<String>();
 
 	public ImagesExpandableListAdapter(
 			ImagesManagerActivity imagesManagerActivity,
@@ -42,7 +49,7 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getChildView(int groupPosition, int childPosition,
-			boolean isLastChild, View convertView, ViewGroup parent) {
+			boolean isLastChild, View convertView, ViewGroup parent) {//子元素是由自定义的GridView构成...
 		final int gPos = groupPosition;
 		
 		if (convertView == null) {
@@ -55,9 +62,8 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 		imageGridView.setAdapter(new ImagesGridViewAdapter(mImagesActivity,
 				((ImagesGroup) mGroupList.get(groupPosition))
 						.getThumbnailList()));
-
-		imageGridView
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		
+		imageGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 					@Override
 					public void onItemClick(AdapterView<?> view, View parent,
@@ -86,11 +92,44 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 							activity.setTitleText(ImagesExpandableListAdapter.this.mThumbnailSelectedCount);
 						} else {	// 响应按钮事件
 							int imgPosInMap = 0;
-							
 							for (int i = 0; i < gPos; i++) {
 								imgPosInMap += ImagesExpandableListAdapter.this.mGroupList.get(i).getGroupSize();
 							}
-							
+							int clickposition = position + 1;
+							imgPosInMap += clickposition;
+							int sumMap = 0 ;
+							int groupSize = mGroupList.size();
+							for (int i = 0; i < groupSize; i++) {
+								sumMap += mGroupList.get(i).getGroupSize();
+								List<Image> imageList = mGroupList.get(i).getThumbnailList();
+								int imageSize = imageList.size();
+								for (int j = 0; j < imageSize; j++) {
+									pathList.add(imageList.get(j).getImagePath());
+								}
+							}
+							//点击进入到图片查看界面
+//							int size = ImagesExpandableListAdapter.this.mGroupList.get(position).getGroupSize();
+//							Log.v(TAG, String.valueOf(size));
+							//如果是图片进入图片预览；如果是视频，进入视频播放控制界面。。。
+							Intent intent = new Intent();
+							Image image = ImagesExpandableListAdapter.this.mGroupList.get(gPos).getThumbnailList().get(position);
+							if (image.getType().equals(ImageType.PICTURE)||image.getType().equals(ImageType.VIDEO)) {
+								String thumbnailsPath = image.getThumbnailsPath();
+								
+								String imagePath = image.getImagePath();
+								
+								intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
+								intent.putExtra("sumMap",String.valueOf(sumMap));
+								intent.putExtra("imagePath",imagePath);
+								intent.putStringArrayListExtra("pathList", pathList);
+								intent.putExtra("thumbnailsPath",thumbnailsPath);
+								intent.setClass(mImagesActivity, ImagePreviewViewPagerActivity.class);
+								mImagesActivity.startActivity(intent);
+							}else{
+								String text = "这是一个录像";
+								Toast.makeText(mImagesActivity, text, Toast.LENGTH_SHORT).show();
+								
+							}
 							// 显示图片或播放视频
 							
 						}
@@ -124,14 +163,14 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
+			View convertView, ViewGroup parent) {//组元素只显示日期...
 		if (convertView == null) {
 			convertView = mLayoutInflater.inflate(
 					R.layout.images_listview_date_info_layout, null);
 		}
 		((TextView) convertView.findViewById(R.id.images_date_textview))
-				.setText(((ImagesGroup) mGroupList.get(groupPosition))
-						.getDateInfo());
+			.setText(((ImagesGroup) mGroupList.get(groupPosition))
+					.getDateInfo());
 		return convertView;
 	}
 

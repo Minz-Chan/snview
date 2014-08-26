@@ -52,6 +52,8 @@
         
         <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity_Copy" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
         
+        <activity android:name="com.starnet.snview.images.ImagePreviewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
+        <activity android:name="com.starnet.snview.images.ImagePreviewViewPagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
     </application>
 
     
