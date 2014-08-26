@@ -8,6 +8,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
@@ -26,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +35,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +49,7 @@ import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -159,7 +163,15 @@ public class RealplayActivity extends BaseActivity {
 				s.playSound();
 				
 				// 显示提示
-				ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
+				// ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
+				
+				Toast t = Toast.makeText(RealplayActivity.this, "", Toast.LENGTH_LONG);
+				
+				ToastTextView txt = new ToastTextView(RealplayActivity.this);
+				txt.setText(RealplayActivity.this.getString(R.string.realplay_toast_take_pic) + imgPath);
+				
+				t.setView(txt);
+				t.show();
 				
 				break;
 			default:

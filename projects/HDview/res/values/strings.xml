@@ -144,6 +144,6 @@
     <string name="network_not_conn">网络未连接,请检查网络是否打开</string>
     
     
-    
+    <string name="realplay_toast_take_pic">保存到</string>
 
 </resources>
