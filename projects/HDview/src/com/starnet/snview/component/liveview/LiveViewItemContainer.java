@@ -2,6 +2,7 @@ package com.starnet.snview.component.liveview;
 
 import com.starnet.snview.R;
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -16,6 +17,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	
 	private String deviceRecordName;
+	private PreviewDeviceItem previewItem;
 	
 	private WindowLinearLayout mWindowLayout;
 	private FrameLayout mPlaywindowFrame;
@@ -24,7 +26,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private ImageView mRefresh;
 	private TextView mWindowInfoText;
 
-	private OnLiveViewContainerClickListener mLvContainerClickListener;
+
+//	private OnLiveViewContainerClickListener mLvContainerClickListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
 	private Connection mCurrentConnection;
@@ -50,9 +53,9 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void init() {
-		if (mLvContainerClickListener != null) {
-			this.setOnClickListener(mLvContainerClickListener);
-		}
+//		if (mLvContainerClickListener != null) {
+//			this.setOnClickListener(mLvContainerClickListener);
+//		}
 		
 		if (mRefreshButtonClickListener != null) {
 			mRefresh.setOnClickListener(mRefreshButtonClickListener);
@@ -60,8 +63,18 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 		mWindowInfoText.setText(null);
 		
+		
+//		detector = new GestureDetector(new GestureListener());
+//		
+//		animations[0] = AnimationUtils.loadAnimation(getContext(), R.anim.left_in);
+//        animations[1] = AnimationUtils.loadAnimation(getContext(), R.anim.left_out);
+//        animations[2] = AnimationUtils.loadAnimation(getContext(), R.anim.right_in);
+//        animations[3] = AnimationUtils.loadAnimation(getContext(), R.anim.right_in);
+        
+        
+		
 	}	
-	
+
 	public Connection getCurrentConnection() {
 		return mCurrentConnection;
 	}
@@ -78,16 +91,25 @@ public class LiveViewItemContainer extends RelativeLayout {
 		this.deviceRecordName = deviceRecordName;
 	}
 	
-	public void setLiveViewContainerClickListener(
-			OnLiveViewContainerClickListener lvContainerClickListener) {
-		this.mLvContainerClickListener = lvContainerClickListener;
+	
+	
+//	public void setLiveViewContainerClickListener(
+//			OnLiveViewContainerClickListener lvContainerClickListener) {
+//		this.mLvContainerClickListener = lvContainerClickListener;
+//	}
+	
+	
+	public PreviewDeviceItem getPreviewItem() {
+		return previewItem;
 	}
-	
-	
+	public void setPreviewItem(PreviewDeviceItem previewItem) {
+		this.previewItem = previewItem;
+	}
 	public void setRefreshButtonClickListener(
-			OnRefreshButtonClickListener RefreshButtonClickListener) {
-		this.mRefreshButtonClickListener = RefreshButtonClickListener;
+			OnRefreshButtonClickListener refreshButtonClickListener) {
+		this.mRefreshButtonClickListener = refreshButtonClickListener;
 	}
+	
 	public WindowLinearLayout getWindowLayout() {
 		return mWindowLayout;
 	}
@@ -112,6 +134,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		return mWindowInfoText;
 	}
 	
+
 	public void setWindowInfoContent(String info) {
 		final StringBuffer s;
 		
@@ -139,7 +162,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	
-	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
+//	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
-
 }

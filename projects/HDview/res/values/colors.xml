@@ -52,6 +52,7 @@
     
     <color name="realplay_divider_1">#FFB4B4B4</color>
     <color name="realplay_divider_2">#FF808080</color>
+    <color name="realplay_toast_bg">#AA808080</color>
     
     <color name="liveview_bg_invalid">#FF606060</color>
 </resources>
