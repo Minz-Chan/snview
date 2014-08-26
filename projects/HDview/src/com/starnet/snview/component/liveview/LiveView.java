@@ -1,14 +1,26 @@
 package com.starnet.snview.component.liveview;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.starnet.snview.R;
+import com.starnet.snview.global.Constants;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.images.LocalFileUtils;
+import com.starnet.snview.util.BitmapUtils;
+import com.starnet.snview.util.SDCardUtils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -28,6 +40,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	private Bitmap mVideoBit;  
 	
 	private boolean isValid = true;
+	
+	private boolean canTakePicture = false;
 	
 	public LiveView(Context context) {
 		super(context);
@@ -66,6 +80,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		
 		onDisplayContentReset();
 	}
+	
+	public void setTakePicture(boolean canTakePicture) {
+		this.canTakePicture = canTakePicture;
+	}
 
 	public byte[] retrievetDisplayBuffer() {
 		return mPixel;
@@ -92,48 +110,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		System.out.println(this + "@destroyed...");	
 	}
 
-//	@SuppressLint("DrawAllocation")
-//	@Override
-//	protected void onDraw(Canvas canvas) {
-//		Log.i(TAG, "onDraw begin");
-//		Log.i(TAG, "mVideoBit: " + mVideoBit + ", canvas: " + canvas);
-//		
-//		
-//		super.onDraw(canvas);
-//		
-//		canvas = mHolder.lockCanvas();
-//	
-//		// 刷屏
-//		if (mVideoBit != null && canvas != null) {
-//        	/* 此处rewind用意
-//         	 * 4.2中对copyPixelsFromBuffer( )执行的缓冲区进行了调整，每次拷贝结束后，将下次拷贝
-//        	 * 的起始位置置为前一次拷贝结束时的位置。这样，如果对同一个ByteBuffer执行多次连续拷贝，
-//        	 * 就要注意每次起始位置。
-//        	 */
-//        	mBuffer.rewind();	
-//        	
-//        	if ((mVideoBit.getWidth() * mVideoBit.getHeight() * 2) 
-//        			!= (mBuffer.position() + mBuffer.remaining())) {
-//        		return;
-//        	}
-//        	
-//        	mVideoBit.copyPixelsFromBuffer(mBuffer);	
-//        	
-//        	Bitmap video = mVideoBit;
-//        	
-//        	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
-//            		, 0, 0, null); 
-//        	
-//        	Log.i(TAG, "onDraw redraw");
-//        	
-//        }
-//		
-//		System.out.println(this + "@onDraw");
-//
-//		mHolder.unlockCanvasAndPost(canvas); 
-//		
-//		Log.i(TAG, "onDraw end");
-//	}
 	
 	private void refreshDisplay() {
 		Canvas canvas = mHolder.lockCanvas();
@@ -161,6 +137,11 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         	Log.i(TAG, "refreshDisplay, width: " + getWidth() + ", height: " + getHeight());
         	
+        	if (canTakePicture) {
+        		savePictureAndThumbnail(video);
+        		canTakePicture = false;
+        	}
+        	
         	mHolder.unlockCanvasAndPost(canvas); 
         	
         	System.out.println(this + "@unlockCanvasAndPost" );
@@ -168,6 +149,99 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         }
 	}
 	
+	private int THUMBNAIL_HEIGHT = 200;
+	
+	private void savePictureAndThumbnail(Bitmap bmp) {
+		
+		LiveViewItemContainer c = findVideoContainerByView(this);
+		if (c == null) {
+			return;
+		}
+		
+
+		boolean result = false;
+		String imgPath =  null;
+		
+		Log.i(TAG, "Has Sdcard: " + SDCardUtils.IS_MOUNTED);
+		
+		if (SDCardUtils.IS_MOUNTED) { // SDcard可用
+			// 获取拍照截图及其缩略图完整路径
+			String fileName = LocalFileUtils.getFormatedFileName(c.getPreviewItem()
+					.getDeviceRecordName(), c.getPreviewItem().getChannel());
+			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
+			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
+			
+			Log.i(TAG, "fileName: " + fileName);
+			Log.i(TAG, "fileImgPath: " + fullImgPath);
+			Log.i(TAG, "fullThumbImgPath: " + fullThumbImgPath);
+			
+			imgPath = fullImgPath;
+			
+			// 取得缩略图
+			int thumbnailHeight = THUMBNAIL_HEIGHT;
+			int thumbnailWidth = THUMBNAIL_HEIGHT * bmp.getWidth() / bmp.getHeight();
+			Bitmap thumbnail = BitmapUtils.extractMiniThumb(bmp, thumbnailWidth, thumbnailHeight, false); 
+
+			Log.i(TAG, "tW: " + thumbnailWidth + ", tH: " + thumbnailHeight);
+			Log.i(TAG, "Bitmap thumbnail: " + thumbnail);
+			
+			// 保存拍照截图
+			if (saveBmpFile(bmp, fullImgPath)
+					&& saveBmpFile(thumbnail, fullThumbImgPath)) {
+				result = true;
+				Log.i(TAG, "Save pictures successfully !");
+			}
+		} else { // 不存在SDCard的情况（分有/无内置内存情况）
+			
+		}
+		
+		
+		// 通知主界面
+		Handler h = GlobalApplication.getInstance().getHandler();
+		if (h != null && result) {
+			Bundle b = new Bundle();
+			b.putString("PICTURE_FULL_PATH", imgPath);
+			
+			Message m = h.obtainMessage();
+			m.what = Constants.TAKE_PICTURE;
+			m.setData(b);
+			m.sendToTarget();
+			
+			Log.i(TAG, "Send msg notification for TAKE_PICTURE");
+			Log.i(TAG, "Image path: " + imgPath);
+		}
+		
+	}
+	
+	
+	private boolean saveBmpFile(Bitmap b, String fullImgPath) {
+		File f = new File(fullImgPath);
+		FileOutputStream fout =  null;
+		
+		try {
+			fout =  new FileOutputStream(f);
+			
+			b.compress(Bitmap.CompressFormat.JPEG, 90, fout);
+			
+			fout.close();
+			
+			return true;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			if (fout != null) {
+				try {
+					fout.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+
 	@Override
 	public void onDisplayResulotionChanged(int width, int height) {
 		if (this.width != width || this.height != height) {

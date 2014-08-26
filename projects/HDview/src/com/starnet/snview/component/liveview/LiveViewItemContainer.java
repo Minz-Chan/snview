@@ -2,6 +2,7 @@ package com.starnet.snview.component.liveview;
 
 import com.starnet.snview.R;
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -16,6 +17,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	
 	private String deviceRecordName;
+	private PreviewDeviceItem previewItem;
 	
 	private WindowLinearLayout mWindowLayout;
 	private FrameLayout mPlaywindowFrame;
@@ -89,12 +91,20 @@ public class LiveViewItemContainer extends RelativeLayout {
 		this.deviceRecordName = deviceRecordName;
 	}
 	
+	
+	
 //	public void setLiveViewContainerClickListener(
 //			OnLiveViewContainerClickListener lvContainerClickListener) {
 //		this.mLvContainerClickListener = lvContainerClickListener;
 //	}
 	
 	
+	public PreviewDeviceItem getPreviewItem() {
+		return previewItem;
+	}
+	public void setPreviewItem(PreviewDeviceItem previewItem) {
+		this.previewItem = previewItem;
+	}
 	public void setRefreshButtonClickListener(
 			OnRefreshButtonClickListener refreshButtonClickListener) {
 		this.mRefreshButtonClickListener = refreshButtonClickListener;

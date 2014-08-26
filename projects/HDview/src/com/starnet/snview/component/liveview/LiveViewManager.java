@@ -147,6 +147,18 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		pager.setCurrentIndex(index);
 	}
 	
+	public LiveViewItemContainer getSelectedLiveView() {
+		int currIndex = getSelectedLiveViewIndex();
+		int capacity = getPageCapacity();
+		int pos = ((currIndex % capacity) == 0) ? capacity : (currIndex % capacity);
+		
+		if (pos <= liveviews.size()) {
+			return liveviews.get(pos - 1);
+		}
+		
+		return null;
+	}
+	
 	public int getSelectedLiveViewIndex() {
 		return pager.getCurrentIndex();
 	}
@@ -381,6 +393,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setChannel(p.getChannel());
 			
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
+			liveviews.get(n - 1).setPreviewItem(p);
 			
 			conn.bindLiveViewItem(liveviews.get(n - 1));
 			liveviews.get(n - 1).setCurrentConnection(conn);
@@ -472,6 +485,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setChannel(p.getChannel());
 			
 			liveviews.get(i).setDeviceRecordName(p.getDeviceRecordName());
+			liveviews.get(i).setPreviewItem(p);
 		}
 	}	
 	

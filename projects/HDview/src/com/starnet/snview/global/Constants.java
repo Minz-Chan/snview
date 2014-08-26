@@ -5,4 +5,6 @@ public interface Constants {
 		SINGLE_CHANNEL,
 		MUL_CHANNEL
 	}
+	
+	public static final int TAKE_PICTURE = 0x88888801;  // 拍照
 }

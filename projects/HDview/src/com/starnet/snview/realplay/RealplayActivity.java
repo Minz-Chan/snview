@@ -7,16 +7,17 @@ import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
+import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
-import com.starnet.snview.util.ClickEventUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 import com.starnet.snview.util.ToastUtils;
 
@@ -88,6 +89,7 @@ public class RealplayActivity extends BaseActivity {
 
 		GlobalApplication.getInstance().setScreenWidth(
 				ActivityUtility.getScreenSize(this).x);
+		GlobalApplication.getInstance().setHandler(mHandler);
 
 		initView();
 
@@ -147,8 +149,22 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void handleMessage(Message msg) {
-
-			
+			Log.i(TAG, "msg code: " + msg.what);
+			switch (msg.what) {
+			case Constants.TAKE_PICTURE:
+				String imgPath = (String) msg.getData().get("PICTURE_FULL_PATH");
+				
+				// 播放声音
+				SnapshotSound s = new SnapshotSound(RealplayActivity.this);
+				s.playSound();
+				
+				// 显示提示
+				ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
+				
+				break;
+			default:
+				break;
+			}
 			
 			
 			super.handleMessage(msg);
@@ -233,7 +249,7 @@ public class RealplayActivity extends BaseActivity {
 										mVideoRegion, true);
 
 						
-						ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
+						//ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
 						
 						
 						LinearLayout linear1 = (LinearLayout) findViewById(R.id.view_video_linear1);
@@ -289,7 +305,7 @@ public class RealplayActivity extends BaseActivity {
 						.inflate(R.layout.surfaceview_single_layout,
 								mVideoRegion, true);
 						
-						ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
+						//ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
 						
 						int surfaceHeight = (int) (screenWidth - getResources().getDimension(R.dimen.window_text_height) 
 								- 2 * getResources().getDimension(R.dimen.surface_container_space));
@@ -519,12 +535,13 @@ public class RealplayActivity extends BaseActivity {
 
 				break;
 			case PICTURE:
-				Toast.makeText(
-						getBaseContext(),
-						"Width: " + mPager.getPrevious().getWidth()
-								+ ", height: "
-								+ mPager.getPrevious().getHeight(),
-						Toast.LENGTH_LONG).show();
+				Log.i(TAG, "Function, take picture");
+				LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
+				
+				if (c.getCurrentConnection() != null && c.getCurrentConnection().isConnected()) {
+					liveViewManager.getSelectedLiveView().getSurfaceView().setTakePicture(true);
+				}
+				
 				break;
 			case QUALITY:
 				bQualityPressed = !bQualityPressed;
@@ -1185,7 +1202,7 @@ public class RealplayActivity extends BaseActivity {
 	class GestureListener extends SimpleOnGestureListener  
     {  	
 	    final int FLIP_DISTANCE = 50;  //定义手势动作两点之间的最小距离
-	    private boolean mIsDoubleClick = false;
+	    //private boolean mIsDoubleClick = false;
 	    
 	    private OnGestureListener mGestureListener;
 		
@@ -1217,7 +1234,7 @@ public class RealplayActivity extends BaseActivity {
             Log.i("TEST", "onDoubleTap");  
             final MotionEvent _e = e;
             
-            mIsDoubleClick = true;
+            //mIsDoubleClick = true;
             
             if (mGestureListener != null) {
 				mGestureListener.onDoubleClick(_e);;
