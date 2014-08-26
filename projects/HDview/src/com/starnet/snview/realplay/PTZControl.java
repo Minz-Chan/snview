@@ -14,6 +14,26 @@ public class PTZControl {
 		this.lvManager = liveViewmanager;
 	}
 	
+	public void moveUp() {
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_UP);
+	}
+	
+	public void moveDown() {
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_DOWN);
+	}
+	
+	public void moveLeft() {
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_LEFT);
+	}
+	
+	public void moveRight() {
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_RIGHT);
+	}
+	
+	public void stopMove() {
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_STOP);
+	}
+	
 	public void focalLengthIncrease() {
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCAL_LENGTH_INC);
 	}
@@ -37,4 +57,5 @@ public class PTZControl {
 	public void apertureDecrease() {
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
 	}
+
 }

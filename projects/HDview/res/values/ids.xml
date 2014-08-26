@@ -101,10 +101,29 @@
     <item name="liveview_liveitem4" type="id" />
     <item name="liveview_progressbar" type="id" />
     <item name="liveview_refresh_imageview" type="id" />
+    <item name="liveview_arrow_all_container" type="id" />
+    
+    <item name="arrow_left" type="id" />
+    <item name="arrow_left_down" type="id" />
+    <item name="arrow_down" type="id" />
+    <item name="arrow_right_down" type="id" />
+    <item name="arrow_right" type="id" />
+    <item name="arrow_right_up" type="id" />
+    <item name="arrow_up" type="id" />
+    <item name="arrow_left_up" type="id" />
     
     
+    <item name="arrow_add_frame" type="id" />
+    <item name="arrow_sub_frame" type="id" />
+    <item name="arrow_add_left_down" type="id" />
+    <item name="arrow_add_right_down" type="id" />
+    <item name="arrow_add_right_up" type="id" />
+    <item name="arrow_add_left_up" type="id" />
+    <item name="arrow_sub_left_down" type="id" />
+    <item name="arrow_sub_right_down" type="id" />
+    <item name="arrow_sub_right_up" type="id" />
+    <item name="arrow_sub_left_up" type="id" />
     
-<!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->
 <!--     <item name="" type="id" /> -->
 </resources>

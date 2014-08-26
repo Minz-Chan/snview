@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
@@ -63,6 +64,8 @@ public class RealplayActivity extends BaseActivity {
 	private LinearLayout mPTZPopFrame;
 	
 	private boolean mIsPTZModeOn = false;
+	private boolean mIsPTZInMoving = false;
+	
 	private ImageButton mPTZPopFocalLengthIncrease;  
 	private ImageButton mPTZPopFocalLengthDecrease;
 	private ImageButton mPTZPopFocusIncrease;  
@@ -70,7 +73,7 @@ public class RealplayActivity extends BaseActivity {
 	private ImageButton mPTZPopApertureIncrease;  
 	private ImageButton mPTZPopApertureDecrease;
 	
-	private PTZControl ptzControl;
+	private PTZControl mPtzControl;
 
 	
 	private LiveViewManager liveViewManager;
@@ -185,21 +188,50 @@ public class RealplayActivity extends BaseActivity {
 	};
 	
 	
+	private boolean mIsScaleOperator = false;
+	
 	private void test() {
 		Log.i(TAG, "In function test()");
 		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
-		ptzControl = new PTZControl(liveViewManager);
+		mPtzControl = new PTZControl(liveViewManager);
 
 		
 		mGestureDetector =  new GestureDetector(this, new GestureListener(onGestureListener));
+		mScaleGestureDetector = new ScaleGestureDetector(this, new ScaleGestureListener(onGestureListener));
+		
+		
 		
 		mVideoRegion.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Log.i(TAG, "mVideoRegion, onTouch");
-				return mGestureDetector.onTouchEvent(event);
+				
+				
+				/* 若检测到多点事件，则将这以后的事件从mGestureDetector中过滤
+				 * 即若检测到缩放事件，则余下事件仅交由mScaleGestureDetector处理
+				 */
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+					mIsScaleOperator = true;  
+				}
+				
+				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+					mIsScaleOperator = false;
+				}
+				
+				if (mIsScaleOperator) {
+					return mScaleGestureDetector.onTouchEvent(event);
+				} else {
+					boolean r1 = mScaleGestureDetector.onTouchEvent(event);
+					boolean r2 = mGestureDetector.onTouchEvent(event);
+					
+					if (mIsPTZModeOn && event.getActionMasked() == MotionEvent.ACTION_UP) {
+						onGestureListener.onSlidingMoveUp();
+					}
+					
+					return r1 || r2;
+				}
 			}			
 		});
 		
@@ -859,27 +891,27 @@ public class RealplayActivity extends BaseActivity {
 			switch (v.getId()) {
 			case R.id.ptz_pop_focal_length_increase:
 				Log.i(TAG, "ptz_pop_focal_length_increase");
-				ptzControl.focalLengthIncrease();
+				mPtzControl.focalLengthIncrease();
 				break;
 			case R.id.ptz_pop_focal_length_decrease:
 				Log.i(TAG, "ptz_pop_focal_length_decrease");
-				ptzControl.focalLengthDecrease();
+				mPtzControl.focalLengthDecrease();
 				break;
 			case R.id.ptz_pop_focus_increase:
 				Log.i(TAG, "ptz_pop_focus_increase");
-				ptzControl.focusIncrease();
+				mPtzControl.focusIncrease();
 				break;
 			case R.id.ptz_pop_focus_decrease:
 				Log.i(TAG, "ptz_pop_focus_decrease");
-				ptzControl.focusDecrease();
+				mPtzControl.focusDecrease();
 				break;
 			case R.id.ptz_pop_aperture_increase:
 				Log.i(TAG, "ptz_pop_aperture_increase");
-				ptzControl.apertureIncrease();
+				mPtzControl.apertureIncrease();
 				break;
 			case R.id.ptz_pop_aperture_decrease:
 				Log.i(TAG, "ptz_pop_aperture_decrease");
-				ptzControl.apertureDecrease();
+				mPtzControl.apertureDecrease();
 				break;
 			}
 			
@@ -1171,38 +1203,7 @@ public class RealplayActivity extends BaseActivity {
 	
 	private OnGestureListener onGestureListener 
 		= new OnGestureListener() {
-		
-		@Override
-		public void onSlidingLeft() {
-			if (!mIsPTZModeOn) { // 向左滑屏
-				if (liveViewManager.getPager() != null) {
-					liveViewManager.nextPage();
-					
-					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-				}
-			} else { // PTZ, 向左				
-				ToastUtils.show(RealplayActivity.this, "左");
-			}
-			
-			
-		}
-		
-		@Override
-		public void onSlidingRight() {
-			if (!mIsPTZModeOn) { // 向右滑屏
-				if (liveViewManager.getPager() != null) {
-					liveViewManager.previousPage();
-					
-					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-				}
-			} else { // PTZ, 向右
-				ToastUtils.show(RealplayActivity.this, "右");
-			}
-			
-		}
-	
+
 		@Override
 		public void onSingleClick(MotionEvent e) {	
 			if (mIsPTZModeOn && checkIsPTZDeviceConnected()) { // PTZ模式情况下单击无效
@@ -1278,71 +1279,162 @@ public class RealplayActivity extends BaseActivity {
 		private int getIndexOfLiveview(float x, float y) {
 			int sw = GlobalApplication.getInstance().getScreenWidth();
 			
-			if (x < sw / 2) { // 第1或第3个视频区域
-				if (y < sw / 2) {
-					return 1;
-				} else {
-					return 3;
+			return (x < sw/2) ? (y < sw/2 ? 1 : 3) : (y < sw/2 ? 2 : 4); // 触点属于第几个视频区域	
+		}
+		
+		@Override
+		public void onSlidingLeft() {
+			if (!mIsPTZModeOn) { // 向左滑屏
+				if (liveViewManager.getPager() != null) {
+					liveViewManager.nextPage();
+					
+					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 				}
-			} else { // 第2或第4个视频区域
-				if (y < sw / 2) {
-					return 2;
-				} else {
-					return 4;
-				} 
+			} else { // PTZ, 向左	
+				liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.LEFT);
+				
+				if (mPtzControl != null) {
+					mPtzControl.moveLeft();
+				}
 			}
-	
+			
+			
+		}
+		
+		@Override
+		public void onSlidingRight() {
+			if (!mIsPTZModeOn) { // 向右滑屏
+				if (liveViewManager.getPager() != null) {
+					liveViewManager.previousPage();
+					
+					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+				}
+			} else { // PTZ, 向右
+				liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.RIGHT);
+				
+				if (mPtzControl != null) {
+					mPtzControl.moveRight();
+				}
+			}
+			
 		}
 
 		@Override
 		public void onSlidingLeftUp() {
-			ToastUtils.show(RealplayActivity.this, "左上");
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.LEFT_UP);
 			
+			/*
+			if (ptzControl != null) {
+				ptzControl.moveLeft();
+				ptzControl.moveUp();
+			}*/
 		}
 
 		@Override
-		public void onSlidingLeftDown() {
-			ToastUtils.show(RealplayActivity.this, "左下");
+		public void onSlidingLeftDown() {			
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.LEFT_DOWN);
 			
+			/*
+			if (ptzControl != null) {
+				ptzControl.moveLeft();
+				ptzControl.moveDown();
+			}*/
 		}
 
 		@Override
 		public void onSlidingRightUp() {
-			ToastUtils.show(RealplayActivity.this, "右上");
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.RIGHT_UP);
 			
+			/*
+			if (ptzControl != null) {
+				ptzControl.moveRight();
+				ptzControl.moveUp();
+			}*/
 		}
 
 		@Override
 		public void onSlidingRightDown() {
-			ToastUtils.show(RealplayActivity.this, "右下");
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.RIGHT_DOWN);
 			
+			/*
+			if (ptzControl != null) {
+				ptzControl.moveRight();
+				ptzControl.moveDown();
+			}*/
 		}
 
 		@Override
 		public void onSlidingUp() {
-			ToastUtils.show(RealplayActivity.this, "上");
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.UP);
 			
+			if (mPtzControl != null) {
+				mPtzControl.moveUp();
+			}
 		}
 
 		@Override
 		public void onSlidingDown() {
-			ToastUtils.show(RealplayActivity.this, "下");
+			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.DOWN);
 			
+			if (mPtzControl != null) {
+				mPtzControl.moveDown();
+			}
 		}
 		
+		@Override
+		public void onSlidingMoveUp() {
+			Log.i(TAG, "onSlidingMoveUp");
+			
+			liveViewManager.getSelectedLiveView().stopArrowAnimation();
+			
+			if (mPtzControl != null) {
+				mPtzControl.stopMove();
+			}
+			
+			mIsPTZInMoving = false;
+			
+		}
+
+		@Override
+		public void onZoomIn() {
+			//ToastUtils.show(RealplayActivity.this, "手势放大");
+			liveViewManager.getSelectedLiveView().showFocalLengthAnimation(true);
+			
+			if (mPtzControl != null) {
+				mPtzControl.focalLengthIncrease();
+			}
+		}
+
+		@Override
+		public void onZoomOut() {
+			//ToastUtils.show(RealplayActivity.this, "手势缩小");
+			liveViewManager.getSelectedLiveView().showFocalLengthAnimation(false);
+			if (mPtzControl != null) {
+				mPtzControl.focalLengthDecrease();
+			}
+		}
+
+		@Override
+		public void onFling() {
+			// TODO Auto-generated method stub
+			
+		}
 	};
 	
 	
 	
-	// ViewFlipper实例
-    ViewFlipper mFlipper;
-    // 定义手势检测器实例
-    GestureDetector mGestureDetector;
+	
+	private ViewFlipper mFlipper;			              // ViewFlipper实例
+	private GestureDetector mGestureDetector;             // 定义手势检测器实例
+    private ScaleGestureDetector mScaleGestureDetector;   // 缩放手势检测器实例
+    
     //定义一个动画数组，用于为ViewFlipper指定切换动画效果
     Animation[] animations = new Animation[4];
     
 	
-	class GestureListener extends SimpleOnGestureListener  
+	private class GestureListener extends SimpleOnGestureListener  
     {  	
 	    final int FLIP_DISTANCE = 50;  //定义手势动作两点之间的最小距离
 	    //private boolean mIsDoubleClick = false;
@@ -1350,6 +1442,10 @@ public class RealplayActivity extends BaseActivity {
 	    private OnGestureListener mGestureListener;
 		
 		public GestureListener(OnGestureListener listener) {
+			if (listener == null) {
+        		throw new NullPointerException("Error parameter, listener is null");
+        	}
+			
 			this.mGestureListener = listener;
 		}
   
@@ -1401,11 +1497,6 @@ public class RealplayActivity extends BaseActivity {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,  
                 float velocityY)  
         {  
-        	
-        	if (mGestureListener == null) {
-        		throw new NullPointerException("mGestureListener is null");
-        	}
-        	
         	float a0 = e1.getX();
         	float b0 = e1.getY();
         	float a1 = e2.getX();
@@ -1436,40 +1527,8 @@ public class RealplayActivity extends BaseActivity {
         		
         		return true;
         	} else {  // PTZ模式
-        		if (!checkIsPTZDeviceConnected()) { // 若设备处于未连接或断开状态，则不启用云台控制手势        			
-        			return true;
-        		}
         		
-        		
-        		switch (h) {
-        		case -1:
-        			if (v == -1) {
-        				mGestureListener.onSlidingLeftUp();
-        			} else if (v == 0) {
-        				mGestureListener.onSlidingLeft();
-        			} else if (v == 1) {
-        				mGestureListener.onSlidingLeftDown();
-        			}
-        			break;
-        		case 0:
-        			if (v == -1) {
-        				mGestureListener.onSlidingUp();
-        			} else if (v == 0) {
-        				
-        			} else if (v == 1) {
-        				mGestureListener.onSlidingDown();;
-        			}
-        			break;
-        		case 1:
-        			if (v == -1) {
-        				mGestureListener.onSlidingRightUp();
-        			} else if (v == 0) {
-        				mGestureListener.onSlidingRight();
-        			} else if (v == 1) {
-        				mGestureListener.onSlidingRightDown();
-        			}
-        			break;
-        		}
+        		mGestureListener.onFling();    		
         	}
     		
     		return false;  
@@ -1487,14 +1546,109 @@ public class RealplayActivity extends BaseActivity {
         public boolean onScroll(MotionEvent e1, MotionEvent e2,  
                 float distanceX, float distanceY)  
         {  
-            // TODO Auto-generated method stub  
-            Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);  
+            Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);
+            
+            Log.i(TAG, "mIsPTZInMoving: " + mIsPTZInMoving);
+            
+            /*
+             * 目前服务端不支持连续发送 _OWSP_ACTIONCode事件，故若侦测到已发送云台移动事件
+             * 则需等待 OWSP_ACTION_MD_STOP事件后方可再次发送
+             */
+            if (mIsPTZInMoving) {
+            	return true;
+            }
+            
+            float a0 = e1.getX();
+        	float b0 = e1.getY();
+        	float a1 = e2.getX();
+        	float b1 = e2.getY();
+        	
+        	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
+        	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
+            
+        	if (!mIsPTZModeOn || !checkIsPTZDeviceConnected()) { // 若设备处于未连接或断开状态，则不启用云台控制手势        			
+    			return true;
+    		}
+    		
+    		Log.i(TAG, "h: " + h + ", v: " + v);
+        	
+    		mIsPTZInMoving = true;
+    		
+    		switch (h) {
+    		case -1:
+    			if (v == -1) {
+    				mGestureListener.onSlidingLeftUp();
+    			} else if (v == 0) {
+    				mGestureListener.onSlidingLeft();
+    			} else if (v == 1) {
+    				mGestureListener.onSlidingLeftDown();
+    			}
+    			break;
+    		case 0:
+    			if (v == -1) {
+    				mGestureListener.onSlidingUp();
+    			} else if (v == 0) {
+    				mIsPTZInMoving = false;
+    			} else if (v == 1) {
+    				mGestureListener.onSlidingDown();;
+    			}
+    			break;
+    		case 1:
+    			if (v == -1) {
+    				mGestureListener.onSlidingRightUp();
+    			} else if (v == 0) {
+    				mGestureListener.onSlidingRight();
+    			} else if (v == 1) {
+    				mGestureListener.onSlidingRightDown();
+    			}
+    			break;
+    		}
+    		
+    		
+            
             return super.onScroll(e1, e2, distanceX, distanceY);  
         }  
-  
-        
-          
     }
+	
+	private class ScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
+		private float scaleFactor = 0;
+		
+		private OnGestureListener mGestureListener;
+		
+		public ScaleGestureListener(OnGestureListener listener) {
+			if (listener == null) {
+        		throw new NullPointerException("Error parameter, listener is null");
+        	}
+			
+			this.mGestureListener = listener;
+		}
+		
+		@Override
+		public boolean onScale(ScaleGestureDetector detector) {
+			scaleFactor = detector.getScaleFactor();
+			return true;
+		}
+
+		@Override
+		public boolean onScaleBegin(ScaleGestureDetector detector) {
+			return true;
+		}
+
+		@Override
+		public void onScaleEnd(ScaleGestureDetector detector) {
+			if ((mIsPTZModeOn && !checkIsPTZDeviceConnected())
+					|| !mIsPTZModeOn) { // 未启用PTZ模式或未连接状态均不触发
+				return;
+			}
+			
+			if (scaleFactor > 1) {
+				mGestureListener.onZoomIn();
+			} else {
+				mGestureListener.onZoomOut();
+			}
+		}
+		
+	}
 
 	
 	public static interface OnGestureListener {
@@ -1508,5 +1662,9 @@ public class RealplayActivity extends BaseActivity {
 		public void onSlidingRightDown();
 		public void onSlidingUp();
 		public void onSlidingDown();
+		public void onSlidingMoveUp();
+		public void onFling();
+		public void onZoomIn();
+		public void onZoomOut();
 	}
 }
