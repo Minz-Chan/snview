@@ -35,7 +35,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private RelativeLayout mArrowSubFrame;
 	private ImageView[] mSubFocalLengthArray = new ImageView[4];
 	
-
+	private boolean mIsResponseError;
 
 //	private OnLiveViewContainerClickListener mLvContainerClickListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
@@ -84,6 +84,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void init() {
+		mIsResponseError = false;
+		
 //		if (mLvContainerClickListener != null) {
 //			this.setOnClickListener(mLvContainerClickListener);
 //		}
@@ -95,7 +97,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mWindowInfoText.setText(null);
 		
 	}	
+	
+	
 
+	public void setIsResponseError(boolean isResponseError) {
+		this.mIsResponseError = isResponseError;
+	}
 	public Connection getCurrentConnection() {
 		return mCurrentConnection;
 	}
@@ -229,8 +236,17 @@ public class LiveViewItemContainer extends RelativeLayout {
 		}, 500);
 		
 	}
+	
+	public void setWindowInfoContent(int resid) {
+		setWindowInfoContent(getResources().getString(resid));
+	}
 
 	public void setWindowInfoContent(String info) {
+		if (mIsResponseError) { 
+			return; // 若返回错误，则相应提示信息已更新，不进行覆盖
+		}
+		
+		
 		final StringBuffer s;
 		
 		if (deviceRecordName != null && info != null) {

@@ -246,7 +246,9 @@ public class Connection extends DemuxingIoHandler {
     	l.setUserName(username);
     	l.setPassword(password);
     	l.setDeviceId(1);
+    	l.setFlag(1);
     	l.setChannel(channel);
+    	l.setReserve(new int[]{0, 0});
     	
     	session.write(new OwspBegin());
     	
@@ -331,6 +333,8 @@ public class Connection extends DemuxingIoHandler {
 		}
 		
 		login(session, username, password);
+		
+		Log.i(TAG, session + ", user:" + username + ", pass:" + password);
 	}
 
 	@Override
