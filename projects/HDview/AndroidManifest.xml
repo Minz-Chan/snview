@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RESTART_PACKAGES" /><!-- 关闭整个应用程序权限 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 检测网络连接的权限 -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/><!-- 系统声音权限 -->
+    <uses-permission android:name="android.permission.CAMERA"/><!-- 拍照权限 -->
     
     <uses-sdk
         android:minSdkVersion="8"
@@ -50,10 +52,12 @@
         <activity android:name="com.starnet.snview.devicemanager.DeviceInfoActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceEditableActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!--  --> 
         
-        <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity_Copy" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
+        <activity android:name="com.starnet.snview.channelmanager.ChannelListActivity_Copy" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
         
-        <activity android:name="com.starnet.snview.images.ImagePreviewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
-        <activity android:name="com.starnet.snview.images.ImagePreviewViewPagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" /><!-- 测试使用... --> 
+        <activity android:name="com.starnet.snview.images.ImagePreviewActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.images.ImagePreviewViewPagerActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.images.ImageManagerVideoPlayActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden" android:theme="@android:style/Theme.NoTitleBar" />
+        <activity android:name="com.starnet.snview.images.ImageManagerVideoPlay_second_Activity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden" android:theme="@android:style/Theme.NoTitleBar" />
     </application>
 
     

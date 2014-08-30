@@ -456,7 +456,7 @@ public class CloudAccountXML {
 					&&defaultChannel.equals(String.valueOf(deviceItem.getDefaultChannel()))) {
 				subElement.detach();//删除节点
 				result = true;
-				break;
+				break;//表示删除第一个，如果，不使用break，则表示删除所有的...
 			}
 		}
 		return result;

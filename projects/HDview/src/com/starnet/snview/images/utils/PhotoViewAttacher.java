@@ -33,6 +33,13 @@ import java.lang.ref.WeakReference;
 
 public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, VersionedGestureDetector.OnGestureListener,
 		GestureDetector.OnDoubleTapListener, ViewTreeObserver.OnGlobalLayoutListener {
+	
+	//OnDoubleTapListener：图片双击接口...
+	//OnGlobalLayoutListener：布局改变监听接口...
+	//OnTouchListener：视图触摸接口...，通过该接口，用户得知用户是进行了拖动操作，还是滑动错做；还是缩放操作；
+	//OnGestureListener：自定义手势监听接口...
+	//IPhotoView：自定义图片改变接口...
+	
 
 	static final String LOG_TAG = "PhotoViewAttacher";
 
@@ -44,9 +51,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	static final int EDGE_RIGHT = 1;
 	static final int EDGE_BOTH = 2;
 
-	public static final float DEFAULT_MAX_SCALE = 3.0f;
-	public static final float DEFAULT_MID_SCALE = 1.75f;
-	public static final float DEFAULT_MIN_SCALE = 1.0f;
+	public static final float DEFAULT_MAX_SCALE = 3.0f;//缩放的最大比例
+	public static final float DEFAULT_MID_SCALE = 1.75f;//缩放的中间比例
+	public static final float DEFAULT_MIN_SCALE = 1.0f;//缩放的最小比例，为1，表示禁止缩小
 
 	private float mMinScale = DEFAULT_MIN_SCALE;
 	private float mMidScale = DEFAULT_MID_SCALE;
@@ -56,9 +63,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 
 	private static void checkZoomLevels(float minZoom, float midZoom, float maxZoom) {
 		if (minZoom >= midZoom) {
-			throw new IllegalArgumentException("MinZoom should be less than MidZoom");
+			throw new IllegalArgumentException("MinZoom should be less than MidZoom");//抛出设置异常
 		} else if (midZoom >= maxZoom) {
-			throw new IllegalArgumentException("MidZoom should be less than MaxZoom");
+			throw new IllegalArgumentException("MidZoom should be less than MaxZoom");//抛出设置异常
 		}
 	}
 
@@ -118,10 +125,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	private final float[] mMatrixValues = new float[9];
 
 	// Listeners
-	private OnMatrixChangedListener mMatrixChangeListener;
-	private OnPhotoTapListener mPhotoTapListener;
-	private OnViewTapListener mViewTapListener;
-	private OnLongClickListener mLongClickListener;
+	private OnMatrixChangedListener mMatrixChangeListener;//矩阵改变监听器...
+	private OnPhotoTapListener mPhotoTapListener;//照片单击监听器...；
+	private OnViewTapListener mViewTapListener;//视图单击监听器...；
+	private OnLongClickListener mLongClickListener;//长按监听器...；
 
 	private int mIvTop, mIvRight, mIvBottom, mIvLeft;
 	private FlingRunnable mCurrentFlingRunnable;
@@ -135,8 +142,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 
 		imageView.setOnTouchListener(this);
 
-		mViewTreeObserver = imageView.getViewTreeObserver();
-		mViewTreeObserver.addOnGlobalLayoutListener(this);
+		mViewTreeObserver = imageView.getViewTreeObserver();//获取布局树...
+		mViewTreeObserver.addOnGlobalLayoutListener(this);//全局中的任何改变都会导致onGlobalLayout函数的回调...
 
 		// Make sure we using MATRIX Scale Type
 		setImageViewScaleTypeMatrix(imageView);
@@ -393,6 +400,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 					break;
 
 				case MotionEvent.ACTION_CANCEL:
+					break;//赵康添加...
 				case MotionEvent.ACTION_UP:
 					// If the user has zoomed less than min scale, zoom back
 					// to min scale
@@ -439,37 +447,37 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 
 	@Override
 	public void setMaxScale(float maxScale) {
-		checkZoomLevels(mMinScale, mMidScale, maxScale);
+		checkZoomLevels(mMinScale, mMidScale, maxScale);//检测缩放水准...进行最小缩放、最大放大还是中间缩放...
 		mMaxScale = maxScale;
 	}
 
 	@Override
-	public final void setOnLongClickListener(OnLongClickListener listener) {
+	public final void setOnLongClickListener(OnLongClickListener listener) {//注册长按监听器
 		mLongClickListener = listener;
 	}
 
 	@Override
-	public final void setOnMatrixChangeListener(OnMatrixChangedListener listener) {
+	public final void setOnMatrixChangeListener(OnMatrixChangedListener listener) {//注册位图监听器
 		mMatrixChangeListener = listener;
 	}
 
 	@Override
-	public final void setOnPhotoTapListener(OnPhotoTapListener listener) {
+	public final void setOnPhotoTapListener(OnPhotoTapListener listener) {//注册照片单击监听器
 		mPhotoTapListener = listener;
 	}
 
 	@Override
-	public final void setOnViewTapListener(OnViewTapListener listener) {
+	public final void setOnViewTapListener(OnViewTapListener listener) {//注册视图单击监听器
 		mViewTapListener = listener;
 	}
 
 	@Override
-	public final void setScaleType(ScaleType scaleType) {
-		if (isSupportedScaleType(scaleType) && scaleType != mScaleType) {
+	public final void setScaleType(ScaleType scaleType) {//设置缩放类型...
+		if (isSupportedScaleType(scaleType) && scaleType != mScaleType) {//检测是否支持设置缩放类型...
 			mScaleType = scaleType;
 
 			// Finally update
-			update();
+			update();//更行操作...
 		}
 	}
 

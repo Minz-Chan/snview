@@ -221,7 +221,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		try {
 			fout =  new FileOutputStream(f);
 			
-			b.compress(Bitmap.CompressFormat.JPEG, 90, fout);
+			b.compress(Bitmap.CompressFormat.JPEG, 100, fout);
 			
 			fout.close();
 			

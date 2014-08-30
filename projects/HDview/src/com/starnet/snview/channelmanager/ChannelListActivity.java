@@ -159,36 +159,9 @@ public class ChannelListActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-					previewChannelList = new ArrayList<PreviewDeviceItem>();
-					previewChannelList = getPreviewChannelList(cloudAccounts);
-					
-					if (previewChannelList.size() > 0) {
-						PreviewDeviceItem p = previewChannelList.get(0);
-						
-						PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
-						previewChannelList.toArray(l);
-						
-						Intent intent = ChannelListActivity.this.getIntent();
-						intent.putExtra("DEVICE_ITEM_LIST", l);
-						
-						ChannelListActivity.this.setResult(8, intent);
-						ChannelListActivity.this.finish();
-					} else {
-						Toast.makeText(
-								ChannelListActivity.this,
-								getString(R.string.channel_manager_channellistview_loadfail),
-								Toast.LENGTH_SHORT).show();
-					}
-				
+				ChannelListActivity.this.finish();
 			}
 		});
-		
-//		super.getLeftButton().setOnClickListener(new OnClickListener(){
-//			@Override
-//			public void onClick(View v) {
-//				ChannelListActivity.this.finish();
-//			}
-//		});
 	}
 
 	private void initView() {
@@ -200,7 +173,6 @@ public class ChannelListActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 
 		curContext = ChannelListActivity.this;
-		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
 		caXML = new CloudAccountXML();
@@ -212,9 +184,7 @@ public class ChannelListActivity extends BaseActivity {
 		int netSize = cloudAccounts.size();
 
 		// 查看网络是否开启
-		NetWorkUtils netWorkUtils = new NetWorkUtils();
-		boolean isOpen = netWorkUtils
-				.checkNetConnection(ChannelListActivity.this);
+		boolean isOpen = NetWorkUtils.checkNetConnection(ChannelListActivity.this);
 		if (isOpen) {
 			// while (!stopThread) {
 			for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
@@ -241,8 +211,7 @@ public class ChannelListActivity extends BaseActivity {
 			// }
 		} else {
 			String printSentence = getString(R.string.channel_manager_channellistview_netnotopen);
-			Toast toast = Toast.makeText(ChannelListActivity.this,
-					printSentence, Toast.LENGTH_LONG);
+			Toast toast = Toast.makeText(ChannelListActivity.this,printSentence, Toast.LENGTH_LONG);
 			toast.show();
 		}
 

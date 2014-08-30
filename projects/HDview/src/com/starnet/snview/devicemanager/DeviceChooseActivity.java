@@ -45,6 +45,8 @@ public class DeviceChooseActivity extends BaseActivity {
 	// 用于从文档中获取所有的用户，根据用户信息获取设备
 	
 	private final int RESULTCODE = 11;
+	
+	private boolean is_blur_search = false;//等于false 意味着味进行模糊搜索，否则进行了模糊搜索...
 
 	private Button leftButton;// 左边按钮
 	private ListView deviceListView;
@@ -126,6 +128,7 @@ public class DeviceChooseActivity extends BaseActivity {
 							searchDeviceItemList = getSearchDeviceItemList(searchContent);
 							deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,searchDeviceItemList);
 							deviceListView.setAdapter(deviceChooseAdapter);
+							is_blur_search = true;
 						}
 					}
 
@@ -136,8 +139,13 @@ public class DeviceChooseActivity extends BaseActivity {
 		deviceListView.setOnItemClickListener(new OnItemClickListener() {//单击进入平台信息界面...
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+				DeviceItem deviceItem ;
+				if (is_blur_search) {
+					deviceItem = searchDeviceItemList.get(position);
+				}else {
+					deviceItem = deviceItemList.get(position);
+				}
 				
-				DeviceItem deviceItem = deviceItemList.get(position);
 				clickDeviceItem = deviceItem;
 				String dName = deviceItem.getDeviceName();
 				String length = getString(R.string.device_manager_off_on_line_length);

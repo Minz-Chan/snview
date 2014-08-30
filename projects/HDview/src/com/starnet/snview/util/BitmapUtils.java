@@ -1,5 +1,10 @@
 package com.starnet.snview.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -108,4 +113,32 @@ public class BitmapUtils {
 
         return b2;
     }
+    
+    public static boolean saveBmpFile(Bitmap b, String fullImgPath) {
+		File f = new File(fullImgPath);
+		FileOutputStream fout =  null;
+		
+		try {
+			fout =  new FileOutputStream(f);
+			
+			b.compress(Bitmap.CompressFormat.JPEG, 100, fout);
+			
+			fout.close();
+			
+			return true;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			if (fout != null) {
+				try {
+					fout.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
 }

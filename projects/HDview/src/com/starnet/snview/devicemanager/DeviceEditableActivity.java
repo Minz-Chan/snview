@@ -18,7 +18,7 @@ import com.starnet.snview.util.IPAndPortUtils;
 
 public class DeviceEditableActivity extends BaseActivity {
 	
-	private static final String TAG = "DeviceEditableActivity";
+	protected static final String TAG = "DeviceEditableActivity";
 	
 	private EditText record_et;
 	private EditText server_et;
@@ -31,8 +31,6 @@ public class DeviceEditableActivity extends BaseActivity {
 	private DeviceItem clickDeviceItem;
 
 	private Button saveButton;
-	private int oriChannelNum;//未编辑后的通道数量
-	private int newChannelNum;//编辑后的通道数量
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +70,7 @@ public class DeviceEditableActivity extends BaseActivity {
 					if (isPort&&isIp) {
 						int defaultChannl = Integer.valueOf(dfChl);
 						int newChannelNum = Integer.valueOf(chSum);
-						if (defaultChannl < newChannelNum) {
+						if (defaultChannl <= newChannelNum) {
 							clickDeviceItem.setChannelSum(chSum);
 							clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 							clickDeviceItem.setDeviceName(dName);
@@ -175,7 +173,7 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 		}		
 		
-		oriChannelNum = Integer.valueOf(channelSum);//获取通道数量...
+//		oriChannelNum = Integer.valueOf(channelSum);//获取通道数量...
 		
 		record_et.setText(deviceName);
 		server_et.setText(svrIp);

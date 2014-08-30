@@ -50,7 +50,7 @@ public class NetCloudAccountThread extends Thread {
 			if (requestStatus == null) {//网络访问成功
 				List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取到设备
 				CloudAccount netCloudAccount = getCloudAccountFromDVRDevice(dvrDevices);//将获取的内容封装成CloudAccount
-				//写操作的同步
+				//写操作的同步,是否有必要向文档中写入保存呢。。。？？？？
 				caXml.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountSuccess(data,netCloudAccount);//封装数据:将网络访问获取得到的数据打包
@@ -124,12 +124,16 @@ public class NetCloudAccountThread extends Thread {
 			
 			List<Channel> channelList = new ArrayList<Channel>();
 			int channeNumber = Integer.valueOf(channelSum);
-			for (int j = 0; j < channeNumber; j++) {
-				Channel channel = new Channel();
-				channel.setChannelName("通道"+(j+1));
-				channel.setSelected(false);
-				channel.setChannelNo((j+1));
-				channelList.add(channel);
+			if(channeNumber != 0){
+				for (int j = 0; j < channeNumber; j++) {
+					Channel channel = new Channel();
+					channel.setChannelName("通道"+(j+1));
+					channel.setSelected(false);
+					channel.setChannelNo((j+1));
+					channelList.add(channel);
+				}
+			}else {//通道为空的情况；人为的添加一个通道...
+				
 			}
 			deviceItem.setChannelList(channelList);
 			deviceList.add(deviceItem);

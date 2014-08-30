@@ -9,6 +9,8 @@ import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.NetWorkUtils;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private Button state_button;
 	private ButtonState bs;	
 	private List<DeviceItem> deviceList;
+	private boolean isOpen;//判断网络是否打开...
 	
 	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
@@ -52,6 +55,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				posList.add(i);
 			}
 		}
+		isOpen = NetWorkUtils.checkNetConnection(context);
 	}
 	@Override
 	public int getGroupCount() {// 获取组的个数
@@ -113,7 +117,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		
 		//为组元素设置背景颜色...
 		ProgressBar progressBar_net_load = (ProgressBar) convertView.findViewById(R.id.progressBar_net_load);
-		if (groupAccountList.get(groupPosition).isRotate()) {//判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
+		if (groupAccountList.get(groupPosition).isRotate()||(!isOpen)) {//判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
 			progressBar_net_load.setVisibility(View.GONE);
 		}	
 		
@@ -140,8 +144,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 //			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));//原来的颜色
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
 //			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
-//			convertView.setClickable(false);
-//			convertView.setEnabled(false);
 		}
 		return convertView;
 	}
@@ -228,8 +230,12 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		CloudAccount cloudAccount = groupAccountList.get(groupPos);
 		List<DeviceItem> deviceList = cloudAccount.getDeviceList();
 		DeviceItem deviceItem = deviceList.get(childPos);
-		List<Channel> channels =deviceItem.getChannelList();
+		List<Channel> channels =deviceItem.getChannelList();//得到一个设备对应的通道列表...
 		int channelSize = channels.size();
+		if(channelSize==0){
+			state = "empty";
+			return state;
+		}
 		for (int k = 0; k < channelSize; k++) {		
 			channelNum++;	
 			if (channels.get(k).isSelected()) {

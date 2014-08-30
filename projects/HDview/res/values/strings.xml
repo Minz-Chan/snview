@@ -110,6 +110,9 @@
     <string name="device_manager_offline_cn">（离线）</string>
     <string name="device_manager_offline_en">(离线)</string>
     <string name="device_manager_off_on_line_length">4</string>
+    <string name="device_manager_devicecollect_cover">已存在该设备，是否覆盖？</string>
+    <string name="device_manager_devicecollect_cancel">取消</string>
+    <string name="device_manager_devicecollect_ensure">确定</string>
     
     <string name="image_manager_imagepreview_delete">删除</string>
     

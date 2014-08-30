@@ -447,5 +447,9 @@ public abstract class BaseActivity extends Activity {
 	protected FrameLayout getToolbarContainer() {
 		return mToolbarContainer;
 	}
+	
+	protected RelativeLayout getNavbarContainer() {
+		return mNavbarContainer;
+	}
 
 }

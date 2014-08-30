@@ -31,7 +31,6 @@ import android.widget.Button;
 public class ButtonOnclickListener implements OnClickListener {
 	
 	@SuppressLint("SdCardPath")
-	private final String CLOUDACCOUNTFILEPATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
 	private Context context;//上下文环境

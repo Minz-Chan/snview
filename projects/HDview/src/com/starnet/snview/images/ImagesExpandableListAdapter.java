@@ -107,17 +107,18 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 									pathList.add(imageList.get(j).getImagePath());
 								}
 							}
+							
+							int in_flag = 1;
 							//点击进入到图片查看界面
 //							int size = ImagesExpandableListAdapter.this.mGroupList.get(position).getGroupSize();
 //							Log.v(TAG, String.valueOf(size));
 							//如果是图片进入图片预览；如果是视频，进入视频播放控制界面。。。
 							Intent intent = new Intent();
 							Image image = ImagesExpandableListAdapter.this.mGroupList.get(gPos).getThumbnailList().get(position);
-							if (image.getType().equals(ImageType.PICTURE)||image.getType().equals(ImageType.VIDEO)) {
+//							if (image.getType().equals(ImageType.PICTURE)||image.getType().equals(ImageType.VIDEO)) {
+							if (in_flag ==1) {
 								String thumbnailsPath = image.getThumbnailsPath();
-								
 								String imagePath = image.getImagePath();
-								
 								intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
 								intent.putExtra("sumMap",String.valueOf(sumMap));
 								intent.putExtra("imagePath",imagePath);
@@ -126,16 +127,17 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 								intent.setClass(mImagesActivity, ImagePreviewViewPagerActivity.class);
 								mImagesActivity.startActivity(intent);
 							}else{
-								String text = "这是一个录像";
-								Toast.makeText(mImagesActivity, text, Toast.LENGTH_SHORT).show();
-								
+								Toast.makeText(mImagesActivity, "播放录像", Toast.LENGTH_SHORT).show();
+								String imagePath = image.getImagePath();
+								intent.putExtra("sumMap",String.valueOf(sumMap));
+								intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
+								intent.putExtra("imagePath",imagePath);
+								intent.setClass(mImagesActivity, ImageManagerVideoPlayActivity.class);
+								mImagesActivity.startActivity(intent);
 							}
 							// 显示图片或播放视频
-							
 						}
-
 					}
-
 				});
 
 		return convertView;

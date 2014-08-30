@@ -18,7 +18,7 @@ public class NetWorkUtils {
 	 *            :上下文环境
 	 * @return ：若网络连接，则返回true；否则，返回FALSE；
 	 */
-	public boolean checkNetConnection(Context context) {
+	public static boolean checkNetConnection(Context context) {
 		boolean isConnected = false;
 		ConnectivityManager conn = (ConnectivityManager) context.getSystemService(Activity.CONNECTIVITY_SERVICE);
 

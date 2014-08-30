@@ -9,6 +9,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -163,15 +164,56 @@ public class DeviceCollectActivity extends BaseActivity {
 								}
 
 								saveDeviceItem.setChannelList(channelList);
-								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-								toast.show();
-								Intent intent = new Intent();
-								Bundle bundle = new Bundle();
-								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
-								intent.putExtras(bundle);
-								setResult(11, intent);
-								DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
+								
+								//检查是否存在？若是存在则弹出对话框，询问用户是否覆盖；否则直接添加...
+								
+								List<DeviceItem> collectList = caXML.getCollectDeviceListFromXML(filePath);
+								boolean isExist = checkDeviceItemListExist(saveDeviceItem,collectList);//检查列表中是否存在该用户...
+								if (isExist) {//弹出对话框...用户选择确定时，则添加覆盖；
+									
+									Builder builder = new Builder(DeviceCollectActivity.this);
+									builder.setTitle(getString(R.string.device_manager_devicecollect_cover));
+									builder.setNegativeButton(getString(R.string.device_manager_devicecollect_cancel), null);
+									builder.setPositiveButton(getString(R.string.device_manager_devicecollect_ensure), new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											try {
+												String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+												Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
+												toast.show();
+												Intent intent = new Intent();
+												Bundle bundle = new Bundle();
+												bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+												intent.putExtras(bundle);
+												setResult(11, intent);
+												DeviceCollectActivity.this.finish();
+											} catch (Exception e) {
+												
+											}
+										}
+									});
+									builder.show();
+								}else {//如果不存在设备，则直接添加...
+									String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+									Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
+									toast.show();
+									Intent intent = new Intent();
+									Bundle bundle = new Bundle();
+									bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+									intent.putExtras(bundle);
+									setResult(11, intent);
+									DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
+								}								
+//								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+//								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
+//								toast.show();
+//								Intent intent = new Intent();
+//								Bundle bundle = new Bundle();
+//								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+//								intent.putExtras(bundle);
+//								setResult(11, intent);
+//								DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
 							} else {
 								// 文档读写异常
 								String text = getString(R.string.device_manager_deCh_chNum);
@@ -208,8 +250,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			public void onClick(View v) {
 				
 				Context context = DeviceCollectActivity.this;
-				NetWorkUtils netWorkUtils = new NetWorkUtils();
-				boolean isConn = netWorkUtils.checkNetConnection(context);
+				boolean isConn = NetWorkUtils.checkNetConnection(context);
 				if (isConn) {
 					String printSentence;
 					try {
@@ -246,6 +287,20 @@ public class DeviceCollectActivity extends BaseActivity {
 				}
 			}	
 		});
+	}
+
+	//检查列表中，是否存在与savDeviceItem设备同名的的设备
+	protected boolean checkDeviceItemListExist(DeviceItem savDeviceItem,List<DeviceItem> collectList) {
+		boolean isExist = false;
+		int size = collectList.size();
+		for (int i = 0; i < size; i++) {
+			DeviceItem deviceItem = collectList.get(i);
+			if (deviceItem.getDeviceName().equals(savDeviceItem.getDeviceName())) {
+				isExist = true;
+				break;
+			}
+		}
+		return isExist;
 	}
 
 	@SuppressWarnings("deprecation")

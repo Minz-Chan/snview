@@ -1,4 +1,4 @@
-package com.starnet.snview.images.myutils;
+package com.starnet.snview.images.utils;
 
 import java.io.File;
 

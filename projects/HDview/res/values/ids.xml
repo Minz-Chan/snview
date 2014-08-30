@@ -1,110 +1,437 @@
 <resources>
-    <item name="menu_drawer_top" type="id" />
-    <item name="menu_drawer_realtime_preview" type="id" />
-    <item name="menu_drawer_remote_playback" type="id" />
-    <item name="menu_drawer_device_managerment" type="id" />
-    <item name="menu_drawer_picture_management" type="id" />
-    <item name="menu_drawer_alarm_management" type="id" />
-    <item name="menu_drawer_sys_setting" type="id" />
-    
-    <item name="base_navigationbar_title" type="id" />
-    <item name="base_navigationbar_left_btn" type="id" />
-    <item name="base_navigationbar_extend_btn" type="id" />
-    <item name="base_navigationbar_right_btn" type="id" />
-    
-    <item name="base_toolbar_container" type="id" />
-    <item name="base_toolbar" type="id" />
-    <item name="base_toolbar_container_arrowleft" type="id" />
-    <item name="base_toolbar_container_arrowright" type="id" />
-    <item name="base_toolbar_sub_menu_text" type="id" />
-    <item name="base_toolbar_sub_menu_left_btn" type="id" />
-    <item name="base_toolbar_sub_menu_right_btn" type="id" />
-    <item name="liveview_extend_bar" type="id" />
-    
-    
-    
-    <item name="base_content" type="id" />
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
 
+    <item name="menu_drawer_top" type="id"/>
+    <item name="menu_drawer_realtime_preview" type="id"/>
+    <item name="menu_drawer_remote_playback" type="id"/>
+    <item name="menu_drawer_device_managerment" type="id"/>
+    <item name="menu_drawer_picture_management" type="id"/>
+    <item name="menu_drawer_alarm_management" type="id"/>
+    <item name="menu_drawer_sys_setting" type="id"/>
+    <item name="base_navigationbar_title" type="id"/>
+    <item name="base_navigationbar_left_btn" type="id"/>
+    <item name="base_navigationbar_extend_btn" type="id"/>
+    <item name="base_navigationbar_right_btn" type="id"/>
+    <item name="base_toolbar_container" type="id"/>
+    <item name="base_toolbar" type="id"/>
+    <item name="base_toolbar_container_arrowleft" type="id"/>
+    <item name="base_toolbar_container_arrowright" type="id"/>
+    <item name="base_toolbar_sub_menu_text" type="id"/>
+    <item name="base_toolbar_sub_menu_left_btn" type="id"/>
+    <item name="base_toolbar_sub_menu_right_btn" type="id"/>
+    <item name="liveview_extend_bar" type="id"/>
 
-    <item name="navigation_bar" type="id" />
-    <item name="toolbar" type="id" />
-    <item name="pager" type="id" />
-    <item name="quality_controlbar_menu" type="id" />
-    <item name="ptz_controlbar_menu" type="id" />
-    <item name="quality_controlbar_menu_fluency" type="id" />
-    <item name="quality_controlbar_menu_standard" type="id" />
-    <item name="quality_controlbar_menu_high" type="id" />
-    <item name="quality_controlbar_menu_custom" type="id" />
-    <item name="ptz_controlbar_menu_scan" type="id" />
-    <item name="ptz_controlbar_menu_focal_length" type="id" />
-    <item name="ptz_controlbar_menu_focus" type="id" />
-    <item name="ptz_controlbar_menu_aperture" type="id" />
-    <item name="ptz_controlbar_menu_preset" type="id" />
-    <item name="toolbar_sub_menu" type="id" />
-    <item name="toolbar_ptz_pop_frame" type="id" />
-    
-    
-    <item name="images_listview" type="id" />
-    <item name="images_listview_image_gridview" type="id" />
-    <item name="images_thumbnail_item_layout" type="id" />
-    <item name="images_thumbnail_item_imageview" type="id" />
-    <item name="images_thumbnail_item_selected_bg_imageview" type="id" />
-    <item name="images_thumbnail_item_video_bg_imageview" type="id" />
-    <item name="images_listview_date_info_layout" type="id" />
-    <item name="images_date_textview" type="id" />
-    
-    
-    <item name="realplay_controlbar" type="id" />
-    <item name="realplay_container" type="id" />
-    <item name="realplay_divider_1" type="id" />
-    <item name="ptz_pop_frame" type="id" />
-    <item name="ptz_pop_focal_length_frame" type="id" />
-    <item name="ptz_pop_focus_frame" type="id" />
-    <item name="ptz_pop_aperture_frame" type="id" />
-    <item name="ptz_pop_focal_length_increase" type="id" />
-    <item name="ptz_pop_focal_length_decrease" type="id" />
-    <item name="ptz_pop_focus_increase" type="id" />
-    <item name="ptz_pop_focus_decrease" type="id" />
-    <item name="ptz_pop_aperture_increase" type="id" />
-    <item name="ptz_pop_aperture_decrease" type="id" />
-    
-    <item name="playback_controlbar" type="id" />
-    <item name="playback_container" type="id" />
-    <item name="timebar_control" type="id" />
-    
-    
-    <item name="device_listview" type="id" />
-    <item name="device_item_name" type="id" />
-    <item name="device_listview_item_securityprotection" type="id" />
-    
-    <item name="channel_listview" type="id" />
-    <item name="channel_sublistview" type="id" />
-    <item name="channel_listview_account_item_name" type="id" />
-    <item name="channel_listview_account_item_icon" type="id" />
-    <item name="channel_listview_device_item_name" type="id" /> 
-    <item name="channel_listview_device_item_text_prefix" type="id" />
-	<item name="channel_listview_device_item_chkbox" type="id" />
-    <item name="channel_listview_arrow" type="id" />
-    
+    <!-- <item name="localplay_progress_seekbar" type="id" /> -->
 
-    <item name="liveview_surface_infotext_layout" type="id" />
-    <item name="liveview_playwindow_frame" type="id" />
-    <item name="liveview_liveinfo_textview" type="id" />
-    
-    <item name="video_region" type="id" />
-    <item name="liveview_liveitem" type="id" />
-    <item name="liveview_liveitem1" type="id" />
-    <item name="liveview_liveitem2" type="id" />
-    <item name="liveview_liveitem3" type="id" />
-    <item name="liveview_liveitem4" type="id" />
-    <item name="liveview_progressbar" type="id" />
-    <item name="liveview_refresh_imageview" type="id" />
-    
-    
-    
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
-<!--     <item name="" type="id" /> -->
+    <item name="base_content" type="id"/>
+    <!-- <item name="" type="id" /> -->
+    <!-- <item name="" type="id" /> -->
+
+    <item name="navigation_bar" type="id"/>
+    <item name="toolbar" type="id"/>
+    <item name="pager" type="id"/>
+    <item name="quality_controlbar_menu" type="id"/>
+    <item name="ptz_controlbar_menu" type="id"/>
+    <item name="quality_controlbar_menu_fluency" type="id"/>
+    <item name="quality_controlbar_menu_standard" type="id"/>
+    <item name="quality_controlbar_menu_high" type="id"/>
+    <item name="quality_controlbar_menu_custom" type="id"/>
+    <item name="ptz_controlbar_menu_scan" type="id"/>
+    <item name="ptz_controlbar_menu_focal_length" type="id"/>
+    <item name="ptz_controlbar_menu_focus" type="id"/>
+    <item name="ptz_controlbar_menu_aperture" type="id"/>
+    <item name="ptz_controlbar_menu_preset" type="id"/>
+    <item name="toolbar_sub_menu" type="id"/>
+    <item name="toolbar_ptz_pop_frame" type="id"/>
+    <item name="images_listview" type="id"/>
+    <item name="images_listview_image_gridview" type="id"/>
+    <item name="images_thumbnail_item_layout" type="id"/>
+    <item name="images_thumbnail_item_imageview" type="id"/>
+    <item name="images_thumbnail_item_selected_bg_imageview" type="id"/>
+    <item name="images_thumbnail_item_video_bg_imageview" type="id"/>
+    <item name="images_listview_date_info_layout" type="id"/>
+    <item name="images_date_textview" type="id"/>
+    <item name="realplay_controlbar" type="id"/>
+    <item name="realplay_container" type="id"/>
+    <item name="realplay_divider_1" type="id"/>
+    <item name="ptz_pop_frame" type="id"/>
+    <item name="ptz_pop_focal_length_frame" type="id"/>
+    <item name="ptz_pop_focus_frame" type="id"/>
+    <item name="ptz_pop_aperture_frame" type="id"/>
+    <item name="ptz_pop_focal_length_increase" type="id"/>
+    <item name="ptz_pop_focal_length_decrease" type="id"/>
+    <item name="ptz_pop_focus_increase" type="id"/>
+    <item name="ptz_pop_focus_decrease" type="id"/>
+    <item name="ptz_pop_aperture_increase" type="id"/>
+    <item name="ptz_pop_aperture_decrease" type="id"/>
+    <item name="playback_controlbar" type="id"/>
+    <item name="playback_container" type="id"/>
+    <item name="timebar_control" type="id"/>
+    <item name="device_listview" type="id"/>
+    <item name="device_item_name" type="id"/>
+    <item name="device_listview_item_securityprotection" type="id"/>
+    <item name="channel_listview" type="id"/>
+    <item name="channel_sublistview" type="id"/>
+    <item name="channel_listview_account_item_name" type="id"/>
+    <item name="channel_listview_account_item_icon" type="id"/>
+    <item name="channel_listview_device_item_name" type="id"/>
+    <item name="channel_listview_device_item_text_prefix" type="id"/>
+    <item name="channel_listview_device_item_chkbox" type="id"/>
+    <item name="channel_listview_arrow" type="id"/>
+    <item name="liveview_surface_infotext_layout" type="id"/>
+    <item name="liveview_playwindow_frame" type="id"/>
+    <item name="liveview_liveinfo_textview" type="id"/>
+    <item name="video_region" type="id"/>
+    <item name="liveview_liveitem" type="id"/>
+    <item name="liveview_liveitem1" type="id"/>
+    <item name="liveview_liveitem2" type="id"/>
+    <item name="liveview_liveitem3" type="id"/>
+    <item name="liveview_liveitem4" type="id"/>
+    <item name="liveview_progressbar" type="id"/>
+    <item name="liveview_refresh_imageview" type="id"/>
+
+    <!-- <item name="" type="id" /> -->
+    <!-- <item name="" type="id" /> -->
+    <!-- <item name="" type="id" /> -->
+
+    <item name="base_navigationbar" type="id"/>
+    <item name="base_left_button" type="id"/>
+    <item name="base_right_button" type="id"/>
+    <item name="base_content_toolbar" type="id"/>
+    <item name="base_underbar" type="id"/>
+    <item name="base_underbar_left_button" type="id"/>
+    <item name="base_underbar_right_button" type="id"/>
+    <item name="base_underbar_center_button" type="id"/>
+    <item name="newfeature_top_word" type="id"/>
+    <item name="newfeature_center_imageview" type="id"/>
+    <item name="newfeature_bottom_word" type="id"/>
+    <item name="newfeature_goto_layout" type="id"/>
+    <item name="newfeature_goto_word" type="id"/>
+    <item name="menu_bar" type="id"/>
+    <item name="menu_live" type="id"/>
+    <item name="menu_playback" type="id"/>
+    <item name="menu_devicemanager" type="id"/>
+    <item name="menu_cloudmessage" type="id"/>
+    <item name="menu_picture_video_manager" type="id"/>
+    <item name="menu_configure" type="id"/>
+    <item name="menu_live_select" type="id"/>
+    <item name="menu_playback_select" type="id"/>
+    <item name="menu_devicemanager_select" type="id"/>
+    <item name="menu_cloudmessage_select" type="id"/>
+    <item name="menu_picture_video_manager_select" type="id"/>
+    <item name="menu_configure_select" type="id"/>
+    <item name="menu_live_textview" type="id"/>
+    <item name="menu_playback_textview" type="id"/>
+    <item name="menu_devicemanager_textview" type="id"/>
+    <item name="menu_cloudmessage_textview" type="id"/>
+    <item name="menu_picture_video_manager_textview" type="id"/>
+    <item name="menu_configure_textview" type="id"/>
+    <item name="guide_goto_channel_frame" type="id"/>
+    <item name="guide_button_mainmenu" type="id"/>
+    <item name="guide_button_gotochannel" type="id"/>
+    <item name="guide_channel_frame" type="id"/>
+    <item name="guide_channel_select_channel_button" type="id"/>
+    <item name="guide_channel_select_channel_button_top" type="id"/>
+    <item name="guide_channel_select_channel_button_left" type="id"/>
+    <item name="guide_channel_select_channel_button_right" type="id"/>
+    <item name="guide_channel_select_channel_button_bottom" type="id"/>
+    <item name="guide_start_live_frame" type="id"/>
+    <item name="guide_start_live_button" type="id"/>
+    <item name="guide_start_live_button_top" type="id"/>
+    <item name="guide_start_live_button_left" type="id"/>
+    <item name="guide_start_live_button_right" type="id"/>
+    <item name="liveview_liveitem5" type="id"/>
+    <item name="liveview_liveitem6" type="id"/>
+    <item name="liveview_liveitem7" type="id"/>
+    <item name="liveview_liveitem8" type="id"/>
+    <item name="liveview_liveitem9" type="id"/>
+    <item name="liveview_liveitem10" type="id"/>
+    <item name="liveview_liveitem11" type="id"/>
+    <item name="liveview_liveitem12" type="id"/>
+    <item name="liveview_liveitem13" type="id"/>
+    <item name="liveview_liveitem14" type="id"/>
+    <item name="liveview_liveitem15" type="id"/>
+    <item name="liveview_liveitem16" type="id"/>
+    <item name="liveview_titlebar" type="id"/>
+    <item name="liveview_controlbar" type="id"/>
+    <item name="liveview_pageindicator_frame" type="id"/>
+    <item name="liveview_pageindicator" type="id"/>
+    <item name="liveview_pageindicator_item_layout" type="id"/>
+    <item name="liveview_pageindicator_item_text" type="id"/>
+    <item name="liveview_liveviewgroup" type="id"/>
+    <item name="liveview_liveviewgroup_container" type="id"/>
+    <item name="liveview_surfaceview" type="id"/>
+    <item name="liveview_onewindow_scrollview" type="id"/>
+    <item name="liveview_flash_imageview" type="id"/>
+    <item name="liveview_arrow_all_container" type="id"/>
+    <item name="liveview_ptz_control_frame" type="id"/>
+    <item name="liveview_delete_layout" type="id"/>
+    <item name="liveview_delete_imageview" type="id"/>
+    <item name="liveview_record_frame" type="id"/>
+    <item name="cloudmessage_main_scroolview" type="id"/>
+    <item name="cloudmessage_main_goto_setactivity" type="id"/>
+    <item name="cloudmessage_main_goto_infoactivity" type="id"/>
+    <item name="cloudmessage_set_listview" type="id"/>
+    <item name="cloudmessage_set_progress_frame" type="id"/>
+    <item name="cloudmessage_set_button" type="id"/>
+    <item name="cloudmessage_set_devicetextview" type="id"/>
+    <item name="cloudmessage_set_button_container" type="id"/>
+    <item name="cloudmessage_info_listview" type="id"/>
+    <item name="cloudmessage_infoitem_time_textview" type="id"/>
+    <item name="cloudmessage_infoitem_message_textview" type="id"/>
+    <item name="cloudmessage_infoitem_linkage_linearlayout" type="id"/>
+    <item name="cloudmessage_infoitem_linkage_imageview" type="id"/>
+    <item name="cloudmessage_linkage_liveview" type="id"/>
+    <item name="cloudmessage_linkage_playback" type="id"/>
+    <item name="landscape_liveview_pop_frame" type="id"/>
+    <item name="landscape_liveview_control_frame" type="id"/>
+    <item name="landscape_liveview_pageindicator_frame" type="id"/>
+    <item name="landscape_liveview_pageindicator" type="id"/>
+    <item name="landscape_liveview_controlbar" type="id"/>
+    <item name="landscape_liveview_controlbar_content" type="id"/>
+    <item name="landscape_liveview_ptz_control_bar" type="id"/>
+    <item name="landscape_liveview_ptz_subcontrol_bar" type="id"/>
+    <item name="landscape_liveview_alarm_control_bar" type="id"/>
+    <item name="landscape_liveview_capture_button" type="id"/>
+    <item name="landscape_liveview_ptz_button" type="id"/>
+    <item name="landscape_liveview_quality_button" type="id"/>
+    <item name="landscape_liveview_voicetalk_button" type="id"/>
+    <item name="landscape_liveview_sound_button" type="id"/>
+    <item name="landscape_liveview_record_button" type="id"/>
+    <item name="landscape_liveview_alarm_button" type="id"/>
+    <item name="landscape_liveview_delete_button" type="id"/>
+    <item name="landscape_liveview_enlarge_button" type="id"/>
+    <item name="landscape_liveview_ptz_auto" type="id"/>
+    <item name="landscape_liveview_ptz_focal_length" type="id"/>
+    <item name="landscape_liveview_ptz_focus" type="id"/>
+    <item name="landscape_liveview_ptz_aperture" type="id"/>
+    <item name="landscape_liveview_ptz_preset_point" type="id"/>
+    <item name="landscape_liveview_ptz_bar_back" type="id"/>
+    <item name="landscape_liveview_quality_control_bar" type="id"/>
+    <item name="landscape_liveview_quality_clear_button" type="id"/>
+    <item name="landscape_liveview_quality_balance_button" type="id"/>
+    <item name="landscape_liveview_quality_fluent_button" type="id"/>
+    <item name="landscape_liveview_quality_custom_button" type="id"/>
+    <item name="landscape_liveview_quality_back_button" type="id"/>
+    <item name="quality_custom_pop_frame" type="id"/>
+    <item name="quality_custom_pop_panel" type="id"/>
+    <item name="quality_custom_pop_content" type="id"/>
+    <item name="quality_custom_pop_leftbutton" type="id"/>
+    <item name="quality_custom_pop_rightbutton" type="id"/>
+    <item name="quality_custom_pop_listview" type="id"/>
+    <item name="quality_custom_list_left_textview" type="id"/>
+    <item name="quality_custom_list_right_textview" type="id"/>
+    <item name="quality_custom_list_radio_imgaview" type="id"/>
+    <item name="quality_frame" type="id"/>
+    <item name="quality_clear_button" type="id"/>
+    <item name="quality_balance_button" type="id"/>
+    <item name="quality_fluent_button" type="id"/>
+    <item name="quality_custom_button" type="id"/>
+    <item name="quality_custom_expandablelistview" type="id"/>
+    <item name="alarm_frame" type="id"/>
+    <item name="alarm_scrollbar" type="id"/>
+    <item name="alarm_scroll_content" type="id"/>
+    <item name="alarm_left_more_frame" type="id"/>
+    <item name="alarm_right_more_frame" type="id"/>
+    <item name="landscape_alarm_frame" type="id"/>
+    <item name="landscape_alarm_bar" type="id"/>
+    <item name="ptz_frame" type="id"/>
+    <item name="ptz_auto" type="id"/>
+    <item name="ptz_focal_length" type="id"/>
+    <item name="ptz_focus" type="id"/>
+    <item name="ptz_aperture" type="id"/>
+    <item name="ptz_preset_point" type="id"/>
+    <item name="ptz_pop_panel" type="id"/>
+    <item name="ptz_pop_panel_content" type="id"/>
+    <item name="ptz_pop_focal_length_add" type="id"/>
+    <item name="ptz_pop_focal_length_subtract" type="id"/>
+    <item name="ptz_pop_focus_add" type="id"/>
+    <item name="ptz_pop_focus_subtract" type="id"/>
+    <item name="ptz_pop_aperture_add" type="id"/>
+    <item name="ptz_pop_aperture_subtract" type="id"/>
+    <item name="ptz_pop_preset_frame" type="id"/>
+    <item name="ptz_pop_preset_set" type="id"/>
+    <item name="ptz_pop_preset_get" type="id"/>
+    <item name="ptz_pop_preset_edit" type="id"/>
+    <item name="arrow_left" type="id"/>
+    <item name="arrow_left_down" type="id"/>
+    <item name="arrow_down" type="id"/>
+    <item name="arrow_right_down" type="id"/>
+    <item name="arrow_right" type="id"/>
+    <item name="arrow_right_up" type="id"/>
+    <item name="arrow_up" type="id"/>
+    <item name="arrow_left_up" type="id"/>
+    <item name="arrow_add_frame" type="id"/>
+    <item name="arrow_add_right_down" type="id"/>
+    <item name="arrow_add_right_up" type="id"/>
+    <item name="arrow_add_left_down" type="id"/>
+    <item name="arrow_add_left_up" type="id"/>
+    <item name="arrow_sub_frame" type="id"/>
+    <item name="arrow_sub_right_down" type="id"/>
+    <item name="arrow_sub_right_up" type="id"/>
+    <item name="arrow_sub_left_down" type="id"/>
+    <item name="arrow_sub_left_up" type="id"/>
+    <item name="channel_expandablelistview" type="id"/>
+    <item name="channel_fold_unfold_imageview" type="id"/>
+    <item name="channel_listitem_icon" type="id"/>
+    <item name="channel_listitem_text_0" type="id"/>
+    <item name="channel_listitem_text_1" type="id"/>
+    <item name="channel_listitem_number_imageview" type="id"/>
+    <item name="channel_listitem_state_imageview" type="id"/>
+    <item name="channel_listitem_state_layout" type="id"/>
+    <item name="channel_favorite_nameedit" type="id"/>
+    <item name="channel_type_key" type="id"/>
+    <item name="channel_item_data_key" type="id"/>
+    <item name="channel_header_arrow_imageview" type="id"/>
+    <item name="channel_header_progressbar" type="id"/>
+    <item name="channel_header_info1_textview" type="id"/>
+    <item name="channel_header_info2_textview" type="id"/>
+    <item name="devicemanager_device_list" type="id"/>
+    <item name="devicemanager_device_name" type="id"/>
+    <item name="devicemanager_device_info" type="id"/>
+    <item name="deviceedit_progress_frame" type="id"/>
+    <item name="deviceedit_progressbar" type="id"/>
+    <item name="deviceedit_deviceinfo_scrollview" type="id"/>
+    <item name="deviceedit_devicename_editview" type="id"/>
+    <item name="deviceedit_devicename_line" type="id"/>
+    <item name="deviceedit_deviceregtype_layout" type="id"/>
+    <item name="deviceedit_deviceregtype_textview" type="id"/>
+    <item name="deviceedit_deviceregtype_line" type="id"/>
+    <item name="deviceedit_deviceregtype_arrow" type="id"/>
+    <item name="deviceedit_ipdomain_address_row" type="id"/>
+    <item name="deviceedit_ipdomain_address_textview" type="id"/>
+    <item name="deviceedit_ipdomain_address_editview" type="id"/>
+    <item name="deviceedit_ipdomain_address_line" type="id"/>
+    <item name="deviceedit_ddns_address_row" type="id"/>
+    <item name="deviceedit_ddns_address_textview" type="id"/>
+    <item name="deviceedit_ddns_address_editview" type="id"/>
+    <item name="deviceedit_ddns_address_line" type="id"/>
+    <item name="deviceedit_ddns_marker_row" type="id"/>
+    <item name="deviceedit_ddns_marker_textview" type="id"/>
+    <item name="deviceedit_ddns_marker_editview" type="id"/>
+    <item name="deviceedit_ddns_marker_twodimensioncode_view" type="id"/>
+    <item name="deviceedit_ddns_marker_line" type="id"/>
+    <item name="deviceedit_ipdomain_port_row" type="id"/>
+    <item name="deviceedit_ipdomain_port_textview" type="id"/>
+    <item name="deviceedit_ipdomain_port_editview" type="id"/>
+    <item name="deviceedit_ipdomain_port_line" type="id"/>
+    <item name="deviceedit_username_editview" type="id"/>
+    <item name="deviceedit_username_line" type="id"/>
+    <item name="deviceedit_password_editview" type="id"/>
+    <item name="deviceedit_password_line" type="id"/>
+    <item name="deviceedit_channel_count_layout" type="id"/>
+    <item name="deviceedit_channel_error_editview" type="id"/>
+    <item name="deviceedit_channel_count_editview" type="id"/>
+    <item name="deviceedit_channel_count_line" type="id"/>
+    <item name="deviceedit_startlive_button" type="id"/>
+    <item name="deviceregister_listview" type="id"/>
+    <item name="deviceregister_option_textview" type="id"/>
+    <item name="deviceregister_option_button" type="id"/>
+    <item name="password_new_textview" type="id"/>
+    <item name="password_new_edittext" type="id"/>
+    <item name="password_comfirm_textview" type="id"/>
+    <item name="password_comfirm_edittext" type="id"/>
+    <item name="password_old_textview" type="id"/>
+    <item name="password_old_edittext" type="id"/>
+    <item name="playback_view_container" type="id"/>
+    <item name="playback_view_group" type="id"/>
+    <item name="playback_view_item" type="id"/>
+    <item name="playback_landscape_pop_frame" type="id"/>
+    <item name="playback_landscape_toolbar" type="id"/>
+    <item name="playback_landscape_toolbar_layout" type="id"/>
+    <item name="playback_landscape_pause_play_button" type="id"/>
+    <item name="playback_landscape_capture_button" type="id"/>
+    <item name="playback_landscape_record_button" type="id"/>
+    <item name="playback_landscape_delete_all_button" type="id"/>
+    <item name="playback_landscape_sound_button" type="id"/>
+    <item name="playback_landscape_enlarge_button" type="id"/>
+    <item name="playback_landscape_drag_image" type="id"/>
+    <item name="playback_landscape_timebar_frame" type="id"/>
+    <item name="playbackchannel_timeitem_title_layout" type="id"/>
+    <item name="about_newfeature_button" type="id"/>
+    <item name="about_newfeature_text" type="id"/>
+    <item name="about_update_button" type="id"/>
+    <item name="about_update_text" type="id"/>
+    <item name="about_update_new_text" type="id"/>
+    <item name="about_feedback_button" type="id"/>
+    <item name="about_feedback_text" type="id"/>
+    <item name="about_version_text" type="id"/>
+    <item name="auto_focus" type="id"/>
+    <item name="restart_preview" type="id"/>
+    <item name="decode_succeeded" type="id"/>
+    <item name="decode_failed" type="id"/>
+    <item name="decode" type="id"/>
+    <item name="encode_failed" type="id"/>
+    <item name="encode_succeeded" type="id"/>
+    <item name="launch_product_query" type="id"/>
+    <item name="quit" type="id"/>
+    <item name="return_scan_result" type="id"/>
+    <item name="search_book_contents_failed" type="id"/>
+    <item name="search_book_contents_succeeded" type="id"/>
+    <item name="password_view" type="id">false</item>
+    <item name="password_edit" type="id">false</item>
+    <item name="preview_view" type="id">false</item>
+    <item name="viewfinder_view" type="id">false</item>
+    <item name="txtResult" type="id">false</item>
+    <item name="capture_pic_toast_frame" type="id">false</item>
+    <item name="capture_pic_toast_txt" type="id">false</item>
+    <item name="date_time_parent" type="id">false</item>
+    <item name="date_time_container" type="id">false</item>
+    <item name="date_picker" type="id">false</item>
+    <item name="time_picker" type="id">false</item>
+    <item name="help_webview" type="id">false</item>
+    <item name="images_viewpager_layout" type="id">false</item>
+    <item name="images_viewpager" type="id">false</item>
+    <item name="image_navigationbar_layout" type="id">false</item>
+    <item name="image_view_title" type="id">false</item>
+    <item name="image_view_back_btn" type="id">false</item>
+    <item name="image_view_toolbar_layout" type="id">false</item>
+    <item name="image_view_delete_btn" type="id">false</item>
+    <item name="images_view_imageview" type="id">false</item>
+    <item name="images_view_play_btn" type="id">false</item>
+    <item name="realplay_capturepic_toast_frame" type="id">false</item>
+    <item name="localplay_root_layout" type="id">false</item>
+    <item name="localplay_playwindow_layout" type="id">false</item>
+    <item name="localplay_surfaceview" type="id">false</item>
+    <item name="localplay_flash_imageview" type="id">false</item>
+    <item name="localplay_startplaybtn" type="id">false</item>
+    <item name="localplay_navigationbar_layout" type="id">false</item>
+    <item name="localplay_navigationbar_title" type="id">false</item>
+    <item name="localplay_back_btn" type="id">false</item>
+    <item name="localplay_progress_layout" type="id">false</item>
+    <item name="localplay_toolbar_layout" type="id">false</item>
+    <item name="localplay_played_time_textview" type="id">false</item>
+    <item name="localplay_total_time_textview" type="id">false</item>
+    <item name="localplay_progress_seekbar" type="id">false</item>
+    <item name="localplay_capture_btn" type="id">false</item>
+    <item name="localplay_play_pause_btn" type="id">false</item>
+    <item name="localplay_sound_btn" type="id">false</item>
+    <item name="page_indicator" type="id">false</item>
+    <item name="playback_channel_fold_unfold_imageview" type="id">false</item>
+    <item name="playback_channel_listitem_icon" type="id">false</item>
+    <item name="playback_channel_listitem_text_0" type="id">false</item>
+    <item name="playback_channel_listitem_state_imageview" type="id">false</item>
+    <item name="landscape_timebar_control" type="id">false</item>
+    <item name="datepicker_layout" type="id">false</item>
+    <item name="playback_fold_unfold" type="id">false</item>
+    <item name="playback_calendar" type="id">false</item>
+    <item name="playback_start_end_txt" type="id">false</item>
+    <item name="text_colon_start" type="id">false</item>
+    <item name="playback_start_end_time" type="id">false</item>
+    <item name="playback_capturepic_toast_frame" type="id">false</item>
+    <item name="playback_delete_layout" type="id">false</item>
+    <item name="playback_delete_imageview" type="id">false</item>
+    <item name="sysconfig_password_set_layout" type="id">false</item>
+    <item name="sysconfig_password_set_textview" type="id">false</item>
+    <item name="sysconfig_password_cancel_layout" type="id">false</item>
+    <item name="sysconfig_password_modify_textview" type="id">false</item>
+    <item name="sysconfig_help_layout" type="id">false</item>
+    <item name="sysconfig_about_layout" type="id">false</item>
+    <item name="date_time_picker_layout" type="id">false</item>
+    <item name="year_picker_view" type="id">false</item>
+    <item name="month_picker_view" type="id">false</item>
+    <item name="day_picker_view" type="id">false</item>
+    <item name="hour_picker_view" type="id">false</item>
+    <item name="minute_picker_view" type="id">false</item>
+    <item name="arrow_all_container" type="id">false</item>
+
 </resources>

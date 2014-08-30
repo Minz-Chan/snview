@@ -1,13 +1,10 @@
 package com.starnet.snview.images;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import android.R.integer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +15,6 @@ import android.widget.TextView;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
-import com.starnet.snview.images.myutils.FileManager;
 import com.starnet.snview.util.ActivityUtility;
 
 public class ImagesManagerActivity extends BaseActivity {

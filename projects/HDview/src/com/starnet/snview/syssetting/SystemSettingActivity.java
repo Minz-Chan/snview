@@ -6,7 +6,6 @@ import java.util.List;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog.Builder;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.ChannelListActivity_Copy;
 import com.starnet.snview.component.BaseActivity;
 
 public class SystemSettingActivity extends BaseActivity {
@@ -109,12 +107,6 @@ public class SystemSettingActivity extends BaseActivity {
 				showTips();
 			}
 		});
-	}
-	protected void gotoChannelListActivity_copy() {
-		Intent intent = new Intent();
-		Context context = SystemSettingActivity.this;
-		intent.setClass(context, ChannelListActivity_Copy.class);
-		startActivity(intent);
 	}
 
 	private void showTips(){
