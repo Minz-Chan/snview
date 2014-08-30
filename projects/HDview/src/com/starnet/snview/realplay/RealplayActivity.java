@@ -20,6 +20,8 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.ClickEventUtils;
+import com.starnet.snview.util.ClickEventUtils.OnActionListener;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 import com.starnet.snview.util.ToastUtils;
 
@@ -99,7 +101,7 @@ public class RealplayActivity extends BaseActivity {
 
 		initView();
 
-		test();
+		initListener();
 		
 		loadDataFromPreserved();
 	}
@@ -190,7 +192,7 @@ public class RealplayActivity extends BaseActivity {
 	
 	private boolean mIsScaleOperator = false;
 	
-	private void test() {
+	private void initListener() {
 		Log.i(TAG, "In function test()");
 		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
@@ -208,27 +210,35 @@ public class RealplayActivity extends BaseActivity {
 			public boolean onTouch(View v, MotionEvent event) {
 				Log.i(TAG, "mVideoRegion, onTouch");
 				
+				int action = event.getActionMasked();
 				
 				/* 若检测到多点事件，则将这以后的事件从mGestureDetector中过滤
 				 * 即若检测到缩放事件，则余下事件仅交由mScaleGestureDetector处理
 				 */
-				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+				if (action == MotionEvent.ACTION_POINTER_DOWN) {
 					mIsScaleOperator = true;  
 				}
 				
+				/*
 				if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
 					mIsScaleOperator = false;
-				}
+				}*/
+				
+				Log.i(TAG, "onTouch(), mIsPTZModeOn:" + mIsPTZModeOn + ", mIsScaleOperator:" + mIsScaleOperator);
 				
 				if (mIsScaleOperator) {
+					if (action == MotionEvent.ACTION_UP) {
+						mIsScaleOperator = false;
+					}
+					
 					return mScaleGestureDetector.onTouchEvent(event);
 				} else {
 					boolean r1 = mScaleGestureDetector.onTouchEvent(event);
 					boolean r2 = mGestureDetector.onTouchEvent(event);
 					
-					if (mIsPTZModeOn && event.getActionMasked() == MotionEvent.ACTION_UP) {
+					if (mIsPTZModeOn && action == MotionEvent.ACTION_UP) {
 						onGestureListener.onSlidingMoveUp();
-					}
+					} 
 					
 					return r1 || r2;
 				}
@@ -890,12 +900,12 @@ public class RealplayActivity extends BaseActivity {
 			
 			switch (v.getId()) {
 			case R.id.ptz_pop_focal_length_increase:
-				Log.i(TAG, "ptz_pop_focal_length_increase");
-				mPtzControl.focalLengthIncrease();
+				//Log.i(TAG, "ptz_pop_focal_length_increase");
+				//mPtzControl.focalLengthIncrease();
 				break;
 			case R.id.ptz_pop_focal_length_decrease:
-				Log.i(TAG, "ptz_pop_focal_length_decrease");
-				mPtzControl.focalLengthDecrease();
+				//Log.i(TAG, "ptz_pop_focal_length_decrease");
+				//mPtzControl.focalLengthDecrease();
 				break;
 			case R.id.ptz_pop_focus_increase:
 				Log.i(TAG, "ptz_pop_focus_increase");
@@ -917,6 +927,35 @@ public class RealplayActivity extends BaseActivity {
 			
 		}
 		
+	};
+	
+	private OnTouchListener mOnPTZFocalLengthListener = new OnTouchListener() {
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			int action = event.getActionMasked();
+			
+			switch (v.getId()) {
+			case R.id.ptz_pop_focal_length_increase:
+				if (action == MotionEvent.ACTION_DOWN) {
+					mPtzControl.focalLengthIncrease();
+				} else if (action == MotionEvent.ACTION_UP) {
+					mPtzControl.stopMove();
+				}
+				break;
+			case R.id.ptz_pop_focal_length_decrease:
+				if (action == MotionEvent.ACTION_DOWN) {
+					mPtzControl.focalLengthDecrease();
+				} else if (action == MotionEvent.ACTION_UP) {
+					mPtzControl.stopMove();
+				}
+				break;
+			}
+			
+			
+			
+			return false;
+		}
 	};
 
 	private void showPTZFrame(PTZ_POP_FRAME ppf, boolean isShow) {
@@ -999,8 +1038,10 @@ public class RealplayActivity extends BaseActivity {
 		mPTZPopApertureIncrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_increase);  
 		mPTZPopApertureDecrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_decrease);
 		
-		mPTZPopFocalLengthIncrease.setOnClickListener(mOnPTZPopClickListener);  
-		mPTZPopFocalLengthDecrease.setOnClickListener(mOnPTZPopClickListener);
+		//mPTZPopFocalLengthIncrease.setOnClickListener(mOnPTZPopClickListener);  
+		//mPTZPopFocalLengthDecrease.setOnClickListener(mOnPTZPopClickListener);mOnPTZFocalLengthListener
+		mPTZPopFocalLengthIncrease.setOnTouchListener(mOnPTZFocalLengthListener);
+		mPTZPopFocalLengthDecrease.setOnTouchListener(mOnPTZFocalLengthListener);
 		mPTZPopFocusIncrease.setOnClickListener(mOnPTZPopClickListener);  
 		mPTZPopFocusDecrease.setOnClickListener(mOnPTZPopClickListener);
 		mPTZPopApertureIncrease.setOnClickListener(mOnPTZPopClickListener);  
@@ -1199,6 +1240,13 @@ public class RealplayActivity extends BaseActivity {
 	
 	
 	
+	private ClickEventUtils mPTZStopMoveDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			mPtzControl.stopMove();		
+			liveViewManager.getSelectedLiveView().stopArrowAnimation();
+		}
+	}, 300);
 	
 	
 	private OnGestureListener onGestureListener 
@@ -1284,6 +1332,9 @@ public class RealplayActivity extends BaseActivity {
 		
 		@Override
 		public void onSlidingLeft() {
+			Log.i(TAG, "onSlidingLeft(), mIsPTZModeOn:" + mIsPTZModeOn + " mPtzControl:" + mPtzControl
+					+ " mIsScaleOperator:" + mIsScaleOperator);
+			
 			if (!mIsPTZModeOn) { // 向左滑屏
 				if (liveViewManager.getPager() != null) {
 					liveViewManager.nextPage();
@@ -1304,6 +1355,8 @@ public class RealplayActivity extends BaseActivity {
 		
 		@Override
 		public void onSlidingRight() {
+			Log.i(TAG, "onSlidingRight(), mIsPTZModeOn:" + mIsPTZModeOn + " mPtzControl:" + mPtzControl
+					+ " mIsScaleOperator:" + mIsScaleOperator);
 			if (!mIsPTZModeOn) { // 向右滑屏
 				if (liveViewManager.getPager() != null) {
 					liveViewManager.previousPage();
@@ -1405,6 +1458,17 @@ public class RealplayActivity extends BaseActivity {
 			if (mPtzControl != null) {
 				mPtzControl.focalLengthIncrease();
 			}
+			
+//			mVideoRegion.postDelayed(new Runnable() {
+//				@Override
+//				public void run() {
+//					if (mPtzControl != null) {
+//						mPtzControl.stopMove();;
+//					}					
+//				}	
+//			}, 300);
+			mPTZStopMoveDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
+			
 		}
 
 		@Override
@@ -1414,6 +1478,16 @@ public class RealplayActivity extends BaseActivity {
 			if (mPtzControl != null) {
 				mPtzControl.focalLengthDecrease();
 			}
+			
+//			mVideoRegion.postDelayed(new Runnable() {
+//				@Override
+//				public void run() {
+//					if (mPtzControl != null) {
+//						mPtzControl.stopMove();;
+//					}					
+//				}	
+//			}, 300);
+			mPTZStopMoveDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 		}
 
 		@Override
@@ -1646,6 +1720,7 @@ public class RealplayActivity extends BaseActivity {
 			} else {
 				mGestureListener.onZoomOut();
 			}
+			
 		}
 		
 	}
