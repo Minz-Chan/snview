@@ -9,7 +9,12 @@
         	<ProgressBar android:layout_gravity="center" android:id="@id/liveview_progressbar" android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         	<!-- 刷新按钮 -->
             <ImageView android:layout_gravity="center" android:id="@id/liveview_refresh_imageview" android:background="@drawable/liveview_view_refresh_selector" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
-        	
+        	<!-- 方向控制手势箭头 -->
+            <include android:id="@id/liveview_arrow_all_container" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_all_container" />
+            <!-- 聚焦（放大）手势箭头 -->
+            <include android:id="@id/arrow_add_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_add_focallength" />
+			<!-- 聚焦（缩小）手势箭头 -->
+            <include android:id="@id/arrow_sub_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_sub_focallength" />
         </FrameLayout>
         
 		<!-- 视频文字信息 -->

@@ -23,7 +23,7 @@ public class ControlRequestMessageEncoder extends
 	protected void encodeBody(IoSession session, ControlRequest message,
 			IoBuffer out) {
 		out.putUnsignedInt(message.getDeviceId());
-		out.putUnsigned((byte) message.getChannel());
+		out.putUnsigned((byte) (message.getChannel() - 1));
 		out.putUnsigned((byte) message.getCmdCode());
 		out.putUnsignedShort(message.getSize());
 	}

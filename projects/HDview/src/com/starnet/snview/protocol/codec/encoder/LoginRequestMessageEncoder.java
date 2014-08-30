@@ -24,8 +24,10 @@ public class LoginRequestMessageEncoder extends AbstractMessageEncoder<LoginRequ
 		tmp.rewind();
 		out.put(tmp);  // put userName
 		
-		tmp.clear();
+		tmp.sweep();  // reset the data to NUL, position to 0, and limit to capacity  
 		tmp.limit(16);
+		
+		
 		
 		String password = message.getPassword().trim();
 		if (password == null || password.length() > 16) {

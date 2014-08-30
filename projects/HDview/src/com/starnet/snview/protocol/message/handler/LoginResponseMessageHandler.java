@@ -4,6 +4,7 @@ import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
+import com.starnet.snview.R;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.message.Constants;
@@ -32,7 +33,7 @@ public class LoginResponseMessageHandler implements
 		
 		switch (result) {
 		case Constants.RESPONSE_CODE._RESPONSECODE_SUCC:				// 登录服务器成功
-			lvContainer.setWindowInfoContent("登录服务器成功");
+			lvContainer.setWindowInfoContent(R.string.connection_response_login_success);
 			break;
 		case Constants.RESPONSE_CODE._RESPONSECODE_USER_PWD_ERROR:		// 用户名或密码错
 			break;
@@ -55,7 +56,8 @@ public class LoginResponseMessageHandler implements
 		case Constants.RESPONSE_CODE._RESPONSECODE_TASK_DISPOSE_ERROR:	// 任务处理过程出错
 			break;
 		default: // 兼容旧版，登录服务器失败，原因即用户或密码错误
-			lvContainer.setWindowInfoContent("用户或密码错误");
+			lvContainer.setWindowInfoContent(R.string.connection_response_user_pwd_error);
+			lvContainer.setIsResponseError(true);
 			break;
 		}
 		

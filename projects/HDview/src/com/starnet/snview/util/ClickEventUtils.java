@@ -44,6 +44,16 @@ public class ClickEventUtils {
         };
     }
     
+    public ClickEventUtils(OnActionListener listener, long interval) {
+  	   	this(listener);
+  	   	
+    	this.interval = interval;
+    }
+    
+    public void setInterval(long interval) {
+    	this.interval = interval;
+    }
+    
     /**
      * 调用此方法确认操作是否结束。若用户操作结束（即超出连击时间间隔internal），则执行预定task；
      * 否则，继续等待一个时间间隔（interval），直到用户连击间隔超过interval，task被执行

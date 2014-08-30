@@ -392,6 +392,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
+			liveviews.get(n - 1).setIsResponseError(false);
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
 			
@@ -484,6 +485,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
+			liveviews.get(i).setIsResponseError(false);
 			liveviews.get(i).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(i).setPreviewItem(p);
 		}
@@ -521,12 +523,20 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		final Connection conn = connections.get(pos - 1);  // 取得对应的连接
 		if (conn != null) {
-			executor.execute(new Runnable() {
+			new Thread(new Runnable() {
+
 				@Override
 				public void run() {
-					conn.connect();					
+					conn.connect();
 				}
-			});
+				
+			}).start();
+//			executor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					conn.connect();					
+//				}
+//			});
 		}
 	}
 	
