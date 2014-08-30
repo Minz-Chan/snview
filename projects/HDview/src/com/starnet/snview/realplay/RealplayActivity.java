@@ -1685,7 +1685,8 @@ public class RealplayActivity extends BaseActivity {
     }
 	
 	private class ScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
-		private float scaleFactor = 0;
+		private float scaleFactorSum = 0;
+		private int count = 0;
 		
 		private OnGestureListener mGestureListener;
 		
@@ -1699,7 +1700,15 @@ public class RealplayActivity extends BaseActivity {
 		
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) {
-			scaleFactor = detector.getScaleFactor();
+			//scaleFactor = detector.getScaleFactor();
+			
+			scaleFactorSum += detector.getScaleFactor();
+			count++;
+			
+			Log.i(TAG, "onScale, currentSpan:" + detector.getCurrentSpan()
+					+ ", previousSpan:" + detector.getPreviousSpan());
+			Log.i(TAG, "onScale, scaleFactor:" + detector.getScaleFactor());
+			
 			return true;
 		}
 
@@ -1715,11 +1724,16 @@ public class RealplayActivity extends BaseActivity {
 				return;
 			}
 			
-			if (scaleFactor > 1) {
+			float avg = scaleFactorSum / count; // 求均值确定放大还是缩小操作
+			
+			if (avg > 1) {
 				mGestureListener.onZoomIn();
 			} else {
 				mGestureListener.onZoomOut();
 			}
+			
+			scaleFactorSum = 0;
+			count = 0;
 			
 		}
 		
