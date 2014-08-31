@@ -148,6 +148,14 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		liveViewManager.invalidateLiveViews();
+		
+		if (liveViewManager.getPager() != null) {
+			int count = liveViewManager.getCurrentPageCount();
+			
+			for (int i = 0; i < count; i++) {
+				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+			}
+		}
 
 		super.onPostCreate(savedInstanceState);
 	}
@@ -1258,6 +1266,10 @@ public class RealplayActivity extends BaseActivity {
 				return;
 			}
 			Log.i(TAG, "On single click");
+			
+			if (liveViewManager.getPager() == null) {
+				return;
+			}
 		
 			int pos = getIndexOfLiveview(e.getX(), e.getY());
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
@@ -1281,6 +1293,10 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			Log.i(TAG, "On Double click");
+			
+			if (liveViewManager.getPager() == null) {
+				return;
+			}
 			
 			int pos;
 			
@@ -1492,7 +1508,6 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onFling() {
-			// TODO Auto-generated method stub
 			
 		}
 	};
@@ -1560,10 +1575,8 @@ public class RealplayActivity extends BaseActivity {
   
         @Override  
         public boolean onDown(MotionEvent e)  
-        {  
-            // TODO Auto-generated method stub  
-            Log.i("TEST", "onDown");  
-            //return super.onDown(e);  
+        {   
+            Log.i("TEST", "onDown");
             return true;
         }  
   
@@ -1572,12 +1585,9 @@ public class RealplayActivity extends BaseActivity {
                 float velocityY)  
         {  
         	float a0 = e1.getX();
-        	float b0 = e1.getY();
         	float a1 = e2.getX();
-        	float b1 = e2.getY();
         	
         	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
-        	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
         	
 
         	if (!mIsPTZModeOn) { // 非PTZ模式， 即左右滑屏
@@ -1611,7 +1621,6 @@ public class RealplayActivity extends BaseActivity {
         @Override  
         public void onLongPress(MotionEvent e)  
         {  
-            // TODO Auto-generated method stub  
             Log.i("TEST", "onLongPress");  
             super.onLongPress(e);  
         }  
