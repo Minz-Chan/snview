@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.starnet.snview.realplay.RealplayActivity" android:launchMode="singleTask" android:alwaysRetainTaskState="true" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name="com.starnet.snview.realplay.RealplayActivity" android:configChanges="orientation|screenSize" android:launchMode="singleTask" android:alwaysRetainTaskState="true" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.images.ImagesManagerActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.playback.PlaybackActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name="com.starnet.snview.devicemanager.DeviceViewActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar"/>

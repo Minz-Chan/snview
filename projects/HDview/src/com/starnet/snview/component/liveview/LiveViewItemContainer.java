@@ -9,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -136,6 +137,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	public void setRefreshButtonClickListener(
 			OnRefreshButtonClickListener refreshButtonClickListener) {
 		this.mRefreshButtonClickListener = refreshButtonClickListener;
+		
+		mRefresh.setOnClickListener(mRefreshButtonClickListener);
 	}
 	
 	public WindowLinearLayout getWindowLayout() {
@@ -160,6 +163,21 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public TextView getWindowInfoText() {
 		return mWindowInfoText;
+	}
+	
+	
+	
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
+				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
+		//setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.i(TAG, "onLayout()");
+		super.onLayout(changed, l, t, r, b);
 	}
 	
 	public void showArrowAnimation(int showPos) {
