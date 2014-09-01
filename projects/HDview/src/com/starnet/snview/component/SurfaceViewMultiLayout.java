@@ -16,7 +16,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -59,6 +58,7 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		/*
 		Log.i(TAG,
 				"onMeasure(), widthMeasureSpec:"
 						+ MeasureSpec.getSize(widthMeasureSpec)
@@ -71,37 +71,30 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 				: (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY ? "EXACTLY"
 						: "UNSPECIFIED");
 		
-		Log.i(TAG, "onMearsure()->mode, w:" + wMode + ", h:" + hMode);
+		Log.i(TAG, "onMearsure()->mode, w:" + wMode + ", h:" + hMode);*/
 		
-//		boolean isFullScreen = GlobalApplication.getInstance().isIsFullMode();
-//		int w, h;
-//		
-//		if (isFullScreen) {
-//			w = GlobalApplication.getInstance().getScreenWidth() / 2;
-//			h = GlobalApplication.getInstance().getScreenHeight() / 2;
-//		} else {
-//			w = GlobalApplication.getInstance().getScreenWidth() / 2;
-//			h = GlobalApplication.getInstance().getScreenWidth() / 2;
-//		}
-//		
-//		
-//		
-//		setMeasuredDimension(w, h);
-//
-//		mLiveview1.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
-//		mLiveview2.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
-//		mLiveview3.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
-//		mLiveview4.measure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
 
+		boolean isFullScreen = GlobalApplication.getInstance().isIsFullMode();
+		int w, h;
+		
+		if (isFullScreen) {
+			w = GlobalApplication.getInstance().getScreenWidth();
+			h = GlobalApplication.getInstance().getScreenHeight();
+		} else {
+			w = GlobalApplication.getInstance().getScreenWidth();
+			h = GlobalApplication.getInstance().getScreenWidth();
+		}
+		
+		Log.i(TAG, "onMeasure(), real_w:" + w + ", real_h:" + h);
 		
 		
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		super.onMeasure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));
 	}
 
 	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.i(TAG, "onLayout(), changed:" + changed + ", l:" + l + ", t:" + t + ", r:" + r + ", b:" + b);
+		//Log.i(TAG, "onLayout(), changed:" + changed + ", l:" + l + ", t:" + t + ", r:" + r + ", b:" + b);
 		
 		if (changed) {
 			int width = r - l;
@@ -124,12 +117,6 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 			mLiveview2.getPlaywindowFrame().setLayoutParams(param1);
 			mLiveview3.getPlaywindowFrame().setLayoutParams(param1);
 			mLiveview4.getPlaywindowFrame().setLayoutParams(param1);
-			
-//			mLiveview1.layout(l, t, r, b);
-//			mLiveview2.layout(l, t, r, b);
-//			mLiveview3.layout(l, t, r, b);
-//			mLiveview4.layout(l, t, r, b);
-			//mLiveview1.measure(0, 0);
 		}
 		
 		

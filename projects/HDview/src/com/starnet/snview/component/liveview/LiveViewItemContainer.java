@@ -169,14 +169,13 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
-				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
-		//setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
+		//Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
+		//		+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.i(TAG, "onLayout()");
+		//Log.i(TAG, "onLayout()");
 		super.onLayout(changed, l, t, r, b);
 	}
 	
