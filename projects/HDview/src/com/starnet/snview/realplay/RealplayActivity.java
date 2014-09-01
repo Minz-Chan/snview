@@ -1360,6 +1360,8 @@ public class RealplayActivity extends BaseActivity {
 			int pos = getIndexOfLiveview(e.getX(), e.getY());
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
 			
+			Log.i(TAG, "single_click, getX:" + e.getX() + ", getY:" + e.getY() + ", pos:" + pos + ", index:" + index);
+			
 			if (index > liveViewManager.getLiveViewTotalCount()) {  
 				return;  // 非有效通道，不作处理 
 			}
@@ -1393,6 +1395,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+			
+			Log.i(TAG, "double_click, getX:" + e.getX() + ", getY:" + e.getY() + ", pos:" + pos + ", index:" + index);
 			
 			if (index > liveViewManager.getLiveViewTotalCount()) {  
 				return;  // 非有效通道，不作处理 
@@ -1428,8 +1432,9 @@ public class RealplayActivity extends BaseActivity {
 		
 		private int getIndexOfLiveview(float x, float y) {
 			int sw = GlobalApplication.getInstance().getScreenWidth();
+			int sh = GlobalApplication.getInstance().getScreenHeight();
 			
-			return (x < sw/2) ? (y < sw/2 ? 1 : 3) : (y < sw/2 ? 2 : 4); // 触点属于第几个视频区域	
+			return (x < sw/2) ? (y < sh/2 ? 1 : 3) : (y < sh/2 ? 2 : 4); // 触点属于第几个视频区域	
 		}
 		
 		@Override
