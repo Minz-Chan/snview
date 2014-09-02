@@ -57,4 +57,7 @@
     
     <color name="liveview_bg_invalid">#FF606060</color>
     <color name="image_manager_delete_red">#FF6666</color>
+    
+    <color name="yellow">#ffffff00</color>
+    <color name="text_disable">#ff7f7f7f</color>
 </resources>

@@ -87,7 +87,7 @@ public class RealplayActivity extends BaseActivity {
 	private FrameLayout mVideoRegion;
 	
 	
-	
+	private LiveControl liveControl;
 	
 
 	@SuppressLint("NewApi")
@@ -102,12 +102,11 @@ public class RealplayActivity extends BaseActivity {
 		setBackPressedExitEventValid(true);
 		 
 
-		GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
-		GlobalApplication.getInstance().setScreenHeight(ActivityUtility.getScreenSize(this).y);
-		GlobalApplication.getInstance().setFullscreenMode(false);
-		
+		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
 
+		
+		
 		initView();
 
 		initListener();
@@ -194,6 +193,8 @@ public class RealplayActivity extends BaseActivity {
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).y);
 			mVideoRegion.setLayoutParams(param);
+			
+			liveControl.showLandscapeToolbarFrame();
             
        } else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
     	   Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:" + ActivityUtility.getScreenSize(this).x
@@ -211,6 +212,8 @@ public class RealplayActivity extends BaseActivity {
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).x);
 			mVideoRegion.setLayoutParams(param);
+			
+			liveControl.hideLandscapeToolbarFrame();
        }
 		
 		
@@ -377,65 +380,7 @@ public class RealplayActivity extends BaseActivity {
 						
 						for (int i = 0; i < l.size(); i++) {
 							liveViewManager.addLiveView(l.get(i));
-						}
-						
-						
-						/*
-						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-								.inflate(R.layout.surfaceview_multi_layout,
-										mVideoRegion, true);
-
-						
-						//ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
-						
-						
-						LinearLayout linear1 = (LinearLayout) findViewById(R.id.view_video_linear1);
-						LinearLayout linear2 = (LinearLayout) findViewById(R.id.view_video_linear2);
-						LinearLayout.LayoutParams param1 = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, screenWidth / 2);
-						
-						linear1.setLayoutParams(param1);
-						linear2.setLayoutParams(param1);
-						
-						int surfaceHeight = (int) (screenWidth / 2.0 - getResources().getDimension(R.dimen.window_text_height) 
-								- 2 * getResources().getDimension(R.dimen.surface_container_space));
-						
-						LiveViewItemContainer liveview1 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem1);
-						LiveViewItemContainer liveview2 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem2);
-						LiveViewItemContainer liveview3 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem3);
-						LiveViewItemContainer liveview4 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem4);
-						
-						//liveview1.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-						liveview1.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview1.findSubViews();
-						liveview1.init();
-						liveview1.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-								surfaceHeight));
-						
-						//liveview2.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-						liveview2.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview2.findSubViews();
-						liveview2.init();
-						liveview2.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-								surfaceHeight));
-						
-						//liveview3.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-						liveview3.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview3.findSubViews();
-						liveview3.init();
-						liveview3.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-								surfaceHeight));
-						
-						//liveview4.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-						liveview4.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview4.findSubViews();
-						liveview4.init();
-						liveview4.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 
-								surfaceHeight));;
-						
-						liveViewManager.addLiveView(liveview1);
-						liveViewManager.addLiveView(liveview2);
-						liveViewManager.addLiveView(liveview3);
-						liveViewManager.addLiveView(liveview4);	*/					
+						}										
 						
 					} else { // 单通道模式
 						SurfaceViewSingleLayout svsl = new SurfaceViewSingleLayout(RealplayActivity.this);
@@ -444,27 +389,7 @@ public class RealplayActivity extends BaseActivity {
 						mVideoRegion.addView(svsl);
 						
 						liveViewManager.addLiveView(svsl.getLiveview());
-						
-						/*
-						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-						.inflate(R.layout.surfaceview_single_layout,
-								mVideoRegion, true);
-						
-						//ViewFlipper flipper = (ViewFlipper) findViewById(R.id.viewflipperContainer);
-						
-						int surfaceHeight = (int) (screenWidth - getResources().getDimension(R.dimen.window_text_height) 
-								- 2 * getResources().getDimension(R.dimen.surface_container_space));
-						
-						LiveViewItemContainer liveview = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem);
-						
-						//liveview.setLiveViewContainerClickListener(onLiveViewContainerClickListener);
-						liveview.setRefreshButtonClickListener(onRefreshButtonClickListener);
-						liveview.findSubViews();
-						liveview.init();
-						liveview.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
-								surfaceHeight));
-						
-						liveViewManager.addLiveView(liveview);*/
+
 					}
 					
 					onContentChanged();
@@ -615,12 +540,17 @@ public class RealplayActivity extends BaseActivity {
 				}
 			}
 		});
+		
 
 		initToolbar();
+		
+		initLandScapeToolbar();
 
 		initToolbarExtendMenu();
 
 		initToolbarSubMenu();
+		
+		
 		
 		
 	}
@@ -828,6 +758,11 @@ public class RealplayActivity extends BaseActivity {
 		}
 		
 		return false;
+	}
+	
+	private void initLandScapeToolbar() {
+		liveControl = new LiveControl(this);
+		liveControl.hideLandscapeToolbarFrame();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

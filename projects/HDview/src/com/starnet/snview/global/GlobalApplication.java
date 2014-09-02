@@ -1,5 +1,9 @@
 package com.starnet.snview.global;
 
+import com.starnet.snview.R;
+import com.starnet.snview.util.ActivityUtility;
+
+import android.app.Activity;
 import android.app.Application;
 import android.os.Handler;
 
@@ -11,12 +15,27 @@ public class GlobalApplication extends Application {
 	private int mScreenWidth;
 	private int mScreenHeight;
 	
+	private int mLandscapeControlWidth;
+	private int mLandscapeControlHeight;
+	
 	private boolean mIsFullscreenMode;
 	
 	private Handler handler;
 
 	public static GlobalApplication getInstance() {
 		return singleton;
+	}
+	
+	public void init(Activity activity) {
+		mScreenWidth = ActivityUtility.getScreenSize(activity).x;
+		mScreenHeight = ActivityUtility.getScreenSize(activity).y;
+		
+		mLandscapeControlWidth = activity.getResources().getDrawable(R.drawable.fullscreen_bar).getIntrinsicWidth();
+		mLandscapeControlHeight = activity.getResources().getDrawable(R.drawable.fullscreen_bar).getIntrinsicHeight();
+		
+		mIsFullscreenMode = false;
+		
+		
 	}
 
 	public int getScreenWidth() {
@@ -25,6 +44,24 @@ public class GlobalApplication extends Application {
 
 	public void setScreenWidth(int width) {
 		this.mScreenWidth = width;
+	}
+	
+	
+
+	public int getLandscapeControlWidth() {
+		return mLandscapeControlWidth;
+	}
+
+	public void setLandscapeControlWidth(int landscapeControlWidth) {
+		this.mLandscapeControlWidth = landscapeControlWidth;
+	}
+
+	public int getLandscapeControlHeight() {
+		return mLandscapeControlHeight;
+	}
+
+	public void setLandscapeControlHeight(int landscapeControlHeight) {
+		this.mLandscapeControlHeight = landscapeControlHeight;
 	}
 
 	public boolean isIsFullMode() {

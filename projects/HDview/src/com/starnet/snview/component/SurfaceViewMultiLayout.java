@@ -85,7 +85,7 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 			h = GlobalApplication.getInstance().getScreenWidth();
 		}
 		
-		Log.i(TAG, "onMeasure(), real_w:" + w + ", real_h:" + h);
+		//Log.i(TAG, "onMeasure(), real_w:" + w + ", real_h:" + h);
 		
 		
 		super.onMeasure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY));

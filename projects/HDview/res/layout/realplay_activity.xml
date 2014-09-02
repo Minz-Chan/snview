@@ -17,6 +17,9 @@
 		<!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->
 			<include android:layout_gravity="center_vertical" layout="@layout/ptz_pop_content_frame" />
 		</LinearLayout>
+		
+		<!-- 分页指示器控件、横屏工具条（视频质量控件条、PTZ控制条、功能工具条） -->
+        <include android:id="@id/landscape_liveview_pop_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/landscape_livecontrol_frame" />
 
     </RelativeLayout>
     
