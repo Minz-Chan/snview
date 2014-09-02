@@ -96,6 +96,10 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public boolean isMultiMode() {
 		return isMultiMode;
 	}
+	
+	public List<LiveViewItemContainer> getListviews() {
+		return liveviews;
+	}
 
 	public void invalidateLiveViews() {
 		int i;

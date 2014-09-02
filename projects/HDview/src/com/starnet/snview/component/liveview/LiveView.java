@@ -110,7 +110,20 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		System.out.println(this + "@destroyed...");	
 	}
 
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		//Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
+		//		+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+	}
 	
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right,
+			int bottom) {
+		//Log.i(TAG, "onLayout()");
+		super.onLayout(changed, left, top, right, bottom);
+	}
+
 	private void refreshDisplay() {
 		Canvas canvas = mHolder.lockCanvas();
 		

@@ -8,6 +8,8 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.component.SurfaceViewMultiLayout;
+import com.starnet.snview.component.SurfaceViewSingleLayout;
 import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
@@ -30,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,6 +44,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
@@ -60,6 +64,7 @@ public class RealplayActivity extends BaseActivity {
 
 	private Toolbar mToolbar;
 
+	private FrameLayout mControlbar;
 	private VideoPager mPager;
 	private LinearLayout mQualityControlbarMenu;
 	private LinearLayout mPTZControlbarMenu;
@@ -88,6 +93,8 @@ public class RealplayActivity extends BaseActivity {
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
+		Log.i(TAG, "onCreate()");
+		
 		setContainerMenuDrawer(true);
 		super.onCreate(inState);
 		setContentView(R.layout.realplay_activity);
@@ -95,8 +102,10 @@ public class RealplayActivity extends BaseActivity {
 		setBackPressedExitEventValid(true);
 		 
 
-		GlobalApplication.getInstance().setScreenWidth(
-				ActivityUtility.getScreenSize(this).x);
+		GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
+		GlobalApplication.getInstance().setScreenHeight(ActivityUtility.getScreenSize(this).y);
+		GlobalApplication.getInstance().setFullscreenMode(false);
+		
 		GlobalApplication.getInstance().setHandler(mHandler);
 
 		initView();
@@ -148,9 +157,70 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		liveViewManager.invalidateLiveViews();
+		
+		if (liveViewManager.getPager() != null) {
+			int count = liveViewManager.getCurrentPageCount();
+			
+			for (int i = 0; i < count; i++) {
+				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+			}
+		}
 
 		super.onPostCreate(savedInstanceState);
 	}
+	
+	
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		Log.i(TAG, "ConfigurationChanged");
+
+		GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
+		GlobalApplication.getInstance().setScreenHeight(ActivityUtility.getScreenSize(this).y);
+		
+		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
+		if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:" + ActivityUtility.getScreenSize(this).x
+            		+ ", height:" + ActivityUtility.getScreenSize(this).y);
+            
+			super.getNavbarContainer().setVisibility(View.GONE);
+			super.getToolbarContainer().setVisibility(View.GONE);
+			mControlbar.setVisibility(View.GONE);
+			
+			GlobalApplication.getInstance().setFullscreenMode(true);
+			this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			
+			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).y);
+			mVideoRegion.setLayoutParams(param);
+            
+       } else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+    	   Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:" + ActivityUtility.getScreenSize(this).x
+           		+ ", height:" + ActivityUtility.getScreenSize(this).y);
+    	   
+    	   
+			super.getNavbarContainer().setVisibility(View.VISIBLE);
+			super.getToolbarContainer().setVisibility(View.VISIBLE);
+			mControlbar.setVisibility(View.VISIBLE);
+			
+			GlobalApplication.getInstance().setFullscreenMode(false);
+			this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, 
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			
+			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).x);
+			mVideoRegion.setLayoutParams(param);
+       }
+		
+		
+		
+		
+		super.onConfigurationChanged(newConfig);
+		
+	}
+
+
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -274,7 +344,7 @@ public class RealplayActivity extends BaseActivity {
 
 		// 初始化视频区域布局大小
 		final int screenWidth = GlobalApplication.getInstance().getScreenWidth();
-		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(screenWidth, screenWidth);
+		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, screenWidth);
 		
 		mVideoRegion.setLayoutParams(param);
 		
@@ -297,6 +367,20 @@ public class RealplayActivity extends BaseActivity {
 					
 					
 					if (isMultiMode) { // 多通道模式
+						
+						SurfaceViewMultiLayout svml = new SurfaceViewMultiLayout(RealplayActivity.this);
+						svml.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
+						
+						mVideoRegion.addView(svml);
+						
+						List<LiveViewItemContainer> l = svml.getLiveviews();
+						
+						for (int i = 0; i < l.size(); i++) {
+							liveViewManager.addLiveView(l.get(i));
+						}
+						
+						
+						/*
 						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
 								.inflate(R.layout.surfaceview_multi_layout,
 										mVideoRegion, true);
@@ -351,9 +435,17 @@ public class RealplayActivity extends BaseActivity {
 						liveViewManager.addLiveView(liveview1);
 						liveViewManager.addLiveView(liveview2);
 						liveViewManager.addLiveView(liveview3);
-						liveViewManager.addLiveView(liveview4);						
+						liveViewManager.addLiveView(liveview4);	*/					
 						
 					} else { // 单通道模式
+						SurfaceViewSingleLayout svsl = new SurfaceViewSingleLayout(RealplayActivity.this);
+						svsl.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
+						
+						mVideoRegion.addView(svsl);
+						
+						liveViewManager.addLiveView(svsl.getLiveview());
+						
+						/*
 						((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE))
 						.inflate(R.layout.surfaceview_single_layout,
 								mVideoRegion, true);
@@ -372,7 +464,7 @@ public class RealplayActivity extends BaseActivity {
 						liveview.getPlaywindowFrame().setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 
 								surfaceHeight));
 						
-						liveViewManager.addLiveView(liveview);
+						liveViewManager.addLiveView(liveview);*/
 					}
 					
 					onContentChanged();
@@ -1006,6 +1098,8 @@ public class RealplayActivity extends BaseActivity {
 				getResources().getDimensionPixelSize(R.dimen.toolbar_height));
 		mPager.setOnActionClickListener(mPagerOnActionClickListener);
 
+		mControlbar = (FrameLayout) findViewById(R.id.realplay_controlbar);
+		
 		mQualityControlbarMenu = (LinearLayout) findViewById(R.id.quality_controlbar_menu);
 		mQualityMenuFluency = (ImageButton) findViewById(R.id.quality_controlbar_menu_fluency);
 		mQualityMenuStandard = (ImageButton) findViewById(R.id.quality_controlbar_menu_standard);
@@ -1258,9 +1352,15 @@ public class RealplayActivity extends BaseActivity {
 				return;
 			}
 			Log.i(TAG, "On single click");
+			
+			if (liveViewManager.getPager() == null) {
+				return;
+			}
 		
 			int pos = getIndexOfLiveview(e.getX(), e.getY());
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+			
+			Log.i(TAG, "single_click, getX:" + e.getX() + ", getY:" + e.getY() + ", pos:" + pos + ", index:" + index);
 			
 			if (index > liveViewManager.getLiveViewTotalCount()) {  
 				return;  // 非有效通道，不作处理 
@@ -1282,6 +1382,10 @@ public class RealplayActivity extends BaseActivity {
 			
 			Log.i(TAG, "On Double click");
 			
+			if (liveViewManager.getPager() == null) {
+				return;
+			}
+			
 			int pos;
 			
 			if (liveViewManager.getPageCapacity() == 1) {
@@ -1291,6 +1395,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
+			
+			Log.i(TAG, "double_click, getX:" + e.getX() + ", getY:" + e.getY() + ", pos:" + pos + ", index:" + index);
 			
 			if (index > liveViewManager.getLiveViewTotalCount()) {  
 				return;  // 非有效通道，不作处理 
@@ -1326,8 +1432,9 @@ public class RealplayActivity extends BaseActivity {
 		
 		private int getIndexOfLiveview(float x, float y) {
 			int sw = GlobalApplication.getInstance().getScreenWidth();
+			int sh = GlobalApplication.getInstance().getScreenHeight();
 			
-			return (x < sw/2) ? (y < sw/2 ? 1 : 3) : (y < sw/2 ? 2 : 4); // 触点属于第几个视频区域	
+			return (x < sw/2) ? (y < sh/2 ? 1 : 3) : (y < sh/2 ? 2 : 4); // 触点属于第几个视频区域	
 		}
 		
 		@Override
@@ -1492,7 +1599,6 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onFling() {
-			// TODO Auto-generated method stub
 			
 		}
 	};
@@ -1560,10 +1666,8 @@ public class RealplayActivity extends BaseActivity {
   
         @Override  
         public boolean onDown(MotionEvent e)  
-        {  
-            // TODO Auto-generated method stub  
-            Log.i("TEST", "onDown");  
-            //return super.onDown(e);  
+        {   
+            Log.i("TEST", "onDown");
             return true;
         }  
   
@@ -1572,12 +1676,9 @@ public class RealplayActivity extends BaseActivity {
                 float velocityY)  
         {  
         	float a0 = e1.getX();
-        	float b0 = e1.getY();
         	float a1 = e2.getX();
-        	float b1 = e2.getY();
         	
         	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
-        	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
         	
 
         	if (!mIsPTZModeOn) { // 非PTZ模式， 即左右滑屏
@@ -1611,7 +1712,6 @@ public class RealplayActivity extends BaseActivity {
         @Override  
         public void onLongPress(MotionEvent e)  
         {  
-            // TODO Auto-generated method stub  
             Log.i("TEST", "onLongPress");  
             super.onLongPress(e);  
         }  
@@ -1685,7 +1785,8 @@ public class RealplayActivity extends BaseActivity {
     }
 	
 	private class ScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
-		private float scaleFactor = 0;
+		private float scaleFactorSum = 0;
+		private int count = 0;
 		
 		private OnGestureListener mGestureListener;
 		
@@ -1699,7 +1800,15 @@ public class RealplayActivity extends BaseActivity {
 		
 		@Override
 		public boolean onScale(ScaleGestureDetector detector) {
-			scaleFactor = detector.getScaleFactor();
+			//scaleFactor = detector.getScaleFactor();
+			
+			scaleFactorSum += detector.getScaleFactor();
+			count++;
+			
+			Log.i(TAG, "onScale, currentSpan:" + detector.getCurrentSpan()
+					+ ", previousSpan:" + detector.getPreviousSpan());
+			Log.i(TAG, "onScale, scaleFactor:" + detector.getScaleFactor());
+			
 			return true;
 		}
 
@@ -1715,11 +1824,16 @@ public class RealplayActivity extends BaseActivity {
 				return;
 			}
 			
-			if (scaleFactor > 1) {
+			float avg = scaleFactorSum / count; // 求均值确定放大还是缩小操作
+			
+			if (avg > 1) {
 				mGestureListener.onZoomIn();
 			} else {
 				mGestureListener.onZoomOut();
 			}
+			
+			scaleFactorSum = 0;
+			count = 0;
 			
 		}
 		

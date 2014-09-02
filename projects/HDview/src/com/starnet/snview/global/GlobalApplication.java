@@ -9,6 +9,10 @@ public class GlobalApplication extends Application {
 	private String appName;
 	
 	private int mScreenWidth;
+	private int mScreenHeight;
+	
+	private boolean mIsFullscreenMode;
+	
 	private Handler handler;
 
 	public static GlobalApplication getInstance() {
@@ -19,11 +23,25 @@ public class GlobalApplication extends Application {
 		return mScreenWidth;
 	}
 
-	public void setScreenWidth(int mScreenWidth) {
-		this.mScreenWidth = mScreenWidth;
+	public void setScreenWidth(int width) {
+		this.mScreenWidth = width;
 	}
-	
-	
+
+	public boolean isIsFullMode() {
+		return mIsFullscreenMode;
+	}
+
+	public void setFullscreenMode(boolean isFullscreenMode) {
+		this.mIsFullscreenMode = isFullscreenMode;
+	}
+
+	public int getScreenHeight() {
+		return mScreenHeight;
+	}
+
+	public void setScreenHeight(int height) {
+		this.mScreenHeight = height;
+	}
 
 	public Handler getHandler() {
 		return handler;
