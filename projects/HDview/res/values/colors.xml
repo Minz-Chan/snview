@@ -56,4 +56,5 @@
     <color name="realplay_toast_bg">#AA808080</color>
     
     <color name="liveview_bg_invalid">#FF606060</color>
+    <color name="image_manager_delete_red">#FF6666</color>
 </resources>

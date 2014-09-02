@@ -100,6 +100,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		
 		RelativeLayout.LayoutParams rParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 		rParams.addRule(RelativeLayout.CENTER_HORIZONTAL,RelativeLayout.TRUE);
+		subLayout.setBackgroundColor(getResources().getColor(R.color.image_manager_delete_red));
 		
 		delete_button = new Button(context);
 		viewTreeObserver = delete_button.getViewTreeObserver();
@@ -324,6 +325,22 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				photoView.setOnPhotoTapListener(onPhotoTapListener);
 				photoView.setScaleType(ScaleType.FIT_XY);//禁止图片进行缩放...
 			}
+			photoContext = container.getContext();
+			photoView.setOnPhotoTapListener(new OnPhotoTapListener() {
+				
+				@Override
+				public void onPhotoTap(View view, float x, float y) {
+					
+					int cur_postion = mSelfDefViewPager.getMPostion();
+					Intent intent = new Intent();
+					Bundle bundle = new Bundle();
+					bundle.putInt("cur_postion", cur_postion);
+					bundle.putInt("showSum", showSum);
+					intent.putExtras(bundle);
+					intent.setClass(photoContext, ImageManagerVideoPlayActivity.class);
+					startActivity(intent);
+				}
+			});
 			photoView.setOnViewTapListener(onViewTapListener);
 			
 			return photoView;
@@ -357,7 +374,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			bundle.putInt("cur_postion", cur_postion);
 			bundle.putInt("showSum", showSum);
 			intent.putExtras(bundle);
-			intent.setClass(photoContext, ImageManagerVideoPlayActivity.class);
+			intent.setClass(ImagePreviewViewPagerActivity.this, ImageManagerVideoPlayActivity.class);
 			startActivity(intent);
 		}
 	};

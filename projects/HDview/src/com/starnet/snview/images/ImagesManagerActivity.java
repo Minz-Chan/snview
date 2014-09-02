@@ -72,14 +72,13 @@ public class ImagesManagerActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!mIsEdit) {	// 菜单按钮
+				if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单....
 					
 					
 				} else {	// 退出图像管理编辑状态
-					switch2EditStatus(false);;
+					switch2EditStatus(false);
 					mIsEdit = false;
 				}
-				
 			}
 		});
 		
@@ -89,7 +88,7 @@ public class ImagesManagerActivity extends BaseActivity {
 				if (!mIsEdit) {	// 进入图像管理编辑状态
 					switch2EditStatus(true);					
 					mIsEdit = true;
-				} else {	// 删除所选图片
+				} else {	// 删除所选图片,进入非编辑状态...
 					Log.i(TAG, "处在编辑状态");
 					mImagesManager.deleteSelectedImages();
 					
@@ -100,19 +99,12 @@ public class ImagesManagerActivity extends BaseActivity {
 						}
 					}
 					mExpandableListAdapter.notifyDataSetChanged();//更新图像管理
-					
-//					switch2EditStatus(false);
 					//更新导航栏....
-					ImagesManagerActivity.this.setNavbarBgFromColor(ImagesManagerActivity.this
-							.getResources().getColor(R.color.navigation_bar_blue_bg));
-					ImagesManagerActivity.this.setLeftButtonBg(R.drawable.navigation_bar_menu_btn_selector);
-					ImagesManagerActivity.this.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
-					setTitleText(0);
 					mIsEdit = false;
+					switch2EditStatus(false);//转化为非编辑状态...????/
 				}
 			}
 		});
-		
 	}
 	
 	private void updateImageGroupList()
