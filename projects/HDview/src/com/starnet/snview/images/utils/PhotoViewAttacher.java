@@ -111,7 +111,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	}
 
 	private WeakReference<ImageView> mImageView;
-	private ViewTreeObserver mViewTreeObserver;
+	private ViewTreeObserver mViewTreeObserver;//视图树观察者，主要用于检测布局是否发生变化
 
 	// Gesture Detectors
 	private GestureDetector mGestureDetector;
@@ -131,11 +131,11 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	private OnLongClickListener mLongClickListener;//长按监听器...；
 
 	private int mIvTop, mIvRight, mIvBottom, mIvLeft;
-	private FlingRunnable mCurrentFlingRunnable;
+	private FlingRunnable mCurrentFlingRunnable;//抛动接口...
 	private int mScrollEdge = EDGE_BOTH;
 
 	private boolean mZoomEnabled;
-	private ScaleType mScaleType = ScaleType.FIT_CENTER;
+	private ScaleType mScaleType = ScaleType.FIT_CENTER;//起始时的图形填充形式...
 
 	public PhotoViewAttacher(ImageView imageView) {
 		mImageView = new WeakReference<ImageView>(imageView);
@@ -209,7 +209,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 		if (null != mImageView) {
 			imageView = mImageView.get();
 		}
-
 		// If we don't have an ImageView, call cleanup()
 		if (null == imageView) {
 			cleanup();
@@ -252,11 +251,11 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 			float y = ev.getY();
 
 			if (scale < mMidScale) {
-				zoomTo(mMidScale, x, y);
+				zoomTo(mMidScale, x, y);//缩放为中等
 			} else if (scale >= mMidScale && scale < mMaxScale) {
-				zoomTo(mMaxScale, x, y);
+				zoomTo(mMaxScale, x, y);//缩放为最大
 			} else {
-				zoomTo(mMinScale, x, y);
+				zoomTo(mMinScale, x, y);//缩放为最小
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			// Can sometimes happen when getX() and getY() is called
@@ -387,8 +386,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 	public final boolean onTouch(View v, MotionEvent ev) {
 		boolean handled = false;
 
-		if (mZoomEnabled) {
-			switch (ev.getAction()) {
+		if (mZoomEnabled) {//检测是否可进行缩放...
+			switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_DOWN:
 					// First, disable the Parent from intercepting the touch
 					// event
@@ -519,7 +518,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 		return mDrawMatrix;
 	}
 
-	private void cancelFling() {
+	private void cancelFling() {//取消 抛出 动作...
 		if (null != mCurrentFlingRunnable) {
 			mCurrentFlingRunnable.cancelFling();
 			mCurrentFlingRunnable = null;
@@ -792,7 +791,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 		void onViewTap(View view, float x, float y);
 	}
 
-	private class AnimatedZoomRunnable implements Runnable {
+	private class AnimatedZoomRunnable implements Runnable {//动画缩放线程...
 
 		// These are 'postScale' values, means they're compounded each iteration
 		static final float ANIMATION_SCALE_PER_ITERATION_IN = 1.07f;
@@ -841,7 +840,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, Vers
 		}
 	}
 
-	private class FlingRunnable implements Runnable {
+	private class FlingRunnable implements Runnable {//“抛滚”线程...
 
 		private final ScrollerProxy mScroller;
 		private int mCurrentX, mCurrentY;

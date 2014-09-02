@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 public class SelfDefViewPager extends ViewPager {
@@ -59,10 +60,63 @@ public class SelfDefViewPager extends ViewPager {
 		public void onPageSelected(int position) {// 此方法是页面跳转完后得到调用;arg0是你当前选中的页面的Position
 			Log.i(TAG, "onPageSelected ----> position :" + (position+1));
 			mPosition = position+1;
-			imagepreview_title_image_num.setText("("+(position+1)+"/"+showSum+")");
+			imagepreview_title_image_num.setText("("+(mPosition)+"/"+showSum+")");
 		}
 	};
 	
+	@Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        try {
+            return super.onTouchEvent(ev);
+        } catch (IllegalArgumentException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+	
+	@Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        try {
+        	Log.i(TAG, "e.x:" + ev.getX());
+            return super.onInterceptTouchEvent(ev);
+        } catch (Exception ex) {
+        	
+        	Log.i(TAG, "onInterceptTouchEvent, catch");
+            ex.printStackTrace();
+            
+            MotionEvent event = MotionEvent.obtain(ev);
+            
+            event.setAction(MotionEvent.ACTION_UP);
+            
+            event.setLocation(8, 8);
+
+            Log.i(TAG, "onInterceptTouchEvent," + getChildAt(getCurrentItem()));
+            
+            return false;
+            //throw new IllegalArgumentException("");
+            
+        }
+//        return false;
+    }
+
+	public boolean delete_flag = false;
+	
+	public boolean isDelete_flag() {
+		return delete_flag;
+	}
+
+	public void setDelete_flag(boolean delete_flag) {
+		this.delete_flag = delete_flag;
+	}
+
+	public int getShowSum() {
+		return showSum;
+	}
+
+	public void setShowSum(int showSum) {
+		this.showSum = showSum;
+	}
+
 	private int mPosition;
 	public int getMPostion(){
 		return mPosition;

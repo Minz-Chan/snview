@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
@@ -141,6 +142,8 @@ public class SystemSettingActivity extends BaseActivity {
 	protected void gotoHelp() {//zk。进入 帮助界面。。。
 		Intent intent = new Intent();
 		//。。。。。
+		
+		Toast.makeText(SystemSettingActivity.this, "第二个页面", Toast.LENGTH_SHORT).show();
 	}
 	
 	protected void gotoCloudAccount() {

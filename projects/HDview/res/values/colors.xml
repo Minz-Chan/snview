@@ -32,6 +32,7 @@
     
     <color name="system_setting_listview_selected">#1E90FF</color>
     <color name="system_setting_listview_background">#FFFFFF</color>
+    <color name="system_setting_listview_center">#666699</color>
     <color name="system_setting_listview_line">#000000</color>
     <color name="system_setting_button_selected">#FF0000</color>
     <color name="system_setting_about_line">#8C8C8C</color>

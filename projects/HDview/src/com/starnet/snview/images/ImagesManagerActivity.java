@@ -90,21 +90,8 @@ public class ImagesManagerActivity extends BaseActivity {
 					switch2EditStatus(true);					
 					mIsEdit = true;
 				} else {	// 删除所选图片
-					Log.i(TAG, "处在编辑状态");					
-//					Iterator<ImagesGroup> imgGroupIterator = mImagesThumbnailGroupList.iterator();
-//					while (imgGroupIterator.hasNext()) {
-//						ImagesGroup imgGroup = imgGroupIterator.next();
-//						List<Image> imgList = imgGroup.getThumbnailList();
-//						Iterator<Image> imgIterator = imgList.iterator();
-//						while (imgIterator.hasNext()) {
-//							Image img = imgIterator.next();//出现异常,因为删除的数目多于2个时，在进行第二次遍历的时候，会出现已经删除....
-//							if(img.isSelected()){
-//								mImagesManager.deleteImage(img);
-//							}
-//						}
-//					}
+					Log.i(TAG, "处在编辑状态");
 					mImagesManager.deleteSelectedImages();
-					
 					
 					for (int i = 0; i < mImagesThumbnailGroupList.size(); i++) {
 						int size = mImagesThumbnailGroupList.get(i).getGroupSize();
@@ -113,19 +100,15 @@ public class ImagesManagerActivity extends BaseActivity {
 						}
 					}
 					mExpandableListAdapter.notifyDataSetChanged();//更新图像管理
-//						FileManager mFileManager = FileManager.getInstance();
-//						String sdPath = Environment.getExternalStorageDirectory().getPath();
-//						Log.v(TAG, sdPath);
-//						String filePath1 = sdPath+"/SNview/capture/"+datePath;
-//						String filePath2 = sdPath+"/SNview/record/"+datePath;
-//						String filePath3 = sdPath+"/SNview/thumbnails/"+datePath;
-//						boolean isNull = mFileManager.checkFileIsNull(filePath3);
-//						if(isNull){
-//							mImagesThumbnailGroupList.remove(i);
-//							mFileManager.deleteFile(filePath3);
-//						}
 					
-					
+//					switch2EditStatus(false);
+					//更新导航栏....
+					ImagesManagerActivity.this.setNavbarBgFromColor(ImagesManagerActivity.this
+							.getResources().getColor(R.color.navigation_bar_blue_bg));
+					ImagesManagerActivity.this.setLeftButtonBg(R.drawable.navigation_bar_menu_btn_selector);
+					ImagesManagerActivity.this.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
+					setTitleText(0);
+					mIsEdit = false;
 				}
 			}
 		});
@@ -247,23 +230,16 @@ public class ImagesManagerActivity extends BaseActivity {
 				mExpandableListAdapter = new ImagesExpandableListAdapter(ImagesManagerActivity.this, ImagesManagerActivity.this.mImagesThumbnailGroupList);
 		        mExpandableListView.setAdapter(ImagesManagerActivity.this.mExpandableListAdapter);
 		        
-		        
 		        if (ImagesManagerActivity.this.mExpandableListAdapter != null) {
 					ImagesManagerActivity.this.mExpandableListAdapter.notifyDataSetChanged();
 			        for (int i = 0; i < ImagesManagerActivity.this.mExpandableListAdapter.getGroupCount(); i++) {
 			          ImagesManagerActivity.this.mExpandableListView.expandGroup(i);
 			        }
 			     }
-		        
 		        if (ImagesManagerActivity.this.mImagesThumbnailGroupList.size() > 0) {
 		        	ImagesManagerActivity.this.mExpandableListView.expandGroup(0);
 		        }
 			}
-	
-
 		}
-		
-		
 	}
-	
 }

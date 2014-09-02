@@ -1,22 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?> 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
- <!-- 实心  透明色
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!--
+ 实心  透明色
  <solid android:color="#FFFFFF"/>
- -->
-     <gradient
-         android:startColor="@color/system_setting_listview_background"
-         android:endColor="@color/system_setting_listview_background"
-         android:angle="270" />
-     <!-- listview四周线条颜色及宽度 -->
-     <stroke
-         android:width="0.25dp"
-         android:color="@color/system_setting_listview_line" />
-     
-     <corners
-         android:radius="10dip" />
-     <padding
-         android:left="0dp"
-         android:top="0dp"
-         android:right="0dp"
-         android:bottom="0dp" />
+    -->
+    <gradient
+        android:angle="270"
+        android:endColor="@color/system_setting_listview_background"
+        android:startColor="@color/system_setting_listview_background" />
+    <!-- listview四周线条颜色及宽度 android:centerColor="@color/system_setting_listview_center" -->
+    <stroke
+        android:width="0.25dp"
+        android:color="@color/system_setting_listview_line" />
+
+    <corners android:radius="10dip" />
+
+    <padding
+        android:bottom="0dp"
+        android:left="0dp"
+        android:right="0dp"
+        android:top="0dp" />
+
 </shape>
