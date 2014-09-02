@@ -2,6 +2,7 @@ package com.starnet.snview.component;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 //import android.widget.RelativeLayout.LayoutParams;
 
+
 //import com.mcu.iVMS.global.GlobalApplication;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,6 +22,8 @@ import com.starnet.snview.R;
 import com.starnet.snview.global.GlobalApplication;
 
 public class LandscapeToolbar extends FrameLayout {
+	private static final String TAG = "LandscapeToolbar";
+	
 	private static final int EXTEND_SPACE = 26;
 	private static final int LONG_CLICK_TIME = 500;
 	private static final int TOUCH_SLOP = 10;
@@ -112,13 +116,19 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	private void clickAction(View v) {
+		Log.i(TAG, "###clickAction");
 		switch (v.getId()) {
 		case 0:
 		case 1: // 功能部分按钮
+			break;
+		case R.id.landscape_liveview_ptz_button:
+			Log.i(TAG, "###landscape_liveview_ptz_button");
 			this.mLandControlbarListener.landControlbarClick(v);
 			break;
 		case 2:
 		case 3: // PTZ部分按钮
+			break;
+		case R.id.landscape_liveview_ptz_bar_back:
 			this.mPTZBarClickListener.ptzBarClick(v);
 			break;
 		case 4:
@@ -703,6 +713,16 @@ public class LandscapeToolbar extends FrameLayout {
 		case MotionEvent.ACTION_DOWN:
 			mLastX = (int) e.getRawX();
 			mLastY = (int) e.getRawY();
+			mClickMode = true;
+			mIsCancleLongTouch = false;
+			mTouchCount = (1 + this.mTouchCount);
+			mIsCanMove = false;
+			mLastX = ((int) e.getRawX());
+			mLastY = ((int) e.getRawY());
+			mClickImageButton = isPressAction(e);
+			if (mClickImageButton != null) {
+				setActionButtonStatus(mClickImageButton.getId(), action);
+			}
 			break;
 		case MotionEvent.ACTION_MOVE:
 			int rawX = (int) e.getRawX();
@@ -728,25 +748,29 @@ public class LandscapeToolbar extends FrameLayout {
 			if (newBottom > sHeight + mOffSpace) {
 				newTop = sHeight + mOffSpace - getHeight();
 			}
-			if (!this.mIsCanMove) {
-				this.mIsCanMove = isCanMove(offsetX, offsetY);
+			if (!mIsCanMove) {
+				mIsCanMove = isCanMove(offsetX, offsetY);
 			}
-
-			if (this.mIsCanMove) {
-				this.mClickMode = true;
-				this.mIsCancleLongTouch = false;
-				this.mTouchCount = (1 + this.mTouchCount);
-				this.mIsCanMove = false;
-				this.mLastX = ((int) e.getRawX());
-				this.mLastY = ((int) e.getRawY());
-				this.mClickImageButton = isPressAction(e);
-				if (this.mClickImageButton != null) {
-					setActionButtonStatus(this.mClickImageButton.getId(),
-							action);
-				}
-			} else {
+			
+			if (!mIsCanMove) {
 				return true;
 			}
+
+//			if (this.mIsCanMove) {
+//				this.mClickMode = true;
+//				this.mIsCancleLongTouch = false;
+//				this.mTouchCount = (1 + this.mTouchCount);
+//				this.mIsCanMove = false;
+//				this.mLastX = ((int) e.getRawX());
+//				this.mLastY = ((int) e.getRawY());
+//				this.mClickImageButton = isPressAction(e);
+//				if (this.mClickImageButton != null) {
+//					setActionButtonStatus(this.mClickImageButton.getId(),
+//							action);
+//				}
+//			} else {
+//				return true;
+//			}
 
 			canclePressedStatus();
 			this.mIsCancleLongTouch = true;
@@ -831,22 +855,26 @@ public class LandscapeToolbar extends FrameLayout {
 			// lp.topMargin = newTop;
 			// setLayoutParams(lp);
 			// }
+		case MotionEvent.ACTION_UP:
+			this.mIsCanMove = false;
+			this.mIsCancleLongTouch = true;
+
+			if (!this.mClickMode) {
+				expandedControl(false);
+			}
+			
+			canclePressedStatus();
+
+			if (this.mClickImageButton != null) {
+				clickAction(this.mClickImageButton);
+				playSoundEffect(0);
+			}
+			break;
 		default:
 			break;
 		}
 
-		this.mIsCanMove = false;
-		this.mIsCancleLongTouch = true;
-
-		if (!this.mClickMode) {
-			expandedControl(false);
-			canclePressedStatus();
-		}
-
-		if (this.mClickImageButton != null) {
-			clickAction(this.mClickImageButton);
-			playSoundEffect(0);
-		}
+		
 
 		return true;
 
@@ -870,8 +898,8 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public void setOnControlbarClickListener(
-			LandControlbarClickListener paramLandControlbarClickListener) {
-		this.mLandControlbarListener = paramLandControlbarClickListener;
+			LandControlbarClickListener listener) {
+		this.mLandControlbarListener = listener;
 	}
 
 	public void setOnPTZBarClickListener(

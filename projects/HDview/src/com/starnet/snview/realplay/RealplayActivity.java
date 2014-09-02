@@ -7,6 +7,8 @@ import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.component.LandscapeToolbar.LandControlbarClickListener;
+import com.starnet.snview.component.LandscapeToolbar.PTZBarClickListener;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.SurfaceViewMultiLayout;
 import com.starnet.snview.component.SurfaceViewSingleLayout;
@@ -217,7 +219,7 @@ public class RealplayActivity extends BaseActivity {
        }
 		
 		
-		
+		ptzControl.syncPTZStatus();
 		
 		super.onConfigurationChanged(newConfig);
 		
@@ -740,20 +742,30 @@ public class RealplayActivity extends BaseActivity {
 		}
 	};
 	
+	private LandControlbarClickListener mLandscapeControlbarClickListener = new LandControlbarClickListener() {
+		@Override
+		public void landControlbarClick(View v) {
+			switch (v.getId()) {
+			case R.id.landscape_liveview_ptz_button:
+				ptzControl.ptzButtonAction();
+				break;
+			}
+
+		}
+	};
 	
-//	private void resetPTZStatus() {
-//		mIsPTZModeOn = false;
-//		
-//		mPTZPopFrame.setVisibility(View.GONE);
-//		showPTZFrame(PTZ_POP_FRAME.SCAN, false);
-//		mPTZMenuScan.setSelected(false);
-//		mPTZMenuFocalLength.setSelected(false);
-//		mPTZMenuFocus.setSelected(false);
-//		mPTZMenuAperture.setSelected(false);
-//		mPTZMenuPreset.setSelected(false);
-//
-//		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
-//	}
+	private PTZBarClickListener mLandPTZBarClickListener = new PTZBarClickListener() {
+		@Override
+		public void ptzBarClick(View v) {
+			switch (v.getId()) {
+			case R.id.landscape_liveview_ptz_bar_back:
+				ptzControl.closePTZ();
+				break;
+			}
+			
+		}
+	};
+
 	
 	public boolean checkIsPTZDeviceConnected() {
 		Connection conn = liveViewManager.getSelectedLiveView().getCurrentConnection();
@@ -768,6 +780,8 @@ public class RealplayActivity extends BaseActivity {
 	private void initLandScapeToolbar() {
 		liveControl = new LiveControl(this);
 		liveControl.hideLandscapeToolbarFrame();
+		liveControl.getLandscapeToolbar().setOnControlbarClickListener(mLandscapeControlbarClickListener);
+		liveControl.getLandscapeToolbar().setOnPTZBarClickListener(mLandPTZBarClickListener);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

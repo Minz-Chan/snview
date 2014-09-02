@@ -337,6 +337,18 @@ public class PTZControl {
 				mPTZPopFrame.setVisibility(View.VISIBLE);
 				showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.MENU_PTZ);
 			}
+		} else {
+			if (GlobalApplication.getInstance().isIsFullMode()) { 
+				mPTZControlbarMenu.setVisibility(View.GONE);
+				mPTZPopFrame.setVisibility(View.GONE);
+				mLandscapeToolbar.setVisibility(View.VISIBLE);
+				mLandscapeToolbar.showControlbar();
+			} else {
+				mLandscapeToolbar.setVisibility(View.GONE);
+				mPTZControlbarMenu.setVisibility(View.VISIBLE);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
+			}
 		}
 	}
 	

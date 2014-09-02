@@ -60,4 +60,8 @@ public class LiveControl {
 		mLandscapePopFrame.setVisibility(View.GONE);
 	}
 	
+	public LandscapeToolbar getLandscapeToolbar() {
+		return mLandscapeControlbar;
+	}
+	
 }
