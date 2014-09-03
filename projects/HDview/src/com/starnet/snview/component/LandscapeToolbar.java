@@ -128,6 +128,11 @@ public class LandscapeToolbar extends FrameLayout {
 		case 2:
 		case 3: // PTZ部分按钮
 			break;
+		case R.id.landscape_liveview_ptz_auto:
+		case R.id.landscape_liveview_ptz_focal_length:
+		case R.id.landscape_liveview_ptz_focus:
+		case R.id.landscape_liveview_ptz_aperture:
+		case R.id.landscape_liveview_ptz_preset_point:
 		case R.id.landscape_liveview_ptz_bar_back:
 			this.mPTZBarClickListener.ptzBarClick(v);
 			break;

@@ -757,7 +757,24 @@ public class RealplayActivity extends BaseActivity {
 	private PTZBarClickListener mLandPTZBarClickListener = new PTZBarClickListener() {
 		@Override
 		public void ptzBarClick(View v) {
+			Log.i(TAG, "ptzBarClick");
+			
 			switch (v.getId()) {
+			case R.id.landscape_liveview_ptz_auto:
+				ptzControl.ptzAuto();
+				break;
+			case R.id.landscape_liveview_ptz_focal_length:
+				ptzControl.ptzFocalLength();
+				break;
+			case R.id.landscape_liveview_ptz_focus:
+				ptzControl.ptzFocus();
+				break;
+			case R.id.landscape_liveview_ptz_aperture:
+				ptzControl.ptzAperture();
+				break;
+			case R.id.landscape_liveview_ptz_preset_point:
+				ptzControl.ptzPresetPoint();
+				break;
 			case R.id.landscape_liveview_ptz_bar_back:
 				ptzControl.closePTZ();
 				break;
@@ -873,9 +890,9 @@ public class RealplayActivity extends BaseActivity {
 
 	};
 
-	private enum PTZ_POP_FRAME {
-		SCAN, FOCAL_LENGTH, FOCUS, APERTURE, PRESET
-	};
+//	private enum PTZ_POP_FRAME {
+//		SCAN, FOCAL_LENGTH, FOCUS, APERTURE, PRESET
+//	};
 
 //	private OnClickListener mOnPTZMenuClickListener = new OnClickListener() {
 //		@Override
@@ -1004,47 +1021,47 @@ public class RealplayActivity extends BaseActivity {
 //		}
 //	};
 
-	private void showPTZFrame(PTZ_POP_FRAME ppf, boolean isShow) {
-		if (isShow) {
-			switch (ppf) {
-			case SCAN:
-				break;
-			case FOCAL_LENGTH:
-				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-						.setVisibility(View.VISIBLE);
-				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-						.setVisibility(View.GONE);
-				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-						.setVisibility(View.GONE);
-				break;
-			case FOCUS:
-				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-						.setVisibility(View.GONE);
-				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-						.setVisibility(View.VISIBLE);
-				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-						.setVisibility(View.GONE);
-				break;
-			case APERTURE:
-				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-						.setVisibility(View.GONE);
-				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-						.setVisibility(View.GONE);
-				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-						.setVisibility(View.VISIBLE);
-				break;
-			case PRESET:
-				break;
-			}
-		} else {
-			((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-					.setVisibility(View.GONE);
-			((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-					.setVisibility(View.GONE);
-			((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-					.setVisibility(View.GONE);
-		}
-	}
+//	private void showPTZFrame(PTZ_POP_FRAME ppf, boolean isShow) {
+//		if (isShow) {
+//			switch (ppf) {
+//			case SCAN:
+//				break;
+//			case FOCAL_LENGTH:
+//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+//						.setVisibility(View.VISIBLE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+//						.setVisibility(View.GONE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+//						.setVisibility(View.GONE);
+//				break;
+//			case FOCUS:
+//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+//						.setVisibility(View.GONE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+//						.setVisibility(View.VISIBLE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+//						.setVisibility(View.GONE);
+//				break;
+//			case APERTURE:
+//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+//						.setVisibility(View.GONE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+//						.setVisibility(View.GONE);
+//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+//						.setVisibility(View.VISIBLE);
+//				break;
+//			case PRESET:
+//				break;
+//			}
+//		} else {
+//			((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+//					.setVisibility(View.GONE);
+//			((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+//					.setVisibility(View.GONE);
+//			((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+//					.setVisibility(View.GONE);
+//		}
+//	}
 
 	private void initToolbarExtendMenu() {
 		mPager = (VideoPager) findViewById(R.id.pager);

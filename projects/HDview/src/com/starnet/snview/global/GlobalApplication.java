@@ -18,6 +18,9 @@ public class GlobalApplication extends Application {
 	private int mLandscapeControlWidth;
 	private int mLandscapeControlHeight;
 	
+	private int mPTZPopFrameWidth;
+	private int mPTZPopFrameHeight;
+	
 	private boolean mIsFullscreenMode;
 	
 	private Handler handler;
@@ -32,6 +35,9 @@ public class GlobalApplication extends Application {
 		
 		mLandscapeControlWidth = activity.getResources().getDrawable(R.drawable.fullscreen_bar).getIntrinsicWidth();
 		mLandscapeControlHeight = activity.getResources().getDrawable(R.drawable.fullscreen_bar).getIntrinsicHeight();
+		
+		mPTZPopFrameWidth = activity.getResources().getDrawable(R.drawable.ptz_pop_frame_bg).getIntrinsicWidth();
+		mPTZPopFrameHeight = activity.getResources().getDrawable(R.drawable.ptz_pop_frame_bg).getIntrinsicHeight();
 		
 		mIsFullscreenMode = false;
 		
@@ -62,6 +68,34 @@ public class GlobalApplication extends Application {
 
 	public void setLandscapeControlHeight(int landscapeControlHeight) {
 		this.mLandscapeControlHeight = landscapeControlHeight;
+	}
+	
+	public int getVideoRegionWidth() {
+		return mScreenWidth;
+	}
+	
+	public int getVideoRegionHeight() {
+		if (mIsFullscreenMode) {
+			return mScreenHeight;
+		} else {
+			return mScreenWidth;
+		}		
+	}
+
+	public int getPTZPopFrameWidth() {
+		return mPTZPopFrameWidth;
+	}
+
+	public void setPTZPopFrameWidth(int width) {
+		this.mPTZPopFrameWidth = width;
+	}
+
+	public int getPTZPopFrameHeight() {
+		return mPTZPopFrameHeight;
+	}
+
+	public void setPTZPopFrameHeight(int height) {
+		this.mPTZPopFrameHeight = height;
 	}
 
 	public boolean isIsFullMode() {

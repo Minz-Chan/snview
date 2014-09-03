@@ -13,6 +13,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 public class PTZControl {
 	private static final String TAG = "PTZControl";
@@ -105,13 +107,15 @@ public class PTZControl {
 			switch (v.getId()) {
 			case R.id.ptz_controlbar_menu_scan:
 				Log.i(TAG, "ptz_controlbar_menu_scan");
+				ptzAuto();
 				break;
 			case R.id.ptz_controlbar_menu_focal_length:
 				Log.i(TAG, "ptz_controlbar_menu_focal_length");
 				if (!mPTZMenuFocalLength.isSelected()) {
 					// mToolbarSubMenu.setVisibility(View.VISIBLE);
 					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focal_length));
-					showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
+					ptzFocalLength();
+					//showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
 					mPTZMenuScan.setSelected(false);
 					mPTZMenuFocalLength.setSelected(true);
 					mPTZMenuFocus.setSelected(false);
@@ -128,7 +132,8 @@ public class PTZControl {
 				if (!mPTZMenuFocus.isSelected()) {
 					// mToolbarSubMenu.setVisibility(View.VISIBLE);
 					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focus));
-					showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
+					ptzFocus();
+					//showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
 					mPTZMenuScan.setSelected(false);
 					mPTZMenuFocalLength.setSelected(false);
 					mPTZMenuFocus.setSelected(true);
@@ -145,7 +150,8 @@ public class PTZControl {
 				if (!mPTZMenuAperture.isSelected()) {
 					// mToolbarSubMenu.setVisibility(View.VISIBLE);
 					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_aperture));
-					showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
+					ptzAperture();
+					//showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
 					mPTZMenuScan.setSelected(false);
 					mPTZMenuFocalLength.setSelected(false);
 					mPTZMenuFocus.setSelected(false);
@@ -159,6 +165,7 @@ public class PTZControl {
 				break;
 			case R.id.ptz_controlbar_menu_preset:
 				Log.i(TAG, "ptz_controlbar_menu_preset");
+				ptzPresetPoint();
 				break;
 			}
 
@@ -169,6 +176,12 @@ public class PTZControl {
 		if (isShow) {
 			switch (ppf) {
 			case SCAN:
+				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+						.setVisibility(View.GONE);
 				break;
 			case FOCAL_LENGTH:
 				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
@@ -195,6 +208,12 @@ public class PTZControl {
 						.setVisibility(View.VISIBLE);
 				break;
 			case PRESET:
+				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
+						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
+						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+						.setVisibility(View.GONE);
 				break;
 			}
 		} else {
@@ -390,6 +409,7 @@ public class PTZControl {
 
 			showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 		} else {
+			mPTZPopFrame.setVisibility(View.GONE);
 			mLandscapeToolbar.hidePTZbar();
 		}
 		
@@ -410,6 +430,61 @@ public class PTZControl {
 		
 		mLiveviewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
 		mLiveviewManager.selectLiveView(index);
+	}
+	
+	private void initPTZPopFramePos() {
+		GlobalApplication g = GlobalApplication.getInstance();
+		RelativeLayout.LayoutParams lp = new LayoutParams(
+				g.getPTZPopFrameWidth(), g.getPTZPopFrameHeight());
+		
+		lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		
+		if (g.isIsFullMode()) {
+			lp.topMargin = g.getVideoRegionHeight()
+					- g.getPTZPopFrameHeight()
+					- (int) mLiveActivity.getResources().getDimension(
+							R.dimen.landscape_pop_frame_bottom_margin);
+		} else {
+			lp.topMargin = ((RelativeLayout) mPTZPopFrame.getParent())
+					.getHeight() - g.getPTZPopFrameHeight()
+					- (int) mLiveActivity.getResources().getDimension(
+							R.dimen.portrait_pop_frame_bottom_margin);
+		}
+		
+		Log.i(TAG, "lp.topMargin:" + lp.topMargin + ", lp.bottomMargin:" + lp.bottomMargin);
+		
+		mPTZPopFrame.setLayoutParams(lp);
+	}
+	
+	public void ptzAuto() {
+		mPTZPopFrame.setVisibility(View.GONE);
+		showPTZFrame(PTZ_POP_FRAME.SCAN, true);
+	}
+	
+	public void ptzFocalLength() {
+		initPTZPopFramePos();
+		
+		mPTZPopFrame.setVisibility(View.VISIBLE);
+		showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
+	}
+	
+	public void ptzFocus() {
+		initPTZPopFramePos();
+		
+		mPTZPopFrame.setVisibility(View.VISIBLE);
+		showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
+	}
+	
+	public void ptzAperture() {
+		initPTZPopFramePos();
+		
+		mPTZPopFrame.setVisibility(View.VISIBLE);
+		showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
+	}
+	
+	public void ptzPresetPoint() {
+		mPTZPopFrame.setVisibility(View.GONE);
+		showPTZFrame(PTZ_POP_FRAME.PRESET, true);
 	}
 	
 	private boolean checkIsPTZDeviceConnected() {
