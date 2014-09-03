@@ -93,26 +93,26 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	private void canclePressedStatus() {
-		this.mShotPictureButton.setPressed(false);
-		this.mRecordButton.setPressed(false);
-		this.mPtzButton.setPressed(false);
-		this.mQualityButton.setPressed(false);
-		this.mVoicetalkButton.setPressed(false);
-		this.mSoundButton.setPressed(false);
-		this.mAlarmButton.setPressed(false);
-		this.mStopResumeButton.setPressed(false);
-		this.mEnlargeButton.setPressed(false);
-		this.mAutoButton.setPressed(false);
-		this.mFocalLengthButton.setPressed(false);
-		this.mFocusButton.setPressed(false);
-		this.mApertrueButton.setPressed(false);
-		this.mPresetPointButton.setPressed(false);
-		this.mBarBackButton.setPressed(false);
-		this.mClearButton.setPressed(false);
-		this.mBalanceButton.setPressed(false);
-		this.mFluentButton.setPressed(false);
-		this.mCustomButton.setPressed(false);
-		this.mQualityBarBackButton.setPressed(false);
+		mShotPictureButton.setPressed(false);
+		mRecordButton.setPressed(false);
+		mPtzButton.setPressed(false);
+		mQualityButton.setPressed(false);
+		mVoicetalkButton.setPressed(false);
+		mSoundButton.setPressed(false);
+		mAlarmButton.setPressed(false);
+		mStopResumeButton.setPressed(false);
+		mEnlargeButton.setPressed(false);
+		mAutoButton.setPressed(false);
+		mFocalLengthButton.setPressed(false);
+		mFocusButton.setPressed(false);
+		mApertrueButton.setPressed(false);
+		mPresetPointButton.setPressed(false);
+		mBarBackButton.setPressed(false);
+		mClearButton.setPressed(false);
+		mBalanceButton.setPressed(false);
+		mFluentButton.setPressed(false);
+		mCustomButton.setPressed(false);
+		mQualityBarBackButton.setPressed(false);
 	}
 
 	private void clickAction(View v) {
@@ -123,8 +123,8 @@ public class LandscapeToolbar extends FrameLayout {
 			break;
 		case R.id.landscape_liveview_capture_button:
 		case R.id.landscape_liveview_ptz_button:
-			Log.i(TAG, "###landscape_liveview_ptz_button");
-			this.mLandControlbarListener.landControlbarClick(v);
+		case R.id.landscape_liveview_quality_button:
+			mLandControlbarListener.landControlbarClick(v);
 			break;
 		case 2:
 		case 3: // PTZ部分按钮
@@ -135,11 +135,16 @@ public class LandscapeToolbar extends FrameLayout {
 		case R.id.landscape_liveview_ptz_aperture:
 		case R.id.landscape_liveview_ptz_preset_point:
 		case R.id.landscape_liveview_ptz_bar_back:
-			this.mPTZBarClickListener.ptzBarClick(v);
+			mPTZBarClickListener.ptzBarClick(v);
 			break;
 		case 4:
 		case 5: // 视频质量部分按钮
-			this.mQualityClickListener.qualityClick(v);
+		case R.id.landscape_liveview_quality_clear_button:
+		case R.id.landscape_liveview_quality_balance_button:
+		case R.id.landscape_liveview_quality_fluent_button:
+		case R.id.landscape_liveview_quality_custom_button:
+		case R.id.landscape_liveview_quality_back_button:
+			mQualityClickListener.qualityClick(v);
 			break;
 		}
 	}
@@ -216,7 +221,7 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	private boolean isPTZShow() {
-		return this.mIsPTZshow;
+		return mIsPTZshow;
 	}
 
 	private View isPressAction(MotionEvent e) {
@@ -225,9 +230,9 @@ public class LandscapeToolbar extends FrameLayout {
 
 		View viewBeClicked = null;
 
-		if (this.mControlBar.isShown()) {
+		if (mControlBar.isShown()) {
 			Iterator controlChildIt;
-			controlChildIt = this.mControlChildList.iterator();
+			controlChildIt = mControlChildList.iterator();
 			while (controlChildIt.hasNext()) {
 				View v = (View) controlChildIt.next();
 				int[] locations = new int[2];
@@ -245,8 +250,8 @@ public class LandscapeToolbar extends FrameLayout {
 
 		}
 
-		if (this.mPTZControlBar.isShown()) {
-			Iterator ptzControlChildIt = this.mPTZControlChildList.iterator();
+		if (mPTZControlBar.isShown()) {
+			Iterator ptzControlChildIt = mPTZControlChildList.iterator();
 			while (ptzControlChildIt.hasNext()) {
 				View v = (View) ptzControlChildIt.next();
 				int[] locations = new int[2];
@@ -263,8 +268,8 @@ public class LandscapeToolbar extends FrameLayout {
 			}
 		}
 
-		if (this.mQualityControlBar.isShown()) {
-			Iterator qualityControlChildIt = this.mQualityControlChildList
+		if (mQualityControlBar.isShown()) {
+			Iterator qualityControlChildIt = mQualityControlChildList
 					.iterator();
 			while (qualityControlChildIt.hasNext()) {
 				View v = (View) qualityControlChildIt.next();
@@ -287,84 +292,84 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	private boolean isQualityShow() {
-		return this.mIsQualityShow;
+		return mIsQualityShow;
 	}
 
 	private void setActionButtonStatus(int viewId, int action) {
 
-		this.mShotPictureButton.setPressed(false);
-		this.mRecordButton.setPressed(false);
-		this.mPtzButton.setPressed(false);
-		this.mQualityButton.setPressed(false);
-		this.mVoicetalkButton.setPressed(false);
-		this.mSoundButton.setPressed(false);
-		this.mAlarmButton.setPressed(false);
-		this.mStopResumeButton.setPressed(false);
-		this.mEnlargeButton.setPressed(false);
-		this.mClearButton.setPressed(false);
-		this.mBalanceButton.setPressed(false);
-		this.mFluentButton.setPressed(false);
+		mShotPictureButton.setPressed(false);
+		mRecordButton.setPressed(false);
+		mPtzButton.setPressed(false);
+		mQualityButton.setPressed(false);
+		mVoicetalkButton.setPressed(false);
+		mSoundButton.setPressed(false);
+		mAlarmButton.setPressed(false);
+		mStopResumeButton.setPressed(false);
+		mEnlargeButton.setPressed(false);
+		mClearButton.setPressed(false);
+		mBalanceButton.setPressed(false);
+		mFluentButton.setPressed(false);
 
 		switch (viewId) {
 		case R.id.landscape_liveview_capture_button:
-			this.mShotPictureButton.setPressed(true);
+			mShotPictureButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_record_button:
-			this.mRecordButton.setPressed(true);
+			mRecordButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_button:
-			this.mPtzButton.setPressed(true);
+			mPtzButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_button:
-			this.mQualityButton.setPressed(true);
+			mQualityButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_delete_button:
-			this.mStopResumeButton.setPressed(true);
+			mStopResumeButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_sound_button:
-			this.mSoundButton.setPressed(true);
+			mSoundButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_voicetalk_button:
-			this.mVoicetalkButton.setPressed(true);
+			mVoicetalkButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_alarm_button:
-			this.mAlarmButton.setPressed(true);
+			mAlarmButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_enlarge_button:
-			this.mEnlargeButton.setPressed(true);
+			mEnlargeButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_auto:
-			this.mAutoButton.setPressed(true);
+			mAutoButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_focal_length:
-			this.mFocalLengthButton.setPressed(true);
+			mFocalLengthButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_focus:
-			this.mFocusButton.setPressed(true);
+			mFocusButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_aperture:
-			this.mApertrueButton.setPressed(true);
+			mApertrueButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_preset_point:
-			this.mPresetPointButton.setPressed(true);
+			mPresetPointButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_bar_back:
-			this.mBarBackButton.setPressed(true);
+			mBarBackButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_clear_button:
-			this.mClearButton.setPressed(true);
+			mClearButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_balance_button:
-			this.mBalanceButton.setPressed(true);
+			mBalanceButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_fluent_button:
-			this.mFluentButton.setPressed(true);
+			mFluentButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_custom_button:
-			this.mCustomButton.setPressed(true);
+			mCustomButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_back_button:
-			this.mQualityBarBackButton.setPressed(true);
+			mQualityBarBackButton.setPressed(true);
 			break;
 		default:
 			break;
@@ -381,10 +386,10 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	private void unSelectedAllQualityButton() {
-		this.mClearButton.setSelected(false);
-		this.mBalanceButton.setSelected(false);
-		this.mFluentButton.setSelected(false);
-		this.mCustomButton.setSelected(false);
+		mClearButton.setSelected(false);
+		mBalanceButton.setSelected(false);
+		mFluentButton.setSelected(false);
+		mCustomButton.setSelected(false);
 	}
 
 	/* Error */
@@ -580,65 +585,65 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public void findViews() {
-		this.mControlChildList.clear();
-		this.mPTZControlChildList.clear();
-		this.mLandscapeBarContent = ((FrameLayout) findViewById(R.id.landscape_liveview_controlbar_content));
+		mControlChildList.clear();
+		mPTZControlChildList.clear();
+		mLandscapeBarContent = ((FrameLayout) findViewById(R.id.landscape_liveview_controlbar_content));
 
 		/* 功能工具条 */
-		this.mControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_controlbar));
-		this.mShotPictureButton = ((ImageButton) findViewById(R.id.landscape_liveview_capture_button));
-		this.mRecordButton = ((ImageButton) findViewById(R.id.landscape_liveview_record_button));
-		this.mPtzButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_button));
-		this.mQualityButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_button));
-		this.mStopResumeButton = ((ImageButton) findViewById(R.id.landscape_liveview_delete_button));
-		this.mSoundButton = ((ImageButton) findViewById(R.id.landscape_liveview_sound_button));
-		this.mVoicetalkButton = ((ImageButton) findViewById(R.id.landscape_liveview_voicetalk_button));
-		this.mAlarmButton = ((ImageButton) findViewById(R.id.landscape_liveview_alarm_button));
-		this.mEnlargeButton = ((ImageButton) findViewById(R.id.landscape_liveview_enlarge_button));
+		mControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_controlbar));
+		mShotPictureButton = ((ImageButton) findViewById(R.id.landscape_liveview_capture_button));
+		mRecordButton = ((ImageButton) findViewById(R.id.landscape_liveview_record_button));
+		mPtzButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_button));
+		mQualityButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_button));
+		mStopResumeButton = ((ImageButton) findViewById(R.id.landscape_liveview_delete_button));
+		mSoundButton = ((ImageButton) findViewById(R.id.landscape_liveview_sound_button));
+		mVoicetalkButton = ((ImageButton) findViewById(R.id.landscape_liveview_voicetalk_button));
+		mAlarmButton = ((ImageButton) findViewById(R.id.landscape_liveview_alarm_button));
+		mEnlargeButton = ((ImageButton) findViewById(R.id.landscape_liveview_enlarge_button));
 
-		this.mControlChildList.add(this.mShotPictureButton);
-		this.mControlChildList.add(this.mRecordButton);
-		this.mControlChildList.add(this.mPtzButton);
-		this.mControlChildList.add(this.mQualityButton);
-		this.mControlChildList.add(this.mVoicetalkButton);
-		this.mControlChildList.add(this.mAlarmButton);
-		this.mControlChildList.add(this.mStopResumeButton);
-		this.mControlChildList.add(this.mSoundButton);
-		this.mControlChildList.add(this.mEnlargeButton);
+		mControlChildList.add(mShotPictureButton);
+		mControlChildList.add(mRecordButton);
+		mControlChildList.add(mPtzButton);
+		mControlChildList.add(mQualityButton);
+		mControlChildList.add(mVoicetalkButton);
+		mControlChildList.add(mAlarmButton);
+		mControlChildList.add(mStopResumeButton);
+		mControlChildList.add(mSoundButton);
+		mControlChildList.add(mEnlargeButton);
 
 		/* PTZ控制条 */
-		this.mPTZControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_ptz_control_bar));
-		this.mAutoButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_auto));
-		this.mFocalLengthButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length));
-		this.mFocusButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focus));
-		this.mApertrueButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture));
-		this.mPresetPointButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point));
-		this.mBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_bar_back));
+		mPTZControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_ptz_control_bar));
+		mAutoButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_auto));
+		mFocalLengthButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length));
+		mFocusButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focus));
+		mApertrueButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture));
+		mPresetPointButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point));
+		mBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_bar_back));
 
-		this.mPTZControlChildList.add(this.mAutoButton);
-		this.mPTZControlChildList.add(this.mFocalLengthButton);
-		this.mPTZControlChildList.add(this.mFocusButton);
-		this.mPTZControlChildList.add(this.mApertrueButton);
-		this.mPTZControlChildList.add(this.mPresetPointButton);
-		this.mPTZControlChildList.add(this.mBarBackButton);
+		mPTZControlChildList.add(mAutoButton);
+		mPTZControlChildList.add(mFocalLengthButton);
+		mPTZControlChildList.add(mFocusButton);
+		mPTZControlChildList.add(mApertrueButton);
+		mPTZControlChildList.add(mPresetPointButton);
+		mPTZControlChildList.add(mBarBackButton);
 
 		/* 视频质量控制条 */
-		this.mQualityControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_quality_control_bar));
-		this.mClearButton = ((Button) findViewById(R.id.landscape_liveview_quality_clear_button));
-		this.mBalanceButton = ((Button) findViewById(R.id.landscape_liveview_quality_balance_button));
-		this.mFluentButton = ((Button) findViewById(R.id.landscape_liveview_quality_fluent_button));
-		this.mCustomButton = ((Button) findViewById(R.id.landscape_liveview_quality_custom_button));
-		this.mQualityBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_back_button));
+		mQualityControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_quality_control_bar));
+		mClearButton = ((Button) findViewById(R.id.landscape_liveview_quality_clear_button));
+		mBalanceButton = ((Button) findViewById(R.id.landscape_liveview_quality_balance_button));
+		mFluentButton = ((Button) findViewById(R.id.landscape_liveview_quality_fluent_button));
+		mCustomButton = ((Button) findViewById(R.id.landscape_liveview_quality_custom_button));
+		mQualityBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_back_button));
 
-		this.mQualityControlChildList.add(this.mClearButton);
-		this.mQualityControlChildList.add(this.mBalanceButton);
-		this.mQualityControlChildList.add(this.mFluentButton);
-		this.mQualityControlChildList.add(this.mCustomButton);
-		this.mQualityControlChildList.add(this.mQualityBarBackButton);
+		mQualityControlChildList.add(mClearButton);
+		mQualityControlChildList.add(mBalanceButton);
+		mQualityControlChildList.add(mFluentButton);
+		mQualityControlChildList.add(mCustomButton);
+		mQualityControlChildList.add(mQualityBarBackButton);
 
-		this.mAllChildList.addAll(this.mControlChildList);
-		this.mAllChildList.addAll(this.mPTZControlChildList);
-		this.mAllChildList.addAll(this.mQualityControlChildList);
+		mAllChildList.addAll(mControlChildList);
+		mAllChildList.addAll(mPTZControlChildList);
+		mAllChildList.addAll(mQualityControlChildList);
 	}
 
 	
@@ -646,59 +651,59 @@ public class LandscapeToolbar extends FrameLayout {
 	public void showControlbar() {
 		setPTZShow(false);
 		setQualityShow(false);
-		this.mControlBar.setVisibility(View.VISIBLE);
-		this.mPTZControlBar.setVisibility(View.GONE);
-		this.mQualityControlBar.setVisibility(View.GONE);
+		mControlBar.setVisibility(View.VISIBLE);
+		mPTZControlBar.setVisibility(View.GONE);
+		mQualityControlBar.setVisibility(View.GONE);
 	}
 
 	public void showPTZControlbar() {
 		setPTZShow(true);
-		this.mPTZControlBar.setVisibility(View.VISIBLE);
-		this.mControlBar.setVisibility(View.GONE);
-		this.mQualityControlBar.setVisibility(View.GONE);
+		mPTZControlBar.setVisibility(View.VISIBLE);
+		mControlBar.setVisibility(View.GONE);
+		mQualityControlBar.setVisibility(View.GONE);
 	}
 
 	public void showQualityControlBar() {
 		setQualityShow(true);
-		this.mQualityControlBar.setVisibility(View.VISIBLE);
-		this.mPTZControlBar.setVisibility(View.GONE);
-		this.mControlBar.setVisibility(View.GONE);
+		mQualityControlBar.setVisibility(View.VISIBLE);
+		mPTZControlBar.setVisibility(View.GONE);
+		mControlBar.setVisibility(View.GONE);
 	}
 
 	public void hidePTZbar() {
 		setPTZShow(false);
-		this.mPTZControlBar.setVisibility(View.GONE);
+		mPTZControlBar.setVisibility(View.GONE);
 		if (isQualityShow()) {
-			this.mQualityControlBar.setVisibility(View.VISIBLE);
-			this.mControlBar.setVisibility(View.GONE);
+			mQualityControlBar.setVisibility(View.VISIBLE);
+			mControlBar.setVisibility(View.GONE);
 		} else {
-			this.mQualityControlBar.setVisibility(View.GONE);
-			this.mControlBar.setVisibility(View.VISIBLE);
+			mQualityControlBar.setVisibility(View.GONE);
+			mControlBar.setVisibility(View.VISIBLE);
 		}
 	}
 
 	public void hideQualitybar() {
 		setQualityShow(false);
-		this.mQualityControlBar.setVisibility(View.GONE);
+		mQualityControlBar.setVisibility(View.GONE);
 		if (isPTZShow()) {
-			this.mPTZControlBar.setVisibility(View.VISIBLE);
-			this.mControlBar.setVisibility(View.GONE);
+			mPTZControlBar.setVisibility(View.VISIBLE);
+			mControlBar.setVisibility(View.GONE);
 		} else {
-			this.mPTZControlBar.setVisibility(View.GONE);
-			this.mControlBar.setVisibility(View.VISIBLE);
+			mPTZControlBar.setVisibility(View.GONE);
+			mControlBar.setVisibility(View.VISIBLE);
 		}
 	}
 
 	public boolean isControlBarExpanded() {
-		return this.mIsControlBarExpanded;
+		return mIsControlBarExpanded;
 	}
 
 	public boolean isPTZbarExpanded() {
-		return this.mIsPTZBarExpanded;
+		return mIsPTZBarExpanded;
 	}
 
 	public boolean isQualityBarExpanded() {
-		return this.mIsQualityExpaned;
+		return mIsQualityExpaned;
 	}
 
 	protected void onAttachedToWindow() {
@@ -721,7 +726,7 @@ public class LandscapeToolbar extends FrameLayout {
 			mLastY = (int) e.getRawY();
 			mClickMode = true;
 			mIsCancleLongTouch = false;
-			mTouchCount = (1 + this.mTouchCount);
+			mTouchCount = (1 + mTouchCount);
 			mIsCanMove = false;
 			mLastX = ((int) e.getRawX());
 			mLastY = ((int) e.getRawY());
@@ -779,14 +784,14 @@ public class LandscapeToolbar extends FrameLayout {
 //			}
 
 			canclePressedStatus();
-			this.mIsCancleLongTouch = true;
-			if (this.mClickMode) {
-				this.mClickMode = false;
+			mIsCancleLongTouch = true;
+			if (mClickMode) {
+				mClickMode = false;
 				expandedControl(true);
 			}
 
-			this.mLastX = rawX;
-			this.mLastY = rawY;
+			mLastX = rawX;
+			mLastY = rawY;
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) getLayoutParams();
 			lp.leftMargin = newLeft;
 			lp.topMargin = newTop;
@@ -862,17 +867,17 @@ public class LandscapeToolbar extends FrameLayout {
 			// setLayoutParams(lp);
 			// }
 		case MotionEvent.ACTION_UP:
-			this.mIsCanMove = false;
-			this.mIsCancleLongTouch = true;
+			mIsCanMove = false;
+			mIsCancleLongTouch = true;
 
-			if (!this.mClickMode) {
+			if (!mClickMode) {
 				expandedControl(false);
 			}
 			
 			canclePressedStatus();
 
-			if (this.mClickImageButton != null) {
-				clickAction(this.mClickImageButton);
+			if (mClickImageButton != null) {
+				clickAction(mClickImageButton);
 				playSoundEffect(0);
 			}
 			break;
@@ -926,21 +931,21 @@ public class LandscapeToolbar extends FrameLayout {
 		this.mIsQualityExpaned = isExpanded;
 	}
 
-	public void setQualityLevel(int level) {
+	public void setQualityLevel(QUALITY_LEVEL level) {
 		unSelectedAllQualityButton();
 
 		switch (level) {
-		case 0:
-			this.mClearButton.setSelected(true);
+		case CLEAR:
+			mClearButton.setSelected(true);
 			break;
-		case 1:
-			this.mBalanceButton.setSelected(true);
+		case BLANCE:
+			mBalanceButton.setSelected(true);
 			break;
-		case 2:
-			this.mFluentButton.setSelected(true);
+		case FLUENT:
+			mFluentButton.setSelected(true);
 			break;
-		case 3:
-			this.mCustomButton.setSelected(true);
+		case CUSTOM:
+			mCustomButton.setSelected(true);
 			break;
 		}
 
@@ -951,71 +956,71 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 	
 	public ImageButton getAlarmButton() {
-		return this.mAlarmButton;
+		return mAlarmButton;
 	}
 
 	public ImageButton getApertureButton() {
-		return this.mApertrueButton;
+		return mApertrueButton;
 	}
 
 	public ImageButton getAutoButton() {
-		return this.mAutoButton;
+		return mAutoButton;
 	}
 
 	public Button getBalanceButton() {
-		return this.mBalanceButton;
+		return mBalanceButton;
 	}
 
 	public Button getClearButton() {
-		return this.mClearButton;
+		return mClearButton;
 	}
 
 	public Button getCustomButton() {
-		return this.mCustomButton;
+		return mCustomButton;
 	}
 
 	public ImageButton getEnlargeButton() {
-		return this.mEnlargeButton;
+		return mEnlargeButton;
 	}
 
 	public Button getFluentButton() {
-		return this.mFluentButton;
+		return mFluentButton;
 	}
 
 	public ImageButton getFocalLengthButton() {
-		return this.mFocalLengthButton;
+		return mFocalLengthButton;
 	}
 
 	public ImageButton getFocusButton() {
-		return this.mFocusButton;
+		return mFocusButton;
 	}
 
 	public ImageButton getPresetPointButton() {
-		return this.mPresetPointButton;
+		return mPresetPointButton;
 	}
 
 	public ImageButton getPtzButton() {
-		return this.mPtzButton;
+		return mPtzButton;
 	}
 
 	public ImageButton getQualityButton() {
-		return this.mQualityButton;
+		return mQualityButton;
 	}
 
 	public ImageButton getRecoredButton() {
-		return this.mRecordButton;
+		return mRecordButton;
 	}
 
 	public ImageButton getSoundButton() {
-		return this.mSoundButton;
+		return mSoundButton;
 	}
 
 	public ImageButton getStopResumeButton() {
-		return this.mStopResumeButton;
+		return mStopResumeButton;
 	}
 
 	public ImageButton getVoiceTalkButton() {
-		return this.mVoicetalkButton;
+		return mVoicetalkButton;
 	}
 
 	
@@ -1051,5 +1056,12 @@ public class LandscapeToolbar extends FrameLayout {
 
 	public static abstract interface QualityClickListener {
 		public abstract void qualityClick(View v);
+	}
+	
+	public static enum QUALITY_LEVEL {
+		CLEAR,
+		BLANCE,
+		FLUENT,
+		CUSTOM
 	}
 }

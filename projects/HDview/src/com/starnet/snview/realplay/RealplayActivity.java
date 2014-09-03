@@ -9,6 +9,8 @@ import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.LandscapeToolbar.LandControlbarClickListener;
 import com.starnet.snview.component.LandscapeToolbar.PTZBarClickListener;
+import com.starnet.snview.component.LandscapeToolbar.QUALITY_LEVEL;
+import com.starnet.snview.component.LandscapeToolbar.QualityClickListener;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.SurfaceViewMultiLayout;
 import com.starnet.snview.component.SurfaceViewSingleLayout;
@@ -679,12 +681,15 @@ public class RealplayActivity extends BaseActivity {
 			case R.id.landscape_liveview_ptz_button:
 				ptzControl.ptzButtonAction();
 				break;
+			case R.id.landscape_liveview_quality_button:
+				liveControl.getLandscapeToolbar().showQualityControlBar();
+				break;
 			}
 
 		}
 	};
 	
-	private PTZBarClickListener mLandPTZBarClickListener = new PTZBarClickListener() {
+	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
 		@Override
 		public void ptzBarClick(View v) {
 			Log.i(TAG, "ptzBarClick");
@@ -712,6 +717,34 @@ public class RealplayActivity extends BaseActivity {
 			
 		}
 	};
+	
+	private QualityClickListener mLandscapeQualityBarClickListener = new QualityClickListener() {
+
+		@Override
+		public void qualityClick(View v) {
+			Log.i(TAG, "qualityBarClick");
+			
+			switch (v.getId()) {
+			case R.id.landscape_liveview_quality_clear_button:
+				liveControl.getLandscapeToolbar().setQualityLevel(QUALITY_LEVEL.CLEAR);
+				break;
+			case R.id.landscape_liveview_quality_balance_button:
+				liveControl.getLandscapeToolbar().setQualityLevel(QUALITY_LEVEL.BLANCE);
+				break;
+			case R.id.landscape_liveview_quality_fluent_button:
+				liveControl.getLandscapeToolbar().setQualityLevel(QUALITY_LEVEL.FLUENT);
+				break;
+			case R.id.landscape_liveview_quality_custom_button:
+				liveControl.getLandscapeToolbar().setQualityLevel(QUALITY_LEVEL.CUSTOM);
+				break;
+			case R.id.landscape_liveview_quality_back_button:
+				liveControl.getLandscapeToolbar().hideQualitybar();
+				break;
+			}
+			
+		}
+		
+	};
 
 	
 	public boolean checkIsPTZDeviceConnected() {
@@ -728,7 +761,8 @@ public class RealplayActivity extends BaseActivity {
 		liveControl = new LiveControl(this);
 		liveControl.hideLandscapeToolbarFrame();
 		liveControl.getLandscapeToolbar().setOnControlbarClickListener(mLandscapeControlbarClickListener);
-		liveControl.getLandscapeToolbar().setOnPTZBarClickListener(mLandPTZBarClickListener);
+		liveControl.getLandscapeToolbar().setOnPTZBarClickListener(mLandscapePTZBarClickListener);
+		liveControl.getLandscapeToolbar().setOnQualityClickListener(mLandscapeQualityBarClickListener);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
