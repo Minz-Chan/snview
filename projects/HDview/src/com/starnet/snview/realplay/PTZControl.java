@@ -24,6 +24,7 @@ public class PTZControl {
 	
 	private boolean mIsPTZModeOn = false;
 	private boolean mIsPTZInMoving = false;
+	private boolean mIsFlingAction = false; 
 	
 	private LinearLayout mPTZControlbarMenu;
 	private LinearLayout mPTZPopFrame;
@@ -509,6 +510,14 @@ public class PTZControl {
 
 	public void setIsPTZInMoving(boolean isPTZInMoving) {
 		this.mIsPTZInMoving = isPTZInMoving;
+	}
+	
+	public boolean isFlingAction() {
+		return mIsFlingAction;
+	}
+	
+	public void setIsFlingAction(boolean isFlingAction) {
+		this.mIsFlingAction = isFlingAction;
 	}
 
 	public PTZRequestSender getPtzReqSender() {

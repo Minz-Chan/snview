@@ -66,22 +66,7 @@ public class RealplayActivity extends BaseActivity {
 	private FrameLayout mControlbar;
 	private VideoPager mPager;
 	private LinearLayout mQualityControlbarMenu;
-//	private LinearLayout mPTZControlbarMenu;
-//	private LinearLayout mPTZPopFrame;
-//	
-//	private boolean mIsPTZModeOn = false;
-//	private boolean mIsPTZInMoving = false;
-//	
-//	private ImageButton mPTZPopFocalLengthIncrease;  
-//	private ImageButton mPTZPopFocalLengthDecrease;
-//	private ImageButton mPTZPopFocusIncrease;  
-//	private ImageButton mPTZPopFocusDecrease;
-//	private ImageButton mPTZPopApertureIncrease;  
-//	private ImageButton mPTZPopApertureDecrease;
-//	
-//	private PTZRequestSender mPtzReqSender;
 
-	
 	
 	private LiveViewManager liveViewManager;
 	private FrameLayout mVideoRegion;
@@ -309,7 +294,7 @@ public class RealplayActivity extends BaseActivity {
 					boolean r1 = mScaleGestureDetector.onTouchEvent(event);
 					boolean r2 = mGestureDetector.onTouchEvent(event);
 					
-					if (ptzControl.isPTZModeOn() && action == MotionEvent.ACTION_UP) {
+					if (ptzControl.isPTZModeOn() && !ptzControl.isFlingAction() && action == MotionEvent.ACTION_UP) {
 						onGestureListener.onSlidingMoveUp();
 					} 
 					
@@ -628,8 +613,6 @@ public class RealplayActivity extends BaseActivity {
 			case QUALITY:
 				bQualityPressed = !bQualityPressed;
 
-//				mPTZPopFrame.setVisibility(View.GONE);
-//				showPTZFrame(PTZ_POP_FRAME.SCAN, false);
 				ptzControl.showPTZBar(false);
 
 				if (bQualityPressed) {
@@ -643,65 +626,6 @@ public class RealplayActivity extends BaseActivity {
 				Log.i(TAG, "PTZ Test");
 				
 				ptzControl.ptzButtonAction();
-//				if (!checkIsPTZDeviceConnected()) {
-//					if (mIsPTZModeOn) {
-//						resetPTZStatus();
-//					} 
-//					
-//					return;
-//				}
-//				
-//				//bPTZPressed = !bPTZPressed;
-//
-//				mPTZPopFrame.setVisibility(View.GONE);
-//				showPTZFrame(PTZ_POP_FRAME.SCAN, false);
-//				mPTZMenuScan.setSelected(false);
-//				mPTZMenuFocalLength.setSelected(false);
-//				mPTZMenuFocus.setSelected(false);
-//				mPTZMenuAperture.setSelected(false);
-//				mPTZMenuPreset.setSelected(false);
-//
-//				if (!mIsPTZModeOn) {
-//					mIsPTZModeOn = true;
-//					showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.MENU_PTZ);
-//				} else {
-//					mIsPTZModeOn = false;
-//					showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
-//				}
-//				
-//				
-//				int index = liveViewManager.getSelectedLiveViewIndex();
-//				
-//				if (index > liveViewManager.getLiveViewTotalCount()) {  
-//					return;  // 非有效通道，不作处理 
-//				}
-//				
-//				if (mIsPTZModeOn) { // 切换至 PTZ模式
-//					//RealplayActivity.this.getExtendButton().setVisibility(View.INVISIBLE);
-//					//RealplayActivity.this.getRightButton().setVisibility(View.INVISIBLE);
-//					
-//					if (liveViewManager.isMultiMode()) { // 切换到单通道模式
-//						
-//						liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
-//						liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
-//						
-//						liveViewManager.setMultiMode(false);							
-//						liveViewManager.preview(index);
-//					}
-//
-//				} else { // 关闭PTZ模式					
-//					//RealplayActivity.this.getExtendButton().setVisibility(View.VISIBLE);
-//					//RealplayActivity.this.getRightButton().setVisibility(View.VISIBLE);
-//					
-//					liveViewManager.setMultiMode(true);
-//					
-//					int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-//					int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
-//					
-//					liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1); 
-//				}
-//				
-//				liveViewManager.selectLiveView(index);
 				
 				break;
 			case MICROPHONE:
@@ -838,11 +762,6 @@ public class RealplayActivity extends BaseActivity {
 	private ImageButton mQualityMenuStandard;
 	private ImageButton mQualityMenuHigh;
 	private ImageButton mQualityMenuCustom;
-//	private ImageButton mPTZMenuScan;
-//	private ImageButton mPTZMenuFocalLength;
-//	private ImageButton mPTZMenuFocus;
-//	private ImageButton mPTZMenuAperture;
-//	private ImageButton mPTZMenuPreset;
 
 	private OnClickListener mOnQualityMenuClickListener = new OnClickListener() {
 
@@ -890,178 +809,6 @@ public class RealplayActivity extends BaseActivity {
 
 	};
 
-//	private enum PTZ_POP_FRAME {
-//		SCAN, FOCAL_LENGTH, FOCUS, APERTURE, PRESET
-//	};
-
-//	private OnClickListener mOnPTZMenuClickListener = new OnClickListener() {
-//		@Override
-//		public void onClick(View v) {
-//
-//			switch (v.getId()) {
-//			case R.id.ptz_controlbar_menu_scan:
-//				break;
-//			case R.id.ptz_controlbar_menu_focal_length:
-//				if (!mPTZMenuFocalLength.isSelected()) {
-//					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-//					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focal_length));
-//					showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(true);
-//					mPTZMenuFocus.setSelected(false);
-//					mPTZMenuAperture.setSelected(false);
-//					mPTZMenuPreset.setSelected(false);
-//				} else {
-//					// mToolbarSubMenu.setVisibility(View.GONE);
-//					showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, false);
-//					mPTZMenuFocalLength.setSelected(false);
-//				}
-//				break;
-//			case R.id.ptz_controlbar_menu_focus:
-//				if (!mPTZMenuFocus.isSelected()) {
-//					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-//					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focus));
-//					showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(false);
-//					mPTZMenuFocus.setSelected(true);
-//					mPTZMenuAperture.setSelected(false);
-//					mPTZMenuPreset.setSelected(false);
-//				} else {
-//					// mToolbarSubMenu.setVisibility(View.GONE);
-//					showPTZFrame(PTZ_POP_FRAME.FOCUS, false);
-//					mPTZMenuFocus.setSelected(false);
-//				}
-//				break;
-//			case R.id.ptz_controlbar_menu_aperture:
-//				if (!mPTZMenuAperture.isSelected()) {
-//					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-//					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_aperture));
-//					showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(false);
-//					mPTZMenuFocus.setSelected(false);
-//					mPTZMenuAperture.setSelected(true);
-//					mPTZMenuPreset.setSelected(false);
-//				} else {
-//					// mToolbarSubMenu.setVisibility(View.GONE);
-//					showPTZFrame(PTZ_POP_FRAME.APERTURE, false);
-//					mPTZMenuAperture.setSelected(false);
-//				}
-//				break;
-//			case R.id.ptz_controlbar_menu_preset:
-//				break;
-//			}
-//
-//		}
-//	};
-	
-//	private OnClickListener mOnPTZPopClickListener = new OnClickListener() {
-//
-//		@Override
-//		public void onClick(View v) {
-//			
-//			switch (v.getId()) {
-//			case R.id.ptz_pop_focal_length_increase:
-//				//Log.i(TAG, "ptz_pop_focal_length_increase");
-//				//mPtzControl.focalLengthIncrease();
-//				break;
-//			case R.id.ptz_pop_focal_length_decrease:
-//				//Log.i(TAG, "ptz_pop_focal_length_decrease");
-//				//mPtzControl.focalLengthDecrease();
-//				break;
-//			case R.id.ptz_pop_focus_increase:
-//				Log.i(TAG, "ptz_pop_focus_increase");
-//				mPtzReqSender.focusIncrease();
-//				break;
-//			case R.id.ptz_pop_focus_decrease:
-//				Log.i(TAG, "ptz_pop_focus_decrease");
-//				mPtzReqSender.focusDecrease();
-//				break;
-//			case R.id.ptz_pop_aperture_increase:
-//				Log.i(TAG, "ptz_pop_aperture_increase");
-//				mPtzReqSender.apertureIncrease();
-//				break;
-//			case R.id.ptz_pop_aperture_decrease:
-//				Log.i(TAG, "ptz_pop_aperture_decrease");
-//				mPtzReqSender.apertureDecrease();
-//				break;
-//			}
-//			
-//		}
-//		
-//	};
-	
-//	private OnTouchListener mOnPTZFocalLengthListener = new OnTouchListener() {
-//		
-//		@Override
-//		public boolean onTouch(View v, MotionEvent event) {
-//			int action = event.getActionMasked();
-//			
-//			switch (v.getId()) {
-//			case R.id.ptz_pop_focal_length_increase:
-//				if (action == MotionEvent.ACTION_DOWN) {
-//					mPtzReqSender.focalLengthIncrease();
-//				} else if (action == MotionEvent.ACTION_UP) {
-//					mPtzReqSender.stopMove();
-//				}
-//				break;
-//			case R.id.ptz_pop_focal_length_decrease:
-//				if (action == MotionEvent.ACTION_DOWN) {
-//					mPtzReqSender.focalLengthDecrease();
-//				} else if (action == MotionEvent.ACTION_UP) {
-//					mPtzReqSender.stopMove();
-//				}
-//				break;
-//			}
-//			
-//			
-//			
-//			return false;
-//		}
-//	};
-
-//	private void showPTZFrame(PTZ_POP_FRAME ppf, boolean isShow) {
-//		if (isShow) {
-//			switch (ppf) {
-//			case SCAN:
-//				break;
-//			case FOCAL_LENGTH:
-//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-//						.setVisibility(View.VISIBLE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-//						.setVisibility(View.GONE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-//						.setVisibility(View.GONE);
-//				break;
-//			case FOCUS:
-//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-//						.setVisibility(View.GONE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-//						.setVisibility(View.VISIBLE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-//						.setVisibility(View.GONE);
-//				break;
-//			case APERTURE:
-//				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-//						.setVisibility(View.GONE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-//						.setVisibility(View.GONE);
-//				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-//						.setVisibility(View.VISIBLE);
-//				break;
-//			case PRESET:
-//				break;
-//			}
-//		} else {
-//			((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
-//					.setVisibility(View.GONE);
-//			((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
-//					.setVisibility(View.GONE);
-//			((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
-//					.setVisibility(View.GONE);
-//		}
-//	}
 
 	private void initToolbarExtendMenu() {
 		mPager = (VideoPager) findViewById(R.id.pager);
@@ -1081,37 +828,6 @@ public class RealplayActivity extends BaseActivity {
 		mQualityMenuStandard.setOnClickListener(mOnQualityMenuClickListener);
 		mQualityMenuHigh.setOnClickListener(mOnQualityMenuClickListener);
 		mQualityMenuCustom.setOnClickListener(mOnQualityMenuClickListener);
-
-//		mPTZControlbarMenu = (LinearLayout) findViewById(R.id.ptz_controlbar_menu);
-//		mPTZMenuScan = (ImageButton) findViewById(R.id.ptz_controlbar_menu_scan);
-//		mPTZMenuFocalLength = (ImageButton) findViewById(R.id.ptz_controlbar_menu_focal_length);
-//		mPTZMenuFocus = (ImageButton) findViewById(R.id.ptz_controlbar_menu_focus);
-//		mPTZMenuAperture = (ImageButton) findViewById(R.id.ptz_controlbar_menu_aperture);
-//		mPTZMenuPreset = (ImageButton) findViewById(R.id.ptz_controlbar_menu_preset);
-//
-//		mPTZMenuScan.setOnClickListener(mOnPTZMenuClickListener);
-//		mPTZMenuFocalLength.setOnClickListener(mOnPTZMenuClickListener);
-//		mPTZMenuFocus.setOnClickListener(mOnPTZMenuClickListener);
-//		mPTZMenuAperture.setOnClickListener(mOnPTZMenuClickListener);
-//		mPTZMenuPreset.setOnClickListener(mOnPTZMenuClickListener);
-//		
-//		
-//		mPTZPopFocalLengthIncrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_increase);  
-//		mPTZPopFocalLengthDecrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_decrease);
-//		mPTZPopFocusIncrease = (ImageButton) findViewById(R.id.ptz_pop_focus_increase);  
-//		mPTZPopFocusDecrease = (ImageButton) findViewById(R.id.ptz_pop_focus_decrease);
-//		mPTZPopApertureIncrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_increase);  
-//		mPTZPopApertureDecrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_decrease);
-//		
-//		mPTZPopFocalLengthIncrease.setOnTouchListener(mOnPTZFocalLengthListener);
-//		mPTZPopFocalLengthDecrease.setOnTouchListener(mOnPTZFocalLengthListener);
-//		mPTZPopFocusIncrease.setOnClickListener(mOnPTZPopClickListener);  
-//		mPTZPopFocusDecrease.setOnClickListener(mOnPTZPopClickListener);
-//		mPTZPopApertureIncrease.setOnClickListener(mOnPTZPopClickListener);  
-//		mPTZPopApertureDecrease.setOnClickListener(mOnPTZPopClickListener);
-//		
-//
-//		mPTZPopFrame = (LinearLayout) findViewById(R.id.ptz_pop_frame);
 
 		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 	}
@@ -1439,9 +1155,11 @@ public class RealplayActivity extends BaseActivity {
 					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 				}
 			} else { // PTZ, 向左	
+				Log.i(TAG, "PTZ Action");
 				liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.LEFT);
 				
 				if (ptzControl.getPtzReqSender() != null) {
+					Log.i(TAG, "PTZ Action -----> left");
 					ptzControl.getPtzReqSender().moveLeft();
 				}
 			}
@@ -1461,9 +1179,11 @@ public class RealplayActivity extends BaseActivity {
 					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 				}
 			} else { // PTZ, 向右
+				Log.i(TAG, "PTZ Action");
 				liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.RIGHT);
 				
 				if (ptzControl.getPtzReqSender() != null) {
+					Log.i(TAG, "PTZ Action -----> right");
 					ptzControl.getPtzReqSender().moveRight();
 				}
 			}
@@ -1516,25 +1236,29 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onSlidingUp() {
+			Log.i(TAG, "PTZ Action");
 			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.UP);
 			
 			if (ptzControl.getPtzReqSender() != null) {
+				Log.i(TAG, "PTZ Action -----> up");
 				ptzControl.getPtzReqSender().moveUp();
 			}
 		}
 
 		@Override
 		public void onSlidingDown() {
+			Log.i(TAG, "PTZ Action");
 			liveViewManager.getSelectedLiveView().showArrowAnimation(Constants.ARROW.DOWN);
 			
 			if (ptzControl.getPtzReqSender() != null) {
+				Log.i(TAG, "PTZ Action -----> down");
 				ptzControl.getPtzReqSender().moveDown();
 			}
 		}
 		
 		@Override
 		public void onSlidingMoveUp() {
-			Log.i(TAG, "onSlidingMoveUp");
+			Log.i(TAG, "PTZ Action, onSlidingMoveUp");
 			
 			liveViewManager.getSelectedLiveView().stopArrowAnimation();
 			
@@ -1549,47 +1273,71 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onZoomIn() {
+			Log.i(TAG, "PTZ Action");
 			//ToastUtils.show(RealplayActivity.this, "手势放大");
 			liveViewManager.getSelectedLiveView().showFocalLengthAnimation(true);
 			
 			if (ptzControl.getPtzReqSender() != null) {
+				Log.i(TAG, "PTZ Action -----> focal length increase");
 				ptzControl.getPtzReqSender().focalLengthIncrease();
 			}
 			
-//			mVideoRegion.postDelayed(new Runnable() {
-//				@Override
-//				public void run() {
-//					if (mPtzControl != null) {
-//						mPtzControl.stopMove();;
-//					}					
-//				}	
-//			}, 300);
+
 			mPTZStopMoveDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 			
 		}
 
 		@Override
 		public void onZoomOut() {
+			Log.i(TAG, "PTZ Action");
 			//ToastUtils.show(RealplayActivity.this, "手势缩小");
 			liveViewManager.getSelectedLiveView().showFocalLengthAnimation(false);
 			if (ptzControl.getPtzReqSender() != null) {
+				Log.i(TAG, "PTZ Action -----> focal length decrease");
 				ptzControl.getPtzReqSender().focalLengthDecrease();
 			}
 			
-//			mVideoRegion.postDelayed(new Runnable() {
-//				@Override
-//				public void run() {
-//					if (mPtzControl != null) {
-//						mPtzControl.stopMove();;
-//					}					
-//				}	
-//			}, 300);
 			mPTZStopMoveDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 		}
 
 		@Override
-		public void onFling() {
+		public void onFling(int horizontalOffsetFlag, int vertitalOffsetFlag) {
+			int h = horizontalOffsetFlag;
+			int v = vertitalOffsetFlag;
 			
+			// 上下左右四个方向抛手势默认延时300ms后发送STOP_MOVE控制指令
+			switch (h) {
+    		case -1:
+    			if (v == 0) {
+    				ptzControl.setIsFlingAction(true);
+    				onSlidingLeft();
+    			}
+    			break;
+    		case 0:
+    			if (v == -1) {
+    				ptzControl.setIsFlingAction(true);
+    				onSlidingUp();
+    			} else if (v == 1) {
+    				ptzControl.setIsFlingAction(true);
+    				onSlidingDown();
+    			}
+    		case 1:
+    			if (v == 0) {
+    				ptzControl.setIsFlingAction(true);
+    				onSlidingRight();
+    			}
+    			break;
+    		}
+			
+			
+			mVideoRegion.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					ptzControl.setIsFlingAction(false);
+					onSlidingMoveUp();
+				}
+				
+			}, 300);
 		}
 	};
 	
@@ -1667,9 +1415,11 @@ public class RealplayActivity extends BaseActivity {
         {  
         	float a0 = e1.getX();
         	float a1 = e2.getX();
+        	float b0 = e1.getY();
+        	float b1 = e2.getY();
         	
         	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
-        	
+        	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
 
         	if (!ptzControl.isPTZModeOn()) { // 非PTZ模式， 即左右滑屏
         		if (h == -1) {
@@ -1693,7 +1443,7 @@ public class RealplayActivity extends BaseActivity {
         		return true;
         	} else {  // PTZ模式
         		
-        		mGestureListener.onFling();    		
+        		mGestureListener.onFling(h, v);    		
         	}
     		
     		return false;  
@@ -1844,7 +1594,7 @@ public class RealplayActivity extends BaseActivity {
 		public void onSlidingUp();
 		public void onSlidingDown();
 		public void onSlidingMoveUp();
-		public void onFling();
+		public void onFling(int horizontalOffsetFlag, int verticalOffsetFlag);
 		public void onZoomIn();
 		public void onZoomOut();
 	}
