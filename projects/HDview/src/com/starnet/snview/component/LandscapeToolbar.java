@@ -121,6 +121,7 @@ public class LandscapeToolbar extends FrameLayout {
 		case 0:
 		case 1: // 功能部分按钮
 			break;
+		case R.id.landscape_liveview_capture_button:
 		case R.id.landscape_liveview_ptz_button:
 			Log.i(TAG, "###landscape_liveview_ptz_button");
 			this.mLandControlbarListener.landControlbarClick(v);

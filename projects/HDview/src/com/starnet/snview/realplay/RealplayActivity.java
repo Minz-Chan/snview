@@ -603,12 +603,7 @@ public class RealplayActivity extends BaseActivity {
 				break;
 			case PICTURE:
 				Log.i(TAG, "Function, take picture");
-
-				if (c.getCurrentConnection() != null && c.getCurrentConnection().isConnected()) {
-					liveViewManager.getSelectedLiveView().getSurfaceView().setTakePicture(true);
-				}
-
-				
+				takePicture();				
 				break;
 			case QUALITY:
 				bQualityPressed = !bQualityPressed;
@@ -666,10 +661,21 @@ public class RealplayActivity extends BaseActivity {
 		}
 	};
 	
+	private void takePicture() {
+		LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
+		
+		if (c.getCurrentConnection() != null && c.getCurrentConnection().isConnected()) {
+			liveViewManager.getSelectedLiveView().getSurfaceView().setTakePicture(true);
+		}
+	}
+	
 	private LandControlbarClickListener mLandscapeControlbarClickListener = new LandControlbarClickListener() {
 		@Override
 		public void landControlbarClick(View v) {
 			switch (v.getId()) {
+			case R.id.landscape_liveview_capture_button:
+				takePicture();
+				break;
 			case R.id.landscape_liveview_ptz_button:
 				ptzControl.ptzButtonAction();
 				break;
