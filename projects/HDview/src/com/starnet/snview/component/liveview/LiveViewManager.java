@@ -9,6 +9,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
+import com.starnet.snview.R;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -396,6 +397,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
+			liveviews.get(n - 1).setIsManualStop(false);
 			liveviews.get(n - 1).setIsResponseError(false);
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
@@ -461,15 +463,26 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		}
 	}
 	
+	/**
+	 * 停止正在预览的设备
+	 */
 	public void stopPreview() {
-//		int connCount = connections.size();
-//		
-//		for (int i = 0; i < connCount; i++) {
-//			if (connections.get(i).isConnected()) {
-//				connections.get(i).disconnect();
-//			}
-//		}
-		closeAllConnection(true);
+		closeAllConnection(false);
+		
+		connections.clear();
+		
+		int lvSize = liveviews.size();
+		
+		for (int i = 0; i < lvSize; i++) {
+			if (liveviews.get(i).getSurfaceView().isValid()) {
+				liveviews.get(i).setIsManualStop(true);
+				liveviews.get(i).getSurfaceView().onDisplayContentReset();
+				liveviews.get(i).setWindowInfoContent(context.getString(R.string.connection_status_closed));
+				liveviews.get(i).getProgressBar().setVisibility(View.INVISIBLE);
+				liveviews.get(i).getRefreshImageView().setVisibility(View.VISIBLE);
+			}
+		}
+		
 	}
 	
 	private void reloadConnections(int startIndex) {
@@ -489,6 +502,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
 			
+			liveviews.get(i).setIsManualStop(false);
 			liveviews.get(i).setIsResponseError(false);
 			liveviews.get(i).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(i).setPreviewItem(p);
@@ -498,6 +512,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public void tryPreview(int index) {
 		int pageCapacity = pager.getPageCapacity();
 		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity);
+		
+		liveviews.get(pos - 1).setIsManualStop(false);
 		
 		if (connections.size() < pageCapacity) { // 现存connection数不够时
 			int i = 0;

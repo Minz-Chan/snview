@@ -16,6 +16,8 @@ import com.starnet.snview.component.SurfaceViewMultiLayout;
 import com.starnet.snview.component.SurfaceViewSingleLayout;
 import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
+import com.starnet.snview.component.Toolbar.ACTION_ENUM;
+import com.starnet.snview.component.Toolbar.ItemData;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
@@ -145,13 +147,17 @@ public class RealplayActivity extends BaseActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		liveViewManager.invalidateLiveViews();
 		
-		if (liveViewManager.getPager() != null) {
-			int count = liveViewManager.getCurrentPageCount();
-			
-			for (int i = 0; i < count; i++) {
-				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
-			}
-		}
+		ActionImageButton playBtn = new ActionImageButton(this);
+		playBtn.setItemData(new ItemData(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector));
+		
+		mToolbarOnItemClickListener.onItemClick(playBtn);
+//		if (liveViewManager.getPager() != null) {
+//			int count = liveViewManager.getCurrentPageCount();
+//			
+//			for (int i = 0; i < count; i++) {
+//				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+//			}
+//		}
 
 		super.onPostCreate(savedInstanceState);
 	}
@@ -313,11 +319,14 @@ public class RealplayActivity extends BaseActivity {
 				
 			@Override
 			public void onClick(View v) {
+				Log.i(TAG, "OnRefreshClick, " + v);
 				if (liveViewManager.getPager() == null) {
 					return;
 				}
 				
 				LiveViewItemContainer c = findVideoContainerByView(v);
+				
+				Log.i(TAG, "OnRefreshClick, c:" + c);
 				
 				if (c != null) {
 					int pos = liveViewManager.getIndexOfLiveView(c);
@@ -416,7 +425,14 @@ public class RealplayActivity extends BaseActivity {
 						}
 					}
 				});
-						
+				
+				bIsPlaying = true;
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						updatePlayStatus(true);
+					}
+				});
 			}
 
 			@Override
@@ -432,10 +448,31 @@ public class RealplayActivity extends BaseActivity {
 						if (c != null) {
 							c.getProgressBar().setVisibility(View.INVISIBLE);
 							c.getRefreshImageView().setVisibility(View.VISIBLE);
-							
 						}
 					}
 				});
+				
+				boolean isAllVideoClosed = true;
+				List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
+				for (int i = 0; i < liveviews.size(); i++)	{
+					LiveViewItemContainer lv = liveviews.get(i);
+					
+					if (lv.getCurrentConnection() != null && (lv.getCurrentConnection().isConnected() 
+							|| lv.getCurrentConnection().isConnecting())) {
+						isAllVideoClosed = false;
+					}
+				}
+				
+				if (isAllVideoClosed) {
+					bIsPlaying = false;
+					mHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							updatePlayStatus(false);
+						}
+					});
+					
+				}
 				
 			}
 
@@ -448,7 +485,12 @@ public class RealplayActivity extends BaseActivity {
 			
 			@Override
 			public void OnConnectionBusy(View v) {
+				
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
+				
+				if (c.isManualStop()) {
+					return;
+				}
 				
 				//updateProgressbarStatus(c.getProgressBar(), false);
 				mHandler.post( new Runnable() {
@@ -461,7 +503,6 @@ public class RealplayActivity extends BaseActivity {
 						}
 					}
 				});
-				
 			}
 
 			@Override
@@ -470,7 +511,7 @@ public class RealplayActivity extends BaseActivity {
 				int currPageCount = liveViewManager.getCurrentPageCount();
 				int index = liveViewManager.getIndexOfLiveView(c);
 				
-				if (index > currPageCount) {
+				if (index > currPageCount || c.isManualStop()) {
 					return;
 				}
 				
@@ -521,6 +562,9 @@ public class RealplayActivity extends BaseActivity {
 				intent.setClass(RealplayActivity.this,
 						ChannelListActivity.class);
 				RealplayActivity.this.startActivityForResult(intent, 0);
+				
+				bIsPlaying = false;
+				updatePlayStatus(bIsPlaying);
 				
 				if (liveViewManager != null) {
 					liveViewManager.stopPreview();
@@ -584,22 +628,38 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onItemClick(ActionImageButton imgBtn) {
-			LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
+			//LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
 		
 			
 			
 			switch (imgBtn.getItemData().getActionID()) {
 			case PLAY_PAUSE:
 				if (!bIsPlaying) { // 播放
-					bIsPlaying = true;
-					mToolbar.setActionImageButtonBg(
-							Toolbar.ACTION_ENUM.PLAY_PAUSE,
-							R.drawable.toolbar_pause_selector);
+					Log.i(TAG, "play video");
+//					liveViewManager.closeAllConnection(false);
+					
+					if (liveViewManager.getPager() != null) {
+						int count = liveViewManager.getCurrentPageCount();
+						
+						for (int i = 0; i < count; i++) {
+//							LiveViewItemContainer c = liveViewManager.getListviews().get(i);
+							
+//							if ((c.getCurrentConnection() != null && !c.getCurrentConnection().isConnected())
+//									|| c.getCurrentConnection() == null) {
+								liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+//							}
+						}
+					}
+					
+//					bIsPlaying = true;
+//					updatePlayStatus(bIsPlaying);
+				
 				} else { // 暂停
+					Log.i(TAG, "stop video");
+					liveViewManager.stopPreview();
+					
 					bIsPlaying = false;
-					mToolbar.setActionImageButtonBg(
-							Toolbar.ACTION_ENUM.PLAY_PAUSE,
-							R.drawable.toolbar_play_selector);
+					updatePlayStatus(bIsPlaying);
 				}
 
 				break;
@@ -668,6 +728,18 @@ public class RealplayActivity extends BaseActivity {
 		
 		if (c.getCurrentConnection() != null && c.getCurrentConnection().isConnected()) {
 			liveViewManager.getSelectedLiveView().getSurfaceView().setTakePicture(true);
+		}
+	}
+	
+	private void updatePlayStatus(boolean isPlaying) {
+		if (isPlaying) {
+			mToolbar.setActionImageButtonBg(
+					Toolbar.ACTION_ENUM.PLAY_PAUSE,
+					R.drawable.toolbar_pause_selector);	
+		} else {
+			mToolbar.setActionImageButtonBg(
+					Toolbar.ACTION_ENUM.PLAY_PAUSE,
+					R.drawable.toolbar_play_selector);
 		}
 	}
 	
@@ -1027,7 +1099,8 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoPictureManagement() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection(true);
+//			liveViewManager.closeAllConnection(true);
+			liveViewManager.stopPreview();
 		}
 		
 		super.gotoPictureManagement();
@@ -1036,7 +1109,8 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoPlayback() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection(true);
+//			liveViewManager.closeAllConnection(true);
+			liveViewManager.stopPreview();
 		}
 		
 		super.gotoPlayback();
@@ -1045,7 +1119,8 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoDeviceManagement() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection(true);
+//			liveViewManager.closeAllConnection(true);
+			liveViewManager.stopPreview();
 		}
 		
 		super.gotoDeviceManagement();
@@ -1054,7 +1129,8 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoSystemSetting() {
 		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection(true);
+//			liveViewManager.closeAllConnection(true);
+			liveViewManager.stopPreview();
 		}
 		
 		super.gotoSystemSetting();

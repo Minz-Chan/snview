@@ -83,6 +83,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 	
 	
+	public boolean isValid() {
+		return isValid;
+	}
 	
 	public void setValid(boolean isValid) {
 		this.isValid = isValid;

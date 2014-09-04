@@ -70,6 +70,7 @@ public class Connection extends DemuxingIoHandler {
     private IoSession session;
     
     private boolean isDisposed;
+    private boolean isConnecting;
    
     
     private H264DecodeUtil mH264decoder;
@@ -94,6 +95,7 @@ public class Connection extends DemuxingIoHandler {
     
     private void init() {
     	isDisposed = false;
+    	isConnecting = false;
     	
     	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
@@ -103,6 +105,7 @@ public class Connection extends DemuxingIoHandler {
     
     public void reInit() {
     	isDisposed = false;
+    	isConnecting = false;
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
@@ -175,6 +178,10 @@ public class Connection extends DemuxingIoHandler {
     public boolean isConnected() {
         return (session != null && session.isConnected());
     }
+    
+    public boolean isConnecting() {
+    	return isConnecting;
+    }
 
     private void checkIfEverythingPrepared() {
     	if (mH264decoder == null) {
@@ -206,6 +213,10 @@ public class Connection extends DemuxingIoHandler {
     		mConnectionListener.OnConnectionTrying(mLiveViewItem);
     	}
     	
+    	isConnecting = true;
+    	
+    	Log.i(TAG, "connector.connect");
+    	
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
         try {
@@ -214,6 +225,7 @@ public class Connection extends DemuxingIoHandler {
         catch (RuntimeIoException e) {
             e.printStackTrace();
         } finally {
+        	isConnecting = false;
         	if (isDisposed) {
         		if (session != null) {
         			session.close(true);
