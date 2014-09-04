@@ -3,12 +3,12 @@ package com.starnet.snview.images;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.starnet.snview.R;
 import com.starnet.snview.images.Image.ImageType;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,29 +53,22 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 		final int gPos = groupPosition;
 		
 		if (convertView == null) {
-			convertView = mLayoutInflater.inflate(
-					R.layout.images_listview_thumbnail_layout, null);
+			convertView = mLayoutInflater.inflate(R.layout.images_listview_thumbnail_layout, null);
 		}
 
-		ImagesGridView imageGridView = (ImagesGridView) convertView
-				.findViewById(R.id.images_listview_image_gridview);
-		imageGridView.setAdapter(new ImagesGridViewAdapter(mImagesActivity,
-				((ImagesGroup) mGroupList.get(groupPosition))
-						.getThumbnailList()));
+		ImagesGridView imageGridView = (ImagesGridView) convertView.findViewById(R.id.images_listview_image_gridview);
+		ImagesGridViewAdapter adapter = new ImagesGridViewAdapter(mImagesActivity,((ImagesGroup) mGroupList.get(groupPosition)).getThumbnailList());
+		imageGridView.setAdapter(adapter);
 		
-		imageGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+		imageGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {//图片单击事件...
 					@Override
-					public void onItemClick(AdapterView<?> view, View parent,
-							int position, long arg3) {
+					public void onItemClick(AdapterView<?> view, View parent,int position, long arg3) {
 						
 						ImagesManagerActivity activity = ImagesExpandableListAdapter.this.mImagesActivity;
 						
 						if (activity.getEditStatus()) {
-							ImageView selectedImage = (ImageView) parent
-									.findViewById(R.id.images_thumbnail_item_selected_bg_imageview);
-							Image image = ImagesExpandableListAdapter
-									.this.mGroupList.get(gPos).getThumbnailList().get(position);
+							ImageView selectedImage = (ImageView) parent.findViewById(R.id.images_thumbnail_item_selected_bg_imageview);
+							Image image = ImagesExpandableListAdapter.this.mGroupList.get(gPos).getThumbnailList().get(position);
 							
 							if (!image.isSelected()) {
 								image.setSelected(true);
@@ -86,8 +79,6 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 								selectedImage.setVisibility(View.GONE);
 								ImagesExpandableListAdapter.this.mThumbnailSelectedCount -= 1;
 							}
-							
-							
 							// 显示已选择图片数量
 							activity.setTitleText(ImagesExpandableListAdapter.this.mThumbnailSelectedCount);
 						} else {	// 响应按钮事件
@@ -99,6 +90,7 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 							imgPosInMap += clickposition;
 							int sumMap = 0 ;
 							int groupSize = mGroupList.size();
+							ArrayList<Image> my_imageList = new ArrayList<Image>();
 							for (int i = 0; i < groupSize; i++) {
 								sumMap += mGroupList.get(i).getGroupSize();
 								List<Image> imageList = mGroupList.get(i).getThumbnailList();
@@ -106,36 +98,26 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 								for (int j = 0; j < imageSize; j++) {
 									pathList.add(imageList.get(j).getImagePath());
 								}
+								List<Image> temp_ImageList = mGroupList.get(i).getThumbnailList();
+								int t_size = temp_ImageList.size();
+								for (int j = 0; j < t_size; j++) {
+									my_imageList.add(temp_ImageList.get(j));
+								}
 							}
-							
-							int in_flag = 1;
 							//点击进入到图片查看界面
-//							int size = ImagesExpandableListAdapter.this.mGroupList.get(position).getGroupSize();
-//							Log.v(TAG, String.valueOf(size));
-							//如果是图片进入图片预览；如果是视频，进入视频播放控制界面。。。
 							Intent intent = new Intent();
 							Image image = ImagesExpandableListAdapter.this.mGroupList.get(gPos).getThumbnailList().get(position);
-//							if (image.getType().equals(ImageType.PICTURE)||image.getType().equals(ImageType.VIDEO)) {
-							if (in_flag ==1) {
-								String thumbnailsPath = image.getThumbnailsPath();
-								String imagePath = image.getImagePath();
-								intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
-								intent.putExtra("sumMap",String.valueOf(sumMap));
-								intent.putExtra("imagePath",imagePath);
-								intent.putStringArrayListExtra("pathList", pathList);
-								intent.putExtra("thumbnailsPath",thumbnailsPath);
-								intent.setClass(mImagesActivity, ImagePreviewViewPagerActivity.class);
-								mImagesActivity.startActivity(intent);
-							}else{
-								Toast.makeText(mImagesActivity, "播放录像", Toast.LENGTH_SHORT).show();
-								String imagePath = image.getImagePath();
-								intent.putExtra("sumMap",String.valueOf(sumMap));
-								intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
-								intent.putExtra("imagePath",imagePath);
-								intent.setClass(mImagesActivity, ImageManagerVideoPlayActivity.class);
-								mImagesActivity.startActivity(intent);
-							}
-							// 显示图片或播放视频
+							String thumbnailsPath = image.getThumbnailsPath();
+							String imagePath = image.getImagePath();
+							intent.putExtra("imgPosInMap",String.valueOf(imgPosInMap));
+							intent.putExtra("sumMap", String.valueOf(sumMap));
+							intent.putExtra("imagePath", imagePath);
+							intent.putStringArrayListExtra("pathList", pathList);
+							intent.putExtra("thumbnailsPath", thumbnailsPath);
+
+							intent.putParcelableArrayListExtra("imageList",my_imageList);
+							intent.setClass(mImagesActivity,ImagePreviewViewPagerActivity.class);
+							mImagesActivity.startActivity(intent);
 						}
 					}
 				});
@@ -155,7 +137,8 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public int getGroupCount() {
-		return mGroupList.size();
+		int size = mGroupList.size();
+		return size;
 	}
 
 	@Override

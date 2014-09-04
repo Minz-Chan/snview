@@ -17,6 +17,9 @@ import java.util.TreeMap;
 
 
 
+
+import com.starnet.snview.images.Image.ImageType;
+
 import android.util.Log;
 
 public class ImagesManager {
@@ -61,6 +64,7 @@ public class ImagesManager {
 	};
 
 	private final List<String> mDateList = new ArrayList();
+	private final List<String> mVideoNameList = new ArrayList();
 	private final TreeMap<String, List<Image>> mImagesMap = new TreeMap(
 			mTreeComparator);
 
@@ -236,13 +240,13 @@ public class ImagesManager {
 		return mInstance;
 	}
 
-	public void loadLocalImages() {
+	public void loadLocalImages() {//加载本地图片
 		this.mDateList.clear();
 		this.mImagesMap.clear();
-		String str1 = LocalFileUtils.getCaptureFolderRootPath();
-		String str2 = LocalFileUtils.getRecordFolderRootPath();
-		loadImageFiles(Image.ImageType.PICTURE, str1);
+		String str1 = LocalFileUtils.getCaptureFolderRootPath();//获取capture路径
+		String str2 = LocalFileUtils.getRecordFolderRootPath();//获取record路径
 		loadImageFiles(Image.ImageType.VIDEO, str2);
+		loadImageFiles(Image.ImageType.PICTURE, str1);
 		Collections.sort(this.mDateList, new Comparator<String>() {
 			@Override
 			public int compare(String lhs, String rhs) {
@@ -251,6 +255,7 @@ public class ImagesManager {
 		});
 	}
 
+	//构建image文件，将不同image加入到对应的日期文件中
 	private void loadImageFiles(Image.ImageType imageType, String path) {
 		File folder = new File(path);
 		if ((!folder.exists()) || (!folder.isDirectory())) {
@@ -259,7 +264,7 @@ public class ImagesManager {
 		}
 		String thumbnailFolderPath = LocalFileUtils.getThumbnailsFolderPath();
 		FilenameFilter filenameFilter = null;
-		if (imageType == Image.ImageType.PICTURE) {
+		if (imageType == Image.ImageType.PICTURE) {//如果图像类型为PICTURE则构造thumbnails-->capture表;否则，构造thumbnails->capture->record表
 			filenameFilter = mCaptureFilter;
 		} else {
 			filenameFilter = mRecordFilter;
@@ -271,13 +276,11 @@ public class ImagesManager {
 						.listFiles(filenameFilter);
 				if (dateFolderFiles.length != 0) {
 					String dateFolderName = dateFolder.getName();
-					Object images = (List) this.mImagesMap
-							.get(dateFolderName);
+					Object images = (List) this.mImagesMap.get(dateFolderName);
 					
 					if (images == null) {
 						images = new LinkedList();
-						this.mImagesMap.put(dateFolderName,
-								(List<Image>) images);
+						this.mImagesMap.put(dateFolderName,(List<Image>) images);//加入树中
 						this.mDateList.add(dateFolderName);
 					}
 					
@@ -291,7 +294,17 @@ public class ImagesManager {
 									thumbnailFolderPath + File.separator
 											+ getThumbnailsName(f1Name),
 									dateFolderName, f1.lastModified());
-							((List) images).add(imgTmp);
+							
+							if (imageType == Image.ImageType.VIDEO) {
+								mVideoNameList.add(f1.getName().replace(
+										LocalFileUtils.RECORD_EXT_NAME, ""));
+								((List) images).add(imgTmp);
+							} else {
+								if (!mVideoNameList.contains(f1.getName()
+									.replace(LocalFileUtils.PICTURE_EXT_NAME, ""))) {
+									((List) images).add(imgTmp);
+								}
+							}
 						}
 					}
 

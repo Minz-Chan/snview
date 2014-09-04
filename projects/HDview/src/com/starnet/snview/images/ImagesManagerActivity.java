@@ -122,7 +122,6 @@ public class ImagesManagerActivity extends BaseActivity {
 		        this.mImagesThumbnailGroupList.add(imagesGroup);
 	    	}
 	    }
-	   
 	  }
 
 

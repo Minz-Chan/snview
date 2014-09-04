@@ -180,6 +180,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
 		if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			
             Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:" + ActivityUtility.getScreenSize(this).x
             		+ ", height:" + ActivityUtility.getScreenSize(this).y);
             
@@ -194,8 +195,9 @@ public class RealplayActivity extends BaseActivity {
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).y);
 			mVideoRegion.setLayoutParams(param);
-            
+			
        } else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+    	   
     	   Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:" + ActivityUtility.getScreenSize(this).x
            		+ ", height:" + ActivityUtility.getScreenSize(this).y);
     	   
@@ -211,6 +213,8 @@ public class RealplayActivity extends BaseActivity {
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
 					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).x);
 			mVideoRegion.setLayoutParams(param);
+			
+			
        }
 		
 		

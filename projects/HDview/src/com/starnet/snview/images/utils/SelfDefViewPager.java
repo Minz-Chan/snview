@@ -64,15 +64,15 @@ public class SelfDefViewPager extends ViewPager {
 		}
 	};
 	
-	@Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        try {
-            return super.onTouchEvent(ev);
-        } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
-        }
-        return false;
-    }
+//	@Override
+//    public boolean onTouchEvent(MotionEvent ev) {
+//        try {
+//            return super.onTouchEvent(ev);
+//        } catch (IllegalArgumentException ex) {
+//            ex.printStackTrace();
+//        }
+//        return false;
+//    }
 	
 	@Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -93,10 +93,7 @@ public class SelfDefViewPager extends ViewPager {
             Log.i(TAG, "onInterceptTouchEvent," + getChildAt(getCurrentItem()));
             
             return false;
-            //throw new IllegalArgumentException("");
-            
         }
-//        return false;
     }
 
 	public boolean delete_flag = false;

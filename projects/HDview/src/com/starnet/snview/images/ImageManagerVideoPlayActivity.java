@@ -1,5 +1,10 @@
 package com.starnet.snview.images;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,6 +38,7 @@ import android.widget.TextView;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.images.Image.ImageType;
 import com.starnet.snview.images.utils.TimeManager;
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
@@ -44,35 +50,40 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 	private final String TAG = "ImageManagerVideoPlayActivity";
 	private TextView show_num_sum_text;
 	
-	
 	private Button local_play_back_btn ;////左上角返回按钮
 	private ImageButton surfaceview_btn;//surfaceView上的按钮...
 
 	private Intent intent;
 	private String video_path;// 以后要使用的实时传过来的路径...
+	Intent paizhao_intent = new Intent();
 
-	private String temp_video_path = "/mnt/sdcard/video_test.mp4";;// 暂时使用，是个绝对路径，死路径....以后要使用的实时传过来的路径...
+//	private String temp_video_path = "/mnt/sdcard/video_test.mp4";;// 暂时使用，是个绝对路径，死路径....以后要使用的实时传过来的路径...
 	private MyCallBack myCallBack;
 	private MediaPlayer mMediaPlayer;
 	private SurfaceView mSurfaceView;// 视屏播放控件
 	private SurfaceHolder surfaceHolder;
-	private ImageButton play_btn;// 播放、停止按钮...
-	private ImageButton soud_btn;// 声音按钮,控制静音或者播放音量...
-	private ImageButton pict_btn;// 拍照按钮...
-	private AudioManager mAudioManager;// 安卓声音管理器....
-	private TextView localplay_tim_text;//显示当前的播放时间...
-	private TextView localplay_sum_text;//显示当前文件的播放总时间...
-	private SeekBar show_play_seekBar;//显示播放进度条...
+	private ImageButton play_btn;// 播放、停止按钮
+	private ImageButton soud_btn;// 声音按钮,控制静音或者播放音量
+	private ImageButton pict_btn;// 拍照按钮
+	private AudioManager mAudioManager;// 安卓声音管理器
+	private TextView localplay_tim_text;//显示当前的播放时间
+	private TextView localplay_sum_text;//显示当前文件的播放总时间
+	private SeekBar show_play_seekBar;//显示播放进度条
 	private MyOnSeekBarChange mSeekBarChange;
-//	private int tempVolume;
-
-	private static int touch_time = 1;// 令布局消失的次数控制...
+	private int tempVolume;
+	
+	//private Stack<Image> mCaptures = new Stack<Image>();
+	private ArrayList<Image> mCaptureList = new ArrayList<Image>();
+	
+	private static int touch_time = 1;// 令布局消失的次数控制
 	private View show_play_info_layout;// 顶端布局消失时
 	private View show_play_ctrl_layout;// 控制播放的布局
 	private View show_play_info_prgrss;// 显示播放进度信息的布局
 
 	private static int play_click_time = 0;
 	private static int soud_click_time = 1;
+	
+	private Intent returnIntent;//用于返回存储数据
 
 	private enum Play_state {
 		NONE, PLAY, PAUSE
@@ -110,11 +121,14 @@ public class ImageManagerVideoPlayActivity extends Activity implements
             	mTimerTask.cancel();
             	return;  
             }                
-            if (mMediaPlayer.isPlaying() && (!show_play_seekBar.isPressed())){
+            if (mMediaPlayer.isPlaying() ){//&& (!show_play_seekBar.isPressed())
             	mHandler.sendEmptyMessage(0);
             }  
         }  
     };  
+    
+    private int cur_postion = 0;
+    private int showSum = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -124,17 +138,13 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		myCallBack = new MyCallBack();
 		mSeekBarChange = new MyOnSeekBarChange();
 
-		int cur_postion = 0;
-		int showSum = 0;
+		
 		intent = getIntent();
-		if (intent != null) {
-			Bundle bundle = intent.getExtras();
-			if (bundle != null) {
-				cur_postion = bundle.getInt("cur_postion");
-				showSum = bundle.getInt("showSum");
-			}
-		}
-		video_path = intent.getStringExtra("imagePath");
+		Bundle bundle = intent.getExtras();
+		cur_postion = bundle.getInt("cur_postion");
+		showSum = bundle.getInt("showSum");
+		
+		video_path = intent.getStringExtra("video_path");
 		show_num_sum_text = (TextView) findViewById(R.id.show_video_num_sum);
 		
 		mSurfaceView = (SurfaceView) findViewById(R.id.localplay_surfaceview);
@@ -156,11 +166,14 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		surfaceHolder.addCallback(myCallBack);//用于控制界面加载的...
 		
+		if (cur_postion == 0) {
+			cur_postion++;
+		}
 		show_num_sum_text.setText("("+cur_postion+"/"+showSum+")");
 		
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		
-//		tempVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+		tempVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		
 		show_play_seekBar = (SeekBar) findViewById(R.id.localplay_progressbar);
 		show_play_seekBar.setOnSeekBarChangeListener(mSeekBarChange);
@@ -178,6 +191,7 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		mMediaPlayer.setOnCompletionListener(this);//注册播放完毕监听器...
 		mMediaPlayer.setOnErrorListener(this);//注册错误监听器...
 		
+		Log.i(TAG, "onCreat End");
 	}
 
 	@Override
@@ -242,7 +256,13 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		public void surfaceCreated(SurfaceHolder holder) {
 			Log.i(TAG, "surfaceCreated ...");// 创建surface...
 			try {
-				mMediaPlayer.setDataSource(temp_video_path);// 设置录像的播放路径...
+//				mMediaPlayer.setDataSource(video_path);// 设置录像的播放路径...
+				
+//				File file = new File(video_path); 
+//				FileInputStream fis = new FileInputStream(file); 
+//				mMediaPlayer.setDataSource(fis.getFD()); 
+				
+				mMediaPlayer.setDataSource(video_path);
 				mMediaPlayer.setDisplay(holder);
 				mMediaPlayer.prepare();//同步调用...
 			} catch (Exception e) {
@@ -343,10 +363,9 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 			
 			//首先判定，截图拍照的时候是在什么状态之下进行的，若是在暂停状态下保存的，拍照完毕后
 			//继续保持暂停状态；如果是播放状态之下进行的，则拍照照片后继续播放；直接获取surfaceView的视图，进行拍照；
-			
 			if (SDCardUtils.IS_MOUNTED) {
 				MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-				retriever.setDataSource(temp_video_path);//资源路径
+				retriever.setDataSource(video_path);//资源路径
 				String timeString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
 				long time = Long.parseLong(timeString) * 1000;
 				long currentPostion = (time * show_play_seekBar.getProgress())/show_play_seekBar.getMax();//通过这个计算出想截取的画面所在的时间
@@ -355,15 +374,37 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 				int thumbnailWidth = THUMBNAIL_HEIGHT * bitmap.getWidth() / bitmap.getHeight();
 	            Bitmap thumbnail = BitmapUtils.extractMiniThumb(bitmap, thumbnailWidth, thumbnailHeight, false);
 	            //保存文件...获取当前的时间...
-	            String fileName = LocalFileUtils.getFormatedFileName("paizhao_测试",1);//前面的名字改如何命名。。。
+	            String fileName = LocalFileUtils.getFormatedFileName("paizhao_luxiang",1);//前面的名字改如何命名。。。
 	            String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
 				String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
 	        	
 				BitmapUtils.saveBmpFile(bitmap, fullImgPath);
 				BitmapUtils.saveBmpFile(thumbnail, fullThumbImgPath);	
+				
+				// 更新缓冲区图片
+				Calendar c = Calendar.getInstance();
+				String imgDate =  String.format("%04d-%02d-%02d", c.get(Calendar.YEAR),
+						c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+				Image img = new Image(ImageType.PICTURE, fileName, fullImgPath, fullThumbImgPath, imgDate, System.currentTimeMillis());
+				
+				ImagesManager.getInstance().addImage(img);
+				mCaptureList.add(img);
+				
 				SnapshotSound s = new SnapshotSound(ImageManagerVideoPlayActivity.this);
 				s.playSound();
+				
+				//改变序数/总数
+				cur_postion++;
+				showSum++;
+				show_num_sum_text.setText("("+cur_postion+"/"+showSum+")");
+				
 				retriever.release();//释放资源...
+				paizhao_intent.putExtra("paizhao", "paizhao");
+				paizhao_intent.putExtra("cur_postion", cur_postion);
+				paizhao_intent.putExtra("showSum", showSum);
+				paizhao_intent.putExtra("CAPTURE_NEW_ADDED", mCaptureList);
+				
+				setResult(11, paizhao_intent);
 			}
 			
 			

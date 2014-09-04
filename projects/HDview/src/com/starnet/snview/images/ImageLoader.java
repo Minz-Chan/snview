@@ -29,8 +29,7 @@ public class ImageLoader {
 		Bitmap bmp = null;
 		synchronized (mImageCache) {
 			if (mImageCache.containsKey(key)) {
-				SoftReference softRef = (SoftReference) mImageCache
-						.get(key);
+				SoftReference softRef = (SoftReference) mImageCache.get(key);
 				if (softRef != null) {
 					bmp = (Bitmap) softRef.get();
 				}
@@ -50,14 +49,13 @@ public class ImageLoader {
 			boolean useThreadPool, final ImgCallback imgCallback) {
 		Bitmap bmpFromCache = getImageFromCache(path);
 		if (bmpFromCache != null) {
-			imgCallback.refresh(bmpFromCache, imageView);
+			imgCallback.refresh(bmpFromCache, imageView);//从缓存中加载
 		} else {
 			if (!useThreadPool) {
 				Bitmap bmpFromSDCard = getBitmapFromSDCard(path);
 				if (bmpFromSDCard != null) {
 					synchronized (mImageCache) {
-						mImageCache.put(path, new SoftReference(
-								bmpFromSDCard));
+						mImageCache.put(path, new SoftReference(bmpFromSDCard));
 						imgCallback.refresh(bmpFromSDCard, imageView);
 					}
 				}
@@ -85,9 +83,7 @@ public class ImageLoader {
 					}
 				});
 			}
-
 		}
-
 	}
 
 	public void release() {

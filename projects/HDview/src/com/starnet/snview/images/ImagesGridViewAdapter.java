@@ -1,9 +1,11 @@
 package com.starnet.snview.images;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.images.Image.ImageType;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ImageView.ScaleType;
 
 public class ImagesGridViewAdapter extends BaseAdapter {
 	private static final String TAG = "ImagesGridViewAdapter";
@@ -48,49 +51,53 @@ public class ImagesGridViewAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.mLayoutInflater.inflate(
-					R.layout.images_listview_thumbnail_item_layout, null);
+			convertView = this.mLayoutInflater.inflate(R.layout.images_listview_thumbnail_item_layout, null);
 		}
 
 		int width, height;
 
-		width = height = GlobalApplication.getInstance().getScreenWidth()
-				/ THUMBNAIL_COLUMNS_NUM;
+		width = height = GlobalApplication.getInstance().getScreenWidth()/THUMBNAIL_COLUMNS_NUM;
 
-		RelativeLayout imageThumbnaiItemlLayout = (RelativeLayout) convertView
-				.findViewById(R.id.images_thumbnail_item_layout);
-		LinearLayout.LayoutParams imageThumbnaiItemParams = (LinearLayout.LayoutParams) imageThumbnaiItemlLayout
-				.getLayoutParams();
+		RelativeLayout imageThumbnaiItemlLayout = (RelativeLayout) convertView.findViewById(R.id.images_thumbnail_item_layout);
+		LinearLayout.LayoutParams imageThumbnaiItemParams = (LinearLayout.LayoutParams) imageThumbnaiItemlLayout.getLayoutParams();
 		imageThumbnaiItemParams.width = width;
 		imageThumbnaiItemParams.height = height;
 		imageThumbnaiItemlLayout.setLayoutParams(imageThumbnaiItemParams);
 
 		Image image = (Image) this.mImageList.get(position);
-		ImageView imageView = (ImageView) convertView
-				.findViewById(R.id.images_thumbnail_item_imageview);
+		
+		ImageView imageView = (ImageView) convertView.findViewById(R.id.images_thumbnail_item_imageview);
 		ImageLoader.getInstance().loadImages(image.getThumbnailsPath(),
 				imageView, true, new ImageLoader.ImgCallback() {
 					public void refresh(Bitmap bitmap, ImageView imageView) {
 						if (imageView != null) {
-							imageView.setImageDrawable(new BitmapDrawable(
-									bitmap));
+							imageView.setImageDrawable(new BitmapDrawable(bitmap));
 						}
 					}
 				});
-		ImageView imageViewSeleted = (ImageView) convertView
-				.findViewById(R.id.images_thumbnail_item_selected_bg_imageview);
+		ImageView imageViewSeleted = (ImageView) convertView.findViewById(R.id.images_thumbnail_item_selected_bg_imageview);
 		if (image.isSelected()) {
 			imageViewSeleted.setVisibility(View.VISIBLE);
 		} else {
 			imageViewSeleted.setVisibility(View.GONE);
 		}
-		ImageView imageViewVideo = (ImageView) convertView
-				.findViewById(R.id.images_thumbnail_item_video_bg_imageview);
-		if (image.getType() == Image.ImageType.VIDEO) {
+		ImageView imageViewVideo = (ImageView) convertView.findViewById(R.id.images_thumbnail_item_video_bg_imageview);
+		if (image.getType() == Image.ImageType.VIDEO) {//显示Video图标
 			imageViewVideo.setVisibility(View.VISIBLE);
 		}
 		return convertView;
-
 	}
-
+		
+	protected boolean checkThumnail(Image image, List<Image> mImageList2) {
+		boolean isSameThumbnail = false;
+		Iterator<Image> imageIterator = mImageList2.iterator();
+		while (imageIterator.hasNext()) {
+			Image image2 = imageIterator.next();
+			if (image.getThumbnailsPath().equals(image2.getThumbnailsPath())) {
+				isSameThumbnail = true;
+				break;
+			}
+		}
+		return isSameThumbnail;
+	}
 }
