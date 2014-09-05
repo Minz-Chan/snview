@@ -124,6 +124,7 @@ public class LandscapeToolbar extends FrameLayout {
 		case R.id.landscape_liveview_capture_button:
 		case R.id.landscape_liveview_ptz_button:
 		case R.id.landscape_liveview_quality_button:
+		case R.id.landscape_liveview_delete_button:
 			mLandControlbarListener.landControlbarClick(v);
 			break;
 		case 2:
@@ -392,196 +393,9 @@ public class LandscapeToolbar extends FrameLayout {
 		mCustomButton.setSelected(false);
 	}
 
-	/* Error */
-	/**
-	 * @deprecated
-	 */
+
 	public void expandedControl(boolean paramBoolean) {
-		// Byte code:
-		// 0: aload_0
-		// 1: monitorenter
-		// 2: aload_0
-		// 3: getfield 321
-		// com/mcu/iVMS/component/LandscapeToolbar:mLandscapeBarContent
-		// Landroid/widget/FrameLayout;
-		// 6: invokevirtual 322 android/widget/FrameLayout:requestLayout ()V
-		// 9: iload_1
-		// 10: ifeq +121 -> 131
-		// 13: aload_0
-		// 14: invokevirtual 325
-		// com/mcu/iVMS/component/LandscapeToolbar:isControlBarExpanded ()Z
-		// 17: ifne +114 -> 131
-		// 20: aload_0
-		// 21: iconst_1
-		// 22: invokevirtual 328
-		// com/mcu/iVMS/component/LandscapeToolbar:setControlBarExpanded (Z)V
-		// 25: aload_0
-		// 26: aload_0
-		// 27: invokevirtual 331
-		// com/mcu/iVMS/component/LandscapeToolbar:getMeasuredWidth ()I
-		// 30: putfield 103 com/mcu/iVMS/component/LandscapeToolbar:mRealWidth I
-		// 33: aload_0
-		// 34: aload_0
-		// 35: invokevirtual 334
-		// com/mcu/iVMS/component/LandscapeToolbar:getMeasuredHeight ()I
-		// 38: putfield 105 com/mcu/iVMS/component/LandscapeToolbar:mRealHeight
-		// I
-		// 41: aload_0
-		// 42: aload_0
-		// 43: getfield 321
-		// com/mcu/iVMS/component/LandscapeToolbar:mLandscapeBarContent
-		// Landroid/widget/FrameLayout;
-		// 46: invokevirtual 335 android/widget/FrameLayout:getMeasuredWidth ()I
-		// 49: putfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 52: aload_0
-		// 53: aload_0
-		// 54: getfield 321
-		// com/mcu/iVMS/component/LandscapeToolbar:mLandscapeBarContent
-		// Landroid/widget/FrameLayout;
-		// 57: invokevirtual 336 android/widget/FrameLayout:getMeasuredHeight
-		// ()I
-		// 60: putfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 63: aload_0
-		// 64: aload_0
-		// 65: iload_1
-		// 66: aload_0
-		// 67: getfield 103 com/mcu/iVMS/component/LandscapeToolbar:mRealWidth I
-		// 70: aload_0
-		// 71: getfield 105 com/mcu/iVMS/component/LandscapeToolbar:mRealHeight
-		// I
-		// 74: invokespecial 338
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedContainerControl
-		// (Landroid/view/View;ZII)V
-		// 77: aload_0
-		// 78: aload_0
-		// 79: getfield 274 com/mcu/iVMS/component/LandscapeToolbar:mControlBar
-		// Landroid/widget/LinearLayout;
-		// 82: iload_1
-		// 83: aload_0
-		// 84: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 87: aload_0
-		// 88: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 91: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 94: aload_0
-		// 95: aload_0
-		// 96: getfield 304
-		// com/mcu/iVMS/component/LandscapeToolbar:mPTZControlBar
-		// Landroid/widget/LinearLayout;
-		// 99: iload_1
-		// 100: aload_0
-		// 101: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 104: aload_0
-		// 105: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 108: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 111: aload_0
-		// 112: aload_0
-		// 113: getfield 306
-		// com/mcu/iVMS/component/LandscapeToolbar:mQualityControlBar
-		// Landroid/widget/LinearLayout;
-		// 116: iload_1
-		// 117: aload_0
-		// 118: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 121: aload_0
-		// 122: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 125: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 128: aload_0
-		// 129: monitorexit
-		// 130: return
-		// 131: iload_1
-		// 132: ifne -4 -> 128
-		// 135: aload_0
-		// 136: invokevirtual 325
-		// com/mcu/iVMS/component/LandscapeToolbar:isControlBarExpanded ()Z
-		// 139: ifeq -11 -> 128
-		// 142: aload_0
-		// 143: iconst_0
-		// 144: invokevirtual 328
-		// com/mcu/iVMS/component/LandscapeToolbar:setControlBarExpanded (Z)V
-		// 147: aload_0
-		// 148: aload_0
-		// 149: iload_1
-		// 150: aload_0
-		// 151: getfield 103 com/mcu/iVMS/component/LandscapeToolbar:mRealWidth
-		// I
-		// 154: aload_0
-		// 155: getfield 105 com/mcu/iVMS/component/LandscapeToolbar:mRealHeight
-		// I
-		// 158: invokespecial 338
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedContainerControl
-		// (Landroid/view/View;ZII)V
-		// 161: aload_0
-		// 162: aload_0
-		// 163: getfield 274 com/mcu/iVMS/component/LandscapeToolbar:mControlBar
-		// Landroid/widget/LinearLayout;
-		// 166: iload_1
-		// 167: aload_0
-		// 168: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 171: aload_0
-		// 172: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 175: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 178: aload_0
-		// 179: aload_0
-		// 180: getfield 304
-		// com/mcu/iVMS/component/LandscapeToolbar:mPTZControlBar
-		// Landroid/widget/LinearLayout;
-		// 183: iload_1
-		// 184: aload_0
-		// 185: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 188: aload_0
-		// 189: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 192: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 195: aload_0
-		// 196: aload_0
-		// 197: getfield 306
-		// com/mcu/iVMS/component/LandscapeToolbar:mQualityControlBar
-		// Landroid/widget/LinearLayout;
-		// 200: iload_1
-		// 201: aload_0
-		// 202: getfield 107
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubWidth I
-		// 205: aload_0
-		// 206: getfield 109
-		// com/mcu/iVMS/component/LandscapeToolbar:mRealSubHeight I
-		// 209: invokespecial 340
-		// com/mcu/iVMS/component/LandscapeToolbar:expandedSubControl
-		// (Landroid/view/View;ZII)V
-		// 212: goto -84 -> 128
-		// 215: astore_2
-		// 216: aload_0
-		// 217: monitorexit
-		// 218: aload_2
-		// 219: athrow
-		// Local variable table:
-		// start length slot name signature
-		// 0 220 0 this LandscapeToolbar
-		// 0 220 1 paramBoolean boolean
-		// 215 4 2 localObject Object
-		// Exception table:
-		// from to target type
-		// 2 128 215 finally
-		// 135 212 215 finally
+		
 	}
 
 	public void findViews() {
@@ -646,7 +460,13 @@ public class LandscapeToolbar extends FrameLayout {
 		mAllChildList.addAll(mQualityControlChildList);
 	}
 
-	
+	public void switchStopResumeButtonStatus(boolean isStop) {
+		if (isStop) {
+			mStopResumeButton.setSelected(false);
+		} else {
+			mStopResumeButton.setSelected(true);
+		}
+	}
 	
 	public void showControlbar() {
 		setPTZShow(false);
@@ -798,74 +618,7 @@ public class LandscapeToolbar extends FrameLayout {
 			setLayoutParams(lp);
 
 			requestLayout();
-
-			// do
-			// {
-			// for (;;)
-			// {
-			// return true;
-			// this.mClickMode = true;
-			// this.mIsCancleLongTouch = false;
-			// this.mTouchCount = (1 + this.mTouchCount);
-			// this.mIsCanMove = false;
-			// this.mLastX = ((int)e.getRawX());
-			// this.mLastY = ((int)e.getRawY());
-			// this.mClickImageButton = isPressAction(e);
-			// if (this.mClickImageButton != null) {
-			// setActionButtonStatus(this.mClickImageButton.getId(), action);
-			// }
-			// //LongPressRunnable localLongPressRunnable = new
-			// LongPressRunnable(null);
-			// //postDelayed(localLongPressRunnable, 500L);
-			// }
-			// rawX = (int)e.getRawX();
-			// rawY = (int)e.getRawY();
-			// int offsetX = rawX - this.mLastX;
-			// int offsetY = rawY - this.mLastY;
-			// newLeft = offsetX + getLeft();
-			// newTop = offsetY + getTop();
-			// int newRight = offsetX + getRight();
-			// int newBottom = offsetY + getBottom();
-			// if (newLeft < -this.mOffSpace)
-			// {
-			// newLeft = -this.mOffSpace;
-			// newRight = newLeft + getWidth();
-			// }
-			// if (newRight > sWidth + this.mOffSpace) {
-			// newLeft = sWidth + this.mOffSpace - getWidth();
-			// }
-			// if (newTop < -this.mOffSpace)
-			// {
-			// newTop = -this.mOffSpace;
-			// newBottom = newTop + getHeight();
-			// }
-			// if (newBottom > sHeight + this.mOffSpace) {
-			// newTop = sHeight + this.mOffSpace - getHeight();
-			// }
-			// if (!this.mIsCanMove) {
-			// this.mIsCanMove = isCanMove(offsetX, offsetY);
-			// }
-			// } while (!this.mIsCanMove);
-
-			// canclePressedStatus();
-			// this.mIsCancleLongTouch = true;
-			// if (this.mClickMode)
-			// {
-			// this.mClickMode = false;
-			// expandedControl(true);
-			// }
-			// for (;;)
-			// {
-			// requestLayout();
-			// break;
-			// this.mLastX = rawX;
-			// this.mLastY = rawY;
-			// RelativeLayout.LayoutParams lp =
-			// (RelativeLayout.LayoutParams)getLayoutParams();
-			// lp.leftMargin = newLeft;
-			// lp.topMargin = newTop;
-			// setLayoutParams(lp);
-			// }
+			
 		case MotionEvent.ACTION_UP:
 			mIsCanMove = false;
 			mIsCancleLongTouch = true;
