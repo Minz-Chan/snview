@@ -354,8 +354,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				photoView.setOnViewTapListener(onViewTapListener);
 				return photoView;
 			} else  {//if (image.getType() == ImageType.VIDEO)
-				int pos = mSelfDefViewPager.getCurrentItem();
-				String path = imageList.get(pos).getImagePath();
+//				int pos = mSelfDefViewPager.getCurrentItem();
+//				String path = imageList.get(pos).getImagePath();
+				String path = imageList.get(mPostion).getImagePath();
 				String jpgPath = swith2CapPath(path);
 					
 				View imageVideo = ((LayoutInflater) (context
@@ -412,8 +413,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						String mp4Path = transformCapPath2RecordPath(path);
 						Log.v(TAG, " mp4Path : "+mp4Path);
 						
+						int number = imageList.size();
 						bundle.putInt("cur_postion", cur_postion);
-						bundle.putInt("showSum", showSum);
+						bundle.putInt("showSum", number);
 						bundle.putString("video_path", mp4Path);
 						intent.putExtras(bundle);
 						Log.i(TAG, "curr pos:" + cur_postion + ", showSum:" + showSum + ", video_path:" + mp4Path);
@@ -503,14 +505,15 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			}
 			
 			selfPagerAdapter.notifyDataSetChanged();
-			
 			mSelfDefViewPager.setShowSum(sum);
+			selfPagerAdapter = new SelfPagerAdapter();
+			mSelfDefViewPager.setAdapter(selfPagerAdapter);
 			mSelfDefViewPager.setCurrentItem(cur_pos);
 			
 			Log.i(TAG, "imageList:" + imageList.size());				
 			Log.i(TAG, "count:" + selfPagerAdapter.getCount());
 			
-			selfPagerAdapter.startUpdate(mSelfDefViewPager);
+//			selfPagerAdapter.startUpdate(mSelfDefViewPager);
 		}
 	}
 

@@ -23,6 +23,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -130,6 +131,7 @@ public class ImageManagerVideoPlayActivity extends Activity implements
     private int cur_postion = 0;
     private int showSum = 0;
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -191,6 +193,7 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		mMediaPlayer.setOnCompletionListener(this);//注册播放完毕监听器...
 		mMediaPlayer.setOnErrorListener(this);//注册错误监听器...
 		
+		retriever.setDataSource(video_path);//资源路径
 		Log.i(TAG, "onCreat End");
 	}
 
@@ -243,11 +246,13 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {//通知用户触摸手势已经结束
 			Log.i(TAG, "onStopTrackingTouch ... ");
-			int duration = mMediaPlayer.getDuration();
-			String cur_time = TimeManager.caculateCurrentTime(user_progress,max_progress,duration);
-			localplay_tim_text.setText(cur_time);
-			int msec = TimeManager.caculateCurProgress(user_progress,max_progress,duration);
-			mMediaPlayer.seekTo(msec);
+			if (mMediaPlayer != null) {
+				int duration = mMediaPlayer.getDuration();
+				String cur_time = TimeManager.caculateCurrentTime(user_progress,max_progress,duration);
+				localplay_tim_text.setText(cur_time);
+				int msec = TimeManager.caculateCurProgress(user_progress,max_progress,duration);
+				mMediaPlayer.seekTo(msec);
+			}
 		}
 	}
 	private class MyCallBack implements Callback {
@@ -298,6 +303,8 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 	}
 	
 	private int THUMBNAIL_HEIGHT = 200;
+	@SuppressLint("NewApi")
+	MediaMetadataRetriever retriever = new MediaMetadataRetriever();
 	
 	@SuppressLint("NewApi")
 	@Override
@@ -364,12 +371,25 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 			//首先判定，截图拍照的时候是在什么状态之下进行的，若是在暂停状态下保存的，拍照完毕后
 			//继续保持暂停状态；如果是播放状态之下进行的，则拍照照片后继续播放；直接获取surfaceView的视图，进行拍照；
 			if (SDCardUtils.IS_MOUNTED) {
-				MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-				retriever.setDataSource(video_path);//资源路径
+				
+				
 				String timeString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-				long time = Long.parseLong(timeString) * 1000;
-				long currentPostion = (time * show_play_seekBar.getProgress())/show_play_seekBar.getMax();//通过这个计算出想截取的画面所在的时间
-	            Bitmap bitmap = retriever.getFrameAtTime(currentPostion);// 按当前播放位置选择帧
+				//long rate = retriever.extractMetadata(MediaMetadataRetriever.);
+				//MediaPlayer m = new MediaPlayer();
+				//m.g
+				
+				//MediaMetadataRetriever.
+				
+				long time = Long.parseLong(timeString) * 1000 ;
+				long currentPostion = (long)((time * show_play_seekBar.getProgress()) * 1.0 /show_play_seekBar.getMax());//通过这个计算出想截取的画面所在的时间
+				
+				Log.i(TAG, "progress:" + show_play_seekBar.getProgress() + ", max:" + show_play_seekBar.getMax());
+				Log.i(TAG, "timeString:" + timeString + ", time:" + time + ", CurrPos:" + currentPostion);
+				
+				Log.i(TAG, "real pos:" + (currentPostion * 15));
+				Bitmap bitmap = retriever.getFrameAtTime(currentPostion * 15,
+						MediaMetadataRetriever.OPTION_CLOSEST_SYNC);// 按当前播放位置选择帧	       
+	            
 	            int thumbnailHeight = THUMBNAIL_HEIGHT;
 				int thumbnailWidth = THUMBNAIL_HEIGHT * bitmap.getWidth() / bitmap.getHeight();
 	            Bitmap thumbnail = BitmapUtils.extractMiniThumb(bitmap, thumbnailWidth, thumbnailHeight, false);
@@ -380,6 +400,9 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 	        	
 				BitmapUtils.saveBmpFile(bitmap, fullImgPath);
 				BitmapUtils.saveBmpFile(thumbnail, fullThumbImgPath);	
+				
+				Log.i(TAG, "imgPath:" + fullImgPath);
+				Log.i(TAG, "thumbPath:" + fullThumbImgPath);
 				
 				// 更新缓冲区图片
 				Calendar c = Calendar.getInstance();
@@ -398,7 +421,7 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 				showSum++;
 				show_num_sum_text.setText("("+cur_postion+"/"+showSum+")");
 				
-				retriever.release();//释放资源...
+				//retriever.release();//释放资源...
 				paizhao_intent.putExtra("paizhao", "paizhao");
 				paizhao_intent.putExtra("cur_postion", cur_postion);
 				paizhao_intent.putExtra("showSum", showSum);
