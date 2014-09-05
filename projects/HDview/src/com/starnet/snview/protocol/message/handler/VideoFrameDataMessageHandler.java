@@ -23,7 +23,7 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 	
 	private H264DecodeUtil h264;
 	private OnLiveViewChangedListener liveViewChangedListener;
-//	private boolean isDataArrived = false;
+	private boolean isDataArrived = false;
 	
 	private Connection connection;
 	
@@ -49,15 +49,15 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 			session.close(true);
 		}
 		
-//		if (!isDataArrived) {
-//			isDataArrived = true;
-//			
-//			LiveViewItemContainer liveViewItemConatainer = (LiveViewItemContainer)  session.getAttribute(LIVEVIEW_ITEM);
-//			StatusListener connectionStatusListener = (StatusListener) session.getAttribute(CONNECTION_LISTENER);
-//			if (liveViewItemConatainer != null && connectionStatusListener != null) {
-//				connectionStatusListener.OnConnectionBusy(liveViewItemConatainer);
-//			}
-//		}
+		if (!isDataArrived) {
+			isDataArrived = true;
+			
+			LiveViewItemContainer liveViewItemConatainer = connection.getLiveViewItemContainer();
+			StatusListener connectionStatusListener = connection.getConnectionListener();
+			if (liveViewItemConatainer != null && connectionStatusListener != null) {
+				connectionStatusListener.OnConnectionBusy(liveViewItemConatainer);
+			}
+		}
 		
 		
 		

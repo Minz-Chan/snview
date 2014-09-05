@@ -45,28 +45,37 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	public LiveView(Context context) {
 		super(context);
-		init();
+		init(width, height);
 	}
 
 	public LiveView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init();
+		init(width, height);
 	}
 
 	public LiveView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(width, height);
 	}
 	
-	private void init() {
+	public void init(int width, int height) {
 		if ( mHolder == null) {
 			mHolder = getHolder();
 			mHolder.addCallback(this);
 		}
 		
-
+		if (mPixel != null) {
+			mPixel = null;
+			mPixel = new byte[width * height * 2];
+		}
+		
 		mBuffer = null;
-		mVideoBit = null;
+		
+		if (mVideoBit != null) {
+			mVideoBit.recycle();
+			mVideoBit = null;
+		}
+		
 
 		mBuffer = ByteBuffer.wrap(mPixel);
 		mVideoBit = Bitmap.createBitmap(width, height, Config.RGB_565);
@@ -74,6 +83,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 	
 	
+	public boolean isValid() {
+		return isValid;
+	}
 	
 	public void setValid(boolean isValid) {
 		this.isValid = isValid;
@@ -258,7 +270,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void onDisplayResulotionChanged(int width, int height) {
 		if (this.width != width || this.height != height) {
-			init();
+			init(width, height);
 		}
 	}
 	

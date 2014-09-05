@@ -37,7 +37,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private ImageView[] mSubFocalLengthArray = new ImageView[4];
 	
 	private boolean mIsResponseError;
-
+	private boolean mIsManualStop;
+	
 //	private OnLiveViewContainerClickListener mLvContainerClickListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
@@ -85,6 +86,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void init() {
+		mIsManualStop = false;
 		mIsResponseError = false;
 		
 //		if (mLvContainerClickListener != null) {
@@ -104,6 +106,15 @@ public class LiveViewItemContainer extends RelativeLayout {
 	public void setIsResponseError(boolean isResponseError) {
 		this.mIsResponseError = isResponseError;
 	}
+	
+	public boolean isManualStop() {
+		return mIsManualStop;
+	}
+	
+	public void setIsManualStop(boolean isManualStop) {
+		this.mIsManualStop = isManualStop;
+	}
+	
 	public Connection getCurrentConnection() {
 		return mCurrentConnection;
 	}

@@ -44,6 +44,8 @@ public class StreamDataFormatMessageHandler implements
 		int height = message.getVideoDataFormat().getHeight();
 		
 		if (width > 0 && height > 0) {
+			lvContainer.getSurfaceView().init(width, height);
+			
 			h264.init(width, height);
 			
 			// 判断分辨率种类
