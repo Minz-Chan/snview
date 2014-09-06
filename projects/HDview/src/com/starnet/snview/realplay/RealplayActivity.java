@@ -635,34 +635,7 @@ public class RealplayActivity extends BaseActivity {
 			
 			switch (imgBtn.getItemData().getActionID()) {
 			case PLAY_PAUSE:
-				if (!bIsPlaying) { // 播放
-					Log.i(TAG, "play video");
-//					liveViewManager.closeAllConnection(false);
-					
-					if (liveViewManager.getPager() != null) {
-						int count = liveViewManager.getCurrentPageCount();
-						
-						for (int i = 0; i < count; i++) {
-//							LiveViewItemContainer c = liveViewManager.getListviews().get(i);
-							
-//							if ((c.getCurrentConnection() != null && !c.getCurrentConnection().isConnected())
-//									|| c.getCurrentConnection() == null) {
-								liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
-//							}
-						}
-					}
-					
-//					bIsPlaying = true;
-//					updatePlayStatus(bIsPlaying);
-				
-				} else { // 暂停
-					Log.i(TAG, "stop video");
-					liveViewManager.stopPreview();
-					
-					bIsPlaying = false;
-					updatePlayStatus(bIsPlaying);
-				}
-
+				playAndPause();
 				break;
 			case PICTURE:
 				Log.i(TAG, "Function, take picture");
@@ -724,6 +697,26 @@ public class RealplayActivity extends BaseActivity {
 		}
 	};
 	
+	private void playAndPause() {
+		if (!bIsPlaying) { // 播放
+			Log.i(TAG, "play video");
+			
+			if (liveViewManager.getPager() != null) {
+				int count = liveViewManager.getCurrentPageCount();
+				
+				for (int i = 0; i < count; i++) {
+					liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+				}
+			}
+		} else { // 暂停
+			Log.i(TAG, "stop video");
+			liveViewManager.stopPreview();
+			
+			bIsPlaying = false;
+			updatePlayStatus(bIsPlaying);
+		}
+	}
+	
 	private void takePicture() {
 		LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
 		
@@ -737,10 +730,13 @@ public class RealplayActivity extends BaseActivity {
 			mToolbar.setActionImageButtonBg(
 					Toolbar.ACTION_ENUM.PLAY_PAUSE,
 					R.drawable.toolbar_pause_selector);	
+			liveControl.getLandscapeToolbar().switchStopResumeButtonStatus(true);
+			
 		} else {
 			mToolbar.setActionImageButtonBg(
 					Toolbar.ACTION_ENUM.PLAY_PAUSE,
 					R.drawable.toolbar_play_selector);
+			liveControl.getLandscapeToolbar().switchStopResumeButtonStatus(false);
 		}
 	}
 	
@@ -756,6 +752,9 @@ public class RealplayActivity extends BaseActivity {
 				break;
 			case R.id.landscape_liveview_quality_button:
 				liveControl.getLandscapeToolbar().showQualityControlBar();
+				break;
+			case R.id.landscape_liveview_delete_button:
+				playAndPause();
 				break;
 			}
 
