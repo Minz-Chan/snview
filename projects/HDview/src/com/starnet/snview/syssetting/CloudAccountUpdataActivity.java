@@ -107,20 +107,6 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 				Toast toast1 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
-//				String serverSentence = getString(R.string.edit_infor_right);
-//				Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//				dismissDialog(1);
-//				// 未改变数据之前进行删除操作...
-//				CloudAccountXML caXML = new CloudAccountXML();
-//				String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";
-//				caXML.removeCloudAccoutFromXML(fileName, clickCloudAccount);
-//				Intent intent = new Intent();
-//				Bundle bundle = new Bundle();
-//				caXML.addNewCloudAccoutNodeToRootXML(fileName,clickCloudAccount);// 添加到文档中。。。
-//				bundle.putSerializable("ca", clickCloudAccount);
-//				intent.putExtras(bundle);
-//				setResult(20, intent);
-//				CloudAccountSetEditActivity.this.finish();
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
@@ -281,55 +267,6 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 							toast3.show();
 						}
 					}
-//						NetWorkUtils netWorkUtils = new NetWorkUtils();
-//						Context context = CloudAccountSetEditActivity.this;
-//						boolean isConn = netWorkUtils.checkNetConnection(context);
-//						if (isConn) {
-//							server = serverEditText.getText().toString();
-//							if (server.equals("")) {
-//								String serverSentence = getString(R.string.domain_info_not_null);
-//								Toast.makeText(CloudAccountSetEditActivity.this,serverSentence, Toast.LENGTH_LONG).show();
-//								return;
-//							}
-//							port = portEditText.getText().toString();
-//							if (port.equals("")) {
-//								String portSentence = getString(R.string.port_info_not_null);
-//								Toast.makeText(CloudAccountSetEditActivity.this,portSentence, Toast.LENGTH_LONG).show();
-//								return;
-//							}
-//							username = usernameEditText.getText().toString();
-//							if (username.equals("")) {
-//								String usernameSentence = getString(R.string.username_info_not_null);
-//								Toast.makeText(CloudAccountSetEditActivity.this,usernameSentence, Toast.LENGTH_LONG).show();
-//								return;
-//							}
-//							psd = passwordEditText.getText().toString();
-//							if (psd.equals("")) {
-//								String psdSentence = getString(R.string.password_info_not_null);
-//								Toast.makeText(CloudAccountSetEditActivity.this,psdSentence, Toast.LENGTH_LONG).show();
-//								return;
-//							}
-//							boolean isEnable = false;
-//							if (isenablYseRadioBtn.isChecked()) {
-//								isEnable = true;
-//							}
-//							clickCloudAccount.setEnabled(isEnable);
-//
-//							if (!server.equals("") && !port.equals("")
-//									&& !psd.equals("") && !username.equals("")) {
-//								clickCloudAccount.setDomain(server);
-//								clickCloudAccount.setPort(port);
-//								clickCloudAccount.setPassword(psd);
-//								clickCloudAccount.setUsername(username);
-//								requset4DeviceList();
-//								synObj.suspend();// 挂起等待请求结果
-//							}
-//						}else {
-//							String printSentence = getString(R.string.network_not_conn);
-//							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-//							toast3.show();
-//						}
-//					}
 				});
 	}
 
@@ -436,31 +373,6 @@ public class CloudAccountUpdataActivity extends BaseActivity {
 				e.printStackTrace();
 			}
 			handler.sendMessage(msg);
-			
-//			Message msg = new Message();
-//			try {
-//				Document doc = cloudService.SendURLPost(server, port, username,psd);
-//				String requestResult = cloudService.readXmlStatus(doc);
-//				if (requestResult == null) // 请求成功，返回null
-//				{
-//					msg.what = DDNS_RESP_SUCC;
-//				} else { // 请求失败，返回错误原因
-//					Bundle errMsg = new Bundle();
-//					msg.what = DDNS_RESP_FAILURE;
-//					errMsg.putString("ERR_MSG", requestResult);
-//					msg.setData(errMsg);
-//				}
-//			} catch (DocumentException e) {
-//				msg.what = DDNS_SYS_FAILURE;
-//				e.printStackTrace();
-//			} catch (SocketTimeoutException e) {
-//				msg.what = DDNS_REQ_TIMEOUT;
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				msg.what = DDNS_SYS_FAILURE;
-//				e.printStackTrace();
-//			}
-//			handler.sendMessage(msg);
 		}
 	}
 	protected boolean isEqualSaveAndIdentifyCloudAccount(CloudAccount save_CloudAccount2, CloudAccount identify_CloudAccount2) {
