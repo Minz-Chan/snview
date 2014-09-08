@@ -17,6 +17,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -31,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
@@ -152,7 +154,6 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		}
 		show_num_sum_text.setText("("+mCurrentPicture+"/"+mNavigationSumTxt+")");
 		
-
 		mVideoProgressBar = (SeekBar) findViewById(R.id.localplay_progressbar);
 		mVideoProgressBar.setOnSeekBarChangeListener(mOnVideoProgressChangedListener);
 		
@@ -334,6 +335,11 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 			
 		case R.id.localplay_pict_btn:				//拍照操作,在拍照保存文件的时候，必须要检查存储空间是否能够存储使用			
 													//首先判定，截图拍照的时候是在什么状态之下进行的，若是在暂停状态下保存的，拍照完毕后
+			
+			if(Environment.getExternalStorageState()==Environment.MEDIA_UNMOUNTED){
+                Toast.makeText(ImageManagerVideoPlayActivity.this, "sd卡不存在", Toast.LENGTH_SHORT).show();
+                return;
+            }
 			if (SDCardUtils.IS_MOUNTED) {
 				
 				MediaMetadataRetriever retriever = new MediaMetadataRetriever();

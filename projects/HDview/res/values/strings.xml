@@ -67,6 +67,7 @@
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccountview_ok">确定</string>
     <string name="system_setting_cloudaccountview_cancel">取消</string>
+    <string name="system_setting_cloudaccount_identify_ok">确认验证?</string>
     <string name="system_setting_logout_ok">确定</string>
     <string name="system_setting_logout_cancel">取消</string>
     <string name="system_set_setedit_identify_user_right">正在验证账号有效性，请等待</string>
