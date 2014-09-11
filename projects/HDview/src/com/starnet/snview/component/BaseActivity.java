@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.starnet.snview.R;
 import com.starnet.snview.devicemanager.DeviceViewActivity;
+import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.ImagesManagerActivity;
 import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.realplay.RealplayActivity;
@@ -72,6 +73,7 @@ public abstract class BaseActivity extends Activity {
         }
 
 		mIsBackPressedExitEventValid = false;
+		GlobalApplication.getInstance().setAppName(getString(R.string.app_name));
 		
 		mSuperContentView = getLayoutInflater().inflate(R.layout.base_activity, null);
 	    super.setContentView(this.mSuperContentView);
