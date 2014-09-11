@@ -408,6 +408,7 @@ public class CloudAccountXML {
 			subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
 			subElement.addAttribute("loginUser", deviceItem.getLoginUser());
 			subElement.addAttribute("loginPass", deviceItem.getLoginPass());
+			subElement.addAttribute("platformusername", deviceItem.getPlatformUsername());
 			
 			subElement.addAttribute("defaultChannel", String.valueOf(deviceItem.getDefaultChannel()));
 			subElement.addAttribute("serverIP", deviceItem.getSvrIp());
@@ -483,6 +484,7 @@ public class CloudAccountXML {
 			String loginUser = subElement.attributeValue("loginUser");
 			String loginPass = subElement.attributeValue("loginPass");
 			String defaultChannel = subElement.attributeValue("defaultChannel");
+			String platformusername = subElement.attributeValue("platformusername");
 			
 			String svrIp = subElement.attributeValue("serverIP");
 			String svrPort = subElement.attributeValue("serverPort");
@@ -506,6 +508,8 @@ public class CloudAccountXML {
 			deviceItem.setSecurityProtectionOpen(Boolean.valueOf(isSecurityProtectionOpen));
 			deviceItem.setExpanded(Boolean.valueOf(isExpanded));
 			deviceItem.setDeviceType(Integer.valueOf(deviceType));
+			deviceItem.setPlatformUsername(platformusername);
+			
 			List<Channel>channelList = new ArrayList<Channel>();
 			
 			List<Element> channelElements = subElement.elements();

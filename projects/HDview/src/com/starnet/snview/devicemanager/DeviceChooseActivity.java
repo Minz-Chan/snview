@@ -39,29 +39,26 @@ import com.starnet.snview.util.SynObject;
 public class DeviceChooseActivity extends BaseActivity {
 	
 	private final String TAG = "DeviceChooseActivity";
-	private final String oldDevicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
-	@SuppressWarnings("unused")
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list_another.xml";// 一键保存设备的路径...
-	// 用于从文档中获取所有的用户，根据用户信息获取设备
+	final String devicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
 	
 	private final int RESULTCODE = 11;
 	
-	private boolean is_blur_search = false;//等于false 意味着味进行模糊搜索，否则进行了模糊搜索...
+	private boolean is_blur_search = false;											//等于false 意味着味进行模糊搜索，否则进行了模糊搜索
 
-	private Button leftButton;// 左边按钮
+	private Button leftButton;														// 左边按钮
 	private ListView deviceListView;
-	private ArrayList <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();//保存全部数据
+	private ArrayList <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();		//保存全部数据
 	private CloudAccountUtils caUtils= new CloudAccountUtils();
-	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();//保存全部数据
-	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();//保存模糊搜索数据
+	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();			//保存全部数据
+	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();	//保存模糊搜索数据
 	private DeviceChooseAdapter deviceChooseAdapter;
 	private DeviceItem clickDeviceItem;
 	
-	private EditText device_search_et;// 模糊搜索框...
+	private EditText device_search_et;												// 模糊搜索框
 	private SynObject synObject = new SynObject();
 	private final int ADD_SUCCESS = 1;
 	private final int ADD_FAILED = 2;
-	private final int ADDDATESTOXMLDialog = 3;// 一键添加数据到文档...
+	private final int ADDDATESTOXMLDialog = 3;										// 一键添加数据到文档
 	private final int EMPTY_MSG = 110;
 
 	private Handler mHandler = new Handler() {
@@ -81,16 +78,9 @@ public class DeviceChooseActivity extends BaseActivity {
 				Toast toast1 = Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT);
 				toast1.show();
 				DeviceChooseActivity.this.finish();
-//				Intent intent = new Intent();
-//				intent.setClass(DeviceChooseActivity.this, DeviceViewActivity.class);
-//				startActivity(intent);
 				
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
-//				printSentence = "添加失败...";
-//				Toast toast = Toast.makeText(DeviceChooseActivity.this,printSentence, 1);
-//				toast.show();
-//				DeviceChooseActivity.this.finish();
 				break;
 			case EMPTY_MSG:
 				break;
@@ -172,7 +162,6 @@ public class DeviceChooseActivity extends BaseActivity {
 				data.putExtras(extras);
 				setResult(RESULTCODE, data);
 				DeviceChooseActivity.this.finish();
-//				gotoDeviceInfoActivity();
 			}
 		});
 	}
@@ -199,10 +188,10 @@ public class DeviceChooseActivity extends BaseActivity {
 			try {
 				// 检查重复性，若已经包含则不添加，若不包含，则添加到新的通道列表中；
 				CloudAccountXML caXML = new CloudAccountXML();
-				List<DeviceItem> oldDeviceList = caXML.getCollectDeviceListFromXML(oldDevicefilePath);
+				List<DeviceItem> oldDeviceList = caXML.getCollectDeviceListFromXML(devicefilePath);
 				deviceItemList = recreateDeviceList(oldDeviceList,deviceItemList);//重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
 				//在线(离线)字样的删除...
-				caXML.addDeviceItemListToXML(deviceItemList, oldDevicefilePath);
+				caXML.addDeviceItemListToXML(deviceItemList, devicefilePath);
 				msg.what = ADD_SUCCESS;// 添加成功
 				handler.sendMessage(msg);
 			} catch (Exception e) {
@@ -305,7 +294,6 @@ public class DeviceChooseActivity extends BaseActivity {
 		intent.putExtras(bundle);
 		intent.setClass(DeviceChooseActivity.this, DeviceInfoActivity.class);
 		startActivity(intent);
-//		DeviceChooseActivity.this.finish();
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
@@ -327,13 +315,13 @@ public class DeviceChooseActivity extends BaseActivity {
 		deviceItemList = cloudAccount.getDeviceList();
 		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
 		deviceListView.setAdapter(deviceChooseAdapter);
+		
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {// 一键添加按钮...
 		super.onOptionsItemSelected(item);
 		showAddDeviceTips();
-//		synObject.suspend();
 		Log.i(TAG, "");
 		return true;
 	}

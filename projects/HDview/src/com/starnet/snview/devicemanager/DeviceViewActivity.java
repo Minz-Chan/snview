@@ -33,7 +33,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private CloudAccountXML caxml;
 
 	private ListView mDeviceList;
-	private Button navigation_bar_add_btn;// 添加设备按钮
+	private Button navigation_bar_add_btn;														// 添加设备按钮
 	private DeviceListAdapter dLAdapter;
 	private List<DeviceItem> deviceItemList;
 	private DeviceItem deleteDeviceItem;
@@ -50,7 +50,7 @@ public class DeviceViewActivity extends BaseActivity {
 
 		initView();
 
-		mDeviceList.setOnItemClickListener(new OnItemClickListener() {// 进入该设备的信息查看界面
+		mDeviceList.setOnItemClickListener(new OnItemClickListener() {							// 进入该设备的信息查看界面
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
@@ -63,6 +63,7 @@ public class DeviceViewActivity extends BaseActivity {
 				bundle.putSerializable("clickDeviceItem", clickDeviceItem);
 				intent.putExtras(bundle);
 				startActivityForResult(intent, 20);
+				
 			}
 		});
 
@@ -100,9 +101,9 @@ public class DeviceViewActivity extends BaseActivity {
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
-								// 从列表中删除操作，并且通知列表更新；
+								
 								deviceItemList.remove(deletPosition);
-								dLAdapter.notifyDataSetChanged();// 列表的更新操作。。。
+								dLAdapter.notifyDataSetChanged();							// 列表的更新操作
 							}
 						});
 
@@ -130,12 +131,13 @@ public class DeviceViewActivity extends BaseActivity {
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
-		navigation_bar_add_btn.setOnClickListener(new OnClickListener() {// 手动与选择增加设备...
+		navigation_bar_add_btn.setOnClickListener(new OnClickListener() { // 手动与选择增加设备...
 
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent();
-						intent.setClass(DeviceViewActivity.this,DeviceCollectActivity.class);
+						intent.setClass(DeviceViewActivity.this,
+								DeviceCollectActivity.class);
 						startActivityForResult(intent, 10);
 					}
 				});
@@ -144,14 +146,14 @@ public class DeviceViewActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == 10) {// 从添加设备界面返回后...
-			if (resultCode == 11) {//从手动添加设备界面返回...
+		if (requestCode == 10) {															// 从添加设备界面返回后
+			if (resultCode == 11) {															//从手动添加设备界面返回
 				if (data != null) {
 					Bundle bundle = data.getExtras();
 					if (bundle != null) {
 						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
 						
-						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);//检测列表中是否包含该DeviceItem
+						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);	//检测列表中是否包含该DeviceItem
 						if(!result){
 							deviceItemList.add(svDevItem);
 							Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
@@ -159,8 +161,7 @@ public class DeviceViewActivity extends BaseActivity {
 						dLAdapter.notifyDataSetChanged();
 					}
 				}
-			}else {//选择添加
-				
+			}else {
 				//进行文档更新，从文档中读取元素
 				caxml = new CloudAccountXML();
 				try {
@@ -170,60 +171,8 @@ public class DeviceViewActivity extends BaseActivity {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-//				SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);
-//				String dName = spf.getString("dName", "defValue");
-//				String chSum = spf.getString("chSum", "defValue");
-//				String dChnl = spf.getString("dChnl", "defValue");
-//				String svrIp = spf.getString("svrIp", "defValue");
-//				
-//				String lgUsr = spf.getString("lgUsr", "defValue");
-//				String lgPas = spf.getString("lgPas", "defValue");
-//				String svrPt = spf.getString("svrPt", "defValue");
-//				
-//				boolean isDefValue = checkDefValueOfSpf(dName,chSum,dChnl,svrIp,lgUsr,lgPas,svrPt);
-//				if (!isDefValue) {//表示不包含defValue,
-//					//构造新的deviceItem，保存到列表中。。。
-//					DeviceItem saveDeviceItem = new DeviceItem();
-//					saveDeviceItem.setChannelSum(chSum);
-//					saveDeviceItem.setDefaultChannel(Integer.valueOf(dChnl));
-//					saveDeviceItem.setDeviceName(dName);
-//					saveDeviceItem.setLoginPass(lgPas);
-//					saveDeviceItem.setLoginUser(lgUsr);
-//					saveDeviceItem.setSvrIp(svrIp);
-//					saveDeviceItem.setSvrPort(svrPt);
-//					
-//					int channelNum = Integer.valueOf(chSum);
-//					List<Channel>channelList = new ArrayList<Channel>();
-//					for (int i = 0; i < channelNum; i++) {
-//						Channel channel = new Channel();
-//						channel.setChannelName("通道"+(i+1));
-//						channel.setChannelNo((i+1));
-//						channel.setSelected(false);
-//					}
-//					saveDeviceItem.setChannelList(channelList);
-//					saveDeviceItem.setExpanded(false);
-//					saveDeviceItem.setSecurityProtectionOpen(true);
-//					boolean result = checkContainDeviceItem(saveDeviceItem,deviceItemList);//检测列表中是否包含该DeviceItem
-//					if(!result){
-//						deviceItemList.add(saveDeviceItem);
-//						Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
-//					}
-//					dLAdapter.notifyDataSetChanged();
-//				}
 			}			
 
-//			if (data != null) {
-//				Bundle bundle = data.getExtras();
-//				if (bundle != null) {
-//					DeviceItem saveDeviceItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
-//					boolean result = checkContainDeviceItem(saveDeviceItem,deviceItemList);// 检查设备中是否包含saveDeviceItem
-//					if (!result) {
-//						deviceItemList.add(saveDeviceItem);
-//					}
-//				}
-//			}
-//			dLAdapter.notifyDataSetChanged();
 		} else if (requestCode == 20) {// 从查看\编辑设备界面返回后...
 			if (data != null) {
 				SharedPreferences spf = getSharedPreferences("user",Context.MODE_PRIVATE);

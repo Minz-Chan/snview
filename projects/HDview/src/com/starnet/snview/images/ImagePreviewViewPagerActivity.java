@@ -28,8 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -40,31 +38,25 @@ import android.widget.TextView;
 public class ImagePreviewViewPagerActivity extends BaseActivity {
 	final String TAG = "ImagePreviewViewPagerActivity";
 	private Context context;
-	// private ViewPager mViewPager;//原始的测试数据...
-	private int showSum;// 导航栏中总数
-	private int showNum;// 导航栏中第几幅画面
-	private ArrayList<String> pathList;// 画面的路径...
-	private TextView imagepreview_title;// 显示设备的数量，以及显示画面的序号...
-	private Button imagepreview_leftBtn;// 返回按钮
+	private int showSum;									// 导航栏中总数
+	private int showNum;									// 导航栏中第几幅画面
+	private TextView imagepreview_title;					// 显示设备的数量，以及显示画面的序号...
+	private Button imagepreview_leftBtn;					// 返回按钮
 
-	private SelfDefViewPager mSelfDefViewPager;// 自定义的ViewPager可以判断是左滑，还是右滑
+	private SelfDefViewPager mSelfDefViewPager;				// 自定义的ViewPager可以判断是左滑，还是右滑
 	private SelfPagerAdapter selfPagerAdapter;
 
 	private FrameLayout nToolbar;
-	private RelativeLayout mNavigationBar;// 导航栏...
+	private RelativeLayout mNavigationBar;					// 导航栏...
 	private int click_time = 0;
-	private Context photoContext;
 	private Button delete_button;
-	private ViewTreeObserver viewTreeObserver;
 	private PhotoView photoView;
 	private int video_click_time = 0 ;
 	
-	private int screen_height ;//手机屏幕的高度
 
 	private ImagesManager mImagesManager;
 	List<Image> imageList = new LinkedList<Image>();
 
-	// private PhotoViewAttacher mPhotoViewAttacher;//用于注册监听器
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +71,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		screen_height = dm.heightPixels;
 
 		nToolbar = super.getToolbarContainer();
 		mNavigationBar = super.getNavbarContainer();
-		// nToolbar.setBackgroundResource(R.drawable.imagepreview_backgroud_toolbar_blue_bg);
 
 		mImagesManager = ImagesManager.getInstance();
 
@@ -94,7 +84,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		if (intent != null) {
 			String imgPosInMap = intent.getStringExtra("imgPosInMap");
 			String sumMap = intent.getStringExtra("sumMap");
-			pathList = intent.getStringArrayListExtra("pathList");
 			showSum = Integer.valueOf(sumMap);
 			showNum = Integer.valueOf(imgPosInMap);
 			imagepreview_title.setText("(" + showNum + "/" + showSum + ")");// 测试使用...
@@ -120,16 +109,14 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				R.color.image_manager_delete_red));
 
 		delete_button = new Button(context);//自定义删除按钮
-		viewTreeObserver = delete_button.getViewTreeObserver();
 		delete_button.setBackgroundResource(R.drawable.navigation_bar_del_btn_selector);
 		delete_button.setHeight(LayoutParams.WRAP_CONTENT);
 		delete_button.setWidth(LayoutParams.WRAP_CONTENT);
 
-		subLayout.addView(delete_button, rParams);// 将delete_button承装在相对布局中
-		nToolbar.addView(subLayout);// 将相对布局承装在nToolbar中
+		subLayout.addView(delete_button, rParams);				// 将delete_button承装在相对布局中
+		nToolbar.addView(subLayout);							// 将相对布局承装在nToolbar中
 		ImageView mRightArrow = (ImageView) nToolbar.findViewById(R.id.base_toolbar_container_arrowright);
-		mRightArrow.setVisibility(View.GONE);//隐藏小按钮
-		viewTreeObserver.addOnGlobalLayoutListener(listener);
+		mRightArrow.setVisibility(View.GONE);					// 隐藏小按钮
 
 		setListenersForWadgets();
 	}
@@ -160,17 +147,14 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 									@Override
 									public void onClick(DialogInterface dialog,
 											int which) {
-										// 考虑最后一个的删除问题...
-										int ori_size = imageList.size();// 事实改变的...
-										int cur_pos = mSelfDefViewPager.getCurrentItem();// 获取当前的视图...
+										int ori_size = imageList.size();					// 事实改变的...
+										int cur_pos = mSelfDefViewPager.getCurrentItem();	// 获取当前的视图...
 										String imagePath = imageList.get(cur_pos).getImagePath();
-										if (ori_size >= 2) {// 不止一张照片
-											// 删除最后一张照片，总数、序数同时变
-											if ((ori_size - 1 == cur_pos)) {
-												Log.v(TAG, "delete last。。。。。");
+										if (ori_size >= 2) {								// 不止一张照片 删除最后一张照片，总数、序数同时变
+												if ((ori_size - 1 == cur_pos)) {
 												int m_ori_size = ori_size - 1;
 												imagepreview_title.setText("("+ cur_pos + "/"+ m_ori_size + ")");// 改变显示...
-												imageList.remove(cur_pos);// 移除掉...
+												imageList.remove(cur_pos);					// 移除掉...
 												int m_cur_pos = cur_pos - 1;
 
 												selfPagerAdapter.notifyDataSetChanged();
@@ -311,13 +295,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 					}
 				});
 	}
-
-	OnGlobalLayoutListener listener = new OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {// 布局改变监听器...
-			Log.v(TAG, "onGlobalLayout changed...");
-		}
-	};
 	private String drawablePath;
 
 	class SelfPagerAdapter extends PagerAdapter {
@@ -330,7 +307,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		public int getCount() {
 			int size = imageList.size();
 			return size;
-			// return pathList.size();
 		}
 
 		@Override
@@ -353,9 +329,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				container.addView(photoView, LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 				photoView.setOnViewTapListener(onViewTapListener);
 				return photoView;
-			} else  {//if (image.getType() == ImageType.VIDEO)
-//				int pos = mSelfDefViewPager.getCurrentItem();
-//				String path = imageList.get(pos).getImagePath();
+			} else  {
 				String path = imageList.get(mPostion).getImagePath();
 				String jpgPath = swith2CapPath(path);
 					
@@ -367,6 +341,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				ImageButton playBtn = (ImageButton) imageVideo
 						.findViewById(R.id.images_video_play);
 				Drawable bg = Drawable.createFromPath(jpgPath);
+				if (bg == null) {
+					return null;
+				}
 
 				int w = GlobalApplication.getInstance().getScreenWidth();
 				int h = w * bg.getIntrinsicHeight() / bg.getIntrinsicWidth();
@@ -381,8 +358,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				
 				container.addView(imageVideo, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 				
-
-				
 				imageVideo.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
@@ -396,7 +371,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						}
 					}
 				});
-				
 				
 				playBtn.setOnClickListener(new OnClickListener() {//添加播放事件
 					@Override
@@ -449,8 +423,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 
 		@Override
 		public int getItemPosition(Object object) {
-//			return super.getItemPosition(object);
-			return POSITION_NONE;
+			return super.getItemPosition(object);
 		}
 	}
 	

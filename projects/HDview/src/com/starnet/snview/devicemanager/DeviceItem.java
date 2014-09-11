@@ -22,6 +22,7 @@ public class DeviceItem implements Serializable {
 	private boolean isExpanded = false; // 是否展开
 	private List<Channel> channelList;  // 通道列表，包含通道相关信息
 	
+	private String platformUsername;	// 所属的星云账户用户名  xinzeng
 	
 	public List<Channel> getChannelList() {
 		return channelList;
@@ -88,6 +89,12 @@ public class DeviceItem implements Serializable {
 	}
 	public void setChannelSum(String channelSum) {
 		this.channelSum = channelSum;
+	}
+	public String getPlatformUsername() {
+		return platformUsername;
+	}
+	public void setPlatformUsername(String platformUsername) {
+		this.platformUsername = platformUsername;
 	}
 	
 	

@@ -130,7 +130,37 @@ public class CloudAccountUtil {
 		CloudAccountXML caXML = new CloudAccountXML();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
-			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);
+			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
+			int devicelist_size = deviceItemList.size();
+			
+			List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(filePathOfCloudAccount);
+			
+//			for (int i = 0; i < devicelist_size; i++) {
+//				DeviceItem deviceItem = deviceItemList.get(i);
+//				String accountUsername = deviceItem.getPlatformUsername();
+//				int caSize = cloudAccountList.size();
+				
+//				for (int j = 0; j < caSize; j++) {//星云账户存在并禁用时，收藏设备列表中则不显示该设备
+//					if (accountUsername.equals(cloudAccountList.get(j)
+//							.getUsername())
+//							&& !cloudAccountList.get(j).isEnabled()) {
+//						deviceItemList.remove(deviceItem);
+//						break;
+//					}
+//				}
+				
+//				boolean isExist = false;
+//				for (int j = 0; j < caSize; j++) {//星云账户不存在时，收藏设备列表中则不显示该设备
+//					if (accountUsername.equals(cloudAccountList.get(j).getUsername())) {
+//						isExist = true;
+//						break;
+//					}
+//					if (!isExist) {
+//						deviceItemList.remove(deviceItem);
+//					}
+//				}
+//			}			
+			
 			collectDevice.setDeviceList(deviceItemList);
 			collectDevice.setEnabled(true);
 			collectDevice.setExpanded(false);
@@ -140,7 +170,7 @@ public class CloudAccountUtil {
 			collectDevice.setPort("808");
 			collectDevice.setPassword("0208");
 			accoutInfo.add(collectDevice);
-			List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(filePathOfCloudAccount);
+			
 			int size = cloudAccountList.size();
 			for(int i =0 ;i<size;i++){
 				CloudAccount cloudAccount = cloudAccountList.get(i);

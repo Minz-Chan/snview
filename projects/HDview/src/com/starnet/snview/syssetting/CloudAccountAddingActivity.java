@@ -8,6 +8,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -41,6 +42,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	
 	//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
 	private boolean identifier_flag = false;
+	private boolean identifier_flag_after = false;
 
 	private EditText serverEditText;
 	private EditText portEditText;
@@ -58,6 +60,12 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
 	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
 	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
+	
+	private final int DDNS_RESP_SUCC_COPY = 0x1104; // 获取设备信息成功
+	private final int DDNS_RESP_FAILURE_COPY = 0x1105; // 获取设备信息失败
+	private final int DDNS_REQ_TIMEOUT_COPY = 0x1106; // 设备列表请求超时
+	private final int DDNS_SYS_FAILURE_COPY = 0x1107; // 非DDNS返回错误
+	
 	private CloudService cloudService = new CloudServiceImpl("conn1");
 //	private List<DVRDevice> deviceInfoList;
 	String server;
@@ -92,45 +100,60 @@ public class CloudAccountAddingActivity extends BaseActivity {
 			String errMsg = "";
 
 			switch (msg.what) {
-			case 0:
-				Toast toast0 = Toast.makeText(CloudAccountAddingActivity.this,showStatus, Toast.LENGTH_LONG);
-				toast0.show();
-				dismissDialog(1);
-				identifier_flag = false;
-				break;
 			case DDNS_RESP_SUCC:
 				identifier_flag = true;
+				identifier_flag_after = true;
 				//只验证，不保存
-				
 				printSentence = getString(R.string.system_setting_cloudaccount_useable);
 				Toast toast1 = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_LONG);
 				toast1.show();
 				dismissDialog(1);
-				//caXML.addNewCloudAccoutNodeToRootXML(filePath,cloudAccount);// 保存到XML文档中。。
-//				Intent intent = new Intent();
-//				Bundle bundle = new Bundle();
-//				bundle.putSerializable("cloudAccount",cloudAccount);
-//				intent.putExtras(bundle);
-//				setResult(3, intent);
-//				CloudAccountSettingActivity.this.finish();
+				break;
+			case DDNS_RESP_SUCC_COPY://验证后保存
+				save_CloudAccount.setEnabled(true);
+				caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+				Intent intent = new Intent();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("cloudAccount",save_CloudAccount);
+				intent.putExtras(bundle);
+				setResult(3, intent);
+				CloudAccountAddingActivity.this.finish();
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
+				identifier_flag_after = false;
+				errMsg = msg.getData().getString("ERR_MSG");
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				break;
+			case DDNS_RESP_FAILURE_COPY:
+				identifier_flag = false;
+				identifier_flag_after = false;
 				errMsg = msg.getData().getString("ERR_MSG");
 				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_SYS_FAILURE:
 				identifier_flag = false;
+				identifier_flag_after = false;
+				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
+				break;
+			case DDNS_SYS_FAILURE_COPY:
+				identifier_flag = false;
+				identifier_flag_after = false;
 				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
 				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
+				identifier_flag_after = false;
 				errMsg = getString(R.string.common_request_outtime_check_port_server);
 				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
-			default:
+			case DDNS_REQ_TIMEOUT_COPY:
 				identifier_flag = false;
+				identifier_flag_after = false;
+				errMsg = getString(R.string.common_request_outtime_check_port_server);
+				Toast.makeText(CloudAccountAddingActivity.this, errMsg, Toast.LENGTH_LONG).show();
 				break;
 			}
 		}
@@ -179,8 +202,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 			public void onClick(View v) {
 				
 				//检测网络是否连接，若网络并未连接则
-				NetWorkUtils netWorkUtils = new NetWorkUtils();
-				boolean isConn = netWorkUtils.checkNetConnection(CloudAccountAddingActivity.this);
+				boolean isConn = NetWorkUtils.checkNetConnection(CloudAccountAddingActivity.this);
 				if (isConn) {
 					identify_CloudAccount = new CloudAccount();
 					cloudAccount = new CloudAccount();
@@ -235,9 +257,6 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				username = usernameEditText.getText().toString();
 				password = passwordEditText.getText().toString();
 				
-				
-				//验证用户和
-				
 				if (!server.equals("") && !port.equals("")&& !username.equals("") && !password.equals("")) {
 					save_CloudAccount = new CloudAccount();
 					save_CloudAccount.setDomain(server);
@@ -248,19 +267,12 @@ public class CloudAccountAddingActivity extends BaseActivity {
 					save_CloudAccount.setRotate(false);
 					identifier_flag = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
 					
-//					cloudAccount = new CloudAccount();
 					if (isenablYseRadioBtn.isChecked()&&(identifier_flag)) {
-//						cloudAccount.setEnabled(true);
 						save_CloudAccount.setEnabled(true);
 					} else {
-//						cloudAccount.setEnabled(false);
 						save_CloudAccount.setEnabled(false);
 					}
 					
-//					cloudAccount.setDomain(server);
-//					cloudAccount.setPassword(password);
-//					cloudAccount.setUsername(username);
-//					cloudAccount.setPort(port);
 					caXML = new CloudAccountXML();
 					try {
 						//判断是否已经包含该用户
@@ -271,13 +283,65 @@ public class CloudAccountAddingActivity extends BaseActivity {
 							Toast toast = Toast.makeText(CloudAccountAddingActivity.this,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
 						} else {//如果不包含，则添加
-							caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
-							Intent intent = new Intent();
-							Bundle bundle = new Bundle();
-							bundle.putSerializable("cloudAccount",save_CloudAccount);
-							intent.putExtras(bundle);
-							setResult(3, intent);
-							CloudAccountAddingActivity.this.finish();
+							//保存为是
+							if (!identifier_flag&&isenablYseRadioBtn.isChecked()) {
+								
+								Builder builder = new Builder(CloudAccountAddingActivity.this);
+								builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
+								builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),null);
+//										new DialogInterface.OnClickListener() {
+//											
+//											@Override
+//											public void onClick(DialogInterface dialog, int which) {
+//												requset4DeviceList_copy();	
+//												synObj.suspend();
+//											}
+//										});
+								builder.show();
+							}else if (identifier_flag&&isenablYseRadioBtn.isChecked()) {
+								boolean isEqual = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
+								if (isEqual&&identifier_flag_after) {
+									save_CloudAccount.setEnabled(true);
+									caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									Intent intent = new Intent();
+									Bundle bundle = new Bundle();
+									bundle.putSerializable("cloudAccount",save_CloudAccount);
+									intent.putExtras(bundle);
+									setResult(3, intent);
+									CloudAccountAddingActivity.this.finish();
+								}else if (!isEqual&&identifier_flag_after){
+									Builder builder = new Builder(CloudAccountAddingActivity.this);
+									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
+									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),null);
+//											new DialogInterface.OnClickListener() {
+//												
+//												@Override
+//												public void onClick(DialogInterface dialog, int which) {
+//													requset4DeviceList_copy();	
+//													synObj.suspend();											
+//												}
+//											});
+									builder.show();
+								}else {
+									save_CloudAccount.setEnabled(false);
+									caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									Intent intent = new Intent();
+									Bundle bundle = new Bundle();
+									bundle.putSerializable("cloudAccount",save_CloudAccount);
+									intent.putExtras(bundle);
+									setResult(3, intent);
+									CloudAccountAddingActivity.this.finish();
+								}
+							}else {
+								save_CloudAccount.setEnabled(false);
+								caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+								Intent intent = new Intent();
+								Bundle bundle = new Bundle();
+								bundle.putSerializable("cloudAccount",save_CloudAccount);
+								intent.putExtras(bundle);
+								setResult(3, intent);
+								CloudAccountAddingActivity.this.finish();
+							}
 						}
 					} catch (Exception e1) {
 						System.out.println(e1.toString());
@@ -319,6 +383,11 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		showDialog(1);
 		(new RequestDeviceInfoThread(responseHandler)).start();
 	}
+	
+	private void requset4DeviceList_copy() {
+		showDialog(1);
+		(new RequestDeviceInfoThread_copy(responseHandler)).start();
+	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -338,6 +407,41 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		}
 	}
 
+	class RequestDeviceInfoThread_copy extends Thread {
+		private Handler handler;
+		public RequestDeviceInfoThread_copy(Handler handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			Message msg = new Message();
+			try {
+				Document doc = cloudService.SendURLPost(server, port, username,password);
+				String requestResult = cloudService.readXmlStatus(doc);
+				if (requestResult == null) // 请求成功，返回null
+				{
+					msg.what = DDNS_RESP_SUCC_COPY;
+				} else { // 请求失败，返回错误原因
+					Bundle errMsg = new Bundle();
+					msg.what = DDNS_RESP_FAILURE_COPY;
+					errMsg.putString("ERR_MSG", requestResult);
+					msg.setData(errMsg);
+				}
+			} catch (DocumentException e) {
+				msg.what = DDNS_SYS_FAILURE_COPY;
+				e.printStackTrace();
+			} catch (SocketTimeoutException e) {
+				msg.what = DDNS_REQ_TIMEOUT_COPY;
+				e.printStackTrace();
+			} catch (IOException e) {
+				msg.what = DDNS_SYS_FAILURE_COPY;
+				e.printStackTrace();
+			}
+			handler.sendMessage(msg);
+		}
+	}
+	
 	class RequestDeviceInfoThread extends Thread {
 		private Handler handler;
 		public RequestDeviceInfoThread(Handler handler) {

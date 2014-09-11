@@ -117,7 +117,7 @@ public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
 							intent.putParcelableArrayListExtra("imageList",my_imageList);
 							intent.setClass(mImagesActivity,ImagePreviewViewPagerActivity.class);
-							mImagesActivity.startActivity(intent);
+							mImagesActivity.startActivityForResult(intent,20);
 						}
 					}
 				});

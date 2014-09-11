@@ -300,6 +300,7 @@ public class ImagesManager {
 										LocalFileUtils.RECORD_EXT_NAME, ""));
 								((List) images).add(imgTmp);
 							} else {
+								
 								if (!mVideoNameList.contains(f1.getName()
 									.replace(LocalFileUtils.PICTURE_EXT_NAME, ""))) {
 									((List) images).add(imgTmp);

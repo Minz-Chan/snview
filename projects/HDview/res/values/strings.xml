@@ -67,7 +67,7 @@
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccountview_ok">确定</string>
     <string name="system_setting_cloudaccountview_cancel">取消</string>
-    <string name="system_setting_cloudaccount_identify_ok">确认验证?</string>
+    <string name="system_setting_cloudaccount_identify_ok">用户启用前，请先进行验证</string>
     <string name="system_setting_logout_ok">确定</string>
     <string name="system_setting_logout_cancel">取消</string>
     <string name="system_set_setedit_identify_user_right">正在验证账号有效性，请等待</string>
@@ -78,6 +78,7 @@
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountupdate_edit_right">保存成功</string>
     
+    <string name="device_manager_collect_device">收藏设备</string>
     <string name="device_manager">设备管理</string>
     <string name="device_manager_channel">通道</string>
     <string name="device_manager_choose">选择</string>

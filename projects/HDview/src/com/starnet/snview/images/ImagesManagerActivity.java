@@ -3,6 +3,7 @@ package com.starnet.snview.images;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,7 +73,7 @@ public class ImagesManagerActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单....
+				if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单
 					
 					
 				} else {	// 退出图像管理编辑状态
@@ -233,4 +234,15 @@ public class ImagesManagerActivity extends BaseActivity {
 			}
 		}
 	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		Log.v(TAG, "data"+data);
+		
+	}
+	
+	
 }

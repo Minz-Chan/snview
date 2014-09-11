@@ -125,6 +125,7 @@ public class CloudAccountUtils {
 				DVRDevice dvrDevice =	dvrDevices.get(i);
 				int deviceType=5;//====？？？？？？？？？对应着哪一个	
 				
+				String platformUsername = dvrDevice.getPlatformUsername();
 				String deviceName = dvrDevice.getDeviceName();
 				String svrIp = dvrDevice.getLoginIP();// 服务器IP
 				String svrPort = dvrDevice.getMobliePhonePort();// 服务器端口
@@ -140,7 +141,9 @@ public class CloudAccountUtils {
 				deviceItem.setLoginUser(loginUser);
 				deviceItem.setSecurityProtectionOpen(true);
 				deviceItem.setExpanded(false);
-				deviceItem.setDeviceType(deviceType);			
+				deviceItem.setDeviceType(deviceType);	
+				deviceItem.setPlatformUsername(platformUsername);
+				
 				String channelSum = dvrDevice.getChannelNumber();//用于为设备添加通道列表而准备
 				deviceItem.setChannelSum(channelSum);
 				

@@ -50,8 +50,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	private final int RESULTCODE = 11;
 
 	private Button leftButton;// 左边按钮
-	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"添加"...
-	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据,"选择添加"...
+	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"添加"
+	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据,"选择添加"
 
 	private CloudAccountXML caXML;
 	private EditText et_device_add_record;
@@ -179,6 +179,7 @@ public class DeviceCollectActivity extends BaseActivity {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
 											try {
+												
 												String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
 												Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 												toast.show();
@@ -188,6 +189,7 @@ public class DeviceCollectActivity extends BaseActivity {
 												intent.putExtras(bundle);
 												setResult(11, intent);
 												DeviceCollectActivity.this.finish();
+												
 											} catch (Exception e) {
 												
 											}
@@ -203,17 +205,8 @@ public class DeviceCollectActivity extends BaseActivity {
 									bundle.putSerializable("saveDeviceItem",saveDeviceItem);
 									intent.putExtras(bundle);
 									setResult(11, intent);
-									DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
-								}								
-//								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-//								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-//								toast.show();
-//								Intent intent = new Intent();
-//								Bundle bundle = new Bundle();
-//								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
-//								intent.putExtras(bundle);
-//								setResult(11, intent);
-//								DeviceCollectActivity.this.finish();// 添加成功后，关闭页面...
+									DeviceCollectActivity.this.finish();// 添加成功后，关闭页面
+								}	// 添加成功后，关闭页面
 							} else {
 								// 文档读写异常
 								String text = getString(R.string.device_manager_deCh_chNum);
@@ -412,7 +405,7 @@ public class DeviceCollectActivity extends BaseActivity {
 								dvrDeviceList.add(deviceList.get(j));
 							}
 						} else {// 加载不成功...
-
+							
 						}
 					}
 				}
@@ -448,7 +441,6 @@ public class DeviceCollectActivity extends BaseActivity {
 				Bundle bundle = data.getExtras();
 				if (bundle != null) {
 					DeviceItem chooseDeviceItem = (DeviceItem) bundle.getSerializable("chooseDeviceItem");
-					//填充信息....
 					
 					String lgUsr = chooseDeviceItem.getLoginUser();
 					String lgPas = chooseDeviceItem.getLoginPass();
@@ -472,6 +464,9 @@ public class DeviceCollectActivity extends BaseActivity {
 					
 					et_device_add_channelnumber.setKeyListener(null);
 					et_device_choose.setKeyListener(null);
+					
+					String username = chooseDeviceItem.getPlatformUsername();
+					saveDeviceItem.setPlatformUsername(username);
 				}
 			}
 		}

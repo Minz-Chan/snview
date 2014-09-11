@@ -79,11 +79,6 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 	private final int DDNS_REQ_TIMEOUT = 0x1102;					// 设备列表请求超时
 	private final int DDNS_SYS_FAILURE = 0x1103;					// 非DDNS返回错误
 	
-	private final int DDNS_RESP_SUCC_COPY = 0x1104;						// 获取设备信息成功
-	private final int DDNS_RESP_FAILURE_COPY = 0x1105;					// 获取设备信息失败
-	private final int DDNS_REQ_TIMEOUT_COPY = 0x1106;					// 设备列表请求超时
-	private final int DDNS_SYS_FAILURE_COPY = 0x1107;					// 非DDNS返回错误
-	
 	private CloudService cloudService = new CloudServiceImpl("conn1");
 	private Context context;
 
@@ -114,29 +109,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 				toast1.show();
 				dismissDialog(1);
 				break;
-			case DDNS_RESP_SUCC_COPY://只验证，不保存				
-				identifier_flag = true;
-				identifier_flag_after = true;
-				try {
-					saveCloudAccount.setEnabled(true);
-					caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-					Intent intent = new Intent();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-					intent.putExtras(bundle);
-					setResult(3, intent);
-					CloudAccountUpdateActivity.this.finish();
-				} catch (Exception e) {
-					CloudAccountUpdateActivity.this.finish();
-				}
-				break;
 			case DDNS_RESP_FAILURE:
-				identifier_flag = false;
-				identifier_flag_after = false;
-				errMsg = msg.getData().getString("ERR_MSG");
-				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
-				break;
-			case DDNS_RESP_FAILURE_COPY:
 				identifier_flag = false;
 				identifier_flag_after = false;
 				errMsg = msg.getData().getString("ERR_MSG");
@@ -148,25 +121,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
 				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
 				break;
-			case DDNS_SYS_FAILURE_COPY:
-				identifier_flag = false;
-				identifier_flag_after = false;
-				CloudAccountUpdateActivity.this.finish();
-				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
 				identifier_flag_after = false;
 				errMsg = getString(R.string.common_request_outtime_check_port_server);
 				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
-				break;
-			case DDNS_REQ_TIMEOUT_COPY:
-				identifier_flag = false;
-				identifier_flag_after = false;
-				CloudAccountUpdateActivity.this.finish();
-				break;
-			default:
-				identifier_flag = false;
-				identifier_flag_after = false;
 				break;
 			}
 		}
@@ -278,286 +237,46 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					try {
 						
 						List<CloudAccount> cloudAcountList = caXml.getCloudAccountList(filePath);
-						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);// 检测是否已经存在账户
+						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);		// 检测是否已经存在账户
 						
-						if (result) {// 如果包含，弹出对话框，询问是否覆盖？
+						if (result) {																			// 如果包含，弹出对话框，询问是否覆盖？
 							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
 							Toast toast = Toast.makeText(context,printSentence, Toast.LENGTH_SHORT);
 							toast.show();
-						} else {// 如果不包含，则添加
-							boolean isSame = isEqualCloudAccounts(clickCloudAccount,saveCloudAccount);
-							if (isSame) {//原始用户和当前保存用户一样
-								if (isenablYseRadioBtn.isChecked()&&!clickCloudAccount.isEnabled()) {
-									if(identifier_flag_after){
-										boolean isLike = isEqualCloudAccounts(identifyCloudAccount,saveCloudAccount);
-										if (isLike) {
-											caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-											String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
-											Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-											toast3.show();
-											Intent intent = new Intent();
-											Bundle bundle = new Bundle();
-											bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-											intent.putExtras(bundle);
-											setResult(3, intent);
-											CloudAccountUpdateActivity.this.finish();
-										}else {//弹出对话框
-											Builder builder = new Builder(CloudAccountUpdateActivity.this);
-											builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-											builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel), new DialogInterface.OnClickListener(){
-												@Override
-												public void onClick(DialogInterface dialog, int which) {
-													//保存用户为“否”状态
-													saveCloudAccount.setEnabled(false);
-													Intent intent = new Intent();
-													Bundle bundle = new Bundle();
-													bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-													intent.putExtras(bundle);
-													setResult(3, intent);
-													CloudAccountUpdateActivity.this.finish();
-												}
-											});
-											
-											builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), new DialogInterface.OnClickListener(){
-												@Override
-												public void onClick(DialogInterface dialog, int which) {
-													try {
-														Context context = CloudAccountUpdateActivity.this;
-														boolean isConn = NetWorkUtils.checkNetConnection(context);//检测网络是否连接，若网络并未连接则
-														if (isConn) {
-															
-															server = serverEditText.getText().toString().trim();
-															port = portEditText.getText().toString().trim();
-															username = usernameEditText.getText().toString().trim();
-															password = passwordEditText.getText().toString().trim();
-
-															if (!server.equals("") && !port.equals("")
-																	&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
-																						
-																IPAndPortUtils ipAndPort = new IPAndPortUtils();
-																boolean isPort = ipAndPort.isNetPort(port);//检测是否是网络端口号
-																if (isPort) {
-																	identifyCloudAccount = new CloudAccount();	
-																	if (isenablYseRadioBtn.isChecked()) {
-																		identifyCloudAccount.setEnabled(true);
-																	} else {
-																		identifyCloudAccount.setEnabled(false);
-																	}
-																	
-																	identifyCloudAccount.setDomain(server);
-																	identifyCloudAccount.setPassword(password);
-																	identifyCloudAccount.setUsername(username);
-																	identifyCloudAccount.setPort(port);
-																	
-																	requset4DeviceList_copy();
-																	synObj.suspend();// 挂起等待请求结果
-																}else {
-																	String printSentence = getString(R.string.device_manager_editact_port_wrong);
-																	Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-																	toast3.show();
-																}						
-															} else {
-																String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-																Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-																toast3.show();
-															}
-														}else {
-															String printSentence = getString(R.string.network_not_conn);
-															Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-															toast3.show();
-														}
-													}catch (Exception e) {
-														CloudAccountUpdateActivity.this.finish();
-													}
-												}
-											});
-											builder.show();
-										}
+						} else {
+							if (isenablNoRadioBtn.isChecked()) {
+								saveCloudAccount.setEnabled(false);
+								caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
+								String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
+								Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
+								toast3.show();
+								Intent intent = new Intent();
+								Bundle bundle = new Bundle();
+								bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
+								intent.putExtras(bundle);
+								setResult(3, intent);
+								CloudAccountUpdateActivity.this.finish();
+							}else if (!identifier_flag) {
+								if (clickCloudAccount.isEnabled()) {
+									boolean isSame = isEqualCloudAccounts(clickCloudAccount,saveCloudAccount);
+									if(isSame){
+										CloudAccountUpdateActivity.this.finish();
 									}else {
 										Builder builder = new Builder(CloudAccountUpdateActivity.this);
 										builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-										builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel), new DialogInterface.OnClickListener(){
-											@Override
-											public void onClick(DialogInterface dialog,int which) {
-												try {
-													saveCloudAccount.setEnabled(false);
-													caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-													Intent intent = new Intent();
-													Bundle bundle = new Bundle();
-													bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-													intent.putExtras(bundle);
-													setResult(3, intent);
-													CloudAccountUpdateActivity.this.finish();
-												} catch (Exception e) {
-													CloudAccountUpdateActivity.this.finish();
-												}
-											}
-										});
-										
-										builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), new DialogInterface.OnClickListener(){
-											@Override
-											public void onClick(DialogInterface dialog,int which) {
-												try {
-													Context context = CloudAccountUpdateActivity.this;
-													boolean isConn = NetWorkUtils.checkNetConnection(context);//检测网络是否连接，若网络并未连接则
-													if (isConn) {
-														
-														server = serverEditText.getText().toString().trim();
-														port = portEditText.getText().toString().trim();
-														username = usernameEditText.getText().toString().trim();
-														password = passwordEditText.getText().toString().trim();
-
-														if (!server.equals("") && !port.equals("")
-																&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
-																					
-															IPAndPortUtils ipAndPort = new IPAndPortUtils();
-															boolean isPort = ipAndPort.isNetPort(port);//检测是否是网络端口号
-															if (isPort) {
-																identifyCloudAccount = new CloudAccount();	
-																if (isenablYseRadioBtn.isChecked()) {
-																	identifyCloudAccount.setEnabled(true);
-																} else {
-																	identifyCloudAccount.setEnabled(false);
-																}
-																
-																identifyCloudAccount.setDomain(server);
-																identifyCloudAccount.setPassword(password);
-																identifyCloudAccount.setUsername(username);
-																identifyCloudAccount.setPort(port);
-																
-																requset4DeviceList_copy();
-																synObj.suspend();// 挂起等待请求结果
-															}else {
-																String printSentence = getString(R.string.device_manager_editact_port_wrong);
-																Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-																toast3.show();
-															}						
-														} else {
-															String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-															Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-															toast3.show();
-														}
-													}else {
-														String printSentence = getString(R.string.network_not_conn);
-														Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-														toast3.show();
-													}
-												}catch (Exception e) {
-													CloudAccountUpdateActivity.this.finish();
-												}
-											}
-										});
-										builder.show();
-									}									
-								}else if (isenablYseRadioBtn.isChecked()&&clickCloudAccount.isEnabled()) {
-									saveCloudAccount.setEnabled(true);
-									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-									Intent intent = new Intent();
-									Bundle bundle = new Bundle();
-									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-									intent.putExtras(bundle);
-									setResult(3, intent);
-									CloudAccountUpdateActivity.this.finish();
-								}else if (clickCloudAccount.isEnabled()&&isenablNoRadioBtn.isChecked()) {
-									saveCloudAccount.setEnabled(false);
-									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-									Intent intent = new Intent();
-									Bundle bundle = new Bundle();
-									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-									intent.putExtras(bundle);
-									setResult(3, intent);
-									CloudAccountUpdateActivity.this.finish();
-								}else {
-									saveCloudAccount.setEnabled(false);
-									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号								
-									Intent intent = new Intent();
-									Bundle bundle = new Bundle();
-									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-									intent.putExtras(bundle);
-									setResult(3, intent);
-									CloudAccountUpdateActivity.this.finish();
-								}
-							}else {//原始用户和当前保存用户不一样
-								if (isenablYseRadioBtn.isChecked()) {
-									if (isenablYseRadioBtn.isChecked()) {
-										Builder builder = new Builder(context);
-										builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-										builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel), new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(DialogInterface dialog, int which) {
-												try {
-													saveCloudAccount.setEnabled(false);
-													caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-													String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
-													Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-													toast3.show();
-													Intent intent = new Intent();
-													Bundle bundle = new Bundle();
-													bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
-													intent.putExtras(bundle);
-													setResult(3, intent);
-													CloudAccountUpdateActivity.this.finish();
-												} catch (Exception e) {
-													CloudAccountUpdateActivity.this.finish();
-												}
-											}
-										});
-										builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(DialogInterface dialog, int which) {
-												try {
-													Context context = CloudAccountUpdateActivity.this;
-													
-													boolean isConn = NetWorkUtils.checkNetConnection(context);//检测网络是否连接，若网络并未连接则
-													if (isConn) {
-														server = serverEditText.getText().toString().trim();
-														port = portEditText.getText().toString().trim();
-														username = usernameEditText.getText().toString().trim();
-														password = passwordEditText.getText().toString().trim();
-														if (!server.equals("") && !port.equals("")
-																&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
-																					
-															IPAndPortUtils ipAndPort = new IPAndPortUtils();
-															boolean isPort = ipAndPort.isNetPort(port);//检测是否是网络端口号
-															if (isPort) {
-																identifyCloudAccount = new CloudAccount();	
-																if (isenablYseRadioBtn.isChecked()) {
-																	identifyCloudAccount.setEnabled(true);
-																} else {
-																	identifyCloudAccount.setEnabled(false);
-																}
-																
-																identifyCloudAccount.setDomain(server);
-																identifyCloudAccount.setPassword(password);
-																identifyCloudAccount.setUsername(username);
-																identifyCloudAccount.setPort(port);
-																
-																requset4DeviceList_copy();
-																synObj.suspend();// 挂起等待请求结果
-															}else {
-																String printSentence = getString(R.string.device_manager_editact_port_wrong);
-																Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-																toast3.show();
-															}						
-														} else {
-															String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-															Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-															toast3.show();
-														}
-													}else {
-														String printSentence = getString(R.string.network_not_conn);
-														Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-														toast3.show();
-													}
-												}catch (Exception e) {
-													CloudAccountUpdateActivity.this.finish();
-												}
-											}
-										});
+										builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
 										builder.show();
 									}
 								}else {
-									saveCloudAccount.setEnabled(false);
+									Builder builder = new Builder(CloudAccountUpdateActivity.this);
+									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
+									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
+									builder.show();
+								}
+							}else if (identifier_flag){															//曾经验证过，检查曾验证用户和当前用户是否相同
+								boolean isSame = isEqualCloudAccounts(identifyCloudAccount,saveCloudAccount);
+								if (isSame) {
+									saveCloudAccount.setEnabled(true);
 									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
 									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
@@ -568,6 +287,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 									intent.putExtras(bundle);
 									setResult(3, intent);
 									CloudAccountUpdateActivity.this.finish();
+								}else {
+									Builder builder = new Builder(CloudAccountUpdateActivity.this);
+									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
+									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
+									builder.show();
 								}
 							}
 						}
@@ -576,8 +300,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					}
 				} else {
 					String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-					Toast toast3 = Toast.makeText(context, printSentence,
-							Toast.LENGTH_LONG);
+					Toast toast3 = Toast.makeText(context, printSentence,Toast.LENGTH_LONG);
 					toast3.show();
 				}
 			}
@@ -650,49 +373,6 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 		(new RequestDeviceInfoThread(responseHandler)).start();
 	}
 	
-	@SuppressWarnings("deprecation")
-	private void requset4DeviceList_copy() {
-		showDialog(1);
-		(new RequestDeviceInfoThread_copy(responseHandler)).start();
-	}
-
-	class RequestDeviceInfoThread_copy extends Thread {
-		private Handler handler;
-
-		public RequestDeviceInfoThread_copy(Handler handler) {
-			this.handler = handler;
-		}
-
-		@Override
-		public void run() {
-			
-			Message msg = new Message();
-			try {
-				Document doc = cloudService.SendURLPost(server, port, username,password);
-				String requestResult = cloudService.readXmlStatus(doc);
-				if (requestResult == null) // 请求成功，返回null
-				{
-					msg.what = DDNS_RESP_SUCC_COPY;
-				} else { // 请求失败，返回错误原因
-					Bundle errMsg = new Bundle();
-					msg.what = DDNS_RESP_FAILURE_COPY;
-					errMsg.putString("ERR_MSG", requestResult);
-					msg.setData(errMsg);
-				}
-			} catch (DocumentException e) {
-				msg.what = DDNS_SYS_FAILURE_COPY;
-				e.printStackTrace();
-			} catch (SocketTimeoutException e) {
-				msg.what = DDNS_REQ_TIMEOUT_COPY;
-				e.printStackTrace();
-			} catch (IOException e) {
-				msg.what = DDNS_SYS_FAILURE_COPY;
-				e.printStackTrace();
-			}
-			handler.sendMessage(msg);
-		}
-	}
-
 	class RequestDeviceInfoThread extends Thread {
 		private Handler handler;
 
@@ -764,7 +444,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 				/*String cAPassword = cA.getPassword();*/
 				/* boolean isEnabled = cA.isEnabled(); */
 				if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-					&& cloudAccount.getPort().equals(cAPort)) {/*&&(isEnabled ==cloudAccount.isEnabled())*//*mNetWorkSettingList*/
+					&& cloudAccount.getPort().equals(cAPort)) {
 					result = true;
 					break;
 				}

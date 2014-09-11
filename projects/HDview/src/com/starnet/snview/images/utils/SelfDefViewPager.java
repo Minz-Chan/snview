@@ -41,13 +41,10 @@ public class SelfDefViewPager extends ViewPager {
 		public void onPageScrollStateChanged(int arg0) {//判断滑动状态的改变...arg0={0,1,2};arg0=0，表示没有做什么；arg0=1，表示正在滑动；arg0=2，表示滑动结束；
 			if (arg0 == 1) {
 				isScrolling = true;
-				Log.v(TAG, "正在滑动。。。arg0:"+arg0);
 			} else if (arg0 == 2) {
 				isScrolling = false;
-				Log.v(TAG, "滑动结束。。。arg0:"+arg0);
 			}else{
 				isScrolling = false;
-				Log.v(TAG, "什么也没做。。。arg0:"+arg0);
 			}
 		}
 
@@ -63,16 +60,6 @@ public class SelfDefViewPager extends ViewPager {
 			imagepreview_title_image_num.setText("("+(mPosition)+"/"+showSum+")");
 		}
 	};
-	
-//	@Override
-//    public boolean onTouchEvent(MotionEvent ev) {
-//        try {
-//            return super.onTouchEvent(ev);
-//        } catch (IllegalArgumentException ex) {
-//            ex.printStackTrace();
-//        }
-//        return false;
-//    }
 	
 	@Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {

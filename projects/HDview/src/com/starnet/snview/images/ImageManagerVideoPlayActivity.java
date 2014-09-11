@@ -358,7 +358,6 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 					retriever.release();
 				}
 				
-	            
 	            int thumbnailHeight = THUMBNAIL_HEIGHT;
 				int thumbnailWidth = THUMBNAIL_HEIGHT * bitmap.getWidth() / bitmap.getHeight();
 	            Bitmap thumbnail = BitmapUtils.extractMiniThumb(bitmap, thumbnailWidth, thumbnailHeight, false);
