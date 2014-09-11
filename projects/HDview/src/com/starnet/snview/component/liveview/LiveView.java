@@ -16,6 +16,7 @@ import com.starnet.snview.util.SDCardUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -155,23 +156,25 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	
         	mVideoBit.copyPixelsFromBuffer(mBuffer);	
         	
-        	Bitmap video = mVideoBit;
+        	Bitmap scaledVideo = Bitmap.createScaledBitmap(mVideoBit, getWidth(), getHeight(), true);
         	
-        	canvas.drawBitmap(Bitmap.createScaledBitmap(video, getWidth(), getHeight(), true)
-            		, 0, 0, null); 
+        	canvas.drawBitmap(scaledVideo, 0, 0, null); 
         	
         	//Log.i(TAG, "refreshDisplay, width: " + getWidth() + ", height: " + getHeight());
         	
         	if (canTakePicture) {
-        		savePictureAndThumbnail(video);
+        		savePictureAndThumbnail(scaledVideo);
         		canTakePicture = false;
         	}
+        	
+        	scaledVideo.recycle();
+        	scaledVideo = null;
         	
         	mHolder.unlockCanvasAndPost(canvas);         	
         }
 	}
 	
-	private int THUMBNAIL_HEIGHT = 200;
+	private int THUMBNAIL_HEIGHT = 100;
 	
 	private void savePictureAndThumbnail(Bitmap bmp) {
 		

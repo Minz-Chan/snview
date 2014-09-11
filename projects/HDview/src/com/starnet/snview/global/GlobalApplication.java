@@ -1,6 +1,7 @@
 package com.starnet.snview.global;
 
 import com.starnet.snview.R;
+import com.starnet.snview.images.ImageLoader;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.app.Activity;
@@ -41,7 +42,7 @@ public class GlobalApplication extends Application {
 		
 		mIsFullscreenMode = false;
 		
-		
+		ImageLoader.getInstance().setImageMaxSize(mScreenWidth / 3);
 	}
 
 	public int getScreenWidth() {
