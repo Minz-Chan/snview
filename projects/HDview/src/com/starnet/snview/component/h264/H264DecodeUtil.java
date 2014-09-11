@@ -93,8 +93,8 @@ public class H264DecodeUtil {
 						if ((NalBuf[4] & 0x1F) == 7) { // if sps
 							bFindPPS = false;
 							
-							if (decoder.probe_sps(NalBuf, NalBufUsed - 4, param) == 1) { 
-								System.out.println("->H264DecodeUtil->probe_sps");
+							if (decoder.probe_sps(NalBuf, NalBufUsed - 4, param) == 1) { // 根据得到的参数判断分辨率信息是否发生变化
+								//System.out.println("->H264DecodeUtil->probe_sps");
 //								VideoView v = ViewManager.getInstance().getVideoView();
 //								int realWidth = ((param[2] + 1) * 16);
 //								int realHeight = ((param[3] + 1) * 16);
@@ -108,7 +108,7 @@ public class H264DecodeUtil {
 //									v.init();
 //								}
 							} else {
-								System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
+								//System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
 							}
 							
 						} else {				// if NAL unit sequence is not 'sps, pps, ...', reread from buffer

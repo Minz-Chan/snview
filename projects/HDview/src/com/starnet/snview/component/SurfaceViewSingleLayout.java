@@ -1,7 +1,5 @@
 package com.starnet.snview.component;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewItemContainer.OnRefreshButtonClickListener;
@@ -10,7 +8,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -46,17 +43,17 @@ private static final String TAG = "SurfaceViewSingleLayout";
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.i(TAG, "onMeasure(), widthMeasureSpec:" + widthMeasureSpec + ", heightMeasureSpec:" + heightMeasureSpec);
+		//Log.i(TAG, "onMeasure(), widthMeasureSpec:" + widthMeasureSpec + ", heightMeasureSpec:" + heightMeasureSpec);
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
 	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		Log.i(TAG, "onLayout(), changed:" + changed + ", l:" + l + ", t:" + t + ", r:" + r + ", b:" + b);
+		//Log.i(TAG, "onLayout(), changed:" + changed + ", l:" + l + ", t:" + t + ", r:" + r + ", b:" + b);
 		
 		if (changed) {
-			int width = r - l;
+			//int width = r - l;
 			int height = b - t;
 			
 			// 视频区域高度
@@ -72,7 +69,7 @@ private static final String TAG = "SurfaceViewSingleLayout";
 	}
 
 	private void init() {
-		Log.i(TAG, "init()");
+		//Log.i(TAG, "init()");
 		
 		this.setLayoutParams(new FrameLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));

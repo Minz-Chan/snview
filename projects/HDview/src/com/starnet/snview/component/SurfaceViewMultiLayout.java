@@ -125,7 +125,7 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 	
 	
 	private void init() {
-		Log.i(TAG, "init()");
+		//Log.i(TAG, "init()");
 		
 		this.setLayoutParams(new FrameLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));

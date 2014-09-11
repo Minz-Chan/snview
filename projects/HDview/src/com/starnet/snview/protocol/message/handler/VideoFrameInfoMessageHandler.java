@@ -11,7 +11,7 @@ public class VideoFrameInfoMessageHandler implements
 	@Override
 	public void handleMessage(IoSession session, VideoFrameInfo message)
 			throws Exception {
-		System.out.println("VideoFrameInfo is arrived...");
+		//System.out.println("VideoFrameInfo is arrived...");
 		
 	}
 

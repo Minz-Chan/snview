@@ -3,20 +3,24 @@ package com.starnet.snview.component;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
+import android.util.Log;
 
 import java.io.IOException;
 
 import com.starnet.snview.R;
 
 public class SnapshotSound implements MediaPlayer.OnCompletionListener {
+	private static final String TAG = "SnapshotSound";
+	
 	private Context mContext;
 
 	public SnapshotSound(Context context) {
 		this.mContext = context;
 	}
 
-	public void onCompletion(MediaPlayer paramMediaPlayer) {
-		paramMediaPlayer.release();
+	public void onCompletion(MediaPlayer mp) {
+		Log.i(TAG, "onCompletion");
+		mp.release();
 	}
 
 	public void playSound() {
@@ -37,10 +41,3 @@ public class SnapshotSound implements MediaPlayer.OnCompletionListener {
 		}
 	}
 }
-
-/*
- * Location:
- * D:\kuaipan\我的资料\研究生阶段\项目\星网安防\star-security\iVMS-4500\classes_dex2jar.jar
- * Qualified Name: com.mcu.iVMS.component.SnapshotSound JD-Core Version:
- * 0.7.0-SNAPSHOT-20130630
- */

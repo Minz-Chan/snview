@@ -417,7 +417,7 @@ public class Connection extends DemuxingIoHandler {
 	}
 
 	public boolean isValid() {
-		Log.i(TAG, "isDisposed: " + isDisposed + ", this == mLiveViewItem.getCurrentConnection(): " + (this == mLiveViewItem.getCurrentConnection()));
+		//Log.i(TAG, "isDisposed: " + isDisposed + ", this == mLiveViewItem.getCurrentConnection(): " + (this == mLiveViewItem.getCurrentConnection()));
 		return this == mLiveViewItem.getCurrentConnection();
 	}
 	

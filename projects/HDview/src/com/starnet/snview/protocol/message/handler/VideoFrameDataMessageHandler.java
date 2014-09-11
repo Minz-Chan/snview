@@ -63,18 +63,18 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 		
 		// 视频数据解码
 		if (message instanceof VideoIFrameData) {
-			System.out.println("$$$VideoIFrameData is arrvied...");
+			//System.out.println("$$$VideoIFrameData is arrvied...");
 			h264.setbFirst(true);
 			h264.setbFindPPS(true);
 		} else {
-			System.out.println("$$$VideoPFrameData is arrvied...");
+			//System.out.println("$$$VideoPFrameData is arrvied...");
 		}
 		h264.decodePacket(message.getData(), message.getData().length,
 				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());		
 		
 		// 更新视频显示
 		if (liveViewChangedListener != null) {
-			System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
+			//System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
 			liveViewChangedListener.onDisplayContentUpdated();
 		}
 		

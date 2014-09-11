@@ -232,8 +232,13 @@ public class RealplayActivity extends BaseActivity {
 				String imgPath = (String) msg.getData().get("PICTURE_FULL_PATH");
 				
 				// 播放声音
-				SnapshotSound s = new SnapshotSound(RealplayActivity.this);
-				s.playSound();
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						SnapshotSound s = new SnapshotSound(RealplayActivity.this);
+						s.playSound();
+					}	
+				}).start();
 				
 				// 显示提示
 				// ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
@@ -1095,43 +1100,41 @@ public class RealplayActivity extends BaseActivity {
 	protected void gotoRealtimePreview() {
 		
 	}
-
-	@Override
-	protected void gotoPictureManagement() {
+	
+	private void leaveRealtimePreview() {
 		if (liveViewManager != null) {
 //			liveViewManager.closeAllConnection(true);
 			liveViewManager.stopPreview();
 		}
+		
+		bIsPlaying = false;
+		updatePlayStatus(bIsPlaying);
+	}	
+
+	@Override
+	protected void gotoPictureManagement() {
+		leaveRealtimePreview();
 		
 		super.gotoPictureManagement();
 	}
 
 	@Override
 	protected void gotoPlayback() {
-		if (liveViewManager != null) {
-//			liveViewManager.closeAllConnection(true);
-			liveViewManager.stopPreview();
-		}
+		leaveRealtimePreview();
 		
 		super.gotoPlayback();
 	}
 
 	@Override
 	protected void gotoDeviceManagement() {
-		if (liveViewManager != null) {
-//			liveViewManager.closeAllConnection(true);
-			liveViewManager.stopPreview();
-		}
+		leaveRealtimePreview();
 		
 		super.gotoDeviceManagement();
 	}
 
 	@Override
 	protected void gotoSystemSetting() {
-		if (liveViewManager != null) {
-//			liveViewManager.closeAllConnection(true);
-			liveViewManager.stopPreview();
-		}
+		leaveRealtimePreview();
 		
 		super.gotoSystemSetting();
 	}

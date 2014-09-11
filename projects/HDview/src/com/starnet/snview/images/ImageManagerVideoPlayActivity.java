@@ -36,8 +36,10 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.images.Image.ImageType;
 import com.starnet.snview.images.utils.TimeManager;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
 
@@ -377,8 +379,21 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 				ImagesManager.getInstance().addImage(img);
 				mCaptureList.add(img);
 				
-				SnapshotSound s = new SnapshotSound(ImageManagerVideoPlayActivity.this);
-				s.playSound();
+				
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						SnapshotSound s = new SnapshotSound(ImageManagerVideoPlayActivity.this);
+						s.playSound();
+					}
+				}).start();
+				
+				// 提示保存路径
+				Toast t = Toast.makeText(this, "", Toast.LENGTH_LONG);
+				ToastTextView txt = new ToastTextView(this);
+				txt.setText(getString(R.string.realplay_toast_take_pic) + fullImgPath);
+				t.setView(txt);
+				t.show();
 				
 				mCurrentPicture++;
 				mNavigationSumTxt++;
