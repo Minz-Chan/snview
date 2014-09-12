@@ -16,7 +16,6 @@ import com.starnet.snview.util.SDCardUtils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -105,35 +104,30 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		
-		
+		if (!isValid) {
+			onDisplayContentReset();
+		}
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		System.out.println(this + "@created... ProgressBar");
-		
 		setBackgroundColor(Color.TRANSPARENT);
-		
 		onDisplayContentReset();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		System.out.println(this + "@destroyed...");	
+
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		//Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
-		//		+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 	
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		//Log.i(TAG, "onLayout()");
 		super.onLayout(changed, left, top, right, bottom);
 	}
 
@@ -317,8 +311,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		
 		return (LiveViewItemContainer) curr;
 	}
-	
-	
 	
 	
 }
