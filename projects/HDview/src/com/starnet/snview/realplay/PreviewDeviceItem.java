@@ -13,6 +13,8 @@ public class PreviewDeviceItem implements Parcelable {
 	private String loginPassword;      // 登录密码
 	private int channelNo; 	           // 当前预览通道
 	
+	private String platformUsername;   //平台用户名
+	
 	
 	public PreviewDeviceItem() {
 		
@@ -25,6 +27,7 @@ public class PreviewDeviceItem implements Parcelable {
 		this.loginUserName = in.readString();
 		this.loginPassword = in.readString();
 		this.channelNo = in.readInt();
+		this.platformUsername = in.readString();
 		
 	}
 	
@@ -80,6 +83,7 @@ public class PreviewDeviceItem implements Parcelable {
 		out.writeString(loginUserName);
 		out.writeString(loginPassword);
 		out.writeInt(channelNo);
+		out.writeString(platformUsername);
 	}
 	
 	public static final Parcelable.Creator<PreviewDeviceItem> CREATOR = new Parcelable.Creator<PreviewDeviceItem>() {
@@ -94,5 +98,14 @@ public class PreviewDeviceItem implements Parcelable {
 			return new PreviewDeviceItem[size];
 		}
 	};
+
+
+	public String getPlatformUsername() {
+		return platformUsername;
+	}
+
+	public void setPlatformUsername(String platformUsername) {
+		this.platformUsername = platformUsername;
+	}
 	
 }

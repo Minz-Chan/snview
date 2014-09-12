@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +29,7 @@ import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -174,7 +176,8 @@ public class ChannelListActivity extends BaseActivity {
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
 		
-//		mPreviewDeviceItems = mRealplayActivity.getPreviewDeviceItemList();//从RealplayActivity中获取预览通道
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();//从RealplayActivity中获取预览通道
+		Log.v(TAG, "mPreviewDeviceItems.size():"+mPreviewDeviceItems.size());
 		
 		caXML = new CloudAccountXML();
 		cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
@@ -255,16 +258,13 @@ public class ChannelListActivity extends BaseActivity {
 											.getSvrPort());
 									String deviceName = deviceItem
 											.getDeviceName();
+									previewDeviceItem.setPlatformUsername(deviceItem.getPlatformUsername());
 									int len = deviceName.length();
 									String wordLen = getString(R.string.device_manager_off_on_line_length);
 									int wordLength = Integer.valueOf(wordLen);
 									if (len >= wordLength) {
 										String showName = deviceName.substring(
 												0, wordLength);
-										// String word1 =
-										// getString(R.string.device_manager_online_cn);
-										// String word2 =
-										// getString(R.string.device_manager_offline_cn);
 										String word3 = getString(R.string.device_manager_online_en);
 										String word4 = getString(R.string.device_manager_offline_en);
 										if (showName.contains(word3)

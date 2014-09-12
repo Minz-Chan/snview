@@ -8,6 +8,8 @@ import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
@@ -29,6 +31,8 @@ import android.widget.TextView;
  * @Description 显示扩展列表下的内容，组元素，子元素等；在每次进行界面的动态加载时，都是从文档中进行信息读取；
  */
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
+	
+	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
 	private Context context;
@@ -56,6 +60,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			}
 		}
 		isOpen = NetWorkUtils.checkNetConnection(context);
+		
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		
 	}
 	@Override
 	public int getGroupCount() {// 获取组的个数
