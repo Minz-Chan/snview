@@ -93,8 +93,7 @@ public class ImagesManager {
 			LinkedList imageList = new LinkedList();
 			imageList.add(image);
 			mImagesMap.put(image.getDate(), imageList);
-		}
-		
+		}		
 		return result;
 	}
 	

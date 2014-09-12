@@ -29,6 +29,7 @@ import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
@@ -46,6 +47,8 @@ import com.starnet.snview.util.NetWorkUtils;
 public class ChannelListActivity extends BaseActivity {
 
 	private static final String TAG = "ChannelListActivity";
+	
+	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
@@ -73,8 +76,7 @@ public class ChannelListActivity extends BaseActivity {
 			String success = data.getString("success");
 			if (success.equals("Yes")) {// 通知ExpandableListView的第position个位置的progressBar不再转动;获取到访问的整个网络数据；
 				int pos = Integer.valueOf(position);
-				CloudAccount cloudAccount = (CloudAccount) data
-						.getSerializable("netCloudAccount");// 取回网络访问数据；
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
 				cloudAccount.setRotate(true);
 				cloudAccounts.set(pos, cloudAccount);
 			} else {
@@ -171,6 +173,8 @@ public class ChannelListActivity extends BaseActivity {
 		curContext = ChannelListActivity.this;
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
+		
+//		mPreviewDeviceItems = mRealplayActivity.getPreviewDeviceItemList();//从RealplayActivity中获取预览通道
 		
 		caXML = new CloudAccountXML();
 		cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
