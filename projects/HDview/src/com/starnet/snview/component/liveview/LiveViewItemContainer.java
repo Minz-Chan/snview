@@ -294,6 +294,20 @@ public class LiveViewItemContainer extends RelativeLayout {
 		});
 	}
 	
+	public void setWindowInfoText(final String s) {
+		if (mIsResponseError) { 
+			return; // 若返回错误，则相应提示信息已更新，不进行覆盖
+		}
+		
+
+		mWindowInfoText.post(new Runnable() {
+			@Override
+			public void run() {
+				mWindowInfoText.setText(s);
+			}
+		});
+	}
+	
 	public void resetView() {
 		mSurfaceView.setValid(true);
 		mProgressBar.setVisibility(View.INVISIBLE);

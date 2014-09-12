@@ -18,23 +18,25 @@ import com.starnet.snview.util.ClickEventUtils;
 public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private static final String TAG = "LiveViewManager";
 	
-	private List<LiveViewItemContainer> liveviews; // 至多4个
-	private List<Connection> connections;          // 对应liveviews
+	private List<LiveViewItemContainer> liveviews;		// 至多4个
+	private List<Connection> connections;				// 对应liveviews
+	private List<PreviewDeviceItem> devices;			// 预览设备列表
 	
-	private List<PreviewDeviceItem> devices;  // 预览设备列表
+	private Connection prestoreConnection;
+	private PreviewDeviceItem prestorePreviewDeviceItem;
+	private String prestoreMsgInfo;
 	
 	private int showViewCount = 0;  // [0, 4]
 	private int devicesCount;
-	private int currentIndex;  // 当前LiveViewItemContainer在设备总数中的位置，从1开始
+	private int currentIndex;  		// 当前LiveViewItemContainer在设备总数中的位置，从1开始
 	
-	private Boolean isMultiMode; // 是否支持多画面显示
+	private Boolean isMultiMode; 	// 是否支持多画面显示
 	
 	private ExecutorService executor;
 	
 	private Context context;
 	
 	private OnVideoModeChangedListener onVideoModeChangedListener;
-	
 	private StatusListener connectionStatusListener;
 	
 	
@@ -86,13 +88,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		return showViewCount;
 	}
 
-
-
 	public void setShowViewCount(int showViewCount) {
 		this.showViewCount = showViewCount;
 	}
-
-	
 
 	public void setOnVideoModeChangedListener(
 			OnVideoModeChangedListener onVideoModeChangedListener) {
@@ -101,6 +99,16 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	
 	public void setConnectionStatusListener(StatusListener listener) {
 		this.connectionStatusListener = listener;
+	}
+	
+	public void prestoreConnectionByPosition(int pos) {
+		if (pos > connections.size()) {
+			return;
+		}
+		
+		prestoreConnection = connections.get(pos - 1);
+		prestorePreviewDeviceItem = liveviews.get(pos - 1).getPreviewItem();
+		prestoreMsgInfo = String.valueOf(liveviews.get(pos - 1).getWindowInfoText().getText());
 	}
 
 	public Pager getPager() {
@@ -260,7 +268,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public void clearLiveView() {
-		closeAllConnection(false);
+		//closeAllConnection(false);
 		liveviews.clear();
 	}
 	
@@ -278,10 +286,32 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public void closeAllConnection(boolean canUpdateViewAfterClosed) {
+//		int i;
+//		int connSize = connections.size();
+//		
+//		for (i = 0; i < connSize; i++) {
+//			if (connections.get(i).isConnected()) {
+//				connections.get(i).disconnect();
+//			} else {
+//				connections.get(i).setDisposed(true);  // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
+//			}
+//			
+//			if (!canUpdateViewAfterClosed) {
+//				connections.get(i).getLiveViewItemContainer().setCurrentConnection(null);
+//			}
+//		}
+		closeAllConnectionExceptPos(canUpdateViewAfterClosed, -1);
+	}
+	
+	public void closeAllConnectionExceptPos(boolean canUpdateViewAfterClosed, int pos) {
 		int i;
 		int connSize = connections.size();
 		
 		for (i = 0; i < connSize; i++) {
+			if (i == (pos - 1)) {
+				continue;
+			}
+			
 			if (connections.get(i).isConnected()) {
 				connections.get(i).disconnect();
 			} else {
@@ -343,6 +373,27 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		w = null;
 		
 		return currentIndex;
+	}
+	
+	/**
+	 * 多通道向单通道切换时，已连接的通道转移，无需重新连接
+	 * @param srcPos 待转移的视频源位置，从1开始
+	 */
+	public void transferVideoWithoutDisconnect(int srcPos) {
+		closeAllConnectionExceptPos(false, srcPos);
+		connections.clear();
+		
+		connections.add(prestoreConnection);
+		
+		liveviews.get(0).setIsManualStop(false);
+		liveviews.get(0).setIsResponseError(false);
+		liveviews.get(0).setDeviceRecordName(prestorePreviewDeviceItem
+				.getDeviceRecordName());
+		liveviews.get(0).setPreviewItem(prestorePreviewDeviceItem);
+		
+		prestoreConnection.updateLiveViewItem(liveviews.get(0));
+		liveviews.get(0).setCurrentConnection(prestoreConnection);
+		liveviews.get(0).setWindowInfoText(prestoreMsgInfo);
 	}
 	
 	/**

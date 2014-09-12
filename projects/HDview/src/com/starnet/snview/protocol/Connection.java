@@ -71,6 +71,7 @@ public class Connection extends DemuxingIoHandler {
     
     private boolean isDisposed;
     private boolean isConnecting;
+    private boolean isShowComponentChanged;		// 标识接收显示数据的组件是否发生改变
    
     
     private H264DecodeUtil mH264decoder;
@@ -96,6 +97,7 @@ public class Connection extends DemuxingIoHandler {
     private void init() {
     	isDisposed = false;
     	isConnecting = false;
+    	isShowComponentChanged = false;
     	
     	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
@@ -106,6 +108,7 @@ public class Connection extends DemuxingIoHandler {
     public void reInit() {
     	isDisposed = false;
     	isConnecting = false;
+    	isShowComponentChanged = false;
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
@@ -181,6 +184,14 @@ public class Connection extends DemuxingIoHandler {
     
     public boolean isConnecting() {
     	return isConnecting;
+    }
+    
+    public boolean isShowComponentChanged() {
+    	return isShowComponentChanged;
+    }
+    
+    public void setShowComponentChanged(boolean changed) {
+    	this.isShowComponentChanged = changed;
     }
 
     private void checkIfEverythingPrepared() {
@@ -323,9 +334,13 @@ public class Connection extends DemuxingIoHandler {
     		throw new IllegalArgumentException("Found not surface view in LiveViewItemContainer");
     	}
     	
-    	this.mLiveViewChangedListener = item.getSurfaceView();
+    	this.mLiveViewChangedListener = item.getSurfaceView();    	
+    }
+    
+    public void updateLiveViewItem(LiveViewItemContainer item) {
+    	bindLiveViewItem(item);
     	
-    	
+    	isShowComponentChanged = true;
     }
 
 	@Override

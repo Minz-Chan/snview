@@ -39,9 +39,8 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 			h264 = connection.getH264decoder();
 		}
 		
-		if (liveViewChangedListener == null) {
+		if (liveViewChangedListener == null || connection.isShowComponentChanged()) {
 			liveViewChangedListener = connection.getLiveViewChangedListener();
-			
 		}
 		
 		
