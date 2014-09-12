@@ -79,6 +79,8 @@ public class RealplayActivity extends BaseActivity {
 	private LiveControl liveControl;
 	private PTZControl ptzControl;
 	
+	private List<PreviewDeviceItem> previewDevices;  // 当前正在预览的设备列表
+	
 
 	@SuppressLint("NewApi")
 	@Override
@@ -580,6 +582,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 		liveViewManager = new LiveViewManager(this);
+		previewDevices = new ArrayList<PreviewDeviceItem>();
 		
 		
 		initToolbar();
@@ -1020,12 +1023,12 @@ public class RealplayActivity extends BaseActivity {
 			Parcelable[] _devices = (Parcelable[]) data.getExtras().get("DEVICE_ITEM_LIST");
 			
 			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
-			
+
 			for (int i = 0; i < _devices.length; i++) {
 				devices.add((PreviewDeviceItem)_devices[i]);
 			}
 			
-			liveViewManager.setDeviceList(devices);
+			setPreviewDevices(devices);
 			
 			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
 			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
@@ -1095,6 +1098,29 @@ public class RealplayActivity extends BaseActivity {
 		
 		super.onDestroy();
 	}
+	
+	private void setPreviewDevices(List<PreviewDeviceItem> devices) {
+		if (devices == null || devices.size() == 0) {
+			throw new IllegalArgumentException("Invalid parameter devices, null or zero size.");
+		}
+		
+		previewDevices.clear();
+		
+		for (int i = 0; i < devices.size(); i++) {
+			previewDevices.add(devices.get(i));
+		}
+		
+		liveViewManager.setDeviceList(previewDevices);
+	}
+	
+	public List<PreviewDeviceItem> getPreviewDevices() {
+		return previewDevices;
+	}
+	
+	public void notifyPreviewDevicesContentChanged() {
+		
+	}
+	
 
 	@Override
 	protected void gotoRealtimePreview() {

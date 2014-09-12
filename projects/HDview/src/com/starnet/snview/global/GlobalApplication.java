@@ -2,6 +2,7 @@ package com.starnet.snview.global;
 
 import com.starnet.snview.R;
 import com.starnet.snview.images.ImageLoader;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.app.Activity;
@@ -12,6 +13,8 @@ public class GlobalApplication extends Application {
 	private static GlobalApplication singleton = new GlobalApplication();
 	
 	private String appName;
+	
+	private RealplayActivity mRealplayActivity;
 	
 	private int mScreenWidth;
 	private int mScreenHeight;
@@ -31,6 +34,8 @@ public class GlobalApplication extends Application {
 	}
 	
 	public void init(Activity activity) {
+		mRealplayActivity = (RealplayActivity) activity;
+		
 		mScreenWidth = ActivityUtility.getScreenSize(activity).x;
 		mScreenHeight = ActivityUtility.getScreenSize(activity).y;
 		
@@ -131,6 +136,12 @@ public class GlobalApplication extends Application {
 		this.appName = appName;
 	}
 	
+	public void setRealplayActivity(RealplayActivity r) {
+		this.mRealplayActivity = r;
+	}
 	
+	public RealplayActivity getRealplayActivity() {
+		return mRealplayActivity;
+	}
 
 }
