@@ -63,8 +63,21 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		this.devices = devices;
 		devicesCount = devices.size();
 		
+		int currIndex = -1;
+		if (pager != null) {
+			currIndex = pager.getCurrentIndex(); // 更新列表前保存当前索引
+		}
+		
 		pager = null;		
-		pager = new Pager(devicesCount, 4);
+		pager = new Pager(devicesCount, isMultiMode() ? 4 : 1);
+		
+		if (currIndex != -1) { // 列表变更后更新索引
+			if (currIndex > pager.getTotalCount()) {
+				currIndex = pager.getTotalCount();
+			}
+			
+			pager.setCurrentIndex(currIndex);
+		}
 	}
 	
 	
@@ -95,7 +108,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public boolean isMultiMode() {
-		return isMultiMode;
+		return isMultiMode != null ? isMultiMode : false;
+//		return isMultiMode;
 	}
 	
 	public List<LiveViewItemContainer> getListviews() {

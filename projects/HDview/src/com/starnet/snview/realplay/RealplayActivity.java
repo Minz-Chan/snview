@@ -153,13 +153,6 @@ public class RealplayActivity extends BaseActivity {
 		playBtn.setItemData(new ItemData(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector));
 		
 		mToolbarOnItemClickListener.onItemClick(playBtn);
-//		if (liveViewManager.getPager() != null) {
-//			int count = liveViewManager.getCurrentPageCount();
-//			
-//			for (int i = 0; i < count; i++) {
-//				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
-//			}
-//		}
 
 		super.onPostCreate(savedInstanceState);
 	}
@@ -1113,12 +1106,25 @@ public class RealplayActivity extends BaseActivity {
 		liveViewManager.setDeviceList(previewDevices);
 	}
 	
+	/**
+	 * 获取当前正在预览的设备列表
+	 * @return 设备列表信息的List
+	 */
 	public List<PreviewDeviceItem> getPreviewDevices() {
 		return previewDevices;
 	}
 	
+	/**
+	 * 当前正在预览的设备信息发生变化后调用。如若删除的收藏夹或星云平台账户中有对应的
+	 * 设备，则在对预览设备列表同步后，就调用此方法
+	 */
 	public void notifyPreviewDevicesContentChanged() {
+		liveViewManager.setDeviceList(previewDevices);
 		
+		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+		mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+		
+		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 	}
 	
 
