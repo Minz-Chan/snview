@@ -433,14 +433,15 @@ public class PTZControl {
 			return;  // 非有效通道，不作处理 
 		}
 		
-		mLiveviewManager.closeAllConnection(false);
+		//mLiveviewManager.closeAllConnection(false);
+		mLiveviewManager.prestoreConnectionByPosition(mLiveviewManager.getPositionOfIndex(index));
 		
 		mLiveviewManager.setMultiMode(true);
 		
 		int currPageStart = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + 1;
 		int currPageEnd = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + mLiveviewManager.getCurrentPageCount();
 		
-		mLiveviewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+		mLiveviewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
 		mLiveviewManager.selectLiveView(index);
 	}
 	

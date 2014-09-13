@@ -360,33 +360,21 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 	
 	public int selectLiveView(int index) {
-		int lastIndex = currentIndex;
-		
 		currentIndex = index;
 		
 		int pageCapacity = pager.getPageCapacity();
 		int pos = ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity); // 在4(或1)个LiveViewItemContainer中的位置
-		int lastPos = ((lastIndex % pageCapacity) == 0) ? pageCapacity : (lastIndex % pageCapacity);
 		int i;
 		int lvSize = liveviews.size();
 		
-		// 设置新视频项的选择框，并去除上一视频项的选择框
-		WindowLinearLayout w = null;
+		// 设置新视频项的选择框
 		for (i = 0; i < lvSize; i++) {
-			if (i == (pos - 1)) {
-				w = liveviews.get(i).getWindowLayout();
-				w.setWindowSelected(true);
-				//w.invalidate();
-			} else if (i == (lastPos - 1)) {
-				w = liveviews.get(i).getWindowLayout();
-				w.setWindowSelected(false);
-				//w.invalidate();
-			}	
-			
-			
+			if (i == pos - 1) {
+				liveviews.get(i).getWindowLayout().setWindowSelected(true);
+			} else {
+				liveviews.get(i).getWindowLayout().setWindowSelected(false);
+			}
 		}
-		
-		w = null;
 		
 		return currentIndex;
 	}

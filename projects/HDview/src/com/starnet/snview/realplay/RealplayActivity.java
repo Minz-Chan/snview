@@ -72,7 +72,10 @@ public class RealplayActivity extends BaseActivity {
 
 	
 	private LiveViewManager liveViewManager;
+	
 	private FrameLayout mVideoRegion;
+	private SurfaceViewSingleLayout mSurfaceSingleLayout;
+	private SurfaceViewMultiLayout mSurfaceMultiLayout;
 	
 	
 	private LiveControl liveControl;
@@ -319,6 +322,8 @@ public class RealplayActivity extends BaseActivity {
 		
 		Log.i(TAG, "mVideoRegion, Register onTouch <== xxx");
 		
+		mSurfaceSingleLayout = (SurfaceViewSingleLayout) findViewById(R.id.video_single_layout);
+		mSurfaceMultiLayout = (SurfaceViewMultiLayout) findViewById(R.id.video_multi_layout);
 		
 		final LiveViewItemContainer.OnRefreshButtonClickListener onRefreshButtonClickListener
 			= new LiveViewItemContainer.OnRefreshButtonClickListener() {
@@ -345,7 +350,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 		};
 		
-
+		mSurfaceSingleLayout.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
+		mSurfaceMultiLayout.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
 
 		// 初始化视频区域布局大小
 		final int screenWidth = GlobalApplication.getInstance().getScreenWidth();
@@ -359,9 +365,8 @@ public class RealplayActivity extends BaseActivity {
 
 				@Override
 				public void OnVideoModeChanged(boolean isMultiMode) {
-					mVideoRegion.removeAllViews();
+					//mVideoRegion.removeAllViews();
 					liveViewManager.clearLiveView();
-
 					
 					Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
 					
@@ -372,25 +377,16 @@ public class RealplayActivity extends BaseActivity {
 					
 					
 					if (isMultiMode) { // 多通道模式
+						showSingleOrMultiMode(false);
 						
-						SurfaceViewMultiLayout svml = new SurfaceViewMultiLayout(RealplayActivity.this);
-						svml.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
-						
-						mVideoRegion.addView(svml);
-						
-						List<LiveViewItemContainer> l = svml.getLiveviews();
-						
+						List<LiveViewItemContainer> l = mSurfaceMultiLayout.getLiveviews();
 						for (int i = 0; i < l.size(); i++) {
 							liveViewManager.addLiveView(l.get(i));
-						}		
-						
+						}
 					} else { // 单通道模式
-						SurfaceViewSingleLayout svsl = new SurfaceViewSingleLayout(RealplayActivity.this);
-						svsl.setLiveviewRefreshButtonClickListener(onRefreshButtonClickListener);
+						showSingleOrMultiMode(true);
 						
-						mVideoRegion.addView(svsl);
-						
-						liveViewManager.addLiveView(svsl.getLiveview());
+						liveViewManager.addLiveView(mSurfaceSingleLayout.getLiveview());
 					}
 					
 					onContentChanged();
@@ -403,10 +399,6 @@ public class RealplayActivity extends BaseActivity {
 		
 		// 初始化为多通道模式
 		//onVideoModeChangedListener.OnVideoModeChanged(true);
-		
-		
-				
-				
 		
 		
 		final StatusListener connectionStatusListener = new StatusListener() {
@@ -554,6 +546,26 @@ public class RealplayActivity extends BaseActivity {
 		}
 		
 		return (LiveViewItemContainer) curr;
+	}
+	
+	private void showSingleOrMultiMode(boolean isSingle) {
+		if (isSingle) {
+			mSurfaceSingleLayout.setVisibility(View.VISIBLE);
+			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.GONE);
+		} else {
+			mSurfaceSingleLayout.setVisibility(View.GONE);
+			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.VISIBLE);
+		}
 	}
 
 

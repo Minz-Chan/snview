@@ -81,6 +81,8 @@
     <item name="liveview_playwindow_frame" type="id"/>
     <item name="liveview_liveinfo_textview" type="id"/>
     <item name="video_region" type="id"/>
+    <item name="video_single_layout" type="id"/>
+    <item name="video_multi_layout" type="id"/>
     <item name="liveview_liveitem" type="id"/>
     <item name="liveview_liveitem1" type="id"/>
     <item name="liveview_liveitem2" type="id"/>
