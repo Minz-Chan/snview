@@ -2,8 +2,6 @@ package com.starnet.snview.component.liveview;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import android.content.Context;
 import android.util.Log;
@@ -21,10 +19,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private List<LiveViewItemContainer> liveviews;		// 至多4个
 	private List<Connection> connections;				// 对应liveviews
 	private List<PreviewDeviceItem> devices;			// 预览设备列表
-	
-	private Connection prestoreConnection;
-	private PreviewDeviceItem prestorePreviewDeviceItem;
-	private String prestoreMsgInfo;
+
+	private VideoDataSync vSyncObj;				// 视频控件临时数据
 	
 	private int showViewCount = 0;  // [0, 4]
 	private int devicesCount;
@@ -32,7 +28,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	
 	private Boolean isMultiMode; 	// 是否支持多画面显示
 	
-	private ExecutorService executor;
+	//private ExecutorService executor;
 	
 	private Context context;
 	
@@ -47,12 +43,14 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	public LiveViewManager(Context context) {
 		this.context = context;
 		
-		this.liveviews = new ArrayList<LiveViewItemContainer>();
-		this.connections = new ArrayList<Connection>();
+		liveviews = new ArrayList<LiveViewItemContainer>();
+		connections = new ArrayList<Connection>();
+		
+		vSyncObj = new VideoDataSync();
 		
 		isMultiMode = null;
 		
-		executor = Executors.newFixedThreadPool(4);
+		//executor = Executors.newFixedThreadPool(4);
 		callEventUtil = new ClickEventUtils(this);
 	}
 	
@@ -106,9 +104,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			return;
 		}
 		
-		prestoreConnection = connections.get(pos - 1);
-		prestorePreviewDeviceItem = liveviews.get(pos - 1).getPreviewItem();
-		prestoreMsgInfo = String.valueOf(liveviews.get(pos - 1).getWindowInfoText().getText());
+		vSyncObj.width = liveviews.get(pos - 1).getSurfaceView().getResolution()[0];
+		vSyncObj.height = liveviews.get(pos - 1).getSurfaceView().getResolution()[1];
+		vSyncObj.connection = connections.get(pos - 1);
+		vSyncObj.device = liveviews.get(pos - 1).getPreviewItem();
+		vSyncObj.windowTextInfo = String.valueOf(liveviews.get(pos - 1).getWindowInfoText().getText());
 	}
 
 	public Pager getPager() {
@@ -383,21 +383,23 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		closeAllConnectionExceptPos(false, srcPos);
 		connections.clear();
 		
-		connections.add(prestoreConnection);
-		
+		connections.add(vSyncObj.connection);
+
 		liveviews.get(0).setIsManualStop(false);
 		liveviews.get(0).setIsResponseError(false);
-		liveviews.get(0).setDeviceRecordName(prestorePreviewDeviceItem
-				.getDeviceRecordName());
-		liveviews.get(0).setPreviewItem(prestorePreviewDeviceItem);
-		
-		prestoreConnection.updateLiveViewItem(liveviews.get(0));
-		liveviews.get(0).setCurrentConnection(prestoreConnection);
-		liveviews.get(0).setWindowInfoText(prestoreMsgInfo);
-		
-		if (prestoreConnection.isConnecting()) {
-			prestoreConnection.getConnectionListener().OnConnectionTrying(
-					prestoreConnection.getLiveViewContainer());
+		liveviews.get(0).setDeviceRecordName(
+				vSyncObj.device.getDeviceRecordName());
+		liveviews.get(0).setPreviewItem(vSyncObj.device);
+
+		liveviews.get(0).getSurfaceView().init(vSyncObj.width, vSyncObj.height);
+
+		vSyncObj.connection.updateLiveViewItem(liveviews.get(0));
+		liveviews.get(0).setCurrentConnection(vSyncObj.connection);
+		liveviews.get(0).setWindowInfoText(vSyncObj.windowTextInfo);
+
+		if (vSyncObj.connection.isConnecting()) {
+			vSyncObj.connection.getConnectionListener().OnConnectionTrying(
+					vSyncObj.connection.getLiveViewContainer());
 		}
 	}
 	
@@ -633,6 +635,16 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	
 	public static interface OnVideoModeChangedListener {
 		public void OnVideoModeChanged(boolean isMultiMode);
+	}
+	
+	
+	private class VideoDataSync {
+		int width;
+		int height;
+		
+		Connection connection;
+		PreviewDeviceItem device;
+		String windowTextInfo;
 	}
 
 	
