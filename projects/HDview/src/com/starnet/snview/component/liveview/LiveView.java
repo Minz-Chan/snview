@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -39,8 +40,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
     private ByteBuffer mBuffer;
 	private Bitmap mVideoBit;  
 	
-	private boolean isValid = true;
+	private Matrix mScale;
 	
+	private boolean isValid = true;
 	private boolean canTakePicture = false;
 	
 	public LiveView(Context context) {
@@ -82,6 +84,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		mBuffer = ByteBuffer.wrap(mPixel);
 		mVideoBit = Bitmap.createBitmap(w, h, Config.RGB_565);
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
+		
+		mScale = null;
+		mScale = new Matrix();
+		mScale.setScale(1.0F * getWidth() / mVideoBit.getWidth() , 1.0F * getHeight() / mVideoBit.getHeight());
 	}
 	
 	
@@ -118,6 +124,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		if (!isValid) {
 			onDisplayContentReset();
 		}
+		Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
+    	mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
 	}
 
 	@Override
@@ -160,20 +168,14 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	}
         	
         	mVideoBit.copyPixelsFromBuffer(mBuffer);	
-        	
-        	Bitmap scaledVideo = Bitmap.createScaledBitmap(mVideoBit, getWidth(), getHeight(), true);
-        	
-        	canvas.drawBitmap(scaledVideo, 0, 0, null); 
+        	canvas.drawBitmap(mVideoBit, mScale, null);
         	
         	//Log.i(TAG, "refreshDisplay, width: " + getWidth() + ", height: " + getHeight());
         	
         	if (canTakePicture) {
-        		savePictureAndThumbnail(scaledVideo);
+        		savePictureAndThumbnail(mVideoBit);
         		canTakePicture = false;
         	}
-        	
-        	scaledVideo.recycle();
-        	scaledVideo = null;
         	
         	mHolder.unlockCanvasAndPost(canvas);         	
         }
