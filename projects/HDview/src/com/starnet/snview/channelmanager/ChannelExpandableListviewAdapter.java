@@ -14,6 +14,7 @@ import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,8 @@ import android.widget.TextView;
  */
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
 	
+	private final String TAG = "ChannelExpandableListviewAdapter";
+	
 	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
@@ -44,6 +47,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private ButtonState bs;	
 	private List<DeviceItem> deviceList;
 	private boolean isOpen;//判断网络是否打开...
+	
+	public int notify_number = 1;
 	
 	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
@@ -62,6 +67,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		isOpen = NetWorkUtils.checkNetConnection(context);
 		
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		notify_number = 3;
 		
 	}
 	@Override
@@ -129,7 +135,27 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}	
 		
 		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_account_item_name);
-		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
+		
+		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
+		
+		if (notify_number == 3) {
+			Log.v(TAG, "===notify_number:==="+notify_number);
+			if (mPreviewDeviceItems != null) {
+				int size = mPreviewDeviceItems.size();
+				for (int i = 0; i < size; i++) {
+					PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems.get(i);
+					boolean isContained = checkPreviewDeviceItemFromCA(previewDeviceItem,cloudAccount);
+					if (isContained) {
+						setCloudAccountChannelChoose(previewDeviceItem,cloudAccount);//根据PreviewDeviceItem设置用户的通道选择情况
+					}
+				}
+			}
+		}else {
+			Log.v(TAG, "&&&&notify_number:&&&"+notify_number);
+		}
+		
+//		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
+		
 		String tileName = cloudAccount.getUsername();
 		title.setText(tileName);// 设置组名      // 单击之后，箭头该为向下，背景颜色改变
 		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);// 设备图像的展示
@@ -148,13 +174,47 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		
 		boolean isContain = containPositon(groupPosition,posList);
 		if (isContain) {
-//			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));//原来的颜色
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
-//			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
 		}
+		
+		
 		return convertView;
 	}
 	
+	private void setCloudAccountChannelChoose(PreviewDeviceItem previewDeviceItem, CloudAccount cloudAccount) {
+		
+		String logPass = previewDeviceItem.getLoginPass();
+		String logUser = previewDeviceItem.getLoginUser();
+		String logSvrIp = previewDeviceItem.getSvrIp();
+		String logSvrPot = previewDeviceItem.getSvrPort();
+		
+		//定位到cloudAccount的设备
+		List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
+		if (deviceItems != null) {
+			int size = deviceItems.size();
+			for (int i =0 ;i<size;i++) {
+				DeviceItem deviceItem = deviceItems.get(i);
+				String dSvrIp = deviceItem.getSvrIp();
+				String dSvrPort = deviceItem.getSvrPort();
+				String dUser = deviceItem.getLoginUser();
+				String dPass = deviceItem.getLoginPass();
+				if (logPass.equals(dPass)&&logUser.equals(dUser)&&logSvrIp.equals(dSvrIp)&&logSvrPot.equals(dSvrPort)) {
+					int cur_channel = previewDeviceItem.getChannel();
+					Log.v(TAG, "cur_channel:"+cur_channel);
+					
+					List<Channel> channelList = deviceItem.getChannelList();
+					if (channelList != null) {
+						int channelSize = channelList.size();
+						for (int j = 0; j < channelSize; j++) {
+							if (cur_channel == j+1) {
+								channelList.get(j).setSelected(true);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	private boolean containPositon(int groupPosition,List<Integer> pList){
 		boolean result = false;
 		int size = pList.size();
@@ -187,11 +247,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		changeStateButton(state_button,state);
 		bs = new ButtonState();
 		bs.setState(state);
-//		ButtonOnclickListener bolc = new ButtonOnclickListener(groupPosition,childPosition,state_button,bs,groupAccountList);	
-		ButtonOnTouchListener bolc = new ButtonOnTouchListener(groupPosition, childPosition,state_button,bs,groupAccountList);
+		ButtonOnTouchListener bolc = new ButtonOnTouchListener(ChannelExpandableListviewAdapter.this,groupPosition, childPosition,state_button,groupAccountList);
 		state_button.setOnTouchListener(bolc);
-//		state_button.setOnClickListener(bolc);
-//		state_button.setFocusable(false);
 
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
@@ -202,6 +259,20 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		return convertView;
 	}
 
+	protected boolean checkPreviewDeviceItemFromCA(PreviewDeviceItem previewDeviceItem,CloudAccount cloudAccount){
+		
+		boolean isContained = false;
+		if (previewDeviceItem!=null) {
+			String platUsername = previewDeviceItem.getPlatformUsername();
+			String username = cloudAccount.getUsername();
+			if (platUsername!=null) {
+				if (platUsername.equals(username)){
+					isContained = true;
+				}
+			}
+		}
+		return isContained;
+	}
 	/**
 	 * 
 	 * @author zhaohongxu
@@ -266,4 +337,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private int getColor(int resid) {
 		return context.getResources().getColor(resid);
 	}
+	
+	
+	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
@@ -311,7 +312,8 @@ public class DeviceChooseActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		dvrDeviceList = bundle.getParcelableArrayList("dvrDeviceList");
-		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(dvrDeviceList);
+		Context context = DeviceChooseActivity.this;
+		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(context,dvrDeviceList);
 		deviceItemList = cloudAccount.getDeviceList();
 		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
 		deviceListView.setAdapter(deviceChooseAdapter);

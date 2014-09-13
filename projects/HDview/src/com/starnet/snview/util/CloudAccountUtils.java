@@ -3,6 +3,10 @@ package com.starnet.snview.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
@@ -10,8 +14,9 @@ import com.starnet.snview.syssetting.CloudAccount;
 
 public class CloudAccountUtils {
 	
+	private final String TAG = "CloudAccountUtils";
 	//根据用户信息从网络获取用户数据，构建用户的设备列表
-	public CloudAccount getCloudAccountFromDVRDevice(List<DVRDevice> dvrDevices,String domain,String port,String username,String password) {
+	public CloudAccount getCloudAccountFromDVRDevice(Context context,List<DVRDevice> dvrDevices,String domain,String port,String username,String password) {
 		
 		CloudAccount cloudAccount = new CloudAccount();
 		cloudAccount.setDomain(domain);
@@ -53,7 +58,9 @@ public class CloudAccountUtils {
 			int channeNumber = Integer.valueOf(channelSum);
 			for (int j = 0; j < channeNumber; j++) {
 				Channel channel = new Channel();
-				channel.setChannelName("通道"+(j+1));
+				
+				String cha = context.getString(R.string.device_manager_channel);
+				channel.setChannelName(cha+(j+1));
 				channel.setSelected(false);
 				channel.setChannelNo((j+1));
 				channelList.add(channel);
@@ -66,7 +73,7 @@ public class CloudAccountUtils {
 	}
 	
 	//根据用户信息从网络获取用户数据，构建用户的设备列表
-	public CloudAccount getCloudAccountFromDVRDevice(List<DVRDevice> dvrDevices,CloudAccount cloudAccount) {
+	public CloudAccount getCloudAccountFromDVRDevice(Context context,List<DVRDevice> dvrDevices,CloudAccount cloudAccount) {
 				
 		int dvrDeviceSize = dvrDevices.size();
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
@@ -99,7 +106,8 @@ public class CloudAccountUtils {
 			int channeNumber = Integer.valueOf(channelSum);
 			for (int j = 0; j < channeNumber; j++) {
 				Channel channel = new Channel();
-				channel.setChannelName("通道"+(j+1));
+				String cha = context.getString(R.string.device_manager_channel);
+				channel.setChannelName(cha+(j+1));
 				channel.setSelected(false);
 				channel.setChannelNo((j+1));
 				channelList.add(channel);
@@ -111,7 +119,7 @@ public class CloudAccountUtils {
 		return cloudAccount;
 	}
 	//根据用户信息从网络获取用户数据，构建用户的设备列表
-		public CloudAccount getCloudAccountFromDVRDevice(List<DVRDevice> dvrDevices) {
+		public CloudAccount getCloudAccountFromDVRDevice(Context context,List<DVRDevice> dvrDevices) {
 			
 			CloudAccount cloudAccount = new CloudAccount();			
 			cloudAccount.setExpanded(false);//暂时设置
@@ -126,6 +134,8 @@ public class CloudAccountUtils {
 				int deviceType=5;//====？？？？？？？？？对应着哪一个	
 				
 				String platformUsername = dvrDevice.getPlatformUsername();
+				
+				Log.v(TAG, "CloudAccountUtils platformUsername == "+platformUsername);
 				String deviceName = dvrDevice.getDeviceName();
 				String svrIp = dvrDevice.getLoginIP();// 服务器IP
 				String svrPort = dvrDevice.getMobliePhonePort();// 服务器端口
@@ -142,7 +152,9 @@ public class CloudAccountUtils {
 				deviceItem.setSecurityProtectionOpen(true);
 				deviceItem.setExpanded(false);
 				deviceItem.setDeviceType(deviceType);	
-				deviceItem.setPlatformUsername(platformUsername);
+				
+				String dName = context.getString(R.string.device_manager_collect_device);
+				deviceItem.setPlatformUsername(dName);
 				
 				String channelSum = dvrDevice.getChannelNumber();//用于为设备添加通道列表而准备
 				deviceItem.setChannelSum(channelSum);
@@ -151,7 +163,8 @@ public class CloudAccountUtils {
 				int channeNumber = Integer.valueOf(channelSum);
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName("通道"+(j+1));
+					String cha = context.getString(R.string.device_manager_channel);
+					channel.setChannelName(cha+(j+1));
 					channel.setSelected(false);
 					channel.setChannelNo((j+1));
 					channelList.add(channel);

@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.text.Editable;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -466,7 +467,9 @@ public class DeviceCollectActivity extends BaseActivity {
 					et_device_choose.setKeyListener(null);
 					
 					String username = chooseDeviceItem.getPlatformUsername();
-					saveDeviceItem.setPlatformUsername(username);
+					Log.v(TAG, "DeviceCollectActivity == username:"+username);
+					String usernmae = getString(R.string.device_manager_collect_device);
+					saveDeviceItem.setPlatformUsername(usernmae);
 				}
 			}
 		}

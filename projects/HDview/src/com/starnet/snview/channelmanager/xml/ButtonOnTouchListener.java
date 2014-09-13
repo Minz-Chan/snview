@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
@@ -23,19 +24,30 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	private int childPos;// 子元素的位置
 
 	private Button state_button;
-	private ButtonState bs;
+//	private ButtonState bs;
 
 	private CloudAccountXML csxml;//
 	private List<CloudAccount> cloudAccountList;// 星云账号信息
 	private CloudAccount selectCloudAccount;
 	private DeviceItem deviceItem;
+	ChannelExpandableListviewAdapter cela;
 
+	public ButtonOnTouchListener(ChannelExpandableListviewAdapter cela,int groupPosition, int childPosition,Button state_button,List<CloudAccount> groupAccountList) {
+		super();
+		this.parentPos = groupPosition;
+		this.childPos = childPosition;
+		this.state_button = state_button;
+		this.cloudAccountList = groupAccountList;
+		csxml = new CloudAccountXML();
+		this.cela = cela;
+	};
+	
 	public ButtonOnTouchListener(int groupPosition, int childPosition,Button state_button, ButtonState bs,List<CloudAccount> groupAccountList) {
 		super();
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;
 		this.state_button = state_button;
-		this.bs = bs;
+//		this.bs = bs;
 		this.cloudAccountList = groupAccountList;
 		csxml = new CloudAccountXML();
 	};
@@ -57,7 +69,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
-				}			
+				}	
+				cela.notify_number = 2;
 			}else if ((state == "all")||(state.equals("all"))) {
 				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 //				bs.setState("empty");					
@@ -65,7 +78,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(false);
-				}				
+				}	
+				cela.notify_number = 2;
 			}else {					/*zz_empty_select*/
 				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 //				bs.setState("all");					
@@ -75,6 +89,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
 				}
+				cela.notify_number = 2;
 			}
 			if(selectCloudAccount.getUsername().equals("收藏设备")&&(selectCloudAccount.getDomain().equals("com"))
 			&&(selectCloudAccount.getPort().equals("808"))&&(selectCloudAccount.getPassword().equals("0208"))){

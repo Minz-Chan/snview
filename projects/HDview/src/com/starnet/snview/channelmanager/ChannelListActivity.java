@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,9 +28,7 @@ import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
-import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
@@ -49,8 +46,6 @@ import com.starnet.snview.util.NetWorkUtils;
 public class ChannelListActivity extends BaseActivity {
 
 	private static final String TAG = "ChannelListActivity";
-	
-	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
@@ -148,7 +143,7 @@ public class ChannelListActivity extends BaseActivity {
 							ChannelListActivity.this.setResult(8, intent);
 							ChannelListActivity.this.finish();
 						} else {
-							String printSentence = getString(R.string.channel_manager_channellistview_loadfail);
+							String printSentence = getString(R.string.channel_manager_channellistview_channelnotchoose);
 							Toast toast = Toast.makeText(ChannelListActivity.this, printSentence,Toast.LENGTH_SHORT);
 							toast.show();
 						}
@@ -176,17 +171,12 @@ public class ChannelListActivity extends BaseActivity {
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
 		
-		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();//从RealplayActivity中获取预览通道
-		Log.v(TAG, "mPreviewDeviceItems.size():"+mPreviewDeviceItems.size());
-		
 		caXML = new CloudAccountXML();
 		cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
 		int netSize = cloudAccounts.size();
-
-		// 查看网络是否开启
-		boolean isOpen = NetWorkUtils.checkNetConnection(ChannelListActivity.this);
+		
+		boolean isOpen = NetWorkUtils.checkNetConnection(ChannelListActivity.this);// 查看网络是否开启
 		if (isOpen) {
-			// while (!stopThread) {
 			for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
 				String conn_name = "conn1";
 				CloudAccount cAccount = cloudAccounts.get(i);
@@ -198,8 +188,7 @@ public class ChannelListActivity extends BaseActivity {
 				}
 				if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
 					CloudService cloudService = new CloudServiceImpl(conn_name);
-					netThread = new NetCloudAccountThread(cAccount,
-							cloudService, netHandler, i);
+					netThread = new NetCloudAccountThread(cAccount,cloudService, netHandler, i);
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
@@ -216,8 +205,7 @@ public class ChannelListActivity extends BaseActivity {
 		}
 
 		curContext = ChannelListActivity.this;
-		chExpandableListAdapter = new ChannelExpandableListviewAdapter(
-				curContext, cloudAccounts);
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
 		mExpandableListView.setAdapter(chExpandableListAdapter);
 	}
 
@@ -225,8 +213,7 @@ public class ChannelListActivity extends BaseActivity {
 			List<CloudAccount> cloudAccounts) {
 		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
 		if ((cloudAccounts == null) || (cloudAccounts.size() < 1)) {
-			// 打印一句话，用户尚未进行选择
-			String printSentence = getString(R.string.channel_manager_channellistview_channelnotchoose);
+			String printSentence = getString(R.string.channel_manager_channellistview_loadfail);
 			Toast toast = Toast.makeText(ChannelListActivity.this,
 					printSentence, Toast.LENGTH_SHORT);
 			toast.show();
@@ -274,8 +261,7 @@ public class ChannelListActivity extends BaseActivity {
 										}
 									}
 
-									previewDeviceItem
-											.setDeviceRecordName(deviceName);
+									previewDeviceItem.setDeviceRecordName(deviceName);
 
 									previewList.add(previewDeviceItem);
 								}
@@ -289,14 +275,8 @@ public class ChannelListActivity extends BaseActivity {
 		return previewList;
 	}
 
-	/**
-	 * 
-	 * @author zhaohongxu
-	 * @Date Jul 13, 2014
-	 * @Description TODO
-	 * @return
-	 */
-	private List<CloudAccount> getCloudAccountInfoFromUI() {// 从设置界面中获取用户信息
+	/**从设置界面中获取用户信息*/
+	private List<CloudAccount> getCloudAccountInfoFromUI() {
 
 		CloudAccountUtil caUtil = new CloudAccountUtil();
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
@@ -305,13 +285,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	}
 
-	/**
-	 * 
-	 * @author zhaohongxu
-	 * @Date Jul 13, 2014
-	 * @Description 从本地获取设备的通道列表
-	 * @return
-	 */
+	/**从本地获取设备的通道列表*/
 	public List<CloudAccount> getGroupListFromLocal() {// 注意，目前只有一个用户的情况下；从收藏设备中读取账户
 		List<CloudAccount> groupList = caXML
 				.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
@@ -328,6 +302,7 @@ public class ChannelListActivity extends BaseActivity {
 			// 更新ExpandableListView指定的按钮
 			int pos = bundle.getInt("parentPos");
 			cloudAccounts.set(pos, collectCloudAccount);
+			chExpandableListAdapter.notify_number = 2;
 			chExpandableListAdapter.notifyDataSetChanged();
 			caXML = new CloudAccountXML();
 
@@ -360,11 +335,6 @@ public class ChannelListActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// boolean isFinished = isFinishing();
-		// Log.i(TAG, ""+isFinished);
-		// if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-		//
-		// }
 		ChannelListActivity.this.onDestroy();
 		return super.onKeyDown(keyCode, event);
 	}

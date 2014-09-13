@@ -51,6 +51,8 @@ public class PreviewItemXMLUtils {
 			String svPort = previewDeviceItem.getSvrPort();
 			String channl = String.valueOf(previewDeviceItem.getChannel());
 			
+			String platformUsername = previewDeviceItem.getPlatformUsername();
+			
 			subElement.addAttribute("dRName", dRName);
 			subElement.addAttribute("lgPass", lgPass);
 			subElement.addAttribute("lgUser", lgUser);
@@ -58,6 +60,7 @@ public class PreviewItemXMLUtils {
 			subElement.addAttribute("dSvrIp", dSvrIp);
 			subElement.addAttribute("svPort", svPort);
 			subElement.addAttribute("channl", channl);
+			subElement.addAttribute("platformUsername", platformUsername);
 		}
 		
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
@@ -210,6 +213,7 @@ public class PreviewItemXMLUtils {
 				String dSvrIp = subElement.attributeValue("dSvrIp");
 				String svPort = subElement.attributeValue("svPort");
 				String channl = subElement.attributeValue("channl");
+				String platformUsername = subElement.attributeValue("platformUsername");
 				
 				int channel = Integer.valueOf(channl);
 				
@@ -219,6 +223,7 @@ public class PreviewItemXMLUtils {
 				previewDeviceItem.setSvrIp(dSvrIp);
 				previewDeviceItem.setSvrPort(svPort);
 				previewDeviceItem.setChannel(channel);
+				previewDeviceItem.setPlatformUsername(platformUsername);
 				
 				previewDeviceItemList.add(previewDeviceItem);
 			}

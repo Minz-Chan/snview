@@ -122,7 +122,8 @@ public class RealplayActivity extends BaseActivity {
 			
 			Log.i(TAG, "mode: " + mode + ", page: " + page);
 			if (mode != -1 && page != -1) {
-				liveViewManager.setDeviceList(devices);
+				//liveViewManager.setDeviceList(devices);
+				setPreviewDevices(devices);
 				liveViewManager.setMultiMode(mode == 4 ? true : false);
 				
 				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;

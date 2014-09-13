@@ -121,6 +121,7 @@ public class NetCloudAccountThread extends Thread {
 			deviceItem.setDeviceType(deviceType);			
 			String channelSum = dvrDevice.getChannelNumber();//用于为设备添加通道列表而准备
 			deviceItem.setChannelSum(channelSum);
+			deviceItem.setPlatformUsername(username);
 			
 			List<Channel> channelList = new ArrayList<Channel>();
 			int channeNumber = Integer.valueOf(channelSum);
