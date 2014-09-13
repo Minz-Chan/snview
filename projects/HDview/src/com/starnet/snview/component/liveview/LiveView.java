@@ -58,7 +58,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		init(width, height);
 	}
 	
-	public void init(int width, int height) {
+	public void init(int w, int h) {
 		if ( mHolder == null) {
 			mHolder = getHolder();
 			mHolder.addCallback(this);
@@ -66,7 +66,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		
 		if (mPixel != null) {
 			mPixel = null;
-			mPixel = new byte[width * height * 2];
+			mPixel = new byte[w * h * 2];
+			width = w;
+			height = h;
 		}
 		
 		mBuffer = null;
@@ -78,7 +80,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		
 
 		mBuffer = ByteBuffer.wrap(mPixel);
-		mVideoBit = Bitmap.createBitmap(width, height, Config.RGB_565);
+		mVideoBit = Bitmap.createBitmap(w, h, Config.RGB_565);
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
 	}
 	
@@ -95,6 +97,15 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	public void setTakePicture(boolean canTakePicture) {
 		this.canTakePicture = canTakePicture;
+	}
+	
+	public int[] getResolution() {
+		int[] r = new int[2];
+		
+		r[0] = width;
+		r[1] = height;
+		
+		return r;
 	}
 
 	public byte[] retrievetDisplayBuffer() {

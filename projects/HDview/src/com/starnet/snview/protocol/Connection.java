@@ -173,6 +173,10 @@ public class Connection extends DemuxingIoHandler {
 		this.isDisposed = isDisposed;
 	}
 	
+	public StatusListener getStatusListener() {
+		return mConnectionListener;
+	}
+	
 	public void SetConnectionListener(StatusListener listener) {
 		if (listener == null) {
 			throw new IllegalArgumentException("Connection Listener can not be null");
@@ -333,6 +337,10 @@ public class Connection extends DemuxingIoHandler {
         } 
         
         isDisposed = true;
+    }
+    
+    public LiveViewItemContainer getLiveViewContainer() {
+    	return mLiveViewItem;
     }
     
     public void bindLiveViewItem(LiveViewItemContainer item) {
