@@ -71,6 +71,7 @@ public class Connection extends DemuxingIoHandler {
     
     private boolean isDisposed;
     private boolean isConnecting;
+    private boolean isJustAfterConnected;		// 标识刚刚连接上
     private boolean isShowComponentChanged;		// 标识接收显示数据的组件是否发生改变
    
     
@@ -97,6 +98,7 @@ public class Connection extends DemuxingIoHandler {
     private void init() {
     	isDisposed = false;
     	isConnecting = false;
+    	isJustAfterConnected = false;
     	isShowComponentChanged = false;
     	
     	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
@@ -108,6 +110,7 @@ public class Connection extends DemuxingIoHandler {
     public void reInit() {
     	isDisposed = false;
     	isConnecting = false;
+    	isJustAfterConnected = false;
     	isShowComponentChanged = false;
     	
     	if (!connector.isDisposed()) {
@@ -186,6 +189,14 @@ public class Connection extends DemuxingIoHandler {
     	return isConnecting;
     }
     
+    public boolean isJustAfterConnected() {
+    	return isJustAfterConnected;
+    }
+    
+    public void setIsJustAfterConnected(boolean isJustAfterConnected) {
+    	this.isJustAfterConnected = isJustAfterConnected;
+    }
+    
     public boolean isShowComponentChanged() {
     	return isShowComponentChanged;
     }
@@ -225,6 +236,7 @@ public class Connection extends DemuxingIoHandler {
     	}
     	
     	isConnecting = true;
+    	isJustAfterConnected = false;
     	
     	Log.i(TAG, "connector.connect");
     	
@@ -357,6 +369,7 @@ public class Connection extends DemuxingIoHandler {
 	public void sessionOpened(IoSession session) throws Exception {
 		if (isValid()) {
 			mConnectionListener.OnConnectionEstablished(mLiveViewItem);
+			isJustAfterConnected = true;
 		}
 		
 		login(session, username, password);

@@ -124,6 +124,10 @@ public class RealplayActivity extends BaseActivity {
 				liveViewManager.setDeviceList(devices);
 				liveViewManager.setMultiMode(mode == 4 ? true : false);
 				
+				if (mode == 1) {
+					ptzControl.setIsEnterPTZInSingleMode(true);
+				}
+				
 				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
 				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
 				liveViewManager.selectLiveView(newCurrPos);
@@ -133,6 +137,7 @@ public class RealplayActivity extends BaseActivity {
 				mPager.setAmount(devices.size());
 				mPager.setNum(newCurrPos);
 			}
+			
 			
 		} else { // 首次进入
 			liveViewManager.setMultiMode(null);

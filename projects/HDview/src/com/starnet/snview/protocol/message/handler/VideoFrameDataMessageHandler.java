@@ -48,8 +48,9 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 			session.close(true);
 		}
 		
-		if (!isDataArrived) {
+		if (!isDataArrived || connection.isJustAfterConnected()) {
 			isDataArrived = true;
+			connection.setIsJustAfterConnected(false);
 			
 			LiveViewItemContainer liveViewItemConatainer = connection.getLiveViewItemContainer();
 			StatusListener connectionStatusListener = connection.getConnectionListener();
