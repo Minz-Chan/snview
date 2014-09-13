@@ -1129,8 +1129,6 @@ public class RealplayActivity extends BaseActivity {
 	 * 设备，则在对预览设备列表同步后，就调用此方法
 	 */
 	public void notifyPreviewDevicesContentChanged() {
-		//需要判断previewDevices为空的情况
-		
 		liveViewManager.setDeviceList(previewDevices);
 		
 		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1138,7 +1136,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 	}
-		
+	
 
 	@Override
 	protected void gotoRealtimePreview() {
@@ -1270,13 +1268,15 @@ public class RealplayActivity extends BaseActivity {
 				
 				ptzControl.setIsEnterPTZInSingleMode(true);
 			} else { // 切换到多通道模式
-				liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
+				liveViewManager.prestoreConnectionByPosition(pos);
+				//liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
 				liveViewManager.setMultiMode(true);
 				
 				int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
 				int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
 				
-				liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+				//liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+				liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
 				
 				// 若发现此时PTZ模式开启，则重围PTZ模式，即退出PTZ模式
 				if (ptzControl.isPTZModeOn()) { 

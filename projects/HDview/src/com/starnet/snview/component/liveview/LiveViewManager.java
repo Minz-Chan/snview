@@ -106,6 +106,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		vSyncObj.width = liveviews.get(pos - 1).getSurfaceView().getResolution()[0];
 		vSyncObj.height = liveviews.get(pos - 1).getSurfaceView().getResolution()[1];
+		vSyncObj.pixels = liveviews.get(pos - 1).getSurfaceView().retrievetDisplayBuffer();
 		vSyncObj.connection = connections.get(pos - 1);
 		vSyncObj.device = liveviews.get(pos - 1).getPreviewItem();
 		vSyncObj.windowTextInfo = String.valueOf(liveviews.get(pos - 1).getWindowInfoText().getText());
@@ -204,6 +205,21 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	
 	public int getLiveViewTotalCount() {
 		return pager.getTotalCount();
+	}
+	
+	/**
+	 * 返回通道索引对应的视频位置
+	 * @param index 通道索引
+	 * @return 1/2/3/4/-1，  为-1时表示通道索引无效
+	 */
+	public int getPositionOfIndex(int index) {
+		if (index < 1 || index > pager.getTotalCount()) {
+			return -1;
+		}
+		
+		int pageCapacity = pager.getPageCapacity();
+
+		return ((index % pageCapacity) == 0) ? pageCapacity : (index % pageCapacity);
 	}
 	
 	public void sendControlRequest(int cmdCode) {
@@ -383,24 +399,43 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		closeAllConnectionExceptPos(false, srcPos);
 		connections.clear();
 		
-		connections.add(vSyncObj.connection);
+		transferVideoWithoutDisconnect(srcPos, 1);
+	}
+	
+	/**
+	 * 多通道向单通道切换时，已连接的通道转移，无需重新连接
+	 * @param srcPos 待转移的视频源位置，从1开始
+	 * @param desPos 目标视频位置，从1开始；-1，无效位置，即不作通道转移
+	 */
+	public void transferVideoWithoutDisconnect(int srcPos, int desPos) {		
+		if (desPos == -1) {
+			return;
+		}
+		
+		connections.add(desPos - 1, vSyncObj.connection);
 
-		liveviews.get(0).setIsManualStop(false);
-		liveviews.get(0).setIsResponseError(false);
-		liveviews.get(0).setDeviceRecordName(
+		liveviews.get(desPos - 1).setIsManualStop(false);
+		liveviews.get(desPos - 1).setIsResponseError(false);
+		liveviews.get(desPos - 1).setDeviceRecordName(
 				vSyncObj.device.getDeviceRecordName());
-		liveviews.get(0).setPreviewItem(vSyncObj.device);
+		liveviews.get(desPos - 1).setPreviewItem(vSyncObj.device);
 
-		liveviews.get(0).getSurfaceView().init(vSyncObj.width, vSyncObj.height);
+		liveviews.get(desPos - 1).getSurfaceView().init(vSyncObj.width, vSyncObj.height);
+		liveviews.get(desPos - 1).getSurfaceView().copyPixelsFromBuffer(vSyncObj.pixels);
 
-		vSyncObj.connection.updateLiveViewItem(liveviews.get(0));
-		liveviews.get(0).setCurrentConnection(vSyncObj.connection);
-		liveviews.get(0).setWindowInfoText(vSyncObj.windowTextInfo);
+		vSyncObj.connection.updateLiveViewItem(liveviews.get(desPos - 1));
+		liveviews.get(desPos - 1).setCurrentConnection(vSyncObj.connection);
+		liveviews.get(desPos - 1).setWindowInfoText(vSyncObj.windowTextInfo);
 
 		if (vSyncObj.connection.isConnecting()) {
 			vSyncObj.connection.getConnectionListener().OnConnectionTrying(
 					vSyncObj.connection.getLiveViewContainer());
 		}
+		
+		vSyncObj.pixels = null;
+		vSyncObj.device = null;
+		vSyncObj.connection = null;
+		vSyncObj.windowTextInfo = null;
 	}
 	
 	/**
@@ -493,6 +528,102 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 //			});
 			
 			
+		}
+	}
+	
+	public void preview(int startIndex, int count, int exceptIndex) {
+		if (exceptIndex != -1
+				&& (exceptIndex < startIndex || exceptIndex > startIndex
+						+ count - 1)) {
+			throw new IllegalArgumentException(
+					"exceptIndex should be in [startIndex, startIndex + count)");
+		}
+		
+		if ((devicesCount - startIndex + 1 < count)
+				|| startIndex > devicesCount
+				|| count < 1 || count > 4) {
+			throw new IllegalArgumentException("Error startIndex or count, startIndex = " + startIndex
+					+ ", count = " + count);
+		}
+		
+		if (liveviews.size() < count) {
+			throw new IllegalArgumentException("Only " + liveviews.size()
+					+ " LiveView(s) left, can not preview " + count
+					+ "device(s) simultaneously");
+		}
+		
+		int exceptPos = getPositionOfIndex(exceptIndex);
+		
+		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
+		Log.i(TAG, "####$$$$live view count: " + liveviews.size());
+		int lvCount = liveviews.size();
+		int n;
+		for (n = 0; n < lvCount; n++) {
+			if (n == exceptPos - 1) {
+				continue;
+			}
+			
+			liveviews.get(n).resetView();
+
+			if (n >= count) {
+				liveviews.get(n).getSurfaceView().setValid(false);
+			} 
+
+		}
+		
+		if (exceptPos != -1) {
+			closeAllConnectionExceptPos(false, 1);
+		} else {
+			closeAllConnection(false);
+		}
+		
+		connections.clear();
+		int connSize = (exceptPos == -1 ? count : count - 1);  // exceptPos无效时，重新创建的连接数保持为count；反之，则为count-1
+		for (n = 1; n <= connSize; n++) {
+			connections.add(new Connection());
+		}
+		
+		transferVideoWithoutDisconnect(1, exceptPos);
+		
+		
+		for (n = 1; n <= count; n++) {
+			if ( n == exceptPos ) {
+				continue;
+			}
+			
+			final Connection conn = connections.get(n - 1);
+			
+			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
+			
+			// 注册连接状态监听器
+			if (connectionStatusListener != null) {
+				conn.SetConnectionListener(connectionStatusListener); 
+			}
+			
+			conn.reInit();
+			
+			conn.setHost(p.getSvrIp());
+			conn.setPort(Integer.valueOf(p.getSvrPort()));
+			conn.setUsername(p.getLoginUser());
+			conn.setPassword(p.getLoginPass());
+			conn.setChannel(p.getChannel());
+			
+			liveviews.get(n - 1).setIsManualStop(false);
+			liveviews.get(n - 1).setIsResponseError(false);
+			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
+			liveviews.get(n - 1).setPreviewItem(p);
+			
+			conn.bindLiveViewItem(liveviews.get(n - 1));
+			liveviews.get(n - 1).setCurrentConnection(conn);
+						
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					conn.connect();
+				}
+				
+			}).start();
 		}
 	}
 	
@@ -641,6 +772,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private class VideoDataSync {
 		int width;
 		int height;
+		byte[] pixels;
 		
 		Connection connection;
 		PreviewDeviceItem device;

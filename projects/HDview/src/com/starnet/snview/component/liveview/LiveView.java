@@ -117,6 +117,14 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	public byte[] retrievetDisplayBuffer() {
 		return mPixel;
 	}
+	
+	public void copyPixelsFromBuffer(byte[] srcBuf) {
+		if (mPixel.length != srcBuf.length) {
+			throw new IllegalStateException("The length of source buffer differs from destination buffer mPixel");
+		}
+		
+		System.arraycopy(srcBuf, 0, mPixel, 0, mPixel.length);
+	}
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
