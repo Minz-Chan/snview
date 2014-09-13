@@ -37,11 +37,14 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private int pos;
 	private String titleName;
 	private CloudAccount deleteCA;
+	private CloudAccount beforeEditCA;
 	
 	private Button user_save_btn;//账号添加按钮
 	
 	private List<PreviewDeviceItem> previewDeviceItems;
+	private List<PreviewDeviceItem> editPreviewDeviceItems;
 	private List<PreviewDeviceItem> delPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
+	private List<PreviewDeviceItem> delEditPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +59,11 @@ public class CloudAccountViewActivity extends BaseActivity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				pos = position;
-				CloudAccount cloudAccount = cloudAccountList.get(position);
+				beforeEditCA = cloudAccountList.get(position);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putString("clickPostion", ""+pos);
-				bundle.putSerializable("cloudAccount", cloudAccount);
+				bundle.putSerializable("cloudAccount", beforeEditCA);
 				intent.putExtras(bundle);
 				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdateActivity.class);
 				startActivityForResult(intent,20);
@@ -96,17 +99,18 @@ public class CloudAccountViewActivity extends BaseActivity {
 						}
 						
 						if (delSize > 0 ) {
-							GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+							if (previewDeviceItems.size() > 0) {
+								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+							}
 						}
 						
 						caXML = new CloudAccountXML();
 						caXML.removeCloudAccoutFromXML(filePath, deleteCA);		//文件中删除操作
 						
 						cloudAccountList.remove(deleteCA);						//列表中删除操作
+						
 						caAdapter.notifyDataSetChanged();
 					}
-
-					
 				 });
 				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
 				builder.show();
@@ -181,12 +185,20 @@ public class CloudAccountViewActivity extends BaseActivity {
 			if(data != null){
 				Bundle bundle = data.getExtras();
 				if(bundle != null){
-					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
-					cloudAccountList.set(pos, cloudAccount);
+					CloudAccount afterEditCA = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
+					cloudAccountList.set(pos, afterEditCA);
 					caAdapter.notifyDataSetChanged();
+					boolean isChanged = checkCloudAccountChange(afterEditCA,beforeEditCA);	//检测用户信息是否改变
+					if (!isChanged) {
+						changeNoUseState(); 												//通知预览通道禁用
+					}else {																	//如果用户信息改变的话，检测是否是开启禁用状态
+						if (beforeEditCA.isEnabled() && !afterEditCA.isEnabled()) {
+							changeNoUseState(); 											//通知预览通道禁用
+						}
+					}
 				}
 			}
-		}else if (requestCode == 10) {//从添加界面返回
+		}else if (requestCode == 10) {
 			if(data != null){
 				Bundle bundle = data.getExtras();
 				if(bundle != null){
@@ -199,6 +211,46 @@ public class CloudAccountViewActivity extends BaseActivity {
 				}
 			}
 		}
+	}
+
+	private void changeNoUseState() {
+		editPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		int previewSize = editPreviewDeviceItems.size();
+		for (int i = 0; i < previewSize; i++) {
+			PreviewDeviceItem delItem = editPreviewDeviceItems.get(i);
+			boolean isFrom = checkPreviewDeviceItemFromDelCA(delItem,beforeEditCA);
+			if (isFrom) {
+				delEditPreviewDeviceItems.add(delItem);
+			}
+		}
+		
+		int delEditSize = delEditPreviewDeviceItems.size();
+		for (int i = 0; i < delEditSize; i++) {
+			editPreviewDeviceItems.remove(delEditPreviewDeviceItems.get(i));
+		}
+		
+		if (delEditSize > 0) {
+			if (editPreviewDeviceItems.size() > 0) {
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			}
+		}
+	}
+
+	private boolean checkCloudAccountChange(CloudAccount afterEditCA,CloudAccount beforeEditCA2) {
+		boolean isChanged = false;
+		String befDomain = beforeEditCA2.getDomain();
+		String beforPort = beforeEditCA2.getPort();
+		String befUsname = beforeEditCA2.getUsername();
+		
+		String aftDomain = afterEditCA.getDomain();
+		String afterPort = afterEditCA.getPort();
+		String aftUsname = afterEditCA.getUsername();
+		
+		if (befDomain.equals(aftDomain)&&beforPort.equals(afterPort)&&befUsname.equals(aftUsname)) {
+			isChanged = true;
+		}
+		
+		return isChanged;
 	}
 
 	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
