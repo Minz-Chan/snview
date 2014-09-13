@@ -31,7 +31,7 @@ public class StreamDataFormatMessageHandler implements
 			h264 = connection.getH264decoder();
 		}
 		
-		if (lvContainer == null) {
+		if (lvContainer == null || connection.isShowComponentChanged()) {
 			lvContainer = connection.getLiveViewItemContainer();
 		}
 		

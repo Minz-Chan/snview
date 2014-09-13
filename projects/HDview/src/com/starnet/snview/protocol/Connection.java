@@ -71,6 +71,8 @@ public class Connection extends DemuxingIoHandler {
     
     private boolean isDisposed;
     private boolean isConnecting;
+    private boolean isJustAfterConnected;		// 标识刚刚连接上
+    private boolean isShowComponentChanged;		// 标识接收显示数据的组件是否发生改变
    
     
     private H264DecodeUtil mH264decoder;
@@ -96,6 +98,8 @@ public class Connection extends DemuxingIoHandler {
     private void init() {
     	isDisposed = false;
     	isConnecting = false;
+    	isJustAfterConnected = false;
+    	isShowComponentChanged = false;
     	
     	mH264decoder = new H264DecodeUtil(host + ":" + port + "@" + RandomUtils.getRandomNumbers(6));
 
@@ -106,6 +110,8 @@ public class Connection extends DemuxingIoHandler {
     public void reInit() {
     	isDisposed = false;
     	isConnecting = false;
+    	isJustAfterConnected = false;
+    	isShowComponentChanged = false;
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
@@ -182,6 +188,22 @@ public class Connection extends DemuxingIoHandler {
     public boolean isConnecting() {
     	return isConnecting;
     }
+    
+    public boolean isJustAfterConnected() {
+    	return isJustAfterConnected;
+    }
+    
+    public void setIsJustAfterConnected(boolean isJustAfterConnected) {
+    	this.isJustAfterConnected = isJustAfterConnected;
+    }
+    
+    public boolean isShowComponentChanged() {
+    	return isShowComponentChanged;
+    }
+    
+    public void setShowComponentChanged(boolean changed) {
+    	this.isShowComponentChanged = changed;
+    }
 
     private void checkIfEverythingPrepared() {
     	if (mH264decoder == null) {
@@ -214,6 +236,7 @@ public class Connection extends DemuxingIoHandler {
     	}
     	
     	isConnecting = true;
+    	isJustAfterConnected = false;
     	
     	Log.i(TAG, "connector.connect");
     	
@@ -323,9 +346,13 @@ public class Connection extends DemuxingIoHandler {
     		throw new IllegalArgumentException("Found not surface view in LiveViewItemContainer");
     	}
     	
-    	this.mLiveViewChangedListener = item.getSurfaceView();
+    	this.mLiveViewChangedListener = item.getSurfaceView();    	
+    }
+    
+    public void updateLiveViewItem(LiveViewItemContainer item) {
+    	bindLiveViewItem(item);
     	
-    	
+    	isShowComponentChanged = true;
     }
 
 	@Override
@@ -342,6 +369,7 @@ public class Connection extends DemuxingIoHandler {
 	public void sessionOpened(IoSession session) throws Exception {
 		if (isValid()) {
 			mConnectionListener.OnConnectionEstablished(mLiveViewItem);
+			isJustAfterConnected = true;
 		}
 		
 		login(session, username, password);

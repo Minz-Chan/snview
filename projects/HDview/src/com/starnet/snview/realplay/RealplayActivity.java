@@ -59,7 +59,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 public class RealplayActivity extends BaseActivity {
 
@@ -126,6 +125,10 @@ public class RealplayActivity extends BaseActivity {
 				setPreviewDevices(devices);
 				liveViewManager.setMultiMode(mode == 4 ? true : false);
 				
+				if (mode == 1) {
+					ptzControl.setIsEnterPTZInSingleMode(true);
+				}
+				
 				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
 				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
 				liveViewManager.selectLiveView(newCurrPos);
@@ -135,6 +138,7 @@ public class RealplayActivity extends BaseActivity {
 				mPager.setAmount(devices.size());
 				mPager.setNum(newCurrPos);
 			}
+			
 			
 		} else { // 首次进入
 			liveViewManager.setMultiMode(null);
@@ -378,7 +382,7 @@ public class RealplayActivity extends BaseActivity {
 						
 						for (int i = 0; i < l.size(); i++) {
 							liveViewManager.addLiveView(l.get(i));
-						}										
+						}		
 						
 					} else { // 单通道模式
 						SurfaceViewSingleLayout svsl = new SurfaceViewSingleLayout(RealplayActivity.this);
@@ -387,7 +391,6 @@ public class RealplayActivity extends BaseActivity {
 						mVideoRegion.addView(svsl);
 						
 						liveViewManager.addLiveView(svsl.getLiveview());
-
 					}
 					
 					onContentChanged();
@@ -623,7 +626,7 @@ public class RealplayActivity extends BaseActivity {
 
 	private boolean bIsPlaying = false;
 	private boolean bQualityPressed = false;
-	private boolean bPTZPressed = false;
+	//private boolean bPTZPressed = false;
 	private boolean bIsMicrophoneOpen = false;
 	private boolean bIsSoundOpen = false;
 	private boolean bVideoRecordPressed = false;
@@ -974,7 +977,7 @@ public class RealplayActivity extends BaseActivity {
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, false);
 
 			bQualityPressed = false;
-			bPTZPressed = false;
+//			bPTZPressed = false;
 			break;
 		case MENU_QUALITY:
 			mPager.setVisibility(View.GONE);
@@ -986,7 +989,7 @@ public class RealplayActivity extends BaseActivity {
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, false);
 
 			bQualityPressed = true;
-			bPTZPressed = false;
+//			bPTZPressed = false;
 			break;
 		case MENU_PTZ:
 			mPager.setVisibility(View.GONE);
@@ -1000,7 +1003,7 @@ public class RealplayActivity extends BaseActivity {
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, true);
 
 			bQualityPressed = false;
-			bPTZPressed = true;
+//			bPTZPressed = true;
 		}
 	}
 
@@ -1030,6 +1033,12 @@ public class RealplayActivity extends BaseActivity {
 			liveViewManager.preview();
 			
 			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
+			
+			if (!liveViewManager.isMultiMode()) {
+				ptzControl.setIsEnterPTZInSingleMode(true);
+			} else {
+				ptzControl.setIsEnterPTZInSingleMode(false);
+			}
 			
 			break;
 		default:
@@ -1249,12 +1258,17 @@ public class RealplayActivity extends BaseActivity {
 			
 			liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
 			
-			liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
 			
 			if (liveViewManager.isMultiMode()) { // 切换到单通道模式
+				liveViewManager.prestoreConnectionByPosition(pos);
+				
 				liveViewManager.setMultiMode(false);							
-				liveViewManager.preview(index);
+				//liveViewManager.preview(index);
+				liveViewManager.transferVideoWithoutDisconnect(pos);
+				
+				ptzControl.setIsEnterPTZInSingleMode(true);
 			} else { // 切换到多通道模式
+				liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
 				liveViewManager.setMultiMode(true);
 				
 				int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
@@ -1267,8 +1281,7 @@ public class RealplayActivity extends BaseActivity {
 					ptzControl.showPTZBar(false);
 				}
 				
-				
-				
+				ptzControl.setIsEnterPTZInSingleMode(false);
 			}
 			
 			liveViewManager.selectLiveView(index); 
@@ -1496,7 +1509,7 @@ public class RealplayActivity extends BaseActivity {
 	
 	
 	
-	private ViewFlipper mFlipper;			              // ViewFlipper实例
+	//private ViewFlipper mFlipper;			              // ViewFlipper实例
 	private GestureDetector mGestureDetector;             // 定义手势检测器实例
     private ScaleGestureDetector mScaleGestureDetector;   // 缩放手势检测器实例
     

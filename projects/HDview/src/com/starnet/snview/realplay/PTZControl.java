@@ -24,7 +24,8 @@ public class PTZControl {
 	
 	private boolean mIsPTZModeOn = false;
 	private boolean mIsPTZInMoving = false;
-	private boolean mIsFlingAction = false; 
+	private boolean mIsFlingAction = false;
+	private boolean mIsEnterPTZInSingleMode = false;  // 在开启PTZ功能时是否处于单通道模式
 	
 	private LinearLayout mPTZControlbarMenu;
 	private LinearLayout mPTZPopFrame;
@@ -383,6 +384,10 @@ public class PTZControl {
 		}
 		
 		
+		if (mIsEnterPTZInSingleMode) {
+			return;  // 若开启前PTZ模式时已是单通道模式，则仅显示PTZ菜单
+		}	
+		
 		int index = mLiveviewManager.getSelectedLiveViewIndex();
 		
 		if (index > mLiveviewManager.getLiveViewTotalCount()) {  
@@ -390,12 +395,16 @@ public class PTZControl {
 		}
 		
 		if (mLiveviewManager.isMultiMode()) { // 切换到单通道模式
-			
 			mLiveviewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
-			mLiveviewManager.closeAllConnection(false);  // 关闭正在预览的设备
+			
+			int pos = ((index % 4) == 0) ? 4 : (index % 4);
+			
+			//mLiveviewManager.closeAllConnection(false);  // 关闭正在预览的设备
+			mLiveviewManager.prestoreConnectionByPosition(pos);
 			
 			mLiveviewManager.setMultiMode(false);							
-			mLiveviewManager.preview(index);
+			//mLiveviewManager.preview(index);
+			mLiveviewManager.transferVideoWithoutDisconnect(pos);
 		}
 		
 		mLiveviewManager.selectLiveView(index);
@@ -414,7 +423,9 @@ public class PTZControl {
 			mLandscapeToolbar.hidePTZbar();
 		}
 		
-		
+		if (mIsEnterPTZInSingleMode) {
+			return;  // 若进入前PTZ模式时已是单通道模式，则仅隐藏PTZ菜单
+		}		
 		
 		int index = mLiveviewManager.getSelectedLiveViewIndex();
 		
@@ -518,6 +529,10 @@ public class PTZControl {
 	
 	public void setIsFlingAction(boolean isFlingAction) {
 		this.mIsFlingAction = isFlingAction;
+	}
+	
+	public void setIsEnterPTZInSingleMode(boolean isEnterPTZInSingleMode) {
+		this.mIsEnterPTZInSingleMode = isEnterPTZInSingleMode;
 	}
 
 	public PTZRequestSender getPtzReqSender() {
