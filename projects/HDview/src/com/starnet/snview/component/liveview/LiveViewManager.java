@@ -394,6 +394,11 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		prestoreConnection.updateLiveViewItem(liveviews.get(0));
 		liveviews.get(0).setCurrentConnection(prestoreConnection);
 		liveviews.get(0).setWindowInfoText(prestoreMsgInfo);
+		
+		if (prestoreConnection.isConnecting()) {
+			prestoreConnection.getConnectionListener().OnConnectionTrying(
+					prestoreConnection.getLiveViewContainer());
+		}
 	}
 	
 	/**
