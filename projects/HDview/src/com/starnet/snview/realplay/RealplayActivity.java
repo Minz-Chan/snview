@@ -1129,6 +1129,8 @@ public class RealplayActivity extends BaseActivity {
 	 * 设备，则在对预览设备列表同步后，就调用此方法
 	 */
 	public void notifyPreviewDevicesContentChanged() {
+		//需要判断previewDevices为空的情况
+		
 		liveViewManager.setDeviceList(previewDevices);
 		
 		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1136,7 +1138,7 @@ public class RealplayActivity extends BaseActivity {
 		
 		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 	}
-	
+		
 
 	@Override
 	protected void gotoRealtimePreview() {

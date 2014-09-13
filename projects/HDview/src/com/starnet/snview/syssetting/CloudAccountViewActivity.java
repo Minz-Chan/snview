@@ -1,6 +1,7 @@
 package com.starnet.snview.syssetting;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -19,6 +20,8 @@ import android.widget.ListView;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 
 @SuppressLint("SdCardPath")
 public class CloudAccountViewActivity extends BaseActivity {
@@ -36,6 +39,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private CloudAccount deleteCA;
 	
 	private Button user_save_btn;//账号添加按钮
+	
+	private List<PreviewDeviceItem> previewDeviceItems;
+	private List<PreviewDeviceItem> delPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,32 +81,50 @@ public class CloudAccountViewActivity extends BaseActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						
-						caXML = new CloudAccountXML();
-						caXML.removeCloudAccoutFromXML(filePath, deleteCA);//文件中删除操作....
+						int previewDeviceSize = previewDeviceItems.size();
+						for (int i = 0; i < previewDeviceSize; i++) {
+							PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
+							boolean isFrom = checkPreviewDeviceItemFromDelCA(previewDeviceItem,deleteCA);
+							if (isFrom) {
+								delPreviewDeviceItems.add(previewDeviceItem);
+							}
+						}
 						
-						//列表中删除操作....
-						cloudAccountList.remove(deleteCA);
+						int delSize = delPreviewDeviceItems.size();
+						for (int i = 0; i < delSize; i++) {
+							previewDeviceItems.remove(delPreviewDeviceItems.get(i));
+						}
+						
+						if (delSize > 0 ) {
+							GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+						}
+						
+						caXML = new CloudAccountXML();
+						caXML.removeCloudAccoutFromXML(filePath, deleteCA);		//文件中删除操作
+						
+						cloudAccountList.remove(deleteCA);						//列表中删除操作
 						caAdapter.notifyDataSetChanged();
-//						caAdapter = new CloudAccountAdapter(CloudAccountViewActivity.this, cloudAccountList);
-//						mNetWorkSettingList.setAdapter(caAdapter);
-//						
-//						Thread thread = new Thread(){
-//							@Override
-//							public void run() {
-//								super.run();
-//								
-//							}
-//						};
-//						thread.start();
 					}
+
+					
 				 });
 				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
 				builder.show();
 				return false;
 			}
 		});
-		
-		
+	}
+	
+	private boolean checkPreviewDeviceItemFromDelCA(PreviewDeviceItem previewDeviceItem,CloudAccount deleteCA) {
+		boolean isFrom = false;
+		String platformUsername = previewDeviceItem.getPlatformUsername();
+		String userName = deleteCA.getUsername();
+		if(platformUsername!=null){
+			if (platformUsername.equals(userName)) {
+				isFrom = true;
+			}
+		}
+		return isFrom;
 	}
 
 	private void initView() {
@@ -112,6 +136,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 		user_save_btn = super.getRightButton();
 		mNetWorkSettingList = (ListView) findViewById(R.id.cloudaccount_listview);
+		
+		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		try {
 			caXML = new CloudAccountXML();
@@ -152,14 +178,6 @@ public class CloudAccountViewActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == 20){//从编辑界面返回
-//			CloudAccountXML caXml = new CloudAccountXML();
-//			try {
-//				List<CloudAccount> cAccountList = caXml.getCloudAccountList(filePath);
-//				caAdapter = new CloudAccountAdapter(this, cAccountList);
-//				mNetWorkSettingList.setAdapter(caAdapter);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 			if(data != null){
 				Bundle bundle = data.getExtras();
 				if(bundle != null){

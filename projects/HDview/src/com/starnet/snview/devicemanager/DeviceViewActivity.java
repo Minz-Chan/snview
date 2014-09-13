@@ -1,10 +1,13 @@
 package com.starnet.snview.devicemanager;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.dom4j.DocumentException;
 
+import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -24,6 +27,8 @@ import android.widget.ListView;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 
 @SuppressLint("SdCardPath")
 public class DeviceViewActivity extends BaseActivity {
@@ -40,6 +45,9 @@ public class DeviceViewActivity extends BaseActivity {
 	private int clickPosition = 0;
 	private int deletPosition = 0;
 	private DeviceItem clickDeviceItem;
+	
+	private List<PreviewDeviceItem> previewDeviceItems;											//预览通道
+	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>();											//预览通道
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +103,30 @@ public class DeviceViewActivity extends BaseActivity {
 
 								caxml = new CloudAccountXML();
 								try {
+									//======检测删除的收藏设备在，预览通道中是否存在
+									int previewSize = previewDeviceItems.size();
+									for (int i = 0; i < previewSize; i++) {
+										PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
+										boolean isContained = checkPreviewDeviceIsInDevicesCollect(previewDeviceItem,deleteDeviceItem);
+										if (isContained) {
+											deletePDeviceItems.add(previewDeviceItem);//获取需要删除的预览通道
+										}
+									}
+									
+									int delSize = deletePDeviceItems.size();
+									for (int i = 0; i < delSize; i++) {
+										PreviewDeviceItem delPreDeviceItem = deletePDeviceItems.get(i);
+										previewDeviceItems.remove(delPreDeviceItem);
+									}
+									
+									if (delSize > 0) {
+										if (previewDeviceItems.size() > 0) {
+											GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+										}
+									}
+									//======检测删除的收藏设备在，预览通道中是否存在
 									caxml.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
+									
 								} catch (DocumentException e) {
 									e.printStackTrace();
 								} catch (IOException e) {
@@ -105,6 +136,8 @@ public class DeviceViewActivity extends BaseActivity {
 								deviceItemList.remove(deletPosition);
 								dLAdapter.notifyDataSetChanged();							// 列表的更新操作
 							}
+
+							
 						});
 
 				builder.setNegativeButton(getString(R.string.device_manager_deviceview_cancel),null);
@@ -113,13 +146,33 @@ public class DeviceViewActivity extends BaseActivity {
 			}
 		});
 	}
-
+	private boolean checkPreviewDeviceIsInDevicesCollect(PreviewDeviceItem previewDeviceItem,DeviceItem delDeviceItem) {
+		boolean isContain = false;
+		String prevwSvrIP = previewDeviceItem.getSvrIp();
+		String preSvrPort = previewDeviceItem.getSvrPort();
+		String preLogPass = previewDeviceItem.getLoginPass();
+		String preLogUser = previewDeviceItem.getLoginUser();
+		
+		String devvwSvrIP = delDeviceItem.getSvrIp();
+		String devSvrPort = delDeviceItem.getSvrPort();
+		String devLogPass = delDeviceItem.getLoginPass();
+		String devLogUser = delDeviceItem.getLoginUser();
+		if (prevwSvrIP.equals(devvwSvrIP) && preSvrPort.equals(devSvrPort)
+				&& preLogPass.equals(devLogPass)
+				&& preLogUser.equals(devLogUser)) {
+			isContain = true;
+		}
+		return isContain;
+	}
 	private void initView() {
 		super.setTitleViewText(getString(R.string.navigation_title_device_management));
 		super.hideExtendButton();
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setToolbarVisiable(false);
 
+		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		Log.v(TAG, "===previewDeviceItems.size():"+previewDeviceItems.size());
+		
 		caxml = new CloudAccountXML();
 		mDeviceList = (ListView) findViewById(R.id.device_listview);
 		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);// zk
