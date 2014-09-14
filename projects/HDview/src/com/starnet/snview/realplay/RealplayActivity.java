@@ -555,11 +555,16 @@ public class RealplayActivity extends BaseActivity {
 			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.GONE);
 			mSurfaceMultiLayout.getLiveviews().get(2).getSurfaceView().setVisibility(View.GONE);
 			mSurfaceMultiLayout.getLiveviews().get(3).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getRefreshImageView().setVisibility(View.GONE);
 			mSurfaceSingleLayout.setVisibility(View.VISIBLE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.VISIBLE);
 		} else {
 			mSurfaceSingleLayout.setVisibility(View.GONE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.GONE);
+			mSurfaceSingleLayout.getLiveview().getRefreshImageView().setVisibility(View.GONE);
 			mSurfaceMultiLayout.setVisibility(View.VISIBLE);
 			mSurfaceMultiLayout.getLiveviews().get(0).getSurfaceView().setVisibility(View.VISIBLE);
 			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.VISIBLE);
