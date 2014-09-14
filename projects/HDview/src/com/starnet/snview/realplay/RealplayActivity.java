@@ -734,6 +734,11 @@ public class RealplayActivity extends BaseActivity {
 			Log.i(TAG, "stop video");
 			liveViewManager.stopPreview();
 			
+			if (ptzControl.isPTZModeOn()) {
+				ptzControl.setIsEnterPTZInSingleMode(true);
+				ptzControl.closePTZ();
+			}
+			
 			bIsPlaying = false;
 			updatePlayStatus(bIsPlaying);
 		}
