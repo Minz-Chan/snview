@@ -32,6 +32,8 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 	private LiveViewItemContainer mLiveview3;
 	private LiveViewItemContainer mLiveview4;
 	
+	private List<LiveViewItemContainer> mLiveviews;
+	
 	
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public SurfaceViewMultiLayout(Context context, AttributeSet attrs,
@@ -154,6 +156,12 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 		mLiveview2.init();
 		mLiveview3.init();
 		mLiveview4.init();
+		
+		mLiveviews = new ArrayList<LiveViewItemContainer>();
+		mLiveviews.add(mLiveview1);
+		mLiveviews.add(mLiveview2);
+		mLiveviews.add(mLiveview3);
+		mLiveviews.add(mLiveview4);
 	}
 	
 	public void setLiveviewRefreshButtonClickListener(OnRefreshButtonClickListener listener) {
@@ -168,14 +176,7 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 	}
 	
 	public List<LiveViewItemContainer> getLiveviews() {
-		List<LiveViewItemContainer> l = new ArrayList<LiveViewItemContainer>();
-		
-		l.add(mLiveview1);
-		l.add(mLiveview2);
-		l.add(mLiveview3);
-		l.add(mLiveview4);
-		
-		return l;
+		return mLiveviews;
 	}
 
 	

@@ -550,21 +550,21 @@ public class RealplayActivity extends BaseActivity {
 	
 	private void showSingleOrMultiMode(boolean isSingle) {
 		if (isSingle) {
+			mSurfaceMultiLayout.setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getSurfaceView().setVisibility(View.GONE);
 			mSurfaceSingleLayout.setVisibility(View.VISIBLE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.GONE);
 		} else {
 			mSurfaceSingleLayout.setVisibility(View.GONE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.GONE);
 			mSurfaceMultiLayout.setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getSurfaceView().setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -1214,7 +1214,8 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onSingleClick(MotionEvent e) {	
-			if (ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下单击无效
+			if ((ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
+					|| !liveViewManager.isMultiMode()) { // PTZ模式情况下或单通道模式单击无效
 				return;
 			}
 			Log.i(TAG, "On single click");

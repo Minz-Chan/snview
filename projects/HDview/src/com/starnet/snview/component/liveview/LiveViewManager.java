@@ -106,7 +106,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		
 		vSyncObj.width = liveviews.get(pos - 1).getSurfaceView().getResolution()[0];
 		vSyncObj.height = liveviews.get(pos - 1).getSurfaceView().getResolution()[1];
-		vSyncObj.pixels = liveviews.get(pos - 1).getSurfaceView().retrievetDisplayBuffer();
+		//vSyncObj.pixels = liveviews.get(pos - 1).getSurfaceView().retrievetDisplayBuffer();
 		vSyncObj.connection = connections.get(pos - 1);
 		vSyncObj.device = liveviews.get(pos - 1).getPreviewItem();
 		vSyncObj.windowTextInfo = String.valueOf(liveviews.get(pos - 1).getWindowInfoText().getText());
@@ -409,7 +409,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		liveviews.get(desPos - 1).setPreviewItem(vSyncObj.device);
 
 		liveviews.get(desPos - 1).getSurfaceView().init(vSyncObj.width, vSyncObj.height);
-		liveviews.get(desPos - 1).getSurfaceView().copyPixelsFromBuffer(vSyncObj.pixels);
+		//liveviews.get(desPos - 1).getSurfaceView().copyPixelsFromBuffer(vSyncObj.pixels);
 
 		vSyncObj.connection.updateLiveViewItem(liveviews.get(desPos - 1));
 		liveviews.get(desPos - 1).setCurrentConnection(vSyncObj.connection);
