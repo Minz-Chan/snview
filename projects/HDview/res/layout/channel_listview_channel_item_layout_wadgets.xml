@@ -28,7 +28,7 @@
 
     <TextView
         android:id="@id/channel_listview_device_item_name"
-        android:layout_width="90sp"
+        android:layout_width="5dp"
         android:layout_height="wrap_content"
         android:layout_weight="6.49"
         android:layout_gravity="center"
@@ -37,6 +37,8 @@
         android:hint="@string/nothing"
         android:marqueeRepeatLimit="marquee_forever"
         android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:textSize="@dimen/common_textsize_small_16sp" />
 
     <LinearLayout

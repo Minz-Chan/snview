@@ -236,6 +236,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 		deviceList = cloudAccount.getDeviceList();
 		
+//		title.setFocusable(true);
+//		title.setFocusableInTouchMode(true);
+		
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		String deviceName = deviceItem.getDeviceName();
 		title.setText(deviceName);
