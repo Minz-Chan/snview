@@ -550,21 +550,26 @@ public class RealplayActivity extends BaseActivity {
 	
 	private void showSingleOrMultiMode(boolean isSingle) {
 		if (isSingle) {
+			mSurfaceMultiLayout.setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getSurfaceView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getRefreshImageView().setVisibility(View.GONE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getRefreshImageView().setVisibility(View.GONE);
 			mSurfaceSingleLayout.setVisibility(View.VISIBLE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.GONE);
-			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.GONE);
 		} else {
 			mSurfaceSingleLayout.setVisibility(View.GONE);
 			mSurfaceSingleLayout.getLiveview().getSurfaceView().setVisibility(View.GONE);
+			mSurfaceSingleLayout.getLiveview().getRefreshImageView().setVisibility(View.GONE);
 			mSurfaceMultiLayout.setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(0).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(1).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(2).setVisibility(View.VISIBLE);
-			mSurfaceMultiLayout.getLiveviews().get(3).setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(0).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(1).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(2).getSurfaceView().setVisibility(View.VISIBLE);
+			mSurfaceMultiLayout.getLiveviews().get(3).getSurfaceView().setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -728,6 +733,11 @@ public class RealplayActivity extends BaseActivity {
 		} else { // 暂停
 			Log.i(TAG, "stop video");
 			liveViewManager.stopPreview();
+			
+			if (ptzControl.isPTZModeOn()) {
+				ptzControl.setIsEnterPTZInSingleMode(true);
+				ptzControl.closePTZ();
+			}
 			
 			bIsPlaying = false;
 			updatePlayStatus(bIsPlaying);
@@ -1214,7 +1224,8 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onSingleClick(MotionEvent e) {	
-			if (ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下单击无效
+			if ((ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
+					|| !liveViewManager.isMultiMode()) { // PTZ模式情况下或单通道模式单击无效
 				return;
 			}
 			Log.i(TAG, "On single click");
@@ -1272,23 +1283,36 @@ public class RealplayActivity extends BaseActivity {
 			
 			
 			if (liveViewManager.isMultiMode()) { // 切换到单通道模式
-				liveViewManager.prestoreConnectionByPosition(pos);
-				
-				liveViewManager.setMultiMode(false);							
-				//liveViewManager.preview(index);
-				liveViewManager.transferVideoWithoutDisconnect(pos);
+				if (checkIsPTZDeviceConnected()) {
+					liveViewManager.prestoreConnectionByPosition(pos);
+					liveViewManager.setMultiMode(false);
+					liveViewManager.transferVideoWithoutDisconnect(pos);
+				} else {
+					liveViewManager.closeAllConnection(false);
+					liveViewManager.setMultiMode(false);
+					liveViewManager.preview(index);
+				}
 				
 				ptzControl.setIsEnterPTZInSingleMode(true);
 			} else { // 切换到多通道模式
-				liveViewManager.prestoreConnectionByPosition(pos);
-				//liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
-				liveViewManager.setMultiMode(true);
+				int currPageStart;
+				int currPageEnd;
 				
-				int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-				int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
-				
-				//liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
-				liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
+				if (checkIsPTZDeviceConnected()) { // 若当前通道为连接状态，则切换时保持当前连接
+					liveViewManager.prestoreConnectionByPosition(pos);
+					liveViewManager.setMultiMode(true);				
+					
+					currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+					currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+					liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
+				} else {	// 若当前通道为非连接状态，则关闭所有连接
+					liveViewManager.closeAllConnection(false);
+					liveViewManager.setMultiMode(true);
+					
+					currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+					currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+					liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+				}
 				
 				// 若发现此时PTZ模式开启，则重围PTZ模式，即退出PTZ模式
 				if (ptzControl.isPTZModeOn()) { 
