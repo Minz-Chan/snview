@@ -99,9 +99,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 						}
 						
 						if (delSize > 0 ) {
-							if (previewDeviceItems.size() > 0) {
+//							if (previewDeviceItems.size() > 0) {
 								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-							}
+//							}
 						}
 						
 						caXML = new CloudAccountXML();
@@ -230,9 +230,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 		}
 		
 		if (delEditSize > 0) {
-			if (editPreviewDeviceItems.size() > 0) {
+//			if (editPreviewDeviceItems.size() > 0) {
 				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-			}
+//			}
 		}
 	}
 

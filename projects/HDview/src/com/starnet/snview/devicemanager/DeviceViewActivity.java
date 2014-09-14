@@ -120,9 +120,9 @@ public class DeviceViewActivity extends BaseActivity {
 									}
 									
 									if (delSize > 0) {
-										if (previewDeviceItems.size() > 0) {
+//										if (previewDeviceItems.size() > 0) {
 											GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-										}
+//										}
 									}
 									//======检测删除的收藏设备在，预览通道中是否存在
 									caxml.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
@@ -152,14 +152,16 @@ public class DeviceViewActivity extends BaseActivity {
 		String preSvrPort = previewDeviceItem.getSvrPort();
 		String preLogPass = previewDeviceItem.getLoginPass();
 		String preLogUser = previewDeviceItem.getLoginUser();
+		String prePlatFormUserName = previewDeviceItem.getPlatformUsername();
 		
 		String devvwSvrIP = delDeviceItem.getSvrIp();
 		String devSvrPort = delDeviceItem.getSvrPort();
 		String devLogPass = delDeviceItem.getLoginPass();
 		String devLogUser = delDeviceItem.getLoginUser();
+		String devPlatFormUserName = delDeviceItem.getPlatformUsername();
 		if (prevwSvrIP.equals(devvwSvrIP) && preSvrPort.equals(devSvrPort)
 				&& preLogPass.equals(devLogPass)
-				&& preLogUser.equals(devLogUser)) {
+				&& preLogUser.equals(devLogUser)&&(prePlatFormUserName.equals(devPlatFormUserName))) {
 			isContain = true;
 		}
 		return isContain;
