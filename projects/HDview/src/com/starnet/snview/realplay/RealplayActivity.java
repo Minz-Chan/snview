@@ -1273,23 +1273,36 @@ public class RealplayActivity extends BaseActivity {
 			
 			
 			if (liveViewManager.isMultiMode()) { // 切换到单通道模式
-				liveViewManager.prestoreConnectionByPosition(pos);
-				
-				liveViewManager.setMultiMode(false);							
-				//liveViewManager.preview(index);
-				liveViewManager.transferVideoWithoutDisconnect(pos);
+				if (checkIsPTZDeviceConnected()) {
+					liveViewManager.prestoreConnectionByPosition(pos);
+					liveViewManager.setMultiMode(false);
+					liveViewManager.transferVideoWithoutDisconnect(pos);
+				} else {
+					liveViewManager.closeAllConnection(false);
+					liveViewManager.setMultiMode(false);
+					liveViewManager.preview(index);
+				}
 				
 				ptzControl.setIsEnterPTZInSingleMode(true);
 			} else { // 切换到多通道模式
-				liveViewManager.prestoreConnectionByPosition(pos);
-				//liveViewManager.closeAllConnection(false);  // 关闭正在预览的设备
-				liveViewManager.setMultiMode(true);
+				int currPageStart;
+				int currPageEnd;
 				
-				int currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-				int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
-				
-				//liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
-				liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
+				if (checkIsPTZDeviceConnected()) { // 若当前通道为连接状态，则切换时保持当前连接
+					liveViewManager.prestoreConnectionByPosition(pos);
+					liveViewManager.setMultiMode(true);				
+					
+					currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+					currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+					liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
+				} else {	// 若当前通道为非连接状态，则关闭所有连接
+					liveViewManager.closeAllConnection(false);
+					liveViewManager.setMultiMode(true);
+					
+					currPageStart = (liveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
+					currPageEnd = (liveViewManager.getCurrentPageNumber() - 1) * 4 + liveViewManager.getCurrentPageCount();
+					liveViewManager.preview(currPageStart, currPageEnd - currPageStart + 1);
+				}
 				
 				// 若发现此时PTZ模式开启，则重围PTZ模式，即退出PTZ模式
 				if (ptzControl.isPTZModeOn()) { 
