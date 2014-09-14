@@ -1223,18 +1223,38 @@ public class RealplayActivity extends BaseActivity {
 		= new OnGestureListener() {
 
 		@Override
-		public void onSingleClick(MotionEvent e) {	
-			if ((ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
-					|| !liveViewManager.isMultiMode()) { // PTZ模式情况下或单通道模式单击无效
-				return;
-			}
+		public void onSingleClick(MotionEvent e) {
 			Log.i(TAG, "On single click");
 			
 			if (liveViewManager.getPager() == null) {
 				return;
 			}
 		
-			int pos = getIndexOfLiveview(e.getX(), e.getY());
+			int pos;
+			
+			if (liveViewManager.getPageCapacity() == 1) {
+				pos = 1;
+			} else {
+				pos = getIndexOfLiveview(e.getX(), e.getY());
+			}
+			
+			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
+				if(pos == liveViewManager.getCurrentSelectedLiveViewPosition()) {
+					if (liveControl.getLandscapeToolbar().isLandToolbarShoww()) {
+						liveControl.getLandscapeToolbar().hideLandscapeToolbar();
+					} else {
+						liveControl.getLandscapeToolbar().showLandscapeToolbar();
+					}
+				} else {
+					liveControl.getLandscapeToolbar().showLandscapeToolbar();
+				}
+			}
+			
+			if ((ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
+					/*|| !liveViewManager.isMultiMode()*/) { // PTZ模式情况下或单通道模式单击无效
+				return;
+			}
+			
 			int index = (liveViewManager.getCurrentPageNumber() - 1) * liveViewManager.getPageCapacity() + pos;
 			
 			Log.i(TAG, "single_click, getX:" + e.getX() + ", getY:" + e.getY() + ", pos:" + pos + ", index:" + index);

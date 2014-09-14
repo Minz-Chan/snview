@@ -359,6 +359,10 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		return index >= 0 ? ++index : index;
 	}
 	
+	public int getCurrentSelectedLiveViewPosition() {
+		return getPositionOfIndex(currentIndex);
+	}
+	
 	public int selectLiveView(int index) {
 		currentIndex = index;
 		

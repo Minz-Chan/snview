@@ -14,12 +14,19 @@ import android.widget.RelativeLayout;
 //import android.widget.RelativeLayout.LayoutParams;
 
 
+
+
+
+
 //import com.mcu.iVMS.global.GlobalApplication;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.starnet.snview.R;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.RealplayActivity;
 
 public class LandscapeToolbar extends FrameLayout {
 	private static final String TAG = "LandscapeToolbar";
@@ -27,6 +34,9 @@ public class LandscapeToolbar extends FrameLayout {
 	private static final int EXTEND_SPACE = 26;
 	private static final int LONG_CLICK_TIME = 500;
 	private static final int TOUCH_SLOP = 10;
+	private static final int AUTO_DISMISS_TIME = 8;
+	
+	private Context mContext;
 
 	private ArrayList<View> mAllChildList = new ArrayList<View>();
 
@@ -63,6 +73,7 @@ public class LandscapeToolbar extends FrameLayout {
 	private QualityClickListener mQualityClickListener;
 
 	private View mClickImageButton;
+	private boolean mIsLandToolbarShow = false;
 	private boolean mClickMode = true;
 	private boolean mIsCanMove = false;
 	private boolean mIsCancleLongTouch = false;
@@ -83,13 +94,22 @@ public class LandscapeToolbar extends FrameLayout {
 	private int mRealWidth = 0;
 
 	private int mTouchCount = 0;
+	
+	
+	private Timer mTimer = new Timer();
+	private TimerTask mLandscapeBarAutoDismissTask;
+	
 
 	public LandscapeToolbar(Context context) {
 		super(context);
+		
+		this.mContext = context;
 	}
 
 	public LandscapeToolbar(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		
+		this.mContext = context;
 	}
 
 	private void canclePressedStatus() {
@@ -378,6 +398,14 @@ public class LandscapeToolbar extends FrameLayout {
 
 	}
 
+	private void setLandToolbarShow(boolean isShow) {
+		this.mIsLandToolbarShow = isShow;
+	}
+	
+	public boolean isLandToolbarShoww() {
+		return mIsLandToolbarShow;
+	}
+	
 	private void setPTZShow(boolean isShow) {
 		this.mIsPTZshow = isShow;
 	}
@@ -468,7 +496,34 @@ public class LandscapeToolbar extends FrameLayout {
 		}
 	}
 	
+	public void showLandscapeToolbar() {
+		setLandToolbarShow(true);
+		mLandscapeBarContent.setVisibility(View.VISIBLE);
+		
+		//mTimer.cancel();
+		if (mLandscapeBarAutoDismissTask != null) {
+			mLandscapeBarAutoDismissTask.cancel();
+		}
+		
+		mLandscapeBarAutoDismissTask = new TimerTask() {
+			@Override
+			public void run() {
+				LandscapeToolbar.this.post(new Runnable() {
+					@Override
+					public void run() {
+						setLandToolbarShow(false);
+						mLandscapeBarContent.setVisibility(View.GONE);
+					}
+				});
+			}
+		};
+		
+		mTimer.schedule(mLandscapeBarAutoDismissTask, AUTO_DISMISS_TIME * 1000);
+	}
+	
 	public void showControlbar() {
+		showLandscapeToolbar();
+		
 		setPTZShow(false);
 		setQualityShow(false);
 		mControlBar.setVisibility(View.VISIBLE);
@@ -477,6 +532,8 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public void showPTZControlbar() {
+		showLandscapeToolbar();
+		
 		setPTZShow(true);
 		mPTZControlBar.setVisibility(View.VISIBLE);
 		mControlBar.setVisibility(View.GONE);
@@ -484,10 +541,23 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public void showQualityControlBar() {
+		showLandscapeToolbar();
+		
 		setQualityShow(true);
 		mQualityControlBar.setVisibility(View.VISIBLE);
 		mPTZControlBar.setVisibility(View.GONE);
 		mControlBar.setVisibility(View.GONE);
+	}
+	
+	public void hideLandscapeToolbar() {
+		setLandToolbarShow(false);
+		mLandscapeBarContent.setVisibility(View.GONE);
+		
+		if (mLandscapeBarAutoDismissTask != null) {
+			mLandscapeBarAutoDismissTask.cancel();
+		}
+		
+		mLandscapeBarAutoDismissTask = null;
 	}
 
 	public void hidePTZbar() {
@@ -554,6 +624,8 @@ public class LandscapeToolbar extends FrameLayout {
 			if (mClickImageButton != null) {
 				setActionButtonStatus(mClickImageButton.getId(), action);
 			}
+			
+			showLandscapeToolbar();
 			break;
 		case MotionEvent.ACTION_MOVE:
 			int rawX = (int) e.getRawX();
@@ -633,6 +705,8 @@ public class LandscapeToolbar extends FrameLayout {
 				clickAction(mClickImageButton);
 				playSoundEffect(0);
 			}
+			
+			showLandscapeToolbar();
 			break;
 		default:
 			break;
@@ -702,6 +776,14 @@ public class LandscapeToolbar extends FrameLayout {
 			break;
 		}
 
+	}
+	
+
+	@Override
+	protected void finalize() throws Throwable {
+		mTimer.cancel();
+		
+		super.finalize();
 	}
 
 	public void setRecordButtonSelected(boolean isSelected) {
