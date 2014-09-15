@@ -38,22 +38,22 @@
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="sensor"
-            android:theme="@android:style/Theme.NoTitleBar" /> <!-- android:configChanges="orientation|screenSize" -->
+            android:theme="@style/SampleTheme" /> <!-- android:configChanges="orientation|screenSize" -->
         <activity
             android:name="com.starnet.snview.images.ImagesManagerActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.playback.PlaybackActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.devicemanager.DeviceViewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.channelmanager.ChannelListActivity"
             android:screenOrientation="portrait"
@@ -66,7 +66,7 @@
             android:name="com.starnet.snview.syssetting.SystemSettingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.syssetting.AboutActivity"
             android:screenOrientation="portrait"
@@ -79,10 +79,7 @@
             android:name="com.starnet.snview.syssetting.CloudAccountAddingActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name="com.starnet.snview.devicemanager.DevicesAddActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Light" /> <!-- android:launchMode="standard" -->
+
         <activity
             android:name="com.starnet.snview.devicemanager.DeviceCollectActivity"
             android:screenOrientation="portrait"
@@ -109,24 +106,11 @@
             android:theme="@android:style/Theme.NoTitleBar" /> <!--  -->
 
         <activity
-            android:name="com.starnet.snview.channelmanager.ChannelListActivity_Copy"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name="com.starnet.snview.images.ImagePreviewActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
             android:name="com.starnet.snview.images.ImagePreviewViewPagerActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name="com.starnet.snview.images.ImageManagerVideoPlayActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name="com.starnet.snview.images.ImageManagerVideoPlay_second_Activity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />

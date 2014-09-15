@@ -1068,28 +1068,20 @@ public class RealplayActivity extends BaseActivity {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
-	
-
-	
 
 	@Override
 	protected void onRestart() {
-		setActiveMenuId(R.id.menu_drawer_realtime_preview);
 		super.onRestart();
 	}
 	
-	
-
 	@Override
 	protected void onStart() {
-		setActiveMenuId(R.id.menu_drawer_realtime_preview);
+		super.reattachActiveView();
 		super.onStart();
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-		setActiveMenuId(R.id.menu_drawer_realtime_preview);
-		
 		super.onNewIntent(intent);
 	}
 

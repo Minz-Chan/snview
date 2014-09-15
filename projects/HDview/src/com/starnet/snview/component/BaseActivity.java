@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -67,6 +68,8 @@ public abstract class BaseActivity extends Activity {
     @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+    	requestWindowFeature(Window.FEATURE_NO_TITLE);
 		
 		if (savedInstanceState != null) {
             mActiveViewId = savedInstanceState.getInt(STATE_ACTIVE_VIEW_ID);
@@ -242,12 +245,14 @@ public abstract class BaseActivity extends Activity {
 			int oldActivityViewId = mActiveViewId;
 			
 			mMenuDrawer.setActiveView(v);
-	        //mContentTextView.setText("Active item: " + ((TextView) v).getText());
 	        mMenuDrawer.closeMenu();
 	        mActiveViewId = v.getId();
 	        
 	        switch (mActiveViewId) {
 	        case R.id.menu_drawer_top:
+	        	mActiveViewId = oldActivityViewId;
+				mMenuDrawer.setActiveView(BaseActivity.this
+						.findViewById(mActiveViewId));
 	        	break;
 	        case R.id.menu_drawer_realtime_preview:
 	        	gotoRealtimePreview();
@@ -271,8 +276,6 @@ public abstract class BaseActivity extends Activity {
 	        		&& oldActivityViewId != mActiveViewId) {
 	        	BaseActivity.this.finish();
 	        }
-	        
-	        //BaseActivity.this.finish();
 	        
 		}
 		
@@ -390,7 +393,6 @@ public abstract class BaseActivity extends Activity {
 
 	private void initMenuDrawer() {
     	mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
-        //mMenuDrawer.setContentView(R.layout.base_activity); 
         mMenuDrawer.setMenuView(R.layout.menu_scrollview);
         
         int screenWidth = ActivityUtility.getScreenSize(this).x;
@@ -404,8 +406,6 @@ public abstract class BaseActivity extends Activity {
             //getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        //mContentTextView = (TextView) findViewById(R.id.contentText);
-
         findViewById(R.id.menu_drawer_top).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_realtime_preview).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_remote_playback).setOnClickListener(mOnMenudrawerItemClickListener);
@@ -414,11 +414,12 @@ public abstract class BaseActivity extends Activity {
         findViewById(R.id.menu_drawer_sys_setting).setOnClickListener(mOnMenudrawerItemClickListener);
 
         TextView activeView = (TextView) findViewById(mActiveViewId);
-        if (activeView != null) {
-            mMenuDrawer.setActiveView(activeView);  // 新的Activity启动时，活动项设置为上一次所选项
-            //mContentTextView.setText("Active item: " + activeView.getText());
-        } else {
-        	mActiveViewId = R.id.menu_drawer_realtime_preview;  // 程序启动时设置【实时预览】为当前活动项
+        if (activeView != null) {  // 新Activity启动时，活动项设置为上一次所选项
+            mMenuDrawer.setActiveView(activeView);  
+        } else {  // 默认活动项
+        	mActiveViewId = R.id.menu_drawer_realtime_preview;  
+        	activeView = (TextView) findViewById(mActiveViewId);
+        	mMenuDrawer.setActiveView(activeView);
         }
 
         // This will animate the drawer open and closed until the user manually drags it. Usually this would only be
@@ -426,14 +427,15 @@ public abstract class BaseActivity extends Activity {
         //mMenuDrawer.peekDrawer();
     }
 	
+	protected void reattachActiveView() {
+		TextView v = (TextView) findViewById(mActiveViewId);
+		mMenuDrawer.setActiveView(v);
+	}
+	
 	protected void setContainerMenuDrawer(boolean isContainMenuDrawer) {
 		this.mIsContainMenuDrawer = isContainMenuDrawer;
 	}
 	
-	protected void setActiveMenuId(int id) {
-		this.mActiveViewId = id;
-	}
-
 	protected Toolbar getBaseToolbar() {
 		return mToolbar;
 	}
