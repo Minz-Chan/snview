@@ -2,6 +2,7 @@ package com.starnet.snview.component;
 
 import net.simonvt.menudrawer.MenuDrawer;
 import net.simonvt.menudrawer.Position;
+import net.simonvt.menudrawer.SlidingDrawer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -390,7 +391,7 @@ public abstract class BaseActivity extends Activity {
 		
 		return super.onKeyDown(keyCode, event);
 	}
-
+	
 	private void initMenuDrawer() {
     	mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.Type.BEHIND, Position.LEFT, MenuDrawer.MENU_DRAG_WINDOW);
         mMenuDrawer.setMenuView(R.layout.menu_scrollview);
@@ -398,8 +399,6 @@ public abstract class BaseActivity extends Activity {
         int screenWidth = ActivityUtility.getScreenSize(this).x;
         mMenuDrawer.setMenuSize((int)(screenWidth * 0.6));
         mMenuDrawer.setDropShadowEnabled(false);
-        
-        Log.d(TAG, "screen width: " + screenWidth);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -430,6 +429,16 @@ public abstract class BaseActivity extends Activity {
 	protected void reattachActiveView() {
 		TextView v = (TextView) findViewById(mActiveViewId);
 		mMenuDrawer.setActiveView(v);
+	}
+	
+	protected void setMenuEnabled(boolean enable) {
+		if (enable) {
+			((SlidingDrawer) mMenuDrawer).closeMenu(false);
+			((SlidingDrawer) mMenuDrawer).setMenuEnabled(true);
+		} else {
+			((SlidingDrawer) mMenuDrawer).closeMenu(false);
+			((SlidingDrawer) mMenuDrawer).setMenuEnabled(false);
+		}
 	}
 	
 	protected void setContainerMenuDrawer(boolean isContainMenuDrawer) {

@@ -10,6 +10,8 @@ import android.view.VelocityTracker;
 public class SlidingDrawer extends DraggableDrawer {
 
     private static final String TAG = "OverlayDrawer";
+    
+    private boolean mMenuEnabled;
 
     SlidingDrawer(Activity activity, int dragMode) {
         super(activity, dragMode);
@@ -32,6 +34,8 @@ public class SlidingDrawer extends DraggableDrawer {
         super.initDrawer(context, attrs, defStyle);
         super.addView(mMenuContainer, -1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         super.addView(mContentContainer, -1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        
+        this.mMenuEnabled = true;
     }
 
     @Override
@@ -470,6 +474,10 @@ public class SlidingDrawer extends DraggableDrawer {
     }
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+    	if (!mMenuEnabled) {
+    		return false;
+    	}
+    	
         final int action = ev.getAction() & MotionEvent.ACTION_MASK;
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -592,7 +600,8 @@ public class SlidingDrawer extends DraggableDrawer {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (!mMenuVisible && !mIsDragging && mTouchMode == TOUCH_MODE_NONE) {
+        if ((!mMenuVisible && !mIsDragging && mTouchMode == TOUCH_MODE_NONE) 
+        		|| (!mMenuEnabled)) {
             return false;
         }
         final int action = ev.getAction() & MotionEvent.ACTION_MASK;
@@ -703,5 +712,9 @@ public class SlidingDrawer extends DraggableDrawer {
                 mVelocityTracker.clear();
             }
         }
+    }
+    
+    public void setMenuEnabled(boolean enable) {
+    	this.mMenuEnabled = enable;
     }
 }

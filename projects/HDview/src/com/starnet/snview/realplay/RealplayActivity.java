@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.simonvt.menudrawer.SlidingDrawer;
+
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
@@ -180,6 +182,7 @@ public class RealplayActivity extends BaseActivity {
             Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:" + ActivityUtility.getScreenSize(this).x
             		+ ", height:" + ActivityUtility.getScreenSize(this).y);
             
+            super.setMenuEnabled(false);
 			super.getNavbarContainer().setVisibility(View.GONE);
 			super.getToolbarContainer().setVisibility(View.GONE);
 			mControlbar.setVisibility(View.GONE);
@@ -199,7 +202,7 @@ public class RealplayActivity extends BaseActivity {
     	   Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:" + ActivityUtility.getScreenSize(this).x
            		+ ", height:" + ActivityUtility.getScreenSize(this).y);
     	   
-    	   
+    	   	super.setMenuEnabled(true);
 			super.getNavbarContainer().setVisibility(View.VISIBLE);
 			super.getToolbarContainer().setVisibility(View.VISIBLE);
 			mControlbar.setVisibility(View.VISIBLE);
