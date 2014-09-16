@@ -330,6 +330,14 @@ public abstract class BaseActivity extends Activity {
         outState.putInt(STATE_ACTIVE_VIEW_ID, mActiveViewId);
     }
     
+    protected void openMenuDrawer() {
+    	if (mMenuDrawer == null) {
+    		return;
+    	}
+    	
+    	mMenuDrawer.openMenu();
+    }
+    
     protected void closeMenuDrawer() {
     	if (mMenuDrawer == null) {
     		return;

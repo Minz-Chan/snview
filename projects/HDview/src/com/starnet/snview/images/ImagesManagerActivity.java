@@ -74,8 +74,7 @@ public class ImagesManagerActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单
-					
-					
+					ImagesManagerActivity.this.openMenuDrawer();					
 				} else {	// 退出图像管理编辑状态
 					switch2EditStatus(false);
 					mIsEdit = false;
