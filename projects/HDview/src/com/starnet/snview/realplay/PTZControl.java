@@ -296,6 +296,11 @@ public class PTZControl {
 	
 	public void ptzButtonAction() {
 		Log.i(TAG, "ptzButtonAction");
+		
+		if (mLiveActivity.checkIfPreviewDeviceListEmpty()) {
+			return;
+		}
+		
 		if (!checkIsPTZDeviceConnected()) {
 			if (mIsPTZModeOn) {
 				closePTZ();
