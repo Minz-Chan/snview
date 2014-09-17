@@ -23,6 +23,7 @@ import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
+import com.starnet.snview.component.liveview.Pager;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection;
@@ -37,6 +38,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -205,14 +207,16 @@ public class RealplayActivity extends BaseActivity {
 		super.onPostCreate(savedInstanceState);
 	}
 	
-	
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.i(TAG, "ConfigurationChanged");
 
+		
 		GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
 		GlobalApplication.getInstance().setScreenHeight(ActivityUtility.getScreenSize(this).y);
+				
+		
 		
 		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
 		if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -260,7 +264,6 @@ public class RealplayActivity extends BaseActivity {
 		ptzControl.syncPTZStatus();
 		
 		super.onConfigurationChanged(newConfig);
-		
 	}
 
 
@@ -1172,19 +1175,25 @@ public class RealplayActivity extends BaseActivity {
 			editor.putInt("PREVIEW_MODE", 1);  
 		}
 
-		editor.putInt("PAGE", liveViewManager.getCurrentPageNumber());       // 当前页数
-		editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount());  // 当前页项数
+		if (liveViewManager.getPager() != null) {
+			editor.putInt("PAGE", liveViewManager.getCurrentPageNumber());       // 当前页数
+			editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount());  // 当前页项数
+		} else {
+			editor.putInt("PAGE", 0);      
+			editor.putInt("PAGE_COUNT", 0); 
+		}
+		
 		editor.commit();
 		
 		// /data/data/com.starsecurity
 		try {
-			PreviewItemXMLUtils.writePreviewItemListInfoToXML(liveViewManager.getDeviceList(), getString(R.string.common_last_devicelist_path));
+			PreviewItemXMLUtils.writePreviewItemListInfoToXML(previewDevices, getString(R.string.common_last_devicelist_path));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		Log.i(TAG, "onDestroy@Devices size: " + liveViewManager.getDeviceList().size() + ", mode: " + (isMultiMode ? 4 : 1) 
-				+ ", page: " + liveViewManager.getCurrentPageNumber() + ", page count: " + liveViewManager.getCurrentPageCount() );
+		//Log.i(TAG, "onDestroy@Devices size: " + liveViewManager.getDeviceList().size() + ", mode: " + (isMultiMode ? 4 : 1) 
+		//		+ ", page: " + liveViewManager.getCurrentPageNumber() + ", page count: " + liveViewManager.getCurrentPageCount() );
 		
 		super.onDestroy();
 	}
@@ -1898,4 +1907,5 @@ public class RealplayActivity extends BaseActivity {
 		public void onZoomIn();
 		public void onZoomOut();
 	}
+
 }

@@ -153,15 +153,18 @@ public class DeviceViewActivity extends BaseActivity {
 		String preLogPass = previewDeviceItem.getLoginPass();
 		String preLogUser = previewDeviceItem.getLoginUser();
 		String prePlatFormUserName = previewDeviceItem.getPlatformUsername();
+		String deviceName = previewDeviceItem.getDeviceRecordName();
 		
 		String devvwSvrIP = delDeviceItem.getSvrIp();
 		String devSvrPort = delDeviceItem.getSvrPort();
 		String devLogPass = delDeviceItem.getLoginPass();
 		String devLogUser = delDeviceItem.getLoginUser();
 		String devPlatFormUserName = delDeviceItem.getPlatformUsername();
-		if (prevwSvrIP.equals(devvwSvrIP) && preSvrPort.equals(devSvrPort)
-				&& preLogPass.equals(devLogPass)
-				&& preLogUser.equals(devLogUser)&&(prePlatFormUserName.equals(devPlatFormUserName))) {
+		String ddeviceName = delDeviceItem.getDeviceName();
+		
+		if (ddeviceName.equals(deviceName)&&(prePlatFormUserName.equals(devPlatFormUserName))) {//prevwSvrIP.equals(devvwSvrIP) && preSvrPort.equals(devSvrPort)
+			//&& preLogPass.equals(devLogPass)
+			//&& preLogUser.equals(devLogUser)
 			isContain = true;
 		}
 		return isContain;

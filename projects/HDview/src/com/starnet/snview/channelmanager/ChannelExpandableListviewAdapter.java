@@ -184,7 +184,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private void setCloudAccountChannelChoose(PreviewDeviceItem previewDeviceItem, CloudAccount cloudAccount) {
 		
 		String logPass = previewDeviceItem.getLoginPass();
-		String logUser = previewDeviceItem.getLoginUser();
+		String logUser = previewDeviceItem.getDeviceRecordName();
 		String logSvrIp = previewDeviceItem.getSvrIp();
 		String logSvrPot = previewDeviceItem.getSvrPort();
 		
@@ -196,9 +196,13 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				DeviceItem deviceItem = deviceItems.get(i);
 				String dSvrIp = deviceItem.getSvrIp();
 				String dSvrPort = deviceItem.getSvrPort();
-				String dUser = deviceItem.getLoginUser();
+				String dUser = deviceItem.getDeviceName();
 				String dPass = deviceItem.getLoginPass();
-				if (logPass.equals(dPass)&&logUser.equals(dUser)&&logSvrIp.equals(dSvrIp)&&logSvrPot.equals(dSvrPort)) {
+				if (dUser != null) {
+					dUser = dUser.substring(4);
+				}
+				
+				if (logUser.equals(dUser)) {//dUser.contains(logUser) logUser.equals(dUser) logPass.equals(dPass)&&logUser.equals(dUser)&&logSvrIp.equals(dSvrIp)&&logSvrPot.equals(dSvrPort)
 					int cur_channel = previewDeviceItem.getChannel();
 					Log.v(TAG, "cur_channel:"+cur_channel);
 					
