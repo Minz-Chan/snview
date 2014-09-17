@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.IPAndPortUtils;
 
 public class DeviceEditableActivity extends BaseActivity {
@@ -31,6 +33,8 @@ public class DeviceEditableActivity extends BaseActivity {
 	private DeviceItem clickDeviceItem;
 
 	private Button saveButton;
+	
+	private List<PreviewDeviceItem> mPreviewDeviceItems;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,9 +65,9 @@ public class DeviceEditableActivity extends BaseActivity {
 				String dfChl = defaultChannel_et.getText().toString();
 				String chSum = channelnumber_et.getText().toString();
 
-				if ((!dName.equals("") && !svrIp.equals("")
-						&& !svrPt.equals("") && !lUser.equals("")
-						&& !dfChl.equals("") && !chSum.equals(""))) {// 检查信息是否为空
+				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
+						&& !svrPt.trim().equals("") && !lUser.trim().equals("")
+						&& !dfChl.trim().equals("") && !chSum.trim().equals(""))) {// 检查信息是否为空
 					IPAndPortUtils ipAndPortUtils = new IPAndPortUtils();
 					boolean isIp = ipAndPortUtils.isIp(svrIp);
 					boolean isPort = ipAndPortUtils.isNetPort(svrPt);
@@ -78,15 +82,19 @@ public class DeviceEditableActivity extends BaseActivity {
 							clickDeviceItem.setSvrPort(svrPt);
 							clickDeviceItem.setLoginUser(lUser);
 							clickDeviceItem.setLoginPass(lPass);
-							List<Channel> channelList = new ArrayList<Channel>();
-							for (int i = 0; i < newChannelNum; i++) {
-								Channel channel = new Channel();
-								channel.setChannelName("通道"+(i+1));
-								channel.setChannelNo((i+1));
-								channel.setSelected(false);
-								channelList.add(channel);
+//							List<Channel> channelList = new ArrayList<Channel>();
+//							for (int i = 0; i < newChannelNum; i++) {
+//								Channel channel = new Channel();
+//								channel.setChannelName("通道"+(i+1));
+//								channel.setChannelNo((i+1));
+//								channel.setSelected(false);
+//								channelList.add(channel);
+//							}
+//							clickDeviceItem.setChannelList(channelList);
+							boolean isBelong = isBelongtoPreviewDeviceItem(clickDeviceItem,mPreviewDeviceItems);
+							if (isBelong) {
+								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 							}
-							clickDeviceItem.setChannelList(channelList);
 							// 并返回原来的界面
 							Intent data = new Intent();
 							Bundle bundle = new Bundle();
@@ -122,6 +130,30 @@ public class DeviceEditableActivity extends BaseActivity {
 
 	}
 
+	protected boolean isBelongtoPreviewDeviceItem(DeviceItem clickDeviceItem2,
+			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+		boolean isBelong = false;
+		if (mPreviewDeviceItems2 == null) {
+			return false;
+		}
+		
+		if((mPreviewDeviceItems2 != null)&&(mPreviewDeviceItems2.size() == 0)){
+			return false;
+		}
+		
+		String clickUsername = clickDeviceItem2.getPlatformUsername();
+		int size = mPreviewDeviceItems2.size();
+		for (int i = 0; i < size; i++) {
+			PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems2.get(i);
+			String userName = previewDeviceItem.getPlatformUsername();
+			if (clickUsername.equals(userName)) {
+				isBelong = true;
+				break;
+			}
+		}
+		return isBelong;
+	}
+
 	private void superChangeViewFromBase() {
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
@@ -129,8 +161,9 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setTitleViewText(tileName);
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
-
 		saveButton = super.getRightButton();
+		
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);

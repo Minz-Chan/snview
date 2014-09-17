@@ -120,9 +120,7 @@ public class DeviceViewActivity extends BaseActivity {
 									}
 									
 									if (delSize > 0) {
-//										if (previewDeviceItems.size() > 0) {
-											GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-//										}
+										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
 									//======检测删除的收藏设备在，预览通道中是否存在
 									caxml.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);

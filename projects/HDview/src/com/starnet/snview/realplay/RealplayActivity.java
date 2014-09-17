@@ -101,12 +101,9 @@ public class RealplayActivity extends BaseActivity {
 		
 		setBackPressedExitEventValid(true);
 		 
-
 		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
 
-		
-		
 		initView();
 
 		initListener();
