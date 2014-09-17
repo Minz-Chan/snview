@@ -199,7 +199,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				String dUser = deviceItem.getDeviceName();
 				String dPass = deviceItem.getLoginPass();
 				if (dUser != null) {
-					dUser = dUser.substring(4);
+					if (dUser.length() >= 4) {
+						dUser = dUser.substring(4);
+					}
 				}
 				
 				if (logUser.equals(dUser)) {//dUser.contains(logUser) logUser.equals(dUser) logPass.equals(dPass)&&logUser.equals(dUser)&&logSvrIp.equals(dSvrIp)&&logSvrPot.equals(dSvrPort)

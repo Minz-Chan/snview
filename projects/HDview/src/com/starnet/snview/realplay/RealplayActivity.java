@@ -40,6 +40,10 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -85,7 +89,7 @@ public class RealplayActivity extends BaseActivity {
 	
 	private List<PreviewDeviceItem> previewDevices;  // 当前正在预览的设备列表
 	
-
+	
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
@@ -106,6 +110,15 @@ public class RealplayActivity extends BaseActivity {
 		initView();
 
 		initListener();
+		
+		initSensorManager();
+	}
+
+	private void initSensorManager(){
+		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		mSensorManager.registerListener(mSensorEventListener, mSensor,
+				SensorManager.SENSOR_DELAY_GAME);
 	}
 	
 	private void loadDataFromPreserved() {
@@ -207,6 +220,25 @@ public class RealplayActivity extends BaseActivity {
 		super.onPostCreate(savedInstanceState);
 	}
 	
+	
+	private Sensor mSensor;
+	private SensorManager mSensorManager;
+	private SensorEventListener mSensorEventListener = new SensorEventListener() {
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			Pager pager = liveViewManager.getPager();
+			if (pager != null) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);//设置为重力感应器模式
+			}else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//设置为竖屏模式
+			}
+		}
+		
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			
+		}
+	};
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -1163,6 +1195,8 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onDestroy() {
+		mSensorManager.unregisterListener(mSensorEventListener);
+		
 		liveViewManager.closeAllConnection(false);
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
