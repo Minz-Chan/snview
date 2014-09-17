@@ -105,17 +105,7 @@ public class RealplayActivity extends BaseActivity {
 		GlobalApplication.getInstance().setHandler(mHandler);
 
 		initView();
-
 		initListener();
-		
-		initSensorManager();
-	}
-
-	private void initSensorManager(){
-		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		mSensorManager.registerListener(mSensorEventListener, mSensor,
-				SensorManager.SENSOR_DELAY_GAME);
 	}
 	
 	private void loadDataFromPreserved() {
@@ -152,7 +142,7 @@ public class RealplayActivity extends BaseActivity {
 				mPager.setNum(newCurrPos);
 			}
 			
-			
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 		} else { // 首次进入
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
@@ -163,6 +153,8 @@ public class RealplayActivity extends BaseActivity {
 			
 			mPager.setAmount(0);
 			mPager.setNum(0);
+			
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}
 
 		
@@ -1153,11 +1145,6 @@ public class RealplayActivity extends BaseActivity {
 
 		switch (resultCode) {
 		case 8:
-//			PreviewDeviceItem p = (PreviewDeviceItem) data.getExtras().get(
-//					"DEVICE_ITEM");			
-//			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
-//			devices.add(p);
-			
 			Parcelable[] _devices = (Parcelable[]) data.getExtras().get("DEVICE_ITEM_LIST");
 			
 			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
@@ -1191,9 +1178,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void onDestroy() {
-		mSensorManager.unregisterListener(mSensorEventListener);
-		
+	protected void onDestroy() {		
 		liveViewManager.closeAllConnection(false);
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1241,6 +1226,8 @@ public class RealplayActivity extends BaseActivity {
 		}
 		
 		liveViewManager.setDeviceList(previewDevices);
+		
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	}
 	
 	/**
@@ -1257,6 +1244,7 @@ public class RealplayActivity extends BaseActivity {
 	 */
 	public void notifyPreviewDevicesContentChanged() {
 		if (previewDevices.size() > 0) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			liveViewManager.setDeviceList(previewDevices);
 
 			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1264,6 +1252,7 @@ public class RealplayActivity extends BaseActivity {
 			
 			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
 			showSingleOrMultiMode(null);
