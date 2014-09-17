@@ -57,7 +57,7 @@
     </style>
 
     <style name="MenuDrawerStyle" parent="Widget.MenuDrawer">
-        <item name="mdActiveIndicator">@drawable/menu_drawer_active_indicator</item>
+<!--         <item name="mdActiveIndicator">@drawable/menu_drawer_active_indicator</item> -->
     </style>
 
     <style name="MenuDrawerStyle.Right" parent="Widget.MenuDrawer">
