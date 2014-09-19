@@ -7,31 +7,72 @@
     android:orientation="vertical"
     tools:context="com.perfect.AboutActivity"
     tools:ignore="MergeRootFrame" >
-    
+
     <ImageView
-        android:layout_marginTop="40dp"
+        android:id="@+id/introduction_img"
         android:layout_width="150dp"
-    	android:layout_height="150dp"
-    	android:layout_gravity="center"
-    	android:background="@drawable/ic_launcher"
-        />
-    
-    <View
+        android:layout_height="150dp"
+        android:layout_gravity="center"
         android:layout_marginTop="40dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
+        android:background="@drawable/ic_launcher" />
+
+    <View
         android:layout_width="fill_parent"
         android:layout_height="2dp"
-        android:background="@color/system_setting_about_line" />
-    
-    <TextView
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:layout_marginTop="40dp"
+        android:background="@color/system_setting_about_line" />
+
+    <TextView
+        android:id="@+id/introduction_txt"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="40dp"
         android:gravity="center"
-        android:textColor="@color/system_setting_about_build"
         android:text="@string/system_setting_about_build"
-        />
-    
+        android:textColor="@color/system_setting_about_build" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" > <!-- android:layout_marginTop="10dp" -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/corp_content_txt_chi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/system_setting_corp_content_txt_chi"
+                android:textColor="@color/system_setting_about_noIsenable" />
+
+            <TextView
+                android:id="@+id/corp_content_txt_eng"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/system_setting_corp_content_txt_eng"
+                android:textColor="@color/system_setting_about_noIsenable" />
+
+            <TextView
+                android:id="@+id/corp_rights_txt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/system_setting_corp_rights_txt"
+                android:textColor="@color/system_setting_about_noIsenable" />
+        </LinearLayout>
+    </RelativeLayout>
+
 </LinearLayout>

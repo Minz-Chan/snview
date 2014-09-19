@@ -1,14 +1,22 @@
 package com.starnet.snview.syssetting;
 
 import android.os.Bundle;
+import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
 	private static final String TAG = "AboutActivity";
+	
+	private TextView about_version_txt;
+	private ImageView about_version_img;
+	
+	private String mIntroductionContent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +25,11 @@ public class AboutActivity extends BaseActivity {
 		
 		initView();
 		setListeners();
+		setContentsForWagets();
+	}
+	
+	protected void setContentsForWagets(){
+		mIntroductionContent = "";
 	}
 	
 	private void initView() {
@@ -25,6 +38,9 @@ public class AboutActivity extends BaseActivity {
 		super.hideRightButton();
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		
+		about_version_img = (ImageView) findViewById(R.id.introduction_img);
+		about_version_txt = (TextView) findViewById(R.id.introduction_txt);
 	}
 	
 	private void setListeners() {
