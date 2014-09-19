@@ -37,23 +37,6 @@ class FileRect
   
   public void draw(Canvas canvas, Paint paint, int minWidth, int maxWidth)
   {
-//    if (isInRange(paramInt1, paramInt2))
-//    {
-//      if ((this.mX >= paramInt1) || (this.mX + this.mWidth <= paramInt1)) {
-//        break label69;
-//      }
-//      paramCanvas.drawRect(paramInt1, this.mY, 1.0F + (this.mX + this.mWidth), this.mY + this.mHeight, paramPaint);
-//    }
-//    for (;;)
-//    {
-//      return;
-//      label69:
-//      if ((this.mX < paramInt2) && (this.mX + this.mWidth > paramInt2)) {
-//        paramCanvas.drawRect(this.mX, this.mY, paramInt2 + 1, this.mY + this.mHeight, paramPaint);
-//      } else {
-//        paramCanvas.drawRect(this.mX, this.mY, 1.0F + (this.mX + this.mWidth), this.mY + this.mHeight, paramPaint);
-//      }
-//    }
 	  if (isInRange(minWidth, maxWidth)) {
 			if ((this.mX >= minWidth) || (this.mX + this.mWidth <= minWidth)) {
 				if ((this.mX < maxWidth)
@@ -83,18 +66,13 @@ class FileRect
     return this.mStopTime.getTimeInMillis();
   }
   
-  public boolean isInRange(float x1, float x2)
-  {
-//    if ((this.mX + this.mWidth < paramFloat1) || (this.mX > paramFloat2)) {}
-//    for (boolean bool = false;; bool = true) {
-//      return bool;
-//    }
-	  if ((this.mX + this.mWidth < x1) || (this.mX > x2)) {
+	public boolean isInRange(float x1, float x2) {
+		if ((this.mX + this.mWidth < x1) || (this.mX > x2)) {
 			return false;
 		} else {
 			return true;
 		}
-  }
+	}
   
   public void setPos(float x, float y, int width, int height)
   {
@@ -104,9 +82,3 @@ class FileRect
     this.mHeight = height;
   }
 }
-
-
-/* Location:           D:\kuaipan\鎴戠殑璧勬枡\鐮旂┒鐢熼樁娈礬椤圭洰\鏄熺綉瀹夐槻\star-security\iVMS-4500\classes_dex2jar.jar
- * Qualified Name:     com.mcu.iVMS.component.FileRect
- * JD-Core Version:    0.7.0-SNAPSHOT-20130630
- */
