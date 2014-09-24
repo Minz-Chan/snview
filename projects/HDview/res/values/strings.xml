@@ -132,6 +132,9 @@
     <string name="connection_response_login_success">登录服务器成功</string>
     <string name="connection_response_user_pwd_error">用户或密码错误</string>
     
+    <string name="guide_begin_experiment">开始体验</string>
+    <string name="guide_jump_experiment">跳过</string>
+    
     <string name="exit_dialog_content">退出程序？</string>
     <string name="exit_dialog_ensure">确定</string>
     <string name="exit_dialog_dispose">取消</string>
