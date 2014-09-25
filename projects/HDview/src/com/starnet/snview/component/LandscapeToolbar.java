@@ -76,6 +76,7 @@ public class LandscapeToolbar extends FrameLayout {
 	private boolean mIsLandToolbarShow = false;
 	private boolean mClickMode = true;
 	private boolean mIsCanMove = false;
+	private boolean mIsDragging = false;
 	private boolean mIsCancleLongTouch = false;
 	private boolean mIsControlBarExpanded = false;
 	private boolean mIsPTZBarExpanded = false;
@@ -605,6 +606,13 @@ public class LandscapeToolbar extends FrameLayout {
 			int bottom) {
 		super.onLayout(change, left, top, right, bottom);
 	}
+	
+	
+
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		return mIsDragging;
+	}
 
 	public boolean onTouchEvent(MotionEvent e) {
 		int sWidth = GlobalApplication.getInstance().getScreenWidth();
@@ -618,6 +626,7 @@ public class LandscapeToolbar extends FrameLayout {
 			mIsCancleLongTouch = false;
 			mTouchCount = (1 + mTouchCount);
 			mIsCanMove = false;
+			mIsDragging = false;
 			mLastX = ((int) e.getRawX());
 			mLastY = ((int) e.getRawY());
 			mClickImageButton = isPressAction(e);
@@ -681,6 +690,8 @@ public class LandscapeToolbar extends FrameLayout {
 				mClickMode = false;
 				expandedControl(true);
 			}
+			
+			mIsDragging = true;
 
 			mLastX = rawX;
 			mLastY = rawY;
@@ -691,6 +702,7 @@ public class LandscapeToolbar extends FrameLayout {
 
 			requestLayout();
 			
+			break;			
 		case MotionEvent.ACTION_UP:
 			mIsCanMove = false;
 			mIsCancleLongTouch = true;
@@ -701,12 +713,18 @@ public class LandscapeToolbar extends FrameLayout {
 			
 			canclePressedStatus();
 
-			if (mClickImageButton != null) {
+			if (mClickImageButton != null && !mIsDragging) {
+				Log.i(TAG, "Click Action occur!!!!!");
 				clickAction(mClickImageButton);
 				playSoundEffect(0);
 			}
 			
 			showLandscapeToolbar();
+			
+			mIsDragging = false;
+			break;
+		case MotionEvent.ACTION_CANCEL:
+			Log.i(TAG, "ACTION_CANCEL occur");
 			break;
 		default:
 			break;
