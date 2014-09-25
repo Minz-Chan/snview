@@ -35,6 +35,12 @@
         <activity
             android:name="com.starnet.snview.global.GuideActivity"
             android:alwaysRetainTaskState="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name="com.starnet.snview.syssetting.NewFunctionActivity"
+            android:alwaysRetainTaskState="true"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name="com.starnet.snview.realplay.RealplayActivity"

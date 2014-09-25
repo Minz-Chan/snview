@@ -69,13 +69,16 @@ public class SystemSettingActivity extends BaseActivity {
         
         settingList = new ArrayList<HashMap<String, Object>>();
         map = new HashMap<String, Object>();
-        map.put("text", getResources().getString(R.string.system_setting_update));
-        settingList.add(map);
-        map = new HashMap<String, Object>();
         map.put("text", getResources().getString(R.string.system_setting_help));
         settingList.add(map);
         map = new HashMap<String, Object>();
         map.put("text", getResources().getString(R.string.system_setting_about));
+        settingList.add(map);
+        map = new HashMap<String, Object>();
+        map.put("text", getResources().getString(R.string.system_setting_update));
+        settingList.add(map);
+        map = new HashMap<String, Object>();
+        map.put("text", getResources().getString(R.string.system_setting_newfunction));
         settingList.add(map);
         settingListAdapter = new SystemSettingAdapter(this, settingList);
         secondCornerListView = (CornerListView)findViewById(R.id.second_setting_list); 
@@ -85,14 +88,16 @@ public class SystemSettingActivity extends BaseActivity {
 			public void onItemClick(AdapterView<?> parent, View view,int index, long id) {
       			switch (index) {
       			case 0:
-      				gotoUpdate();
+      				gotoHelp();
       				break;
       			case 1:
-      				gotoHelp();
-//      				gotoChannelListActivity_copy();
+      				gotoAbout();
       				break;
 				case 2:
-					gotoAbout();
+					gotoUpdate();
+					break;
+				case 3:
+					gotoNewFunction();
 					break;
 				default:
 					break;
@@ -104,7 +109,6 @@ public class SystemSettingActivity extends BaseActivity {
         logoutBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				Toast.makeText(getApplicationContext(), "ButtonPressed", Toast.LENGTH_LONG).show();
 				showTips();
 			}
 		});
@@ -121,15 +125,17 @@ public class SystemSettingActivity extends BaseActivity {
 				android.os.Process.killProcess(android.os.Process.myPid());
 				SystemSettingActivity.this.finish();
 				System.exit(0);
-////				activityMgr.restartPackage();
-//				activityMgr.killBackgroundProcesses(getPackageName());
-				
 			}
 		});
 		builder.setNegativeButton(getString(R.string.system_setting_logout_cancel), null);
 		
 		builder.show();
-//		AlertDialog alertDialog = 
+	}
+	
+	protected void gotoNewFunction(){
+		Intent intent = new Intent();
+        intent.setClass(SystemSettingActivity.this, NewFunctionActivity.class); 
+        startActivity(intent);
 	}
 	
 	protected void gotoUpdate(){//zk。进入 更新界面。。。

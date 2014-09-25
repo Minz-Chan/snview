@@ -53,6 +53,7 @@
     <string name="system_setting_update">软件更新</string>
     <string name="system_setting_help">帮助</string>
     <string name="system_setting_about">关于</string>
+    <string name="system_setting_newfunction">新功能介绍</string>
     <string name="system_setting_logout">退出</string>
     <string name="system_setting_about_build">Version 6.0.0 (Build 20140101)</string>
     <string name="system_setting_cloudaccount_server">域名服务器</string>
