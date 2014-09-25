@@ -703,6 +703,10 @@ public class RealplayActivity extends BaseActivity {
 	public FrameLayout getVideoRegion() {
 		return mVideoRegion;
 	}
+	
+	public VideoPager getPager() {
+		return mPager;
+	}
 
 	private VideoPager.OnActionClickListener mPagerOnActionClickListener = new VideoPager.OnActionClickListener() {
 		@Override
@@ -1344,17 +1348,7 @@ public class RealplayActivity extends BaseActivity {
 				pos = getIndexOfLiveview(e.getX(), e.getY());
 			}
 			
-			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
-				if(pos == liveViewManager.getCurrentSelectedLiveViewPosition()) {
-					if (liveControl.getLandscapeToolbar().isLandToolbarShoww()) {
-						liveControl.getLandscapeToolbar().hideLandscapeToolbar();
-					} else {
-						liveControl.getLandscapeToolbar().showLandscapeToolbar();
-					}
-				} else {
-					liveControl.getLandscapeToolbar().showLandscapeToolbar();
-				}
-			}
+			
 			
 			if ((ptzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
 					/*|| !liveViewManager.isMultiMode()*/) { // PTZ模式情况下或单通道模式单击无效
@@ -1369,12 +1363,26 @@ public class RealplayActivity extends BaseActivity {
 				return;  // 非有效通道，不作处理 
 			}
 			
+			int oldPos = liveViewManager.getCurrentSelectedLiveViewPosition();
+			
 			liveViewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
 			
 			liveViewManager.selectLiveView(index); 
 			
 			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
 			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+			
+			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
+				if(pos == oldPos) {
+					if (liveControl.getLandscapeToolbar().isLandToolbarShow()) {
+						liveControl.getLandscapeToolbar().hideLandscapeToolbar();
+					} else {
+						liveControl.getLandscapeToolbar().showLandscapeToolbar();
+					}
+				} else {
+					liveControl.getLandscapeToolbar().showLandscapeToolbar();
+				}
+			}
 		}
 	
 		@Override
@@ -1482,6 +1490,12 @@ public class RealplayActivity extends BaseActivity {
 					
 					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
 					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+					
+					if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，且分页器显示，则刷新分页器
+						if (liveControl.getLandscapeToolbar().isLandToolbarShow()) {
+							liveControl.getLandscapeToolbar().showLandscapeToolbar();
+						}
+					}
 				}
 			} else { // PTZ, 向左	
 				Log.i(TAG, "PTZ Action");
@@ -1506,6 +1520,12 @@ public class RealplayActivity extends BaseActivity {
 					
 					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
 					mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+					
+					if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，且分页器显示，则刷新分页器
+						if (liveControl.getLandscapeToolbar().isLandToolbarShow()) {
+							liveControl.getLandscapeToolbar().showLandscapeToolbar();
+						}
+					}
 				}
 			} else { // PTZ, 向右
 				Log.i(TAG, "PTZ Action");

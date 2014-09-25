@@ -2,10 +2,11 @@
 <RelativeLayout android:clickable="false" android:layout_width="fill_parent" android:layout_height="fill_parent"
   xmlns:android="http://schemas.android.com/apk/res/android">
   
-<!--     <LinearLayout android:gravity="center" android:orientation="horizontal" android:id="@id/landscape_liveview_pageindicator_frame" android:layout_width="fill_parent" android:layout_height="wrap_content"> -->
-<!-- 	    分页指示器控件（横屏） -->
+    <LinearLayout android:gravity="center" android:layout_centerHorizontal="true" android:layout_marginTop="5.0dip" android:orientation="horizontal" android:id="@id/landscape_liveview_pageindicator_frame" android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<!--  分页指示器控件（横屏） -->
 <!--         <com.mcu.iVMS.component.PageIndicatorsView android:id="@id/landscape_liveview_pageindicator" android:layout_width="wrap_content" android:layout_height="wrap_content" /> -->
-<!--     </LinearLayout> -->
+		<TextView android:id="@id/landscape_liveview_pageindicator" android:gravity="center" android:textColor="@color/landscape_pageindicator" android:background="@drawable/fullscreen_pageindicator_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </LinearLayout>
 	
 	<!-- 横屏工具条 -->
     <com.starnet.snview.component.LandscapeToolbar android:orientation="vertical" android:id="@id/landscape_liveview_control_frame" android:layout_width="wrap_content" android:layout_height="wrap_content">

@@ -1,5 +1,6 @@
 package com.starnet.snview.component;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,6 +17,9 @@ import android.widget.RelativeLayout;
 
 
 
+
+
+import android.widget.TextView;
 
 
 //import com.mcu.iVMS.global.GlobalApplication;
@@ -83,6 +87,9 @@ public class LandscapeToolbar extends FrameLayout {
 	private boolean mIsPTZshow = false;
 	private boolean mIsQualityExpaned = false;
 	private boolean mIsQualityShow = false;
+	
+	private LinearLayout mPageIndicatorFrame;
+	private TextView mPageIndicator;
 
 	private FrameLayout mLandscapeBarContent;
 	private int mLastX;
@@ -403,7 +410,7 @@ public class LandscapeToolbar extends FrameLayout {
 		this.mIsLandToolbarShow = isShow;
 	}
 	
-	public boolean isLandToolbarShoww() {
+	public boolean isLandToolbarShow() {
 		return mIsLandToolbarShow;
 	}
 	
@@ -432,6 +439,10 @@ public class LandscapeToolbar extends FrameLayout {
 		mPTZControlChildList.clear();
 		mLandscapeBarContent = ((FrameLayout) findViewById(R.id.landscape_liveview_controlbar_content));
 
+		mPageIndicator = (TextView) ((RealplayActivity) mContext).findViewById(R.id.landscape_liveview_pageindicator);
+		mPageIndicatorFrame = (LinearLayout) ((RealplayActivity) mContext).findViewById(R.id.landscape_liveview_pageindicator_frame);
+		
+		
 		/* 功能工具条 */
 		mControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_controlbar));
 		mShotPictureButton = ((ImageButton) findViewById(R.id.landscape_liveview_capture_button));
@@ -500,6 +511,9 @@ public class LandscapeToolbar extends FrameLayout {
 	public void showLandscapeToolbar() {
 		setLandToolbarShow(true);
 		mLandscapeBarContent.setVisibility(View.VISIBLE);
+		mPageIndicatorFrame.setVisibility(View.VISIBLE);
+		
+		mPageIndicator.setText(((RealplayActivity) mContext).getPager().getPagerText());
 		
 		//mTimer.cancel();
 		if (mLandscapeBarAutoDismissTask != null) {
@@ -514,6 +528,7 @@ public class LandscapeToolbar extends FrameLayout {
 					public void run() {
 						setLandToolbarShow(false);
 						mLandscapeBarContent.setVisibility(View.GONE);
+						mPageIndicatorFrame.setVisibility(View.GONE);
 					}
 				});
 			}
@@ -553,6 +568,7 @@ public class LandscapeToolbar extends FrameLayout {
 	public void hideLandscapeToolbar() {
 		setLandToolbarShow(false);
 		mLandscapeBarContent.setVisibility(View.GONE);
+		mPageIndicatorFrame.setVisibility(View.GONE);
 		
 		if (mLandscapeBarAutoDismissTask != null) {
 			mLandscapeBarAutoDismissTask.cancel();

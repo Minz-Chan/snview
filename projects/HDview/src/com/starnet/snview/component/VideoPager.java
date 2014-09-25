@@ -133,6 +133,10 @@ public class VideoPager extends LinearLayout {
 		OnContentChanged();
 	}
 	
+	public String getPagerText() {
+		return text.getText().toString();
+	}
+	
 	private void OnContentChanged() {
 		text.setText(num + seperator + amount);
 	}
