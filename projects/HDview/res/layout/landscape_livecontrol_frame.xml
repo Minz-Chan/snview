@@ -12,7 +12,7 @@
         <FrameLayout android:id="@id/landscape_liveview_controlbar_content" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content">
 		
 		    <!-- 视频质量控件条（横屏） -->
-            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/landscape_liveview_quality_control_bar" android:background="@drawable/fullscreen_bar" android:paddingLeft="13.0dip" android:paddingTop="8.0dip" android:paddingRight="10.0dip" android:paddingBottom="8.0dip" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="9.0">
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/landscape_liveview_quality_control_bar" android:background="@drawable/fullscreen_bar" android:paddingLeft="13.0dip" android:paddingRight="10.0dip" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="9.0">
                 <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
 				<!-- 清晰 -->
                 <Button android:textSize="@dimen/common_textsize_small_14sp" android:textColor="@color/quality_button_colorstatelist_selector" android:id="@id/landscape_liveview_quality_clear_button" android:background="@drawable/landscape_quality_button_bg_selector" android:clickable="false" android:layout_width="60.0dip" android:layout_height="fill_parent" android:text="@string/toolbar_quality_menu_high" />
