@@ -73,7 +73,7 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());		
 		
 		// 更新视频显示
-		if (liveViewChangedListener != null) {
+		if (liveViewChangedListener != null && !connection.getLiveViewItemContainer().isManualStop()) {
 			//System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
 			liveViewChangedListener.onDisplayContentUpdated();
 		}
