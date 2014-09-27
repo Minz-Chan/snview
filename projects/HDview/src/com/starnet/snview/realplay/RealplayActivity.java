@@ -59,6 +59,7 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -83,6 +84,8 @@ public class RealplayActivity extends BaseActivity {
 	private SurfaceViewSingleLayout mSurfaceSingleLayout;
 	private SurfaceViewMultiLayout mSurfaceMultiLayout;
 	
+	private Animation mVideoSwitchAnim;
+	private Animation mShotPictureAnim;
 	
 	private LiveControl liveControl;
 	private PTZControl ptzControl;
@@ -307,6 +310,8 @@ public class RealplayActivity extends BaseActivity {
 						s.playSound();
 					}	
 				}).start();
+				
+				liveViewManager.getSelectedLiveView().startAnimation(mShotPictureAnim);
 				
 				// 显示提示
 				// ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
@@ -681,6 +686,8 @@ public class RealplayActivity extends BaseActivity {
 		});
 		
 		mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
+		mVideoSwitchAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.video_switch);
+		mShotPictureAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.shot_picture);
 		liveViewManager = new LiveViewManager(this);
 		previewDevices = new ArrayList<PreviewDeviceItem>();
 		
@@ -1486,6 +1493,8 @@ public class RealplayActivity extends BaseActivity {
 			
 			if (!ptzControl.isPTZModeOn()) { // 向左滑屏
 				if (liveViewManager.getPager() != null) {
+					mVideoRegion.startAnimation(mVideoSwitchAnim);
+					
 					liveViewManager.nextPage();
 					
 					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1516,6 +1525,8 @@ public class RealplayActivity extends BaseActivity {
 					+ " mIsScaleOperator:" + mIsScaleOperator);
 			if (!ptzControl.isPTZModeOn()) { // 向右滑屏
 				if (liveViewManager.getPager() != null) {
+					mVideoRegion.startAnimation(mVideoSwitchAnim);
+					
 					liveViewManager.previousPage();
 					
 					mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1777,7 +1788,7 @@ public class RealplayActivity extends BaseActivity {
         			//mFlipper.setOutAnimation(animations[1]);
         			//mFlipper.showPrevious();
         			
-        			ToastUtils.show(RealplayActivity.this, "向左滑动");
+        			//ToastUtils.show(RealplayActivity.this, "向左滑动");
         			mGestureListener.onSlidingLeft();
         		} else if (h == 1) {
         			// 为flipper设置切换的的动画效果
@@ -1785,7 +1796,7 @@ public class RealplayActivity extends BaseActivity {
         			//mFlipper.setOutAnimation(animations[3]);
         			//mFlipper.showNext();
         			
-        			ToastUtils.show(RealplayActivity.this, "向右滑动");
+        			//ToastUtils.show(RealplayActivity.this, "向右滑动");
         			mGestureListener.onSlidingRight();
         		}
         		
