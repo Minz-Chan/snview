@@ -549,7 +549,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				&& (exceptIndex < startIndex || exceptIndex > startIndex
 						+ count - 1)) {
 			throw new IllegalArgumentException(
-					"exceptIndex should be in [startIndex, startIndex + count)");
+					"exceptIndex should be in [startIndex, startIndex + count), startIndex:"
+							+ startIndex + ", count:" + count
+							+ ", exceptIndex:" + exceptIndex);
 		}
 
 		if ((devicesCount - startIndex + 1 < count)
