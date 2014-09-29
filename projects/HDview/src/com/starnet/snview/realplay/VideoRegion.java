@@ -568,6 +568,11 @@ public class VideoRegion extends FrameLayout {
 
 			mPager.setNum(mLiveViewManager.getSelectedLiveViewIndex());
 			mPager.setAmount(mLiveViewManager.getLiveViewTotalCount());
+			
+			if (GlobalApplication.getInstance().isIsFullMode()
+					&& mLiveControl.getLandscapeToolbar().isLandToolbarShow()) { // 更新工具栏页码
+				mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
+			}
 		}
 
 		private int getIndexOfLiveview(float x, float y) {
