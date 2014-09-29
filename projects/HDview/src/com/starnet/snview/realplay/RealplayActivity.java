@@ -117,25 +117,29 @@ public class RealplayActivity extends BaseActivity {
 			setPreviewDevices(devices);
 			
 			if (mode != -1) {
-				VideoPagerAdapter vpAdapter = null;
-				if (mode == 1) { // 单通道
-					vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
-				} else { // 多通道
-					vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
-				}
-				
-				mVideoPager.setAdapter(vpAdapter);
-				vpAdapter.notifyDataSetChanged();
-				
-				mVideoPager.post(new Runnable() {
-					@Override
-					public void run() {
-						updateViewOnStart();
-					}
-				});
+				updateVideoPagerAdapter(mode);
 			}
 		}
 
+	}
+	
+	private void updateVideoPagerAdapter(int mode) {
+		VideoPagerAdapter vpAdapter = null;
+		if (mode == 1) { // 单通道
+			vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
+		} else { // 多通道
+			vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
+		}
+		
+		mVideoPager.setAdapter(vpAdapter);
+		vpAdapter.notifyDataSetChanged();
+		
+		mVideoPager.post(new Runnable() {
+			@Override
+			public void run() {
+				updateViewOnStart();
+			}
+		});
 	}
 	
 	private void updateViewOnStart() {
@@ -1123,7 +1127,6 @@ public class RealplayActivity extends BaseActivity {
 		switch (resultCode) {
 		case 8:
 			Parcelable[] _devices = (Parcelable[]) data.getExtras().get("DEVICE_ITEM_LIST");
-			
 			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
 
 			for (int i = 0; i < _devices.length; i++) {
@@ -1132,30 +1135,56 @@ public class RealplayActivity extends BaseActivity {
 			
 			setPreviewDevices(devices);
 			
-			liveViewManager.setCurrenSelectedLiveViewtIndex(1);
-			
-			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-			
-			liveViewManager.preview();
-			
-			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
-			
-			if (!liveViewManager.isMultiMode()) {
-				//showSingleOrMultiMode(true);
-				getVR().showSingleOrMultiMode(true);
-				ptzControl.setIsEnterPTZInSingleMode(true);
-			} else {
-				//showSingleOrMultiMode(false);
-				getVR().showSingleOrMultiMode(false);
-				ptzControl.setIsEnterPTZInSingleMode(false);
+			if (mVideoPager.getAdapter() == null) {
+				VideoPagerAdapter vpAdapter = null;
+				if (!liveViewManager.isMultiMode()) { // 单通道
+					vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
+				} else { // 多通道
+					vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
+				}
+				
+				mVideoPager.setAdapter(vpAdapter);
+				vpAdapter.notifyDataSetChanged();
 			}
+			
+			mVideoPager.post(new Runnable() {
+				@Override
+				public void run() {
+					startPreview();
+				}
+			});
+			
 			
 			break;
 		default:
 			break;
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
+	private void startPreview() {
+		mVideoPager.setCurrentItem(0);
+		
+		refillLiveviews();
+		
+		liveViewManager.setCurrenSelectedLiveViewtIndex(1);
+		
+		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+		mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+		
+		liveViewManager.preview();
+		
+		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
+		
+		if (!liveViewManager.isMultiMode()) {
+			//showSingleOrMultiMode(true);
+			getVR().showSingleOrMultiMode(true);
+			ptzControl.setIsEnterPTZInSingleMode(true);
+		} else {
+			//showSingleOrMultiMode(false);
+			getVR().showSingleOrMultiMode(false);
+			ptzControl.setIsEnterPTZInSingleMode(false);
+		}
 	}
 
 	@Override
@@ -1243,7 +1272,9 @@ public class RealplayActivity extends BaseActivity {
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
 			//showSingleOrMultiMode(null);
-			getVR().showSingleOrMultiMode(null);
+			if (getVR() != null) {
+				getVR().showSingleOrMultiMode(null);
+			}
 			
 			bIsPlaying = false;
 			updatePlayStatus(bIsPlaying);
