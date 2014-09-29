@@ -13,11 +13,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * 
@@ -49,7 +51,8 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		channelList = new ArrayList<Channel>();
-
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		
 		intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		String childPosition = bundle.getString("childPosition");
@@ -79,6 +82,9 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 			titleName = titleName.substring(4);
 		}
 		
+		ChannelListViewActivity.this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.about_titlebar_activity);
+		TextView titleView = (TextView) findViewById(R.id.title);
+		titleView.setText(titleName);
 		ChannelListViewActivity.this.setTitle(titleName);//设置标题栏
 		initWadgetsAndAddListeners();
 	}
