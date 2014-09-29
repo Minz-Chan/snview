@@ -381,6 +381,7 @@ public class PTZControl {
 	public void openPTZ() {
 		mIsPTZModeOn = true;
 		
+		mLiveActivity.getVideoPager().setPTZMode(true);
 		
 		if (!GlobalApplication.getInstance().isIsFullMode()) {
 			showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.MENU_PTZ);
@@ -418,6 +419,8 @@ public class PTZControl {
 	
 	public void closePTZ() {
 		mIsPTZModeOn = false;
+		
+		mLiveActivity.getVideoPager().setPTZMode(false);
 		
 		if (!GlobalApplication.getInstance().isIsFullMode()) {
 			showPTZBar(false);

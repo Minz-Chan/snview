@@ -5,6 +5,7 @@ import android.os.Debug;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 
 public class VideoPager extends ViewPager {
 	private static final String TAG = "VideoPager";
@@ -15,6 +16,7 @@ public class VideoPager extends ViewPager {
     private int lastValue = Integer.MIN_VALUE;  
     private int lastPage = 0;
     private boolean isManualSetItem = false;
+    private boolean isPTZMode = false;
     private VideoPagerChangedCallback mVideoPagerChangedCallback = null; 
 	
 	public VideoPager(Context context, AttributeSet attrs) {
@@ -39,8 +41,40 @@ public class VideoPager extends ViewPager {
 		isManualSetItem = false;
 		lastPage = item;
 	}
+	
+	
 
+	@Override
+	public void setCurrentItem(int item, boolean smoothScroll) {
+		isManualSetItem = true;
+		super.setCurrentItem(item, smoothScroll);
+		isManualSetItem = false;
+		lastPage = item;
+	}
 
+	public void setPTZMode(boolean isPTZMode) {
+		this.isPTZMode = isPTZMode;
+	}
+	
+	
+
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		if (isPTZMode) {
+			return false;
+		}
+		
+		return super.onInterceptTouchEvent(ev);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent ev) {
+		if (isPTZMode) {
+			return false;
+		}
+		
+		return super.onTouchEvent(ev);
+	}
 
 
 	private OnPageChangeListener listener = new OnPageChangeListener() {
