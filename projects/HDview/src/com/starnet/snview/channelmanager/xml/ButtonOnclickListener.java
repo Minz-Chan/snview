@@ -83,7 +83,7 @@ public class ButtonOnclickListener implements OnClickListener {
 			String deviceName = clickCloudAccount.getDeviceList().get(childPos).getDeviceName();
 			bundle.putString("deviceName", deviceName);
 			
-			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
+			bundle.putSerializable("clickCloudAccount", clickCloudAccount); 
 			intent.putExtras(bundle);
 			
 			((ChannelListActivity) context).startActivityForResult(intent, 31);
