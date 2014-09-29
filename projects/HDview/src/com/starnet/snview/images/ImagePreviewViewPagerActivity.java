@@ -109,7 +109,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				R.color.image_manager_delete_red));
 
 		delete_button = new Button(context);//自定义删除按钮
-		delete_button.setBackgroundResource(R.drawable.navigation_bar_del_btn_selector);
+		delete_button.setBackgroundResource(R.drawable.imagepreview_deletebtn_selector);
 		delete_button.setHeight(LayoutParams.WRAP_CONTENT);
 		delete_button.setWidth(LayoutParams.WRAP_CONTENT);
 

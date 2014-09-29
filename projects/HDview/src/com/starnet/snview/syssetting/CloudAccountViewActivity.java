@@ -114,7 +114,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 				 });
 				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
 				builder.show();
-				return false;
+				return true;
 			}
 		});
 	}

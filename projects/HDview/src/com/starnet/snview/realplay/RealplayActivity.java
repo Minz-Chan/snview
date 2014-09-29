@@ -601,6 +601,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 		});
 		
+		super.getExtendButton().setVisibility(View.GONE);
+		
 		//mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
 //		mVideoSwitchAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.video_switch);
 		mShotPictureAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.shot_picture);

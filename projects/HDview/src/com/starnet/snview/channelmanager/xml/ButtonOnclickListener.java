@@ -80,6 +80,8 @@ public class ButtonOnclickListener implements OnClickListener {
 			Bundle bundle = new Bundle();
 			bundle.putString("groupPosition", String.valueOf(parentPos));
 			bundle.putString("childPosition", String.valueOf(childPos));
+			String deviceName = clickCloudAccount.getDeviceList().get(childPos).getDeviceName();
+			bundle.putString("deviceName", deviceName);
 			
 			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 			intent.putExtras(bundle);

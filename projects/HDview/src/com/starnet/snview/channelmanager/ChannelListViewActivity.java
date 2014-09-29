@@ -56,6 +56,7 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 		String parentPosition = bundle.getString("groupPosition");
 		childPos = Integer.valueOf(childPosition);
 		parentPos = Integer.valueOf(parentPosition);
+		String titleName = bundle.getString("deviceName");
 		
 		CloudAccount clickCloudAccount = (CloudAccount) bundle.getSerializable("clickCloudAccount");//获取用户单击的星云账号...
 		writeCloudAccount = clickCloudAccount;	
@@ -71,6 +72,14 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 		} else {
 			setContentView(R.layout.channel_listview_device_layout);// 主要需要改动，添加“确定”按钮,“取消”按钮
 		}
+		
+		String str1 = getString(R.string.device_manager_online_en);
+		String str2 = getString(R.string.device_manager_offline_en);
+		if(titleName.contains(str1)||titleName.contains(str2)){
+			titleName = titleName.substring(4);
+		}
+		
+		ChannelListViewActivity.this.setTitle(titleName);//设置标题栏
 		initWadgetsAndAddListeners();
 	}
 

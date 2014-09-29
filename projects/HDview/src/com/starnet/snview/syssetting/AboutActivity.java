@@ -1,5 +1,7 @@
 package com.starnet.snview.syssetting;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.view.TextureView;
 import android.view.View;
@@ -13,6 +15,7 @@ import com.starnet.snview.component.BaseActivity;
 public class AboutActivity extends BaseActivity {
 	private static final String TAG = "AboutActivity";
 	
+	private String version ;
 	private TextView about_version_txt;
 	private ImageView about_version_img;
 	
@@ -41,6 +44,14 @@ public class AboutActivity extends BaseActivity {
 		
 		about_version_img = (ImageView) findViewById(R.id.introduction_img);
 		about_version_txt = (TextView) findViewById(R.id.introduction_txt);
+		
+		try {
+			PackageInfo mPackageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			version = mPackageInfo.versionName;
+			about_version_txt.setText("Version "+version+" "+getString(R.string.system_setting_about_build_time));
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void setListeners() {
