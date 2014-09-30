@@ -50,10 +50,13 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	public int notify_number = 1;
 	
+	private TextView titleView;//显示用户选择的通道数量
+	
 	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
-	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList) {
+	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList,TextView titleView) {
 		super();
+		this.titleView = titleView;
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
 		this.layoutInflater = ((LayoutInflater) curContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));

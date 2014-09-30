@@ -15,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
@@ -61,6 +62,8 @@ public class ChannelListActivity extends BaseActivity {
 
 	private NetCloudAccountThread netThread;
 	private CloudAccount collectCloudAccount;
+	
+	private TextView titleView;//通道列表
 
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
 
@@ -154,50 +157,51 @@ public class ChannelListActivity extends BaseActivity {
 
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {//添加返回事件
-				
-//				List<PreviewDeviceItem> previewDeviceItems = GlobalApplication
-//						.getInstance().getRealplayActivity()
-//						.getPreviewDevices();
-//				previewDeviceItems.clear();
-//				previewDeviceItems = getPreviewChannelList(cloudAccounts);
-//				
-//				GlobalApplication.getInstance().getRealplayActivity()
-//						.notifyPreviewDevicesContentChanged();
-				
-				List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
-				previewChannelList = getPreviewChannelList(cloudAccounts);
-
-				if (previewChannelList.size() > 0) {
-					PreviewDeviceItem p = previewChannelList.get(0);
-
-					PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
-							.size()];
-					previewChannelList.toArray(l);
-
-					Intent intent = ChannelListActivity.this
-							.getIntent();
-					intent.putExtra("DEVICE_ITEM_LIST", l);
-
-					ChannelListActivity.this.setResult(8, intent);
-					ChannelListActivity.this.finish();
-				}else {//选择的通道为空时，不进行播放
-					List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-					previewDeviceItems.clear();
-					GlobalApplication.getInstance().getRealplayActivity()
-					.notifyPreviewDevicesContentChanged();
-					ChannelListActivity.this.finish();
-				}
+			public void onClick(View v) {//添加返回事件		
+				backAndLeftButtonOperation();
 			}
 		});
+	}
+	
+	private void backAndLeftButtonOperation(){
+		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
+		previewChannelList = getPreviewChannelList(cloudAccounts);
+
+		if (previewChannelList.size() > 0) {
+			PreviewDeviceItem p = previewChannelList.get(0);
+
+			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
+					.size()];
+			previewChannelList.toArray(l);
+
+			Intent intent = ChannelListActivity.this
+					.getIntent();
+			intent.putExtra("DEVICE_ITEM_LIST", l);
+
+			ChannelListActivity.this.setResult(8, intent);
+			ChannelListActivity.this.finish();
+		}else {//选择的通道为空时，不进行播放
+			List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+			previewDeviceItems.clear();
+			GlobalApplication.getInstance().getRealplayActivity()
+			.notifyPreviewDevicesContentChanged();
+			ChannelListActivity.this.finish();
+		}
 	}
 
 	private void initView() {
 
-		super.setTitleViewText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
+		titleView = super.getTitleView();
+		List<PreviewDeviceItem> previews = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		if((previews == null)||(previews!=null&&previews.size()==0)){
+			titleView.setText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
+		}else{
+			titleView.setText(getString(R.string.navigation_title_channel_list)+"("+previews.size()+")");// 设置列表标题名
+		}
+		
 		super.setToolbarVisiable(false);
 		super.hideRightButton();
-		super.hideExtendButton();
+//		super.hideExtendButton();
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 
 		curContext = ChannelListActivity.this;
@@ -238,7 +242,7 @@ public class ChannelListActivity extends BaseActivity {
 		}
 
 		curContext = ChannelListActivity.this;
-		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts);
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, cloudAccounts,titleView);
 		mExpandableListView.setAdapter(chExpandableListAdapter);
 	}
 
@@ -368,13 +372,14 @@ public class ChannelListActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		ChannelListActivity.this.onDestroy();
+		if((keyCode == KeyEvent.KEYCODE_BACK )||(event.getRepeatCount()==0)){
+			backAndLeftButtonOperation();
+		}
 		return super.onKeyDown(keyCode, event);
 	}
 
 	@Override
 	protected void onDestroy() {
-		// stopThread = true;
 		super.onDestroy();
 	}
 }
