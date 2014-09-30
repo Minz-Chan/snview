@@ -1240,7 +1240,10 @@ public class RealplayActivity extends BaseActivity {
 		if (previewDevices.size() > 0) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			
-			mVideoPager.getAdapter().notifyDataSetChanged();
+			if (mVideoPager.getAdapter() != null) {
+				mVideoPager.getAdapter().notifyDataSetChanged();
+			}
+			
 			liveViewManager.setDeviceList(previewDevices);
 
 			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
@@ -1249,6 +1252,11 @@ public class RealplayActivity extends BaseActivity {
 			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 		} else {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			
+			if (mVideoPager.getAdapter() != null) {
+				mVideoPager.getAdapter().notifyDataSetChanged();
+			}
+			
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
 			//showSingleOrMultiMode(null);
