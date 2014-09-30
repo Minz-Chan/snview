@@ -342,6 +342,14 @@ public class ChannelListActivity extends BaseActivity {
 			chExpandableListAdapter.notify_number = 2;
 			chExpandableListAdapter.notifyDataSetChanged();
 			caXML = new CloudAccountXML();
+			
+			//设置通道列表的选择数目
+			List<PreviewDeviceItem> previews = getPreviewChannelList(cloudAccounts);
+			if((previews == null)||(previews!=null&&previews.size()==0)){
+				titleView.setText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
+			}else{
+				titleView.setText(getString(R.string.navigation_title_channel_list)+"("+previews.size()+")");// 设置列表标题名
+			}
 
 			// 判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
 			if (collectCloudAccount.getUsername().equals("收藏设备")

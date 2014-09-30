@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 /**
  * 
@@ -39,6 +40,8 @@ public class ButtonOnclickListener implements OnClickListener {
 	
 	private Button state_button;
 	private ButtonState bs;
+	
+	
 	
 	private CloudAccountXML csxml;//
 	private List<CloudAccount> cloudAccountList;//星云账号信息

@@ -34,7 +34,6 @@ import android.widget.TextView;
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
 	
 	private final String TAG = "ChannelExpandableListviewAdapter";
-	
 	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 	
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
@@ -259,8 +258,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		changeStateButton(state_button,state);
 		bs = new ButtonState();
 		bs.setState(state);
-		ButtonOnTouchListener bolc = new ButtonOnTouchListener(ChannelExpandableListviewAdapter.this,groupPosition, childPosition,state_button,groupAccountList);
-		state_button.setOnTouchListener(bolc);
+		ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
+		state_button.setOnTouchListener(bolc);//原来的情形
+		
 
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
@@ -270,7 +270,29 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		
 		return convertView;
 	}
-
+	
+		public String getChannelSelectNum(DeviceItem deviceItem) {
+			String state = "";
+			int channelNum = 0 ;
+			int channelSelectNum = 0;
+			List<Channel> channels =deviceItem.getChannelList();
+			int channelSize = channels.size();
+			for (int k = 0; k < channelSize; k++) {		
+				channelNum++;	
+				if (channels.get(k).isSelected()) {
+					channelSelectNum++;
+				}
+			}	
+			if (channelNum == channelSelectNum) {
+				state = "all";
+			}else if ((channelSelectNum > 0)) {
+				state = "half";
+			}else {
+				state = "empty";
+			}
+			return state;
+		}
+	
 	protected boolean checkPreviewDeviceItemFromCA(PreviewDeviceItem previewDeviceItem,CloudAccount cloudAccount){
 		
 		boolean isContained = false;

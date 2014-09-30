@@ -1,19 +1,25 @@
 package com.starnet.snview.channelmanager.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 @SuppressLint("SdCardPath")
 public class ButtonOnTouchListener implements OnTouchListener {
@@ -31,8 +37,10 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	private CloudAccount selectCloudAccount;
 	private DeviceItem deviceItem;
 	ChannelExpandableListviewAdapter cela;
+	private TextView titleView;
+	private Context context;
 
-	public ButtonOnTouchListener(ChannelExpandableListviewAdapter cela,int groupPosition, int childPosition,Button state_button,List<CloudAccount> groupAccountList) {
+	public ButtonOnTouchListener(Context context,ChannelExpandableListviewAdapter cela,TextView titleView,int groupPosition, int childPosition,Button state_button,List<CloudAccount> groupAccountList) {
 		super();
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;
@@ -40,6 +48,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		this.cloudAccountList = groupAccountList;
 		csxml = new CloudAccountXML();
 		this.cela = cela;
+		this.titleView = titleView;
+		this.context = context;
 	};
 	
 	public ButtonOnTouchListener(int groupPosition, int childPosition,Button state_button, ButtonState bs,List<CloudAccount> groupAccountList) {
@@ -91,6 +101,14 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				}
 				cela.notify_number = 2;
 			}
+			
+			int number = getPreviewListFromCloudAccounts(cloudAccountList);
+			if(number == 0){
+				titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
+			}else{
+				titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
+			}
+			
 			if(selectCloudAccount.getUsername().equals("收藏设备")&&(selectCloudAccount.getDomain().equals("com"))
 			&&(selectCloudAccount.getPort().equals("808"))&&(selectCloudAccount.getPassword().equals("0208"))){
 				Thread thread = new Thread(){
@@ -116,7 +134,36 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		return false;
 	}
 	
-	private String getChannelSelectNum(DeviceItem deviceItem) {
+	private int getPreviewListFromCloudAccounts(List<CloudAccount> cloudAccountList2) {
+		if((cloudAccountList2 == null)||(cloudAccountList2 !=null && cloudAccountList2.size() == 0)){
+			return 0 ;
+		}
+		int number = 0 ;
+		int size = cloudAccountList2.size();
+		for(int i =0 ;i<size ;i++){
+			CloudAccount cloudAccount = cloudAccountList2.get(i);
+			List<DeviceItem> deviceItemList = cloudAccount.getDeviceList();
+			if(deviceItemList != null){
+				int deviceSize = deviceItemList.size();
+				for(int j =0 ;j<deviceSize ;j++){
+					DeviceItem deviceItem = deviceItemList.get(j);
+					if(deviceItem != null){
+						List<Channel> channelList = deviceItem.getChannelList();
+						int channelSize = channelList.size();
+						for(int k =0 ;k<channelSize;k++){
+							Channel channel = channelList.get(k);
+							if((channel!=null)&&channel.isSelected()){
+								number++;
+							}
+						}
+					}
+				}
+			}
+		}
+		return number;
+	}
+
+	public String getChannelSelectNum(DeviceItem deviceItem) {
 		String state = "";
 		int channelNum = 0 ;
 		int channelSelectNum = 0;
