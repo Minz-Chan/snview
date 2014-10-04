@@ -267,59 +267,69 @@ public class RealplayActivity extends BaseActivity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.i(TAG, "ConfigurationChanged");
 
-		
-		GlobalApplication.getInstance().setScreenWidth(ActivityUtility.getScreenSize(this).x);
-		GlobalApplication.getInstance().setScreenHeight(ActivityUtility.getScreenSize(this).y);
-				
-		
-		
+		GlobalApplication.getInstance().setScreenWidth(
+				ActivityUtility.getScreenSize(this).x);
+		GlobalApplication.getInstance().setScreenHeight(
+				ActivityUtility.getScreenSize(this).y);
+
 		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
-		if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			
-            Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:" + ActivityUtility.getScreenSize(this).x
-            		+ ", height:" + ActivityUtility.getScreenSize(this).y);
-            
-            super.setMenuEnabled(false);
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+			Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:"
+					+ ActivityUtility.getScreenSize(this).x + ", height:"
+					+ ActivityUtility.getScreenSize(this).y);
+
+			super.setMenuEnabled(false);
 			super.getNavbarContainer().setVisibility(View.GONE);
 			super.getToolbarContainer().setVisibility(View.GONE);
 			mControlbar.setVisibility(View.GONE);
-			
+
 			GlobalApplication.getInstance().setFullscreenMode(true);
-			this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
+			this.getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			
+
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
-					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).y);
-			//mVideoRegion.setLayoutParams(param);
+					ActivityUtility.getScreenSize(this).x,
+					ActivityUtility.getScreenSize(this).y);
+			// mVideoRegion.setLayoutParams(param);
 			mVideoPager.setLayoutParams(param);
-			
+
 			liveControl.showLandscapeToolbarFrame();
-			
-       } else if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-    	   
-    	   Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:" + ActivityUtility.getScreenSize(this).x
-           		+ ", height:" + ActivityUtility.getScreenSize(this).y);
-    	   
-    	   	super.setMenuEnabled(true);
+
+		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+
+			Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:"
+					+ ActivityUtility.getScreenSize(this).x + ", height:"
+					+ ActivityUtility.getScreenSize(this).y);
+
+			super.setMenuEnabled(true);
 			super.getNavbarContainer().setVisibility(View.VISIBLE);
 			super.getToolbarContainer().setVisibility(View.VISIBLE);
 			mControlbar.setVisibility(View.VISIBLE);
-			
+
 			GlobalApplication.getInstance().setFullscreenMode(false);
-			this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, 
+			this.getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			
+
 			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
-					ActivityUtility.getScreenSize(this).x, ActivityUtility.getScreenSize(this).x);
-			//mVideoRegion.setLayoutParams(param);
+					ActivityUtility.getScreenSize(this).x,
+					ActivityUtility.getScreenSize(this).x);
+			// mVideoRegion.setLayoutParams(param);
 			mVideoPager.setLayoutParams(param);
-			
+
 			liveControl.hideLandscapeToolbarFrame();
-       }
-		
-		
+		}
+
+		// 刷新视频区域
+		List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
+		for (int i = 0; i < liveviews.size(); i++) {
+			liveviews.get(i).getSurfaceView().onDisplayContentUpdated();
+		}
+
 		ptzControl.syncPTZStatus();
-		
+
 		super.onConfigurationChanged(newConfig);
 	}
 
@@ -1401,6 +1411,9 @@ public class RealplayActivity extends BaseActivity {
 		}
 	} 
 
+	/**
+	 * 延迟屏幕方向起始时刻，防止以横屏方式启动程序时出现的非预期横屏情况
+	 */
 	private class DelayOrientationSetting extends AsyncTask<Object, Object, Object> {
 		@Override
 		protected Object doInBackground(Object... params) {
