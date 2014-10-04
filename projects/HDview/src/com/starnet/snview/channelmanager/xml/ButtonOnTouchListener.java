@@ -81,6 +81,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					channels.get(i).setSelected(true);
 				}	
 				cela.notify_number = 2;
+				cela.notifyDataSetChanged();
 			}else if ((state == "all")||(state.equals("all"))) {
 				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 //				bs.setState("empty");					
@@ -90,6 +91,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					channels.get(i).setSelected(false);
 				}	
 				cela.notify_number = 2;
+				cela.notifyDataSetChanged();
 			}else {					/*zz_empty_select*/
 				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 //				bs.setState("all");					
@@ -100,6 +102,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					channels.get(i).setSelected(true);
 				}
 				cela.notify_number = 2;
+				cela.notifyDataSetChanged();
 			}
 			
 			int number = getPreviewListFromCloudAccounts(cloudAccountList);

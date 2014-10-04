@@ -7,6 +7,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
+import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -17,6 +18,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
@@ -24,6 +26,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 /**
  * 
  * @author zhaohongxu
@@ -50,6 +53,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	public int notify_number = 1;
 	
 	private TextView titleView;//显示用户选择的通道数量
+	private ImageView channel_listview_select;
 	
 	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
@@ -67,7 +71,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			}
 		}
 		isOpen = NetWorkUtils.checkNetConnection(context);
-		
+		ExpandableListViewUtils.context = context;
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		notify_number = 3;
 		
@@ -127,7 +131,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout, null);
+			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_copy, null);
 		}
 		
 		//为组元素设置背景颜色...
@@ -179,6 +183,51 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
 		}
 		
+		final int pos = groupPosition;
+		channel_listview_select = (ImageView) convertView.findViewById(R.id.channel_listview_select);
+		
+		String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));
+		if(state.equals("all")){
+			channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+		}else if(state.equals("half")){
+			channel_listview_select.setBackgroundResource(R.drawable.channel_selected_half);
+		}else{
+			channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+		}
+		
+		channel_listview_select.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				Toast.makeText(context, "click " + pos, Toast.LENGTH_SHORT).show();
+				//判断当前的选择状态(全选、半选和未选)
+				String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));
+				if(state.equals("all")){
+					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+					
+					ExpandableListViewUtils.setStateForCloudAccount("empty",groupAccountList.get(pos));//改变通道列表的选择状态
+				}else if(state.equals("half")){
+					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+					ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
+				}else{
+					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+					ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
+				}
+				int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
+				if(number == 0){
+					titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
+				}else{
+					titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
+				}
+				groupAccountList.set(pos, groupAccountList.get(pos));//重置星云平台用户信息
+				notifyDataSetChanged();
+				notify_number = 30;
+				
+				//设置预览通道变化???????,即改变mPreviewDeviceItems的值...重置mPreviewDeviceItems的值
+//				mPreviewDeviceItems.clear();
+//				ExpandableListViewUtils.getPreviewListFromCloudAccounts(cloudAccountList2);
+//				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			}
+		});
 		
 		return convertView;
 	}
@@ -244,9 +293,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 		deviceList = cloudAccount.getDeviceList();
 		
-//		title.setFocusable(true);
-//		title.setFocusableInTouchMode(true);
-		
 		DeviceItem deviceItem = deviceList.get(childPosition);
 		String deviceName = deviceItem.getDeviceName();
 		title.setText(deviceName);
@@ -261,7 +307,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
 		state_button.setOnTouchListener(bolc);//原来的情形
 		
-
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);

@@ -91,7 +91,7 @@
     <item name="liveview_progressbar" type="id"/>
     <item name="liveview_refresh_imageview" type="id"/>
 
-    <!-- <item name="" type="id" /> -->
+    
     <!-- <item name="" type="id" /> -->
     <!-- <item name="" type="id" /> -->
 
@@ -436,5 +436,7 @@
     <item name="minute_picker_view" type="id">false</item>
     <item name="arrow_all_container" type="id">false</item>
 
+    <item name="channel_listview_select" type="id" />
+    
 </resources>
 
