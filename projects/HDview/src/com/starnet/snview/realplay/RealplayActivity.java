@@ -35,6 +35,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -76,11 +77,16 @@ public class RealplayActivity extends BaseActivity {
 	
 	private com.starnet.snview.realplay.VideoPager mVideoPager; 
 	
+	private int mOldOrientation;
+	private boolean mIsStartedCompleted = false;
+	
 	
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle inState) {
 		Log.i(TAG, "onCreate()");
+
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		setContainerMenuDrawer(true);
 		super.onCreate(inState);
@@ -94,7 +100,7 @@ public class RealplayActivity extends BaseActivity {
 		initView();
 		initListener();
 		
-		loadDataFromPreserved();
+		loadDataFromPreserved();		
 	}
 	
 	private void loadDataFromPreserved() {
@@ -132,7 +138,8 @@ public class RealplayActivity extends BaseActivity {
 		mVideoPager.post(new Runnable() {
 			@Override
 			public void run() {
-				updateViewOnStart();
+				updateViewOnStart();				
+				new DelayOrientationSetting().execute(new Object());
 			}
 		});
 	}
@@ -184,7 +191,8 @@ public class RealplayActivity extends BaseActivity {
 			mToolbarOnItemClickListener.onItemClick(playBtn);
 			
 			
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 		} else { // 首次进入
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
@@ -196,7 +204,8 @@ public class RealplayActivity extends BaseActivity {
 			mPager.setAmount(0);
 			mPager.setNum(0);
 			
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		}
 	}
 	
@@ -241,6 +250,7 @@ public class RealplayActivity extends BaseActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onPostCreate");
 		
+		//new DelayOrientationSetting().execute(new Object());
 		//liveViewManager.invalidateLiveViews();
 		
 //		ActionImageButton playBtn = new ActionImageButton(this);
@@ -1221,7 +1231,9 @@ public class RealplayActivity extends BaseActivity {
 		
 		liveViewManager.setDeviceList(previewDevices);
 		
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		if (mIsStartedCompleted) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		}
 	}
 	
 	/**
@@ -1238,7 +1250,9 @@ public class RealplayActivity extends BaseActivity {
 	 */
 	public void notifyPreviewDevicesContentChanged() {
 		if (previewDevices.size() > 0) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			if (mIsStartedCompleted) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+			}
 			
 			if (mVideoPager.getAdapter() != null) {
 				mVideoPager.getAdapter().notifyDataSetChanged();
@@ -1251,7 +1265,9 @@ public class RealplayActivity extends BaseActivity {
 			
 			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			if (mIsStartedCompleted) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
 			
 			if (mVideoPager.getAdapter() != null) {
 				mVideoPager.getAdapter().notifyDataSetChanged();
@@ -1385,5 +1401,23 @@ public class RealplayActivity extends BaseActivity {
 		}
 	} 
 
+	private class DelayOrientationSetting extends AsyncTask<Object, Object, Object> {
+		@Override
+		protected Object doInBackground(Object... params) {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Object result) {
+			setRequestedOrientation(mOldOrientation);
+			mIsStartedCompleted = true;
+		}
+	}
 
 }
