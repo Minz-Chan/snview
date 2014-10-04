@@ -322,12 +322,6 @@ public class RealplayActivity extends BaseActivity {
 			liveControl.hideLandscapeToolbarFrame();
 		}
 
-		// 刷新视频区域
-		List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
-		for (int i = 0; i < liveviews.size(); i++) {
-			liveviews.get(i).getSurfaceView().onDisplayContentUpdated();
-		}
-
 		ptzControl.syncPTZStatus();
 
 		super.onConfigurationChanged(newConfig);

@@ -129,10 +129,11 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
+		//Log.i(TAG, "surfaceChanged");
 		if (!isValid) {
 			onDisplayContentReset();
 		}
-		Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
+		//Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
     	mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
 	}
 
@@ -155,6 +156,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
+		//Log.i(TAG, "onLayout");
+		refreshDisplay();
 		super.onLayout(changed, left, top, right, bottom);
 	}
 
