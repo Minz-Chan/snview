@@ -38,8 +38,8 @@
 
         <ImageView
             android:id="@id/channel_listview_select"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:background="@drawable/channellist_select_empty"
             android:contentDescription="@string/nothing" />
     </LinearLayout>

@@ -3,35 +3,36 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical"
-    android:background="@color/list_view_bg" >
+    android:background="@color/list_view_bg"
+    android:orientation="vertical" >
 
     <ListView
         android:id="@id/channel_sublistview"
         android:layout_width="fill_parent"
         android:layout_height="0.0dip"
-        android:divider="@color/channel_listview_device_divider" 
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:divider="@color/channel_listview_device_divider" />
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_height="wrap_content" >
+        android:orientation="horizontal" >
 
         <Button
             android:id="@+id/channel_listview_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="@string/channel_listview_device_layout_ok" />
 
         <Button
             android:id="@+id/channel_listview_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginRight="0dip"
+            android:gravity="center"
             android:text="@string/channel_listview_device_layout_cancel" />
-
     </LinearLayout>
 
 </LinearLayout>

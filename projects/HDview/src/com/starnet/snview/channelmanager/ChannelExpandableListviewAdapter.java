@@ -55,6 +55,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private TextView titleView;//显示用户选择的通道数量
 	private ImageView channel_listview_select;
 	
+	private int click_time =0;
+	
 	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList,TextView titleView) {
@@ -198,7 +200,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		channel_listview_select.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				Toast.makeText(context, "click " + pos, Toast.LENGTH_SHORT).show();
+//				Toast.makeText(context, "click " + pos, Toast.LENGTH_SHORT).show();
 				//判断当前的选择状态(全选、半选和未选)
 				String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));
 				if(state.equals("all")){
@@ -297,15 +299,15 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		String deviceName = deviceItem.getDeviceName();
 		title.setText(deviceName);
 
-		// 发现“状态显示按钮”并为之添加单击事件,若选择了该按钮为全满时，需要将该行的"通道列表"置为全选；
-		state_button = (Button) convertView.findViewById(R.id.button_state);
-		//根据每一组、每一行的通道列表选择情况，来加载对应的state_button的全/半选状态
-		String state = getChannelSelectNum(groupPosition, childPosition);
+		state_button = (Button) convertView.findViewById(R.id.button_state);// 发现“状态显示按钮”并为之添加单击事件,若选择了该按钮为全满时，需要将该行的"通道列表"置为全选；
+		String state = getChannelSelectNum(groupPosition, childPosition);//根据每一组、每一行的通道列表选择情况，来加载对应的state_button的全/半选状态
 		changeStateButton(state_button,state);
 		bs = new ButtonState();
 		bs.setState(state);
-		ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
-		state_button.setOnTouchListener(bolc);//原来的情形
+//		if(click_time % 2 == 0){
+			ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
+			state_button.setOnTouchListener(bolc);//原来的情形
+//		}
 		
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
@@ -313,6 +315,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		ButtonOnclickListener bol = new ButtonOnclickListener(context,clickCloudAccount,groupPosition,childPosition,state_button);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
 		button_channel_list.setOnClickListener(bol);
 		
+		click_time++;
 		return convertView;
 	}
 	

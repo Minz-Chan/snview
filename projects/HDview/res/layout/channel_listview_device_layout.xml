@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/list_view_bg" 
-    android:layout_width="fill_parent" 
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:orientation="vertical">
+    android:background="@color/list_view_bg"
+    android:orientation="vertical" >
 
-<!--     <LinearLayout
+    <!--
+         <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="match_parent" >
-    </LinearLayout> -->
+    </LinearLayout>
+    -->
 
     <ListView
         android:id="@id/channel_sublistview"
@@ -17,12 +19,12 @@
         android:layout_height="388dp"
         android:divider="@color/channel_listview_device_divider"
         android:dividerHeight="1.0dip" />
-    
-      <LinearLayout
+
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:orientation="horizontal"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_height="wrap_content" >
+        android:orientation="horizontal" >
 
         <Button
             android:id="@+id/channel_listview_ok"
@@ -36,8 +38,6 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="0dip"
             android:text="@string/channel_listview_device_layout_cancel" />
-
     </LinearLayout>
-    
 
 </LinearLayout>

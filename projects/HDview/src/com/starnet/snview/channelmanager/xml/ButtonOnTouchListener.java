@@ -1,14 +1,11 @@
 package com.starnet.snview.channelmanager.xml;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
-import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
 
@@ -19,7 +16,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 @SuppressLint("SdCardPath")
 public class ButtonOnTouchListener implements OnTouchListener {
@@ -39,6 +35,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	ChannelExpandableListviewAdapter cela;
 	private TextView titleView;
 	private Context context;
+	
+//	private int click_time ;
 
 	public ButtonOnTouchListener(Context context,ChannelExpandableListviewAdapter cela,TextView titleView,int groupPosition, int childPosition,Button state_button,List<CloudAccount> groupAccountList) {
 		super();
@@ -50,6 +48,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		this.cela = cela;
 		this.titleView = titleView;
 		this.context = context;
+//		this.click_time = click_time;
 	};
 	
 	public ButtonOnTouchListener(int groupPosition, int childPosition,Button state_button, ButtonState bs,List<CloudAccount> groupAccountList) {
@@ -66,6 +65,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	public boolean onTouch(View v, MotionEvent event) {
 		
 		if (!ClickUtils.isFastDoubleClick()) {
+//		if (click_time %2 == 0) {
 			selectCloudAccount = cloudAccountList.get(parentPos);
 			deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 			csxml = new CloudAccountXML();
@@ -134,7 +134,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 			
 		}
 		
-		return false;
+		return true;
 	}
 	
 	private int getPreviewListFromCloudAccounts(List<CloudAccount> cloudAccountList2) {

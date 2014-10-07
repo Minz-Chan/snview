@@ -14,7 +14,11 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -64,9 +68,16 @@ public class ChannelListActivity extends BaseActivity {
 	private CloudAccount collectCloudAccount;
 	
 	private TextView titleView;//通道列表
+	private Button rightButton;
+	private RelativeLayout navigationBar;
+	private int title_num = 0 ;
+	EditText search_edt;
+//	private Button nav_left_btn;
+	
+	private RelativeLayout navigationBar_back;
 
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
-
+	
 	private Handler netHandler = new Handler() {// 处理线程的handler
 
 		@Override
@@ -151,7 +162,6 @@ public class ChannelListActivity extends BaseActivity {
 							Toast toast = Toast.makeText(ChannelListActivity.this, printSentence,Toast.LENGTH_SHORT);
 							toast.show();
 						}
-
 					}
 				});
 
@@ -159,6 +169,36 @@ public class ChannelListActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {//添加返回事件		
 				backAndLeftButtonOperation();
+			}
+		});
+		
+		rightButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				
+				
+				
+//				
+				title_num++;
+				if(title_num %2 == 0){
+					titleView.setVisibility(View.VISIBLE);
+					search_edt.setVisibility(View.GONE);
+					navigationBar.removeView(search_edt);
+				}else{
+					
+					titleView.setVisibility(View.GONE);
+//					search_edt.setVisibility(View.GONE);
+//					navigationBar.removeView(search_edt);
+					search_edt.setVisibility(View.VISIBLE);
+					
+//					navigationBar.addView(navigationBar_back);//使用EditText代替
+					navigationBar.addView(search_edt);
+					
+					//搜索查询事件
+					
+					
+					
+				}
 			}
 		});
 	}
@@ -200,13 +240,26 @@ public class ChannelListActivity extends BaseActivity {
 		}
 		
 		super.setToolbarVisiable(false);
-		super.hideRightButton();
-//		super.hideExtendButton();
+		
+		super.hideExtendButton();
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		
+		rightButton = super.getRightButton();
+		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
+		navigationBar = super.getNavbarContainer();
+//		nav_left_btn = (Button) navigationBar.findViewById(R.id.base_navigationbar_left_btn);
 
 		curContext = ChannelListActivity.this;
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
+		
+		search_edt = new EditText(curContext);
+////		LayoutParams params = new LayoutParams(455,LayoutParams.WRAP_CONTENT);
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+		params.setMargins(60, 0, 60, 0);
+		search_edt.setLayoutParams(params);
+		
+//		navigationBar_back = (RelativeLayout) findViewById(R.layout.navigation_bar_select);
 		
 		caXML = new CloudAccountXML();
 		cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息

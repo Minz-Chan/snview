@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
+import com.starnet.snview.R.color;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -83,8 +85,13 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 		}
 		
 		ChannelListViewActivity.this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.about_titlebar_activity);
+		
 		TextView titleView = (TextView) findViewById(R.id.title);
 		titleView.setText(titleName);
+		((View)titleView.getParent().getParent()).setBackgroundColor(Color.BLACK);
+		((View)titleView.getParent().getParent()).setPadding(0, 5, 0, 0);
+		
+//		((View)titleView.getParent()).setBackgroundColor(Color.BLACK);
 		ChannelListViewActivity.this.setTitle(titleName);//设置标题栏
 		initWadgetsAndAddListeners();
 	}

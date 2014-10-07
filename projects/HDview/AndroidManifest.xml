@@ -70,7 +70,7 @@
         <activity
             android:name="com.starnet.snview.channelmanager.ChannelListViewActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@style/channel_listview_titlebarstyle" />
         <activity
             android:name="com.starnet.snview.syssetting.SystemSettingActivity"
             android:launchMode="singleTop"
