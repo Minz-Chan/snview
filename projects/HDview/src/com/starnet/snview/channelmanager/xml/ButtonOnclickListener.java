@@ -89,8 +89,8 @@ public class ButtonOnclickListener implements OnClickListener {
 			bundle.putString("childPosition", String.valueOf(childPos));
 			String deviceName = clickCloudAccount.getDeviceList().get(childPos).getDeviceName();
 			bundle.putString("deviceName", deviceName);
-			
-			bundle.putSerializable("clickCloudAccount", clickCloudAccount); 
+			intent.putExtra("clickCloudA", clickCloudAccount);
+			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 			intent.putExtras(bundle);
 //			cela.notify_number = 2;
 //			cela.notifyDataSetChanged();

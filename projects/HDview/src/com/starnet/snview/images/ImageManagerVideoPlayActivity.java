@@ -110,9 +110,9 @@ public class ImageManagerVideoPlayActivity extends Activity implements
             	mTimerTask.cancel();
             	return;  
             }                
-            if (mMediaPlayer.isPlaying() ){
+            if (mMediaPlayer.isPlaying()){
             	mHandler.sendEmptyMessage(0);
-            }  
+            }
         }  
     };  
     

@@ -20,8 +20,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ExpandableListView.OnGroupClickListener;
@@ -32,7 +30,6 @@ import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
-import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
@@ -58,7 +55,6 @@ public class ChannelListActivity extends BaseActivity {
 	private static final String TAG = "ChannelListActivity";
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	private ExpandableListView mExpandableListView;
 	private CloudAccountXML caXML;
@@ -214,37 +210,7 @@ public class ChannelListActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {//添加返回事件	
-				
-//				if(isSearch){
-//					List<PreviewDeviceItem> previewChannelList = getPreviewChannelList(origin_cloudAccounts);
-////					List<PreviewDeviceItem> previewSearchList = getPreviewChannelFromSearchList(searchList);
-////					List<PreviewDeviceItem> previewList = mergeChannelAndSearchList(previewChannelList,previewSearchList);
-//					
-//					int size1 = previewChannelList.size();
-//					int size2 = previewSearchList.size();
-//					int size = previewList.size();
-//					
-//					if (previewList.size() > 0) {
-//						PreviewDeviceItem p = previewList.get(0);
-//
-//						PreviewDeviceItem[] l = new PreviewDeviceItem[previewList
-//								.size()];
-//						previewList.toArray(l);
-//
-//						Intent intent = ChannelListActivity.this
-//								.getIntent();
-//						intent.putExtra("DEVICE_ITEM_LIST", l);
-//
-//						ChannelListActivity.this.setResult(8, intent);
-//						ChannelListActivity.this.finish();
-//					}else {
-//						String printSentence = getString(R.string.channel_manager_channellistview_channelnotchoose);
-//						Toast toast = Toast.makeText(ChannelListActivity.this, printSentence,Toast.LENGTH_SHORT);
-//						toast.show();
-//					}					
-//				}else{
-					backAndLeftButtonOperation();
-//				}
+				backAndLeftButtonOperation();
 			}
 		});
 	}
@@ -351,8 +317,7 @@ public class ChannelListActivity extends BaseActivity {
 			}else{
 				List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 				previewDeviceItems.clear();
-				GlobalApplication.getInstance().getRealplayActivity()
-				.notifyPreviewDevicesContentChanged();
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 				ChannelListActivity.this.finish();
 			}
 		}else{
@@ -363,8 +328,7 @@ public class ChannelListActivity extends BaseActivity {
 						.size()];
 				previewChannelList.toArray(l);
 
-				Intent intent = ChannelListActivity.this
-						.getIntent();
+				Intent intent = ChannelListActivity.this.getIntent();
 				intent.putExtra("DEVICE_ITEM_LIST", l);
 
 				ChannelListActivity.this.setResult(8, intent);
@@ -372,8 +336,7 @@ public class ChannelListActivity extends BaseActivity {
 			}else {//选择的通道为空时，不进行播放
 				List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 				previewDeviceItems.clear();
-				GlobalApplication.getInstance().getRealplayActivity()
-				.notifyPreviewDevicesContentChanged();
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 				ChannelListActivity.this.finish();
 			}
 		}
@@ -574,7 +537,6 @@ public class ChannelListActivity extends BaseActivity {
 			collectCloudAccount = (CloudAccount) bundle.getSerializable("wca");
 			// 更新ExpandableListView指定的按钮
 			int pos = bundle.getInt("parentPos");
-			
 			if(!isSearch){
 				origin_cloudAccounts.set(pos, collectCloudAccount);
 				chExpandableListAdapter.notify_number = 2;
@@ -589,26 +551,35 @@ public class ChannelListActivity extends BaseActivity {
 						searchList.set(i, collectCloudAccount);
 					}
 				}
-				for(int i = 0 ;i<origin_cloudAccounts.size();i++){
-					if(origin_cloudAccounts.get(i).getUsername().equals(userName)&&origin_cloudAccounts.get(i).getPassword().equals(password)){
-//						origin_cloudAccounts.set(i, collectCloudAccount);
-					}
-				}
 				
 				Toast.makeText(curContext, "搜索框", Toast.LENGTH_SHORT).show();
 				chExpandableListAdapter.notify_number = 22;
 				chExpandableListAdapter.notifyDataSetChanged();
 				
+				//在origin_cloudAccounts需要保存一次值
+				List<DeviceItem> colDevices = collectCloudAccount.getDeviceList();
+				if(colDevices!=null &&colDevices.size()>0){
+					for(int i =0 ;i<origin_cloudAccounts.size();i++){
+						CloudAccount origin_cloudAccount = origin_cloudAccounts.get(i);
+						if(origin_cloudAccount.getUsername().equals(userName)&&origin_cloudAccount.getPassword().equals(password)){//找到用户
+							List<DeviceItem> originDevices = origin_cloudAccount.getDeviceList();
+							for(int k = 0 ; k<colDevices.size(); k++){
+								DeviceItem colDeviceItem = colDevices.get(k);
+								for(int j = 0 ;j<originDevices.size();j++){
+									DeviceItem originDeviceItem = originDevices.get(j);
+									if(originDeviceItem.getDeviceName().equals(colDeviceItem.getDeviceName())){
+										List<Channel> channels = colDeviceItem.getChannelList();
+										originDeviceItem.setChannelList(channels);
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
 			}
-			
+			Log.i(TAG, ""+origin_cloudAccounts.size());
 //			caXML = new CloudAccountXML();
-//			//设置通道列表的选择数目
-//			List<PreviewDeviceItem> previews = getPreviewChannelList(origin_cloudAccounts);
-//			if((previews == null)||(previews!=null&&previews.size()==0)){
-//				titleView.setText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
-//			}else{
-//				titleView.setText(getString(R.string.navigation_title_channel_list)+"("+previews.size()+")");// 设置列表标题名
-//			}
 // 判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
 //			if (collectCloudAccount.getUsername().equals("收藏设备")
 //					&& (collectCloudAccount.getDomain().equals("com"))
@@ -654,7 +625,7 @@ public class ChannelListActivity extends BaseActivity {
 				resultCloudAccount.setRotate(true);
 				resultCloudAccount.setEnabled(true);
 				resultCloudAccount.setExpanded(false);
-								
+
 				List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
 				if(deviceItems!=null){
 					for(int j =0 ;j<deviceItems.size();j++){

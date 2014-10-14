@@ -65,7 +65,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	public boolean onTouch(View v, MotionEvent event) {
 		
 		if (!ClickUtils.isFastDoubleClick()) {
-//		if (click_time %2 == 0) {
 			selectCloudAccount = cloudAccountList.get(parentPos);
 			deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 			csxml = new CloudAccountXML();
@@ -73,8 +72,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 			String state = getChannelSelectNum(deviceItem);
 			
 			if ((state == "half")||(state.equals("half"))) {
-				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
-//				bs.setState("all");					
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);			
 				//将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -83,8 +81,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				cela.notify_number = 2;
 				cela.notifyDataSetChanged();
 			}else if ((state == "all")||(state.equals("all"))) {
-				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
-//				bs.setState("empty");					
+				state_button.setBackgroundResource(R.drawable.channellist_select_empty);		
 				//将通道列表的状态写入到指定的XML状态文件中,1、修改某一组中某一个选项的通道列表的信息		
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -93,10 +90,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				cela.notify_number = 2;
 				cela.notifyDataSetChanged();
 			}else {					/*zz_empty_select*/
-				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
-//				bs.setState("all");					
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);	
 				//将通道列表的状态写入到指定的XML状态文件中 ;1、修改某一组中某一个选项的通道列表的信息
-//				DeviceItem deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
