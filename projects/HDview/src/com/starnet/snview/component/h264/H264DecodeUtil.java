@@ -21,7 +21,8 @@ package com.starnet.snview.component.h264;
  * @description 修改说明	   对解码函数进行二次封装
  */
 public class H264DecodeUtil {
-	H264Decoder decoder = new H264Decoder();       
+	H264Decoder decoder = new H264Decoder();   
+	MP4Recorder mp4recorder = new MP4Recorder();
 	byte [] NalBuf = new byte[65535]; // 64k
 	int NalBufUsed = 0;
 	boolean bFirst = true;
@@ -30,6 +31,9 @@ public class H264DecodeUtil {
 	
 	private int mInstanceId;
 	private boolean isCodecOpened = false;
+	
+	private boolean mStartRecord = false;
+	private int mSpsCount = -1;
 	
 	public H264DecodeUtil(String connName) {
 		mInstanceId = connName.hashCode();
@@ -107,6 +111,7 @@ public class H264DecodeUtil {
 //									VideoView.changeScreenRevolution(realWidth, realHeight);
 //									v.init();
 //								}
+								mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, 6);
 							} else {
 								//System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
 							}
@@ -127,7 +132,17 @@ public class H264DecodeUtil {
 					// decode nal unit when there exists a complete NAL unit in NalBuf
 					// the second parameter is the length of NAL unit
 					iTemp = decoder.decode(mInstanceId, NalBuf, NalBufUsed - 4, byteBitmap);   
-				
+					if (mStartRecord && mSpsCount >= 0) {
+						if (NalBuf[4] == 0x67 && mSpsCount == 0) { // first sps
+							mSpsCount++;
+							mp4recorder.createRecordFile(mInstanceId, "/sdcard/aa" + Math.abs(mInstanceId) + ".mp4");
+							mp4recorder.packVideo(mInstanceId, NalBuf, NalBufUsed - 4);
+						} else if (mSpsCount > 0) {
+							if (NalBuf[4] == 0x67) mSpsCount++;
+							mp4recorder.packVideo(mInstanceId, NalBuf, NalBufUsed - 4);
+						}
+					}
+					
 		            if(iTemp > 0) {
 		            	result = 1;
 		            	/*
@@ -183,7 +198,7 @@ public class H264DecodeUtil {
 
     	return i;
     }
-
+    
 	public boolean isbFindPPS() {
 		return bFindPPS;
 	}
@@ -213,6 +228,17 @@ public class H264DecodeUtil {
 		}
 		
 		return result;
+	}
+	
+	public void startMP4Record() {
+		mStartRecord = true;
+		mSpsCount = 0;
+	}
+	
+	public void closeMP4Record() {
+		mStartRecord = false;
+		mSpsCount = -1;
+		mp4recorder.closeRecordFile(mInstanceId);
 	}
 
 	@Override
