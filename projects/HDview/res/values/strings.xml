@@ -25,6 +25,7 @@
     <string name="channel_manager_channellistview_channelnotchoose">您暂时还没有做通道选择,请选择</string>
     <string name="channel_manager_channellistview_netnotopen">网络未打开，请打开网络</string>
     <string name="channel_manager_channellistview_loadfail">用户设备数据尚未加载成功,请等待</string>
+    <string name="channel_manager_channellistview_search">请输入查找内容</string>
    
     
     <string name="channel_listview_device_layout_ok">确定</string>

@@ -340,9 +340,10 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						.findViewById(R.id.images_video_content);
 				ImageButton playBtn = (ImageButton) imageVideo
 						.findViewById(R.id.images_video_play);
-				Drawable bg = Drawable.createFromPath(jpgPath);
+				Drawable bg = Drawable.createFromPath(jpgPath);//设置的缩略图背景...
 				if (bg == null) {
-					return null;
+//					return null;
+					bg = getResources().getDrawable(R.drawable.demo_bg);
 				}
 
 				int w = GlobalApplication.getInstance().getScreenWidth();

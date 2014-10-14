@@ -57,7 +57,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	private int click_time =0;
 	
-	private List<Integer> posList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
+	private List<Integer> colorPosList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList,TextView titleView) {
 		super();
@@ -69,7 +69,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		for(int i = 0; i < size; i++){
 			CloudAccount cloudAccount = groupAccountList.get(i);
 			if(!cloudAccount.isEnabled()){//不需要网络加载的用户，记录其位置...
-				posList.add(i);
+				colorPosList.add(i);
 			}
 		}
 		isOpen = NetWorkUtils.checkNetConnection(context);
@@ -77,6 +77,23 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		notify_number = 3;
 		
+	}
+	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> cloudAccounts) {
+		super();
+		this.groupAccountList = cloudAccounts;
+		this.context = curContext;
+		this.layoutInflater = ((LayoutInflater) curContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+		int size = groupAccountList.size();
+		for(int i = 0; i < size; i++){
+			CloudAccount cloudAccount = groupAccountList.get(i);
+			if(!cloudAccount.isEnabled()){//不需要网络加载的用户，记录其位置...
+				colorPosList.add(i);
+			}
+		}
+		isOpen = NetWorkUtils.checkNetConnection(context);
+		ExpandableListViewUtils.context = context;
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		notify_number = 3;
 	}
 	@Override
 	public int getGroupCount() {// 获取组的个数
@@ -180,7 +197,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			((ExpandableListView) parent).collapseGroup(groupPosition);
 		}
 		
-		boolean isContain = containPositon(groupPosition,posList);
+		boolean isContain = containPositon(groupPosition,colorPosList);
 		if (isContain) {
 			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
 		}
@@ -200,9 +217,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		channel_listview_select.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-//				Toast.makeText(context, "click " + pos, Toast.LENGTH_SHORT).show();
-				//判断当前的选择状态(全选、半选和未选)
-				String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));
+				
+				String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));//判断当前的选择状态(全选、半选和未选)
 				if(state.equals("all")){
 					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
 					
@@ -223,14 +239,18 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				groupAccountList.set(pos, groupAccountList.get(pos));//重置星云平台用户信息
 				notifyDataSetChanged();
 				notify_number = 30;
-				
 				//设置预览通道变化???????,即改变mPreviewDeviceItems的值...重置mPreviewDeviceItems的值
 //				mPreviewDeviceItems.clear();
 //				ExpandableListViewUtils.getPreviewListFromCloudAccounts(cloudAccountList2);
 //				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 			}
 		});
-		
+		int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
+		if(number == 0){
+			titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
+		}else{
+			titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
+		}
 		return convertView;
 	}
 	
@@ -312,7 +332,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
-		ButtonOnclickListener bol = new ButtonOnclickListener(context,clickCloudAccount,groupPosition,childPosition,state_button);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
+		ButtonOnclickListener bol = new ButtonOnclickListener(context,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
 		button_channel_list.setOnClickListener(bol);
 		
 		click_time++;

@@ -15,7 +15,7 @@ public class PreviewDeviceItem implements Parcelable {
 	
 	private String platformUsername;   //平台用户名
 	
-	
+//	public int isRemove = 0;         //1 表示可以移除;0表示不移除
 	public PreviewDeviceItem() {
 		
 	}

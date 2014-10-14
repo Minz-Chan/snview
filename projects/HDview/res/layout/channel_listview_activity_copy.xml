@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/list_view_bg"
+    android:orientation="vertical"
+    android:weightSum="6.0" >
+
+    <EditText
+        android:id="@+id/search_et"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:inputType="text"
+        android:hint="@string/channel_manager_channellistview_search"
+        android:visibility="invisible"
+        /><!--   -->
+
+    <ExpandableListView
+        android:id="@id/channel_listview"
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="5.0"
+        android:cacheColorHint="@android:color/transparent"
+        android:childDivider="@android:color/transparent"
+        android:divider="@color/channel_listview_device_divider"
+        android:dividerHeight="1.0dip"
+        android:fadingEdge="vertical"
+        android:groupIndicator="@android:color/transparent"
+        android:scrollbars="vertical"
+        android:smoothScrollbar="true" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="1.0"
+        android:background="@color/channel_listview_device_item_bg" > 
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <ImageButton
+                android:id="@+id/startScan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/channel_listview_preview_selector"
+                android:contentDescription="@string/nothing" 
+                />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/device_manager_scan_layout_start_scan"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/common_textsize_middle_20sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
+
+</LinearLayout>
