@@ -28,6 +28,7 @@ import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.VideoPager.VideoPagerChangedCallback;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.PreviewItemXMLUtils;
+import com.starnet.snview.util.ToastUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -768,9 +769,23 @@ public class RealplayActivity extends BaseActivity {
 				}
 				break;
 			case VIDEO_RECORD:
-				mToolbar.setActionImageButtonSelected(
-						Toolbar.ACTION_ENUM.VIDEO_RECORD, !bVideoRecordPressed);
-				bVideoRecordPressed = !bVideoRecordPressed;
+//				mToolbar.setActionImageButtonSelected(
+//						Toolbar.ACTION_ENUM.VIDEO_RECORD, !bVideoRecordPressed);
+//				bVideoRecordPressed = !bVideoRecordPressed;
+				
+				if (!bVideoRecordPressed) { // 开启录像
+					bVideoRecordPressed = true;
+					mToolbar.setActionImageButtonSelected(
+							Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().startMP4Record();
+					ToastUtils.show(RealplayActivity.this, "开启录像");
+				} else {
+					bVideoRecordPressed = false;
+					mToolbar.setActionImageButtonSelected(
+							Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().closeMP4Record();
+					ToastUtils.show(RealplayActivity.this, "关闭录像");
+				}
 				break;
 			case ALARM:
 				break;
