@@ -465,7 +465,16 @@ public class VideoRegion extends FrameLayout {
 					+ ", pos:" + pos + ", index:" + index);
 
 			if (index > mLiveViewManager.getLiveViewTotalCount()) {
-				return; // 非有效通道，不作处理
+				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
+					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
+						mLiveControl.getLandscapeToolbar()
+								.hideLandscapeToolbar();
+					} else {
+						mLiveControl.getLandscapeToolbar()
+								.showLandscapeToolbar();
+					}
+				}
+				return; // 非有效通道，不作其他处理
 			}
 
 			int oldPos = mLiveViewManager.getCurrentSelectedLiveViewPosition();
