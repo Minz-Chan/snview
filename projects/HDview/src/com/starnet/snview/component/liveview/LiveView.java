@@ -19,6 +19,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,6 +45,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	private boolean isValid = true;
 	private boolean canTakePicture = false;
+	private boolean canStartRecord = false;
+	
+	private Paint mPaint = new Paint();
 	
 	public LiveView(Context context) {
 		super(context);
@@ -83,6 +87,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 
 		mBuffer = ByteBuffer.wrap(mPixel);
 		mVideoBit = Bitmap.createBitmap(w, h, Config.RGB_565);
+		mPaint.setColor(Color.RED);
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
 		
 		mScale = null;
@@ -105,6 +110,14 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		this.canTakePicture = canTakePicture;
 	}
 	
+	public boolean isStartRecord() {
+		return canStartRecord;
+	}
+	
+	public void setStartRecord(boolean b) {
+		this.canStartRecord = b;
+	}
+	
 	public int[] getResolution() {
 		int[] r = new int[2];
 		
@@ -114,7 +127,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		return r;
 	}
 
-	public byte[] retrievetDisplayBuffer() {
+	public byte[] retrievetDisplayBuffer() { 
 		return mPixel;
 	}
 	
@@ -186,6 +199,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	if (canTakePicture) {
         		savePictureAndThumbnail(mVideoBit);
         		canTakePicture = false;
+        	}
+        	
+        	if (canStartRecord) {
+        		canvas.drawCircle(20, 20, 10, mPaint);
         	}
         	
         	mHolder.unlockCanvasAndPost(canvas);         	

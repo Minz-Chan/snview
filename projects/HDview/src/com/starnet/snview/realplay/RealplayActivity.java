@@ -769,23 +769,9 @@ public class RealplayActivity extends BaseActivity {
 				}
 				break;
 			case VIDEO_RECORD:
-//				mToolbar.setActionImageButtonSelected(
-//						Toolbar.ACTION_ENUM.VIDEO_RECORD, !bVideoRecordPressed);
-//				bVideoRecordPressed = !bVideoRecordPressed;
-				
-				if (!bVideoRecordPressed) { // 开启录像
-					bVideoRecordPressed = true;
-					mToolbar.setActionImageButtonSelected(
-							Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
-					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().startMP4Record();
-					ToastUtils.show(RealplayActivity.this, "开启录像");
-				} else {
-					bVideoRecordPressed = false;
-					mToolbar.setActionImageButtonSelected(
-							Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
-					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().closeMP4Record();
-					ToastUtils.show(RealplayActivity.this, "关闭录像");
-				}
+				bVideoRecordPressed = !bVideoRecordPressed;
+				processVideoRecord();
+
 				break;
 			case ALARM:
 				break;
@@ -865,6 +851,30 @@ public class RealplayActivity extends BaseActivity {
 					Toolbar.ACTION_ENUM.PLAY_PAUSE,
 					R.drawable.toolbar_play_selector);
 			liveControl.getLandscapeToolbar().switchStopResumeButtonStatus(false);
+		}
+	}
+	
+	private void processVideoRecord() {
+		if (bVideoRecordPressed) { // 开启录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+			liveViewManager.getSelectedLiveView().startMP4Record();
+		} else { // 关闭录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			liveViewManager.getSelectedLiveView().stopMP4Record();
+		}
+	}
+	
+	public void updateUIElementsStatus() {
+		// 更新录像按钮状态
+		bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
+		if (bVideoRecordPressed) { // 开启录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+		} else { // 关闭录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
 		}
 	}
 	
@@ -1195,10 +1205,25 @@ public class RealplayActivity extends BaseActivity {
 			ptzControl.setIsEnterPTZInSingleMode(false);
 		}
 	}
+	
+	/**
+	 * 确保页面切换或程序退出时，正在进行的录像操作正常保存
+	 */
+	private void makeSureVideoRecordOff() {
+		List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
+		int count = liveviews.size();
+		
+		for (int i = 0; i < count; i++) {
+			if (liveviews.get(i).getSurfaceView().isStartRecord()) {
+				liveviews.get(i).stopMP4Record();
+			}
+		}
+	}
 
 	@Override
 	protected void onDestroy() {		
 		liveViewManager.closeAllConnection(false);
+		makeSureVideoRecordOff();
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
@@ -1314,6 +1339,8 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void leaveRealtimePreview() {
+		makeSureVideoRecordOff();
+		
 		if (liveViewManager != null) {
 //			liveViewManager.closeAllConnection(true);
 			liveViewManager.stopPreview();

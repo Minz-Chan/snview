@@ -77,13 +77,13 @@ public class LocalFileUtils {
 		
 	}
 
-	public static String getRecordFileFullPath(String paramString,
-			boolean paramBoolean) {
+	public static String getRecordFileFullPath(String filename,
+			boolean isCreateFolder) {
 		String str = getRecordFolderPathToday();
-		if (paramBoolean) {
+		if (isCreateFolder) {
 			createDirectory(str);
 		}
-		return str + File.separator + paramString + RECORD_EXT_NAME;
+		return str + File.separator + filename + RECORD_EXT_NAME;
 	}
 
 	public static String getRecordFolderPathForDate(String strDate) {
