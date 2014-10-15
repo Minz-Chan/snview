@@ -229,6 +229,8 @@ public class RealplayActivity extends BaseActivity {
 			mPager.setAmount(liveViewManager.getPager().getTotalCount());
 			
 			liveViewManager.selectLiveView(currPageStart);
+			
+			updateUIElementsStatus();
 		}
 		
 		super.onRestart();
@@ -1340,6 +1342,7 @@ public class RealplayActivity extends BaseActivity {
 	
 	private void leaveRealtimePreview() {
 		makeSureVideoRecordOff();
+		bVideoRecordPressed = false;
 		
 		if (liveViewManager != null) {
 //			liveViewManager.closeAllConnection(true);
