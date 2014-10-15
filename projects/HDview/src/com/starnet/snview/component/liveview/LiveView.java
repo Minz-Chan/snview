@@ -10,6 +10,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.LocalFileUtils;
+import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
 
@@ -176,8 +177,12 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		//Log.i(TAG, "onLayout");
-		refreshDisplay();
+		Connection conn = findVideoContainerByView(this).getCurrentConnection();
+		if (isValid && (conn != null && conn.isConnected())) {
+			//Log.i(TAG, "Liveview onLayout, refreshDisplay() ");
+			refreshDisplay();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
+		}
+		
 		super.onLayout(changed, left, top, right, bottom);
 	}
 

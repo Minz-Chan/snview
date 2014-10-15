@@ -711,6 +711,8 @@ public class RealplayActivity extends BaseActivity {
 	private boolean bIsMicrophoneOpen = false;
 	private boolean bIsSoundOpen = false;
 	private boolean bVideoRecordPressed = false;
+	
+	/** 竖屏工具栏功能项点击监听器 */
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
 
 		@Override
@@ -771,9 +773,7 @@ public class RealplayActivity extends BaseActivity {
 				}
 				break;
 			case VIDEO_RECORD:
-				bVideoRecordPressed = !bVideoRecordPressed;
 				processVideoRecord();
-
 				break;
 			case ALARM:
 				break;
@@ -857,6 +857,8 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void processVideoRecord() {
+		bVideoRecordPressed = !bVideoRecordPressed;
+		
 		if (bVideoRecordPressed) { // 开启录像
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
@@ -880,6 +882,7 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 	
+	/** 横屏工具栏功能项点击监听器 */
 	private LandControlbarClickListener mLandscapeControlbarClickListener = new LandControlbarClickListener() {
 		@Override
 		public void landControlbarClick(View v) {
@@ -896,11 +899,15 @@ public class RealplayActivity extends BaseActivity {
 			case R.id.landscape_liveview_delete_button:
 				playAndPause();
 				break;
+			case R.id.landscape_liveview_record_button:
+				processVideoRecord();
+				break;
 			}
 
 		}
 	};
 	
+	/** 横屏工具栏PTZ项点击监听器 */
 	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
 		@Override
 		public void ptzBarClick(View v) {
