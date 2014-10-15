@@ -1165,6 +1165,8 @@ public class RealplayActivity extends BaseActivity {
 
 		switch (resultCode) {
 		case 8:
+			mIsStartedCompleted = true;
+			
 			Parcelable[] _devices = (Parcelable[]) data.getExtras().get("DEVICE_ITEM_LIST");
 			List<PreviewDeviceItem> devices = new ArrayList<PreviewDeviceItem>();
 
