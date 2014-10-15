@@ -857,6 +857,14 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void processVideoRecord() {
+		Log.i(TAG, "processVideoRecord");
+		if (!checkIsPTZDeviceConnected()) {
+			Log.i(TAG, "processVideoRecord, unconnected...");
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			return; // 未连接状态下，不作处理
+		}
+		
 		bVideoRecordPressed = !bVideoRecordPressed;
 		
 		if (bVideoRecordPressed) { // 开启录像
@@ -965,7 +973,10 @@ public class RealplayActivity extends BaseActivity {
 		
 	};
 
-	
+	/**
+	 * 检查当前所选通道是否已连接
+	 * @return true, 已连接；false, 未连接
+	 */
 	public boolean checkIsPTZDeviceConnected() {
 		Connection conn = liveViewManager.getSelectedLiveView().getCurrentConnection();
 		
