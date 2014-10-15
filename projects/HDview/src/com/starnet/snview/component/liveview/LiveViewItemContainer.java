@@ -323,13 +323,13 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public void startMP4Record() {
 		if (mCurrentConnection != null) {
-			mSurfaceView.setStartRecord(true);
 			String fileName = LocalFileUtils.getFormatedFileName(
 					getPreviewItem().getDeviceRecordName(), getPreviewItem()
 							.getChannel());
 			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
-			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);
 			
+			mSurfaceView.setStartRecord(true);
+			mSurfaceView.makeVideoSnapshot(fileName);
 			mCurrentConnection.getH264decoder().startMP4Record(fullRecPath);
 			invalidate();
 		}

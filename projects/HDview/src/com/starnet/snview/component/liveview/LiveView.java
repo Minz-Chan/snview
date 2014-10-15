@@ -46,6 +46,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	private boolean isValid = true;
 	private boolean canTakePicture = false;
 	private boolean canStartRecord = false;
+	private boolean canTakeVideoSnapshot = false;
+	private String mVideoSnapshotName;
 	
 	private Paint mPaint = new Paint();
 	
@@ -104,6 +106,11 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		this.isValid = isValid;
 		
 		onDisplayContentReset();
+	}
+	
+	public void makeVideoSnapshot(String fileNameExpceptSuffix) {
+		canTakeVideoSnapshot = true;
+		mVideoSnapshotName = fileNameExpceptSuffix;
 	}
 	
 	public void setTakePicture(boolean canTakePicture) {
@@ -205,11 +212,45 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         		canvas.drawCircle(20, 20, 10, mPaint);
         	}
         	
+        	if (canTakeVideoSnapshot && mVideoSnapshotName != null) {
+        		saveVideoSnapshotAndThumbnail(mVideoBit, mVideoSnapshotName);
+        		canTakeVideoSnapshot = false;
+        	}
+        	
         	mHolder.unlockCanvasAndPost(canvas);         	
         }
 	}
 	
 	private int THUMBNAIL_HEIGHT = 100;
+	
+	private void saveVideoSnapshotAndThumbnail(Bitmap bmp, String fileName) {
+		LiveViewItemContainer c = findVideoContainerByView(this);
+		if (c == null) {
+			return;
+		}
+		
+		Log.i(TAG, "Has Sdcard: " + SDCardUtils.IS_MOUNTED);
+		
+		if (SDCardUtils.IS_MOUNTED) { // SDcard可用
+			// 获取快照及其缩略图完整路径
+			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
+			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
+			
+			// 取得缩略图
+			int thumbnailHeight = THUMBNAIL_HEIGHT;
+			int thumbnailWidth = THUMBNAIL_HEIGHT * bmp.getWidth() / bmp.getHeight();
+			Bitmap thumbnail = BitmapUtils.extractMiniThumb(bmp, thumbnailWidth, thumbnailHeight, false); 
+			
+			// 保存拍照截图
+			if (saveBmpFile(bmp, fullImgPath)
+					&& saveBmpFile(thumbnail, fullThumbImgPath)) {
+				//result = true;
+				Log.i(TAG, "Save pictures successfully !");
+			}
+		} else { // 不存在SDCard的情况（分有/无内置内存情况）
+			
+		}
+	}
 	
 	private void savePictureAndThumbnail(Bitmap bmp) {
 		
