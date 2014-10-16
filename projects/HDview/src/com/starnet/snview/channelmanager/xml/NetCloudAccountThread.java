@@ -61,8 +61,10 @@ public class NetCloudAccountThread extends Thread {
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountFail(data,cAccount);//封装数据:将网络访问获取得到的数据打包			
 				data.putSerializable("netCloudAccount", cAccount);
+				data.putString("visit_flag", "nosuc");
 				msg.setData(data);
 				netHandler.sendMessage(msg);
+				
                }
            } catch (Exception e) {
 			e.printStackTrace();

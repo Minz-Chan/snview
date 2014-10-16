@@ -7,6 +7,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
@@ -152,7 +153,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		if (convertView == null) {
 			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_copy, null);
 		}
-		
 		//为组元素设置背景颜色...
 		ProgressBar progressBar_net_load = (ProgressBar) convertView.findViewById(R.id.progressBar_net_load);
 		if (groupAccountList.get(groupPosition).isRotate()||(!isOpen)) {//判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
@@ -178,9 +178,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}else {
 			Log.v(TAG, "&&&&notify_number:&&&"+notify_number);
 		}
-		
 //		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
-		
 		String tileName = cloudAccount.getUsername();
 		title.setText(tileName);// 设置组名      // 单击之后，箭头该为向下，背景颜色改变
 		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);// 设备图像的展示
@@ -239,10 +237,30 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				groupAccountList.set(pos, groupAccountList.get(pos));//重置星云平台用户信息
 				notifyDataSetChanged();
 				notify_number = 30;
-				//设置预览通道变化???????,即改变mPreviewDeviceItems的值...重置mPreviewDeviceItems的值
-//				mPreviewDeviceItems.clear();
-//				ExpandableListViewUtils.getPreviewListFromCloudAccounts(cloudAccountList2);
-//				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+				
+				//保存数据
+				if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
+					final CloudAccountXML csxml = new CloudAccountXML();
+					final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+					final List<DeviceItem> deviceList = groupAccountList.get(pos).getDeviceList();
+					final int size = deviceList.size();
+					Thread thread = new Thread(){
+						@Override
+						public void run() {
+							super.run();
+							for(int i =0 ;i<size;i++){
+								try {
+									csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					};
+					thread.start();
+				}
+				
+				
 			}
 		});
 		int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形

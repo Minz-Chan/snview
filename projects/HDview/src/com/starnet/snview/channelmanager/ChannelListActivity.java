@@ -55,6 +55,7 @@ public class ChannelListActivity extends BaseActivity {
 	private static final String TAG = "ChannelListActivity";
 
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
+	final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	private ExpandableListView mExpandableListView;
 	private CloudAccountXML caXML;
@@ -71,9 +72,13 @@ public class ChannelListActivity extends BaseActivity {
 	private Button rightButton;
 	private int title_num = 0 ;
 	private EditText search_edt;
-	private boolean isSearch = false;
+	private boolean isFirstSearch = false;
 	List <CloudAccount> searchList;	
+	
+	private long start_time = 0;
+	private long end_time = 0;
 
+	private List<PreviewDeviceItem> originPreviewChannelList;
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
 	
 	private Handler netHandler = new Handler() {// 处理线程的handler
@@ -84,6 +89,8 @@ public class ChannelListActivity extends BaseActivity {
 			Bundle data = msg.getData();
 			String position = data.getString("position");
 			String success = data.getString("success");
+//			String suc_con = data.getString("visit_flag");
+			
 			if (success.equals("Yes")) {// 通知ExpandableListView的第position个位置的progressBar不再转动;获取到访问的整个网络数据；
 				int pos = Integer.valueOf(position);
 				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
@@ -91,11 +98,22 @@ public class ChannelListActivity extends BaseActivity {
 				origin_cloudAccounts.set(pos, cloudAccount);
 			} else {
 				int pos = Integer.valueOf(position);
-				CloudAccount cloudAccount = (CloudAccount) data
-						.getSerializable("netCloudAccount");// 取回网络访问数据；
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
 				cloudAccount.setRotate(false);
 				origin_cloudAccounts.set(pos, cloudAccount);
 			}
+			
+//			if(suc_con!=null&&suc_con.equals("nosuc")){//加载圈的一直转动问题
+//				int pos = Integer.valueOf(position);
+//				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
+//				try {
+////					Thread.sleep(3000);
+//					cloudAccount.setRotate(true);
+//					origin_cloudAccounts.set(pos, cloudAccount);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
 
 			int size = origin_cloudAccounts.size();
 			for (int i = 1; i < size; i++) {
@@ -140,22 +158,29 @@ public class ChannelListActivity extends BaseActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start,int before, int count) {
-				if(search_edt.getText()!=null){
-					
-					isSearch = true;
-					String input_content = search_edt.getText().toString().trim();
-					searchList = getSearchListFromCloudAccounts(input_content);
-					Log.v(TAG, "searchList size:"+searchList.size());
-					
-					chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext,searchList,titleView);
-					mExpandableListView.setAdapter(chExpandableListAdapter);
-					
-				}
+				
 			}
 			
 			@Override
 			public void afterTextChanged(Editable s) {
-				Log.v(TAG, "s:"+s.toString());
+						if (search_edt.getText() != null) {
+
+							if (search_edt.getText().toString().trim().length() > 0) {
+								isFirstSearch = true;
+								String input_content = search_edt.getText().toString().trim();
+								if (searchList != null && searchList.size() > 0) {
+									searchList.clear();
+									return;
+								}
+								searchList = getSearchListFromCloudAccounts(input_content);
+								List<CloudAccount> mySearchList = getSearchListFromCloudAccounts(input_content);
+								Log.v(TAG,"searchList size:" + searchList.size());
+								Log.v(TAG,"mySearchList size:"+ mySearchList.size());
+
+								chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, searchList, titleView);
+								mExpandableListView.setAdapter(chExpandableListAdapter);
+							}
+						}
 			}
 		});
 		
@@ -181,7 +206,7 @@ public class ChannelListActivity extends BaseActivity {
 						previewChannelList = new ArrayList<PreviewDeviceItem>();
 						previewChannelList = getPreviewChannelList(origin_cloudAccounts);
 						
-						if(!isSearch){
+						if(!isFirstSearch){
 							
 							if (previewChannelList.size() > 0) {
 								PreviewDeviceItem p = previewChannelList.get(0);
@@ -285,64 +310,64 @@ public class ChannelListActivity extends BaseActivity {
 					}
 				}
 			}
-
 		}
 		return previewList;
 	}
 	
 	
 	private void backAndLeftButtonOperation(){
+		
+		end_time = System.currentTimeMillis();
+		
+		long time = end_time - start_time;
+		
+		if( time/1000 >= 3){//3秒钟限制;超过3秒时，检测用户是否加载完毕，，如果加载完毕，则读取用户数据；否则，使用原来的数据
+			Log.v(TAG, ""+(time/1000));
+			boolean allLoad = checkCloudAccountsLoad();
+			if(!allLoad){
+				ChannelListActivity.this.finish();
+				return;
+			}
+		}
+		
+		if(!checkCloudAccountsLoad()){//
+			ChannelListActivity.this.finish();
+			return;
+		}
+		
 		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
 		previewChannelList = getPreviewChannelList(origin_cloudAccounts);
-		
-		if(isSearch){
-			List<PreviewDeviceItem> sList = getPreviewChannelFromSearchList(searchList);
-			
-			//先移除，再合并
-			List<PreviewDeviceItem> tempMergeList = removeContain(previewChannelList,sList);
-			
-			List<PreviewDeviceItem> mergeList = mergeChannelAndSearchList(tempMergeList,sList);
-			if (mergeList.size() > 0) {
-				PreviewDeviceItem p = mergeList.get(0);
+		if (previewChannelList.size() > 0) {
+			PreviewDeviceItem p = previewChannelList.get(0);
 
-				PreviewDeviceItem[] l = new PreviewDeviceItem[mergeList.size()];
-				mergeList.toArray(l);
+			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
+			previewChannelList.toArray(l);
 
-				Intent intent = ChannelListActivity.this.getIntent();
-				intent.putExtra("DEVICE_ITEM_LIST", l);
+			Intent intent = ChannelListActivity.this.getIntent();
+			intent.putExtra("DEVICE_ITEM_LIST", l);
 
-				ChannelListActivity.this.setResult(8, intent);
-				ChannelListActivity.this.finish();
-				
-			}else{
-				List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-				previewDeviceItems.clear();
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-				ChannelListActivity.this.finish();
-			}
-		}else{
-			if (previewChannelList.size() > 0) {
-				PreviewDeviceItem p = previewChannelList.get(0);
-
-				PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
-						.size()];
-				previewChannelList.toArray(l);
-
-				Intent intent = ChannelListActivity.this.getIntent();
-				intent.putExtra("DEVICE_ITEM_LIST", l);
-
-				ChannelListActivity.this.setResult(8, intent);
-				ChannelListActivity.this.finish();
-			}else {//选择的通道为空时，不进行播放
-				List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-				previewDeviceItems.clear();
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-				ChannelListActivity.this.finish();
-			}
+			ChannelListActivity.this.setResult(8, intent);
+			ChannelListActivity.this.finish();
+		} else {// 选择的通道为空时，不进行播放
+			List<PreviewDeviceItem> previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+			previewDeviceItems.clear();
+			GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			ChannelListActivity.this.finish();
 		}
 	}
 
-	private List<PreviewDeviceItem> removeContain(List<PreviewDeviceItem> previewChannelList2,List<PreviewDeviceItem> sList) {
+	private boolean checkCloudAccountsLoad() {
+		boolean allLoad = true;
+		for(int i =0 ;i<origin_cloudAccounts.size();i++){
+			if(!origin_cloudAccounts.get(i).isRotate()){
+				allLoad = false;
+				break;
+			}
+		}
+		return allLoad;
+	}
+
+	protected List<PreviewDeviceItem> removeContain(List<PreviewDeviceItem> previewChannelList2,List<PreviewDeviceItem> sList) {
 		
 		if(sList==null||sList.size()==0){
 			return previewChannelList2;
@@ -399,6 +424,8 @@ public class ChannelListActivity extends BaseActivity {
 		
 		rightButton = super.getRightButton();
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
+		
+		originPreviewChannelList = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();//获取源预览通道列表
 
 		curContext = ChannelListActivity.this;
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
@@ -428,12 +455,13 @@ public class ChannelListActivity extends BaseActivity {
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
+			
+			start_time = System.currentTimeMillis();
 
 			File file = new File(CLOUD_ACCOUNT_PATH);
 			if (file.exists()) {
 				file.delete();
 			}
-			// }
 		} else {
 			String printSentence = getString(R.string.channel_manager_channellistview_netnotopen);
 			Toast toast = Toast.makeText(ChannelListActivity.this,printSentence, Toast.LENGTH_LONG);
@@ -523,8 +551,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	/**从本地获取设备的通道列表*/
 	public List<CloudAccount> getGroupListFromLocal() {// 注意，目前只有一个用户的情况下；从收藏设备中读取账户
-		List<CloudAccount> groupList = caXML
-				.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		List<CloudAccount> groupList = caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
 		return groupList;
 	}
 
@@ -537,7 +564,7 @@ public class ChannelListActivity extends BaseActivity {
 			collectCloudAccount = (CloudAccount) bundle.getSerializable("wca");
 			// 更新ExpandableListView指定的按钮
 			int pos = bundle.getInt("parentPos");
-			if(!isSearch){
+			if(!isFirstSearch){
 				origin_cloudAccounts.set(pos, collectCloudAccount);
 				chExpandableListAdapter.notify_number = 2;
 				chExpandableListAdapter.notifyDataSetChanged();
@@ -552,7 +579,9 @@ public class ChannelListActivity extends BaseActivity {
 					}
 				}
 				
-				Toast.makeText(curContext, "搜索框", Toast.LENGTH_SHORT).show();
+				//查看searchList值是否有变化，考虑searchList.set(i, collectCloudAccount);
+				
+//				Toast.makeText(curContext, "搜索框", Toast.LENGTH_SHORT).show();
 				chExpandableListAdapter.notify_number = 22;
 				chExpandableListAdapter.notifyDataSetChanged();
 				
@@ -565,7 +594,7 @@ public class ChannelListActivity extends BaseActivity {
 							List<DeviceItem> originDevices = origin_cloudAccount.getDeviceList();
 							for(int k = 0 ; k<colDevices.size(); k++){
 								DeviceItem colDeviceItem = colDevices.get(k);
-								for(int j = 0 ;j<originDevices.size();j++){
+								for(int j = 0 ;j < originDevices.size();j++){
 									DeviceItem originDeviceItem = originDevices.get(j);
 									if(originDeviceItem.getDeviceName().equals(colDeviceItem.getDeviceName())){
 										List<Channel> channels = colDeviceItem.getChannelList();
@@ -579,31 +608,30 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}
 			Log.i(TAG, ""+origin_cloudAccounts.size());
-//			caXML = new CloudAccountXML();
-// 判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
-//			if (collectCloudAccount.getUsername().equals("收藏设备")
-//					&& (collectCloudAccount.getDomain().equals("com"))
-//					&& (collectCloudAccount.getPort().equals("808"))
-//					&& (collectCloudAccount.getPassword().equals("0208"))) {
-//				Thread thread = new Thread() {
-//					@Override
-//					public void run() {
-//						super.run();
-//						List<DeviceItem> deviceList = collectCloudAccount
-//								.getDeviceList();
-//						int size = deviceList.size();
-//						for (int i = 0; i < size; i++) {
-//							try {
-//								caXML.addNewDeviceItemToCollectEquipmentXML(
-//										deviceList.get(i), filePath);
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//							}
-//						}
-//					}
-//				};
-//				thread.start();
-//			}
+			
+			caXML = new CloudAccountXML();//判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
+			if (collectCloudAccount.getUsername().equals("收藏设备")
+					&& (collectCloudAccount.getDomain().equals("com"))
+					&& (collectCloudAccount.getPort().equals("808"))
+					&& (collectCloudAccount.getPassword().equals("0208"))) {
+				Thread thread = new Thread() {
+					@Override
+					public void run() {
+						super.run();
+						List<DeviceItem> deviceList = collectCloudAccount
+								.getDeviceList();
+						int size = deviceList.size();
+						for (int i = 0; i < size; i++) {
+							try {
+								caXML.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+				thread.start();
+			}
 		}
 	}
 
