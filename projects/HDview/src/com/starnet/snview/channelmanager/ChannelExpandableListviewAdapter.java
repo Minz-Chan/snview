@@ -238,6 +238,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				notifyDataSetChanged();
 				notify_number = 30;
 				
+				List<PreviewDeviceItem> devices = ExpandableListViewUtils.getPreviewChannelList(groupAccountList);
+				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(devices);
+				
 				//保存数据
 				if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
 					final CloudAccountXML csxml = new CloudAccountXML();

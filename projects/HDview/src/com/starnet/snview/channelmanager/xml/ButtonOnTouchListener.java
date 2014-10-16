@@ -6,6 +6,8 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
 
@@ -127,8 +129,10 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				thread.start();
 			}
 			
+			List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils.getPreviewChannelList(cloudAccountList);
+			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(touchPreviewItem);
+			
 		}
-		
 		return true;
 	}
 	

@@ -1479,4 +1479,7 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 
+	public void setPreviewDevices_copy(List<PreviewDeviceItem> devices) {
+		this.previewDevices = devices;
+	}
 }
