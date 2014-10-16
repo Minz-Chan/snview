@@ -380,6 +380,10 @@ public class VideoRegion extends FrameLayout {
 
 	};
 	
+	private void syncUIElementsStatus() {
+		getRP().updateUIElementsStatus();
+	}
+	
 	
 	private ClickEventUtils mPTZStopMoveDelay = new ClickEventUtils(new OnActionListener() {
 		@Override
@@ -473,6 +477,8 @@ public class VideoRegion extends FrameLayout {
 			mPager.setNum(mLiveViewManager.getSelectedLiveViewIndex());
 			mPager.setAmount(mLiveViewManager.getLiveViewTotalCount());
 
+			syncUIElementsStatus();
+			
 			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
 				if (pos == oldPos) {
 					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {

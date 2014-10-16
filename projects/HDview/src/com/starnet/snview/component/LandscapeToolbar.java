@@ -1,6 +1,5 @@
 package com.starnet.snview.component;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -8,7 +7,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -96,10 +94,10 @@ public class LandscapeToolbar extends FrameLayout {
 	private int mLastY;
 	private int mOffSpace = 0;
 
-	private int mRealHeight = 0;
-	private int mRealSubHeight = 0;
-	private int mRealSubWidth = 0;
-	private int mRealWidth = 0;
+//	private int mRealHeight = 0;
+//	private int mRealSubHeight = 0;
+//	private int mRealSubWidth = 0;
+//	private int mRealWidth = 0;
 
 	private int mTouchCount = 0;
 	
@@ -153,6 +151,7 @@ public class LandscapeToolbar extends FrameLayout {
 		case R.id.landscape_liveview_ptz_button:
 		case R.id.landscape_liveview_quality_button:
 		case R.id.landscape_liveview_delete_button:
+		case R.id.landscape_liveview_record_button:
 			mLandControlbarListener.landControlbarClick(v);
 			break;
 		case 2:
@@ -260,7 +259,7 @@ public class LandscapeToolbar extends FrameLayout {
 		View viewBeClicked = null;
 
 		if (mControlBar.isShown()) {
-			Iterator controlChildIt;
+			Iterator<View> controlChildIt;
 			controlChildIt = mControlChildList.iterator();
 			while (controlChildIt.hasNext()) {
 				View v = (View) controlChildIt.next();
@@ -280,7 +279,7 @@ public class LandscapeToolbar extends FrameLayout {
 		}
 
 		if (mPTZControlBar.isShown()) {
-			Iterator ptzControlChildIt = mPTZControlChildList.iterator();
+			Iterator<View> ptzControlChildIt = mPTZControlChildList.iterator();
 			while (ptzControlChildIt.hasNext()) {
 				View v = (View) ptzControlChildIt.next();
 				int[] locations = new int[2];
@@ -298,7 +297,7 @@ public class LandscapeToolbar extends FrameLayout {
 		}
 
 		if (mQualityControlBar.isShown()) {
-			Iterator qualityControlChildIt = mQualityControlChildList
+			Iterator<View> qualityControlChildIt = mQualityControlChildList
 					.iterator();
 			while (qualityControlChildIt.hasNext()) {
 				View v = (View) qualityControlChildIt.next();

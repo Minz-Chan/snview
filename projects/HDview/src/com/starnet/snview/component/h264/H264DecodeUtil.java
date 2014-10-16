@@ -34,6 +34,9 @@ public class H264DecodeUtil {
 	
 	private boolean mStartRecord = false;
 	private int mSpsCount = -1;
+	private int mPlayFPS = 6;
+	private String mMp4RecordFileName;
+	private long mMP4FileHanlde = 0;
 	
 	public H264DecodeUtil(String connName) {
 		mInstanceId = connName.hashCode();
@@ -111,7 +114,6 @@ public class H264DecodeUtil {
 //									VideoView.changeScreenRevolution(realWidth, realHeight);
 //									v.init();
 //								}
-								mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, 6);
 							} else {
 								//System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
 							}
@@ -132,14 +134,17 @@ public class H264DecodeUtil {
 					// decode nal unit when there exists a complete NAL unit in NalBuf
 					// the second parameter is the length of NAL unit
 					iTemp = decoder.decode(mInstanceId, NalBuf, NalBufUsed - 4, byteBitmap);   
+					
+					// pack h264 stream data into mp4 file
 					if (mStartRecord && mSpsCount >= 0) {
 						if (NalBuf[4] == 0x67 && mSpsCount == 0) { // first sps
 							mSpsCount++;
-							mp4recorder.createRecordFile(mInstanceId, "/sdcard/aa" + Math.abs(mInstanceId) + ".mp4");
-							mp4recorder.packVideo(mInstanceId, NalBuf, NalBufUsed - 4);
+							//mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, mPlayFPS);
+							mMP4FileHanlde = mp4recorder.createRecordFile(mMp4RecordFileName, NalBuf, NalBufUsed - 4, mPlayFPS);
+							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
 						} else if (mSpsCount > 0) {
 							if (NalBuf[4] == 0x67) mSpsCount++;
-							mp4recorder.packVideo(mInstanceId, NalBuf, NalBufUsed - 4);
+							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
 						}
 					}
 					
@@ -230,15 +235,34 @@ public class H264DecodeUtil {
 		return result;
 	}
 	
-	public void startMP4Record() {
+	
+	
+	public int getPlayFPS() {
+		return mPlayFPS;
+	}
+
+	public void setPlayFPS(int fps) {
+		this.mPlayFPS = fps;
+	}
+
+	public String getMp4RecordFileName() {
+		return mMp4RecordFileName;
+	}
+
+	public void setMp4RecordFileName(String mp4FileName) {
+		this.mMp4RecordFileName = mp4FileName;
+	}
+
+	public void startMP4Record(String filename) {
+		setMp4RecordFileName(filename);
 		mStartRecord = true;
 		mSpsCount = 0;
 	}
 	
-	public void closeMP4Record() {
+	public void stopMP4Record() {
 		mStartRecord = false;
 		mSpsCount = -1;
-		mp4recorder.closeRecordFile(mInstanceId);
+		mp4recorder.closeRecordFile(mMP4FileHanlde);
 	}
 
 	@Override

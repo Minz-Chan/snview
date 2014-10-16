@@ -229,6 +229,8 @@ public class RealplayActivity extends BaseActivity {
 			mPager.setAmount(liveViewManager.getPager().getTotalCount());
 			
 			liveViewManager.selectLiveView(currPageStart);
+			
+			updateUIElementsStatus();
 		}
 		
 		super.onRestart();
@@ -709,6 +711,8 @@ public class RealplayActivity extends BaseActivity {
 	private boolean bIsMicrophoneOpen = false;
 	private boolean bIsSoundOpen = false;
 	private boolean bVideoRecordPressed = false;
+	
+	/** 竖屏工具栏功能项点击监听器 */
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
 
 		@Override
@@ -769,23 +773,7 @@ public class RealplayActivity extends BaseActivity {
 				}
 				break;
 			case VIDEO_RECORD:
-//				mToolbar.setActionImageButtonSelected(
-//						Toolbar.ACTION_ENUM.VIDEO_RECORD, !bVideoRecordPressed);
-//				bVideoRecordPressed = !bVideoRecordPressed;
-				
-				if (!bVideoRecordPressed) { // 开启录像
-					bVideoRecordPressed = true;
-					mToolbar.setActionImageButtonSelected(
-							Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
-					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().startMP4Record();
-					ToastUtils.show(RealplayActivity.this, "开启录像");
-				} else {
-					bVideoRecordPressed = false;
-					mToolbar.setActionImageButtonSelected(
-							Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
-					liveViewManager.getSelectedLiveView().getCurrentConnection().getH264decoder().closeMP4Record();
-					ToastUtils.show(RealplayActivity.this, "关闭录像");
-				}
+				processVideoRecord();
 				break;
 			case ALARM:
 				break;
@@ -868,6 +856,33 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 	
+	private void processVideoRecord() {
+		bVideoRecordPressed = !bVideoRecordPressed;
+		
+		if (bVideoRecordPressed) { // 开启录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+			liveViewManager.getSelectedLiveView().startMP4Record();
+		} else { // 关闭录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			liveViewManager.getSelectedLiveView().stopMP4Record();
+		}
+	}
+	
+	public void updateUIElementsStatus() {
+		// 更新录像按钮状态
+		bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
+		if (bVideoRecordPressed) { // 开启录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+		} else { // 关闭录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+		}
+	}
+	
+	/** 横屏工具栏功能项点击监听器 */
 	private LandControlbarClickListener mLandscapeControlbarClickListener = new LandControlbarClickListener() {
 		@Override
 		public void landControlbarClick(View v) {
@@ -884,11 +899,15 @@ public class RealplayActivity extends BaseActivity {
 			case R.id.landscape_liveview_delete_button:
 				playAndPause();
 				break;
+			case R.id.landscape_liveview_record_button:
+				processVideoRecord();
+				break;
 			}
 
 		}
 	};
 	
+	/** 横屏工具栏PTZ项点击监听器 */
 	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
 		@Override
 		public void ptzBarClick(View v) {
@@ -1195,10 +1214,25 @@ public class RealplayActivity extends BaseActivity {
 			ptzControl.setIsEnterPTZInSingleMode(false);
 		}
 	}
+	
+	/**
+	 * 确保页面切换或程序退出时，正在进行的录像操作正常保存
+	 */
+	private void makeSureVideoRecordOff() {
+		List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
+		int count = liveviews.size();
+		
+		for (int i = 0; i < count; i++) {
+			if (liveviews.get(i).getSurfaceView().isStartRecord()) {
+				liveviews.get(i).stopMP4Record();
+			}
+		}
+	}
 
 	@Override
 	protected void onDestroy() {		
 		liveViewManager.closeAllConnection(false);
+		makeSureVideoRecordOff();
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
@@ -1314,6 +1348,9 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void leaveRealtimePreview() {
+		makeSureVideoRecordOff();
+		bVideoRecordPressed = false;
+		
 		if (liveViewManager != null) {
 //			liveViewManager.closeAllConnection(true);
 			liveViewManager.stopPreview();

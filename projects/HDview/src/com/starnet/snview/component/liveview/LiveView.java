@@ -10,6 +10,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.LocalFileUtils;
+import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
 
@@ -19,6 +20,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,6 +46,11 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	private boolean isValid = true;
 	private boolean canTakePicture = false;
+	private boolean canStartRecord = false;
+	private boolean canTakeVideoSnapshot = false;
+	private String mVideoSnapshotName;
+	
+	private Paint mPaint = new Paint();
 	
 	public LiveView(Context context) {
 		super(context);
@@ -83,6 +90,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 
 		mBuffer = ByteBuffer.wrap(mPixel);
 		mVideoBit = Bitmap.createBitmap(w, h, Config.RGB_565);
+		mPaint.setColor(Color.RED);
 		// this.setScaleType(ImageView.ScaleType.FIT_XY);
 		
 		mScale = null;
@@ -101,8 +109,21 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		onDisplayContentReset();
 	}
 	
+	public void makeVideoSnapshot(String fileNameExpceptSuffix) {
+		canTakeVideoSnapshot = true;
+		mVideoSnapshotName = fileNameExpceptSuffix;
+	}
+	
 	public void setTakePicture(boolean canTakePicture) {
 		this.canTakePicture = canTakePicture;
+	}
+	
+	public boolean isStartRecord() {
+		return canStartRecord;
+	}
+	
+	public void setStartRecord(boolean b) {
+		this.canStartRecord = b;
 	}
 	
 	public int[] getResolution() {
@@ -114,7 +135,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		return r;
 	}
 
-	public byte[] retrievetDisplayBuffer() {
+	public byte[] retrievetDisplayBuffer() { 
 		return mPixel;
 	}
 	
@@ -156,8 +177,12 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
-		//Log.i(TAG, "onLayout");
-		refreshDisplay();
+		Connection conn = findVideoContainerByView(this).getCurrentConnection();
+		if (isValid && (conn != null && conn.isConnected())) {
+			//Log.i(TAG, "Liveview onLayout, refreshDisplay() ");
+			refreshDisplay();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
+		}
+		
 		super.onLayout(changed, left, top, right, bottom);
 	}
 
@@ -188,11 +213,49 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         		canTakePicture = false;
         	}
         	
+        	if (canStartRecord) {
+        		canvas.drawCircle(20, 20, 10, mPaint);
+        	}
+        	
+        	if (canTakeVideoSnapshot && mVideoSnapshotName != null) {
+        		saveVideoSnapshotAndThumbnail(mVideoBit, mVideoSnapshotName);
+        		canTakeVideoSnapshot = false;
+        	}
+        	
         	mHolder.unlockCanvasAndPost(canvas);         	
         }
 	}
 	
 	private int THUMBNAIL_HEIGHT = 100;
+	
+	private void saveVideoSnapshotAndThumbnail(Bitmap bmp, String fileName) {
+		LiveViewItemContainer c = findVideoContainerByView(this);
+		if (c == null) {
+			return;
+		}
+		
+		Log.i(TAG, "Has Sdcard: " + SDCardUtils.IS_MOUNTED);
+		
+		if (SDCardUtils.IS_MOUNTED) { // SDcard可用
+			// 获取快照及其缩略图完整路径
+			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
+			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
+			
+			// 取得缩略图
+			int thumbnailHeight = THUMBNAIL_HEIGHT;
+			int thumbnailWidth = THUMBNAIL_HEIGHT * bmp.getWidth() / bmp.getHeight();
+			Bitmap thumbnail = BitmapUtils.extractMiniThumb(bmp, thumbnailWidth, thumbnailHeight, false); 
+			
+			// 保存拍照截图
+			if (saveBmpFile(bmp, fullImgPath)
+					&& saveBmpFile(thumbnail, fullThumbImgPath)) {
+				//result = true;
+				Log.i(TAG, "Save pictures successfully !");
+			}
+		} else { // 不存在SDCard的情况（分有/无内置内存情况）
+			
+		}
+	}
 	
 	private void savePictureAndThumbnail(Bitmap bmp) {
 		

@@ -1,15 +1,18 @@
 package com.starnet.snview.component.liveview;
 
 import com.starnet.snview.R;
+import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,6 +42,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private boolean mIsResponseError;
 	private boolean mIsManualStop;
 	
+	private Paint paint = new Paint();
+	
 //	private OnLiveViewContainerClickListener mLvContainerClickListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
@@ -48,9 +53,11 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public LiveViewItemContainer(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		paint.setColor(Color.RED);
 	}
 	public LiveViewItemContainer(Context context) {
 		super(context);
+		paint.setColor(Color.RED);
 	}
 	
 	
@@ -314,7 +321,29 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mRefresh.setVisibility(View.GONE);
 	}
 	
+	public void startMP4Record() {
+		if (mCurrentConnection != null) {
+			String fileName = LocalFileUtils.getFormatedFileName(
+					getPreviewItem().getDeviceRecordName(), getPreviewItem()
+							.getChannel());
+			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
+			
+			mSurfaceView.setStartRecord(true);
+			mSurfaceView.makeVideoSnapshot(fileName);
+			mCurrentConnection.getH264decoder().startMP4Record(fullRecPath);
+			invalidate();
+		}
+	}
 	
-//	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
+	public void stopMP4Record() {
+		if (mCurrentConnection != null) {
+			mSurfaceView.setStartRecord(false);
+			mCurrentConnection.getH264decoder().stopMP4Record();
+			invalidate();
+		}
+	}
+
+
+	//	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
 }
