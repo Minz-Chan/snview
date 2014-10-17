@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.starnet.snview"
-    android:versionCode="51"
-    android:versionName="6.0.26" >
+    android:versionCode="54"
+    android:versionName="6.0.29" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RESTART_PACKAGES" /> <!-- 关闭整个应用程序权限 -->
