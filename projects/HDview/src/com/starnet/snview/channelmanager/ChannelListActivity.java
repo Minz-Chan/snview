@@ -80,6 +80,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	private List<PreviewDeviceItem> originPreviewChannelList;
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
+	private List<CloudAccount> cloudAccounts_enable;//保存原来用户的Enable的值
 	
 	private Handler netHandler = new Handler() {// 处理线程的handler
 
@@ -168,17 +169,21 @@ public class ChannelListActivity extends BaseActivity {
 						searchList.clear();
 //						return;
 					}
-//					if (search_edt.getText().toString().trim().length() > 0) {
+					if (search_edt.getText().toString().trim().length() > 0) {
 						List<CloudAccount> mySearchList = getSearchListFromCloudAccounts(input_content);
 						searchList = getSearchListFromCloudAccounts(input_content);
 						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, searchList, titleView);
 						mExpandableListView.setAdapter(chExpandableListAdapter);
-//					}else{
-//						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);
-//						mExpandableListView.setAdapter(chExpandableListAdapter);
-//					}
+					}else{
+						setOriginCloudAccountsEnable();
+						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);
+						mExpandableListView.setAdapter(chExpandableListAdapter);
+					}
 				}else {
 					Log.v(TAG, "search_edt length:"+search_edt.getText().toString().trim().length());
+					setOriginCloudAccountsEnable();
+					chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);
+					mExpandableListView.setAdapter(chExpandableListAdapter);
 				}
 			}
 			
@@ -241,6 +246,11 @@ public class ChannelListActivity extends BaseActivity {
 		});
 	}
 	
+	private void setOriginCloudAccountsEnable(){
+		for(int i =0 ;i<origin_cloudAccounts.size();i++){
+			origin_cloudAccounts.get(i).setEnabled(cloudAccounts_enable.get(i).isEnabled());
+		}
+	}
 	
 	protected List<PreviewDeviceItem> mergeChannelAndSearchList(List<PreviewDeviceItem> previewChannelList2,
 			List<PreviewDeviceItem> previewSearchList) {
@@ -421,7 +431,8 @@ public class ChannelListActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
 		
 		originPreviewChannelList = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();//获取源预览通道列表
-
+		cloudAccounts_enable = new ArrayList<CloudAccount>();
+		
 		curContext = ChannelListActivity.this;
 		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpandableListView = (ExpandableListView) findViewById(R.id.channel_listview);
@@ -432,6 +443,7 @@ public class ChannelListActivity extends BaseActivity {
 		caXML = new CloudAccountXML();
 		origin_cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
 		int netSize = origin_cloudAccounts.size();
+		copyCloudAccountEnable();
 		
 		boolean isOpen = NetWorkUtils.checkNetConnection(ChannelListActivity.this);// 查看网络是否开启
 		if (isOpen) {
@@ -466,6 +478,16 @@ public class ChannelListActivity extends BaseActivity {
 		curContext = ChannelListActivity.this;
 		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts,titleView);
 		mExpandableListView.setAdapter(chExpandableListAdapter);
+	}
+	
+	private void copyCloudAccountEnable(){
+		for(int i =0 ;i<origin_cloudAccounts.size();i++){
+			CloudAccount cloudAccount = new CloudAccount();
+			cloudAccount.setUsername(origin_cloudAccounts.get(i).getUsername());
+			cloudAccount.setPassword(origin_cloudAccounts.get(i).getPassword());
+			cloudAccount.setEnabled(origin_cloudAccounts.get(i).isEnabled());
+			cloudAccounts_enable.add(cloudAccount);
+		}
 	}
 
 	private List<PreviewDeviceItem> getPreviewChannelList(
