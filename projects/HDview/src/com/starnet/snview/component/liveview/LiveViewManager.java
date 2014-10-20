@@ -109,6 +109,8 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				.getResolution()[0];
 		vSyncObj.height = liveviews.get(pos - 1).getSurfaceView()
 				.getResolution()[1];
+		vSyncObj.canStartRecord = liveviews.get(pos - 1).getSurfaceView()
+				.isStartRecord();
 		// vSyncObj.pixels = liveviews.get(pos -
 		// 1).getSurfaceView().retrievetDisplayBuffer();
 		vSyncObj.connection = connections.get(pos - 1);
@@ -341,15 +343,22 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			if (i == (pos - 1)) {
 				continue;
 			}
+			
+			Connection conn = connections.get(i);
 
-			if (connections.get(i).isConnected()) {
-				connections.get(i).disconnect();
+			if (conn.isConnected()) {
+				conn.disconnect();
 			} else {
-				connections.get(i).setDisposed(true); // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
+				conn.setDisposed(true); // 若为非连接状态，则可能处于连接初始化阶段，此时将其设置为disposed状态
+			}
+			
+			// 若开启了录像，则停止录像
+			if (conn.getLiveViewContainer().getSurfaceView().isStartRecord()) {
+				conn.getLiveViewContainer().stopMP4Record();
 			}
 
 			if (!canUpdateViewAfterClosed) {
-				connections.get(i).getLiveViewItemContainer()
+				conn.getLiveViewItemContainer()
 						.setCurrentConnection(null);
 			}
 		}
@@ -396,7 +405,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				liveviews.get(i).getWindowLayout().setWindowSelected(false);
 			}
 		}
-
+		pager.setCurrentIndex(index);
 		return currentIndex;
 	}
 
@@ -436,6 +445,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 		liveviews.get(desPos - 1).getSurfaceView()
 				.init(vSyncObj.width, vSyncObj.height);
+		liveviews.get(desPos - 1).getSurfaceView().setStartRecord(vSyncObj.canStartRecord);
 		// liveviews.get(desPos -
 		// 1).getSurfaceView().copyPixelsFromBuffer(vSyncObj.pixels);
 
@@ -790,6 +800,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	private class VideoDataSync {
 		int width;
 		int height;
+		boolean canStartRecord;
 		byte[] pixels;
 
 		Connection connection;

@@ -1244,7 +1244,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {		
 		liveViewManager.closeAllConnection(false);
-		makeSureVideoRecordOff();
+		//makeSureVideoRecordOff();
 		
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
@@ -1360,7 +1360,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void leaveRealtimePreview() {
-		makeSureVideoRecordOff();
+		//makeSureVideoRecordOff();
 		bVideoRecordPressed = false;
 		
 		if (liveViewManager != null) {
