@@ -1176,17 +1176,16 @@ public class RealplayActivity extends BaseActivity {
 			
 			setPreviewDevices(devices);
 			
-			if (mVideoPager.getAdapter() == null) {
-				VideoPagerAdapter vpAdapter = null;
-				if (!liveViewManager.isMultiMode()) { // 单通道
-					vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
-				} else { // 多通道
-					vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
-				}
-				
-				mVideoPager.setAdapter(vpAdapter);
-				vpAdapter.notifyDataSetChanged();
+			// 更新adapter
+			VideoPagerAdapter vpAdapter = null;
+			if (!liveViewManager.isMultiMode()) { // 单通道
+				vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
+			} else { // 多通道
+				vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
 			}
+			
+			mVideoPager.setAdapter(vpAdapter);
+			vpAdapter.notifyDataSetChanged();
 			
 			mVideoPager.post(new Runnable() {
 				@Override
