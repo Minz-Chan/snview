@@ -454,7 +454,16 @@ public class VideoRegion extends FrameLayout {
 			}
 
 			if ((mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
-			/* || !liveViewManager.isMultiMode() */) { // PTZ模式情况下或单通道模式单击无效
+			/* || !liveViewManager.isMultiMode() */) { // PTZ模式情况下或单通道模式单击处理PTZ工具条的显示和隐藏
+				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
+					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
+						mLiveControl.getLandscapeToolbar()
+								.hideLandscapeToolbar();
+					} else {
+						mLiveControl.getLandscapeToolbar()
+								.showLandscapeToolbar();
+					}
+				}
 				return;
 			}
 
