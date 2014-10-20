@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white" >
+    android:background="@color/md__bgTransparent" >
 
     <RelativeLayout
         android:id="@+id/show_play_info_layout"
@@ -28,6 +28,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:background="@color/md__bgTransparent"
             android:weightSum="1.0" >
 
             <Button
@@ -41,7 +42,8 @@
                 android:layout_width="0.0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
-                android:text="@string/nothing" />
+                android:text="@string/nothing"
+                android:textColor="@color/white" />
         </LinearLayout>
     </RelativeLayout>
 
@@ -52,8 +54,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_centerInParent="false"
-        android:layout_centerVertical="true"
-         >
+        android:layout_centerVertical="true" >
 
         <SurfaceView
             android:id="@+id/localplay_surfaceview"
@@ -78,6 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="@color/md__bgTransparent"
         android:baselineAligned="false"
         android:orientation="horizontal" >
 
@@ -166,15 +168,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="14.0dip"
-            android:paddingLeft="10.0dip"
-            android:paddingRight="10.0dip"
             android:layout_marginRight="14.0dip"
             android:max="100"
             android:maxHeight="15.0dip"
-            android:minHeight="10.0dip" 
-            android:thumb="@drawable/image_seekbar_thumb"
+            android:minHeight="10.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
             android:progressDrawable="@drawable/seekbar_style"
-            /><!-- android:progressDrawable="@drawable/image_seekbar_style" -->
+            android:thumb="@drawable/image_seekbar_thumb" />
+        <!-- android:progressDrawable="@drawable/image_seekbar_style" -->
     </LinearLayout>
 
 </RelativeLayout>

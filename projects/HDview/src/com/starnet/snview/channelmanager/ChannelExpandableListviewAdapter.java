@@ -211,61 +211,62 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}else{
 			channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
-		
-		channel_listview_select.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				
-				String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));//判断当前的选择状态(全选、半选和未选)
-				if(state.equals("all")){
-					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+//		List<DeviceItem> deviceItems = groupAccountList.get(pos).getDeviceList();
+//		if(groupAccountList.get(pos).isEnabled()&&(deviceItems!=null&&deviceItems.size()>0)){
+			channel_listview_select.setOnClickListener(new OnClickListener(){//考虑点击全选状态按钮时，考虑为空的情况
+				@Override
+				public void onClick(View v) {
 					
-					ExpandableListViewUtils.setStateForCloudAccount("empty",groupAccountList.get(pos));//改变通道列表的选择状态
-				}else if(state.equals("half")){
-					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
-					ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
-				}else{
-					channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
-					ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
-				}
-				int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
-				if(number == 0){
-					titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
-				}else{
-					titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
-				}
-				groupAccountList.set(pos, groupAccountList.get(pos));//重置星云平台用户信息
-				notifyDataSetChanged();
-				notify_number = 30;
-				
-				List<PreviewDeviceItem> devices = ExpandableListViewUtils.getPreviewChannelList(groupAccountList);
-				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(devices);
-				
-				//保存数据
-				if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
-					final CloudAccountXML csxml = new CloudAccountXML();
-					final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-					final List<DeviceItem> deviceList = groupAccountList.get(pos).getDeviceList();
-					final int size = deviceList.size();
-					Thread thread = new Thread(){
-						@Override
-						public void run() {
-							super.run();
-							for(int i =0 ;i<size;i++){
-								try {
-									csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
-								} catch (Exception e) {
-									e.printStackTrace();
+					String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));//判断当前的选择状态(全选、半选和未选)
+					if(state.equals("all")){
+						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+						
+						ExpandableListViewUtils.setStateForCloudAccount("empty",groupAccountList.get(pos));//改变通道列表的选择状态
+					}else if(state.equals("half")){
+						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+						ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
+					}else{
+						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+						ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
+					}
+					int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
+					if(number == 0){
+						titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
+					}else{
+						titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
+					}
+					groupAccountList.set(pos, groupAccountList.get(pos));//重置星云平台用户信息
+					notifyDataSetChanged();
+					notify_number = 30;
+					
+					List<PreviewDeviceItem> devices = ExpandableListViewUtils.getPreviewChannelList(groupAccountList);
+					GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(devices);
+					
+					//保存数据
+					if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
+						final CloudAccountXML csxml = new CloudAccountXML();
+						final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+						final List<DeviceItem> deviceList = groupAccountList.get(pos).getDeviceList();
+						final int size = deviceList.size();
+						Thread thread = new Thread(){
+							@Override
+							public void run() {
+								super.run();
+								for(int i =0 ;i<size;i++){
+									try {
+										csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 								}
 							}
-						}
-					};
-					thread.start();
+						};
+						thread.start();
+					}
 				}
-				
-				
-			}
-		});
+			});
+//		}
+		
 		int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
 		if(number == 0){
 			titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名

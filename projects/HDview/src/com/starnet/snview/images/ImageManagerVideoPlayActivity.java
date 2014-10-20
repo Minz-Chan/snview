@@ -139,7 +139,7 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 		mSoundBtn = (ImageButton) findViewById(R.id.localplay_sound_btn);
 		
 		mTotalVideoTimeTxt = (TextView) findViewById(R.id.localplay_sum_time_text);
-		mCurrentVideoTimeTxt = (TextView) findViewById(R.id.localplay_time_text);;
+		mCurrentVideoTimeTxt = (TextView) findViewById(R.id.localplay_time_text);
 		
 		mNavigationbar = findViewById(R.id.show_play_info_layout);
 		mCtrPlayToolbar = findViewById(R.id.show_play_ctrl_layout);

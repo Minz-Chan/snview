@@ -58,6 +58,10 @@ public class ExpandableListViewUtils {
 			return;
 		}
 		
+		if(deviceList==null){
+			return;
+		}
+		
 		if(state.equals("empty")){
 			for(int i = 0 ;i<deviceList.size();i++){
 				DeviceItem deviceItem = deviceList.get(i);
