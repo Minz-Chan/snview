@@ -1,5 +1,7 @@
 package com.starnet.snview.component.liveview;
 
+import java.io.File;
+
 import com.starnet.snview.R;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.protocol.Connection;
@@ -41,6 +43,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	private boolean mIsResponseError;
 	private boolean mIsManualStop;
+	
+	private String mRecordFileName;
 	
 	private Paint paint = new Paint();
 	
@@ -328,6 +332,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 							.getChannel());
 			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
 			
+			mRecordFileName = fileName;
 			mSurfaceView.setStartRecord(true);
 			mSurfaceView.makeVideoSnapshot(fileName);
 			mCurrentConnection.getH264decoder().startMP4Record(fullRecPath);
@@ -340,6 +345,26 @@ public class LiveViewItemContainer extends RelativeLayout {
 			mSurfaceView.setStartRecord(false);
 			mCurrentConnection.getH264decoder().stopMP4Record();
 			invalidate();
+			
+			if (mRecordFileName != null) {
+				String fullRecPath = LocalFileUtils.getRecordFileFullPath(mRecordFileName, true);
+				File f = new File(fullRecPath);
+				
+				if (!f.exists()) { // 若视频太短，则视频文件不存在，不产生相应的快照及缩略图
+					String fullImgPath = LocalFileUtils.getCaptureFileFullPath(mRecordFileName, true);
+					String fullThumbPath = LocalFileUtils.getThumbnailsFileFullPath(mRecordFileName, true);
+					File f1 = new File(fullImgPath);
+					File f2 = new File(fullThumbPath);
+					
+					if (f1.exists()) {
+						f1.delete();
+					}
+					if (f2.exists()) {
+						f2.delete();
+					}
+					
+				}
+			}
 		}
 	}
 
