@@ -879,8 +879,15 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	public void updateUIElementsStatus() {
+		updateUIElementsStatus(true);
+	}
+	
+	
+	public void updateUIElementsStatus(boolean autoUpdate) {
 		// 更新录像按钮状态
-		bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
+		if (autoUpdate) {
+			bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
+		}
 		if (bVideoRecordPressed) { // 开启录像
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
@@ -1419,6 +1426,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			Log.i(TAG, "###changeView called");
+			bVideoRecordPressed = false;
+			updateUIElementsStatus(false);
 			
 			refillLiveviews();
 			
