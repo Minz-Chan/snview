@@ -45,6 +45,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private boolean mIsManualStop;
 	
 	private String mRecordFileName;
+	private int mFramerate;	// 帧率
 	
 	private Paint paint = new Paint();
 	
@@ -150,6 +151,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 //	}
 	
 	
+	public int getFramerate() {
+		return mFramerate;
+	}
+	public void setFramerate(int framerate) {
+		this.mFramerate = framerate;
+	}
 	public PreviewDeviceItem getPreviewItem() {
 		return previewItem;
 	}
@@ -335,6 +342,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 			mRecordFileName = fileName;
 			mSurfaceView.setStartRecord(true);
 			mSurfaceView.makeVideoSnapshot(fileName);
+			mCurrentConnection.getH264decoder().setPlayFPS(mFramerate);
 			mCurrentConnection.getH264decoder().startMP4Record(fullRecPath);
 			invalidate();
 		}

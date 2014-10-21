@@ -35,8 +35,8 @@ public class StreamDataFormatMessageHandler implements
 			lvContainer = connection.getLiveViewItemContainer();
 		}
 		
-		
-		
+		// 获取帧率
+		lvContainer.setFramerate(message.getVideoDataFormat().getFramerate());
 		
 		
 		System.out.println("StreamDataFormat is arrived...");
