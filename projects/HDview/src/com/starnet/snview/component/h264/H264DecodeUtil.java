@@ -33,6 +33,7 @@ public class H264DecodeUtil {
 	private boolean isCodecOpened = false;
 	
 	private boolean mStartRecord = false;
+	private boolean mInRecording = false;  // 是否正在录像
 	private int mSpsCount = -1;
 	private int mPlayFPS = 6;
 	private String mMp4RecordFileName;
@@ -139,6 +140,7 @@ public class H264DecodeUtil {
 					if (mStartRecord && mSpsCount >= 0) {
 						if (NalBuf[4] == 0x67 && mSpsCount == 0) { // first sps
 							mSpsCount++;
+							mInRecording = true;
 							//mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, mPlayFPS);
 							mMP4FileHanlde = mp4recorder.createRecordFile(mMp4RecordFileName, NalBuf, NalBufUsed - 4, mPlayFPS);
 							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
@@ -252,6 +254,10 @@ public class H264DecodeUtil {
 	public void setMp4RecordFileName(String mp4FileName) {
 		this.mMp4RecordFileName = mp4FileName;
 	}
+	
+	public boolean isInRecording() {
+		return mInRecording;
+	}
 
 	public void startMP4Record(String filename) {
 		setMp4RecordFileName(filename);
@@ -261,6 +267,7 @@ public class H264DecodeUtil {
 	
 	public void stopMP4Record() {
 		mStartRecord = false;
+		mInRecording = false;
 		mSpsCount = -1;
 		mp4recorder.closeRecordFile(mMP4FileHanlde);
 	}
