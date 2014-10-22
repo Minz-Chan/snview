@@ -722,6 +722,10 @@ public class VideoRegion extends FrameLayout {
 			 * if (ptzControl != null) { ptzControl.moveRight();
 			 * ptzControl.moveUp(); }
 			 */
+			if (mPtzControl.getPtzReqSender() != null) { 
+				mPtzControl.getPtzReqSender().moveRight();
+				mPtzControl.getPtzReqSender().moveUp(); 
+			}
 		}
 
 		@Override
@@ -812,6 +816,7 @@ public class VideoRegion extends FrameLayout {
 			int v = vertitalOffsetFlag;
 
 			// 上下左右四个方向抛手势默认延时300ms后发送STOP_MOVE控制指令
+			/*
 			switch (h) {
 			case -1:
 				if (v == 0) {
@@ -833,7 +838,37 @@ public class VideoRegion extends FrameLayout {
 					onSlidingRight();
 				}
 				break;
-			}
+			}*/
+			mPtzControl.setIsFlingAction(true);
+    		switch (h) {
+    		case -1:
+    			if (v == -1) {
+    				onSlidingLeftUp();
+    			} else if (v == 0) {
+    				onSlidingLeft();
+    			} else if (v == 1) {
+    				onSlidingLeftDown();
+    			}
+    			break;
+    		case 0:
+    			if (v == -1) {
+    				onSlidingUp();
+    			} else if (v == 0) {
+    				//mPtzControl.setIsPTZInMoving(false);
+    			} else if (v == 1) {
+    				onSlidingDown();;
+    			}
+    			break;
+    		case 1:
+    			if (v == -1) {
+    				onSlidingRightUp();
+    			} else if (v == 0) {
+    				onSlidingRight();
+    			} else if (v == 1) {
+    				onSlidingRightDown();
+    			}
+    			break;
+    		}
 
 			VideoRegion.this.postDelayed(new Runnable() {
 				@Override
@@ -848,7 +883,7 @@ public class VideoRegion extends FrameLayout {
 	
 	private class GestureListener extends SimpleOnGestureListener  
     {  	
-	    final int FLIP_DISTANCE = 50;  //定义手势动作两点之间的最小距离
+	    final int FLIP_DISTANCE = 35;  //定义手势动作两点之间的最小距离
 	    //private boolean mIsDoubleClick = false;
 	    
 	    private OnGestureListener mGestureListener;
@@ -914,6 +949,7 @@ public class VideoRegion extends FrameLayout {
         	
         	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
         	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
+        	float k = (b1 - b0) / (a1 - a0);
 
         	if (!mPtzControl.isPTZModeOn()) { // 非PTZ模式， 即左右滑屏
         		if (h == -1) {
@@ -936,6 +972,41 @@ public class VideoRegion extends FrameLayout {
         		
         		return true;
         	} else {  // PTZ模式
+        		if (h != 0 || v != 0) {
+        			if (k <= -2F || k >= 2F) {
+        				if (b1 < b0) { // 上
+        					h = 0; v = -1;
+        				} else { // 下
+        					h = 0; v = 1;
+        				}
+        			}
+        			
+        			if (k >= -0.375F && k <= 0.375F) {
+        				if (a1 < a0) { // 左
+        					h = -1; v = 0;
+        				} else { // 右
+        					h = 1; v = 0;
+        				}
+        			}
+        			
+        			if (k > -2F && k < -0.375F) {
+        				if (b1 > b0) { // 左下
+        					h = -1; v = 1;
+        				} else { // 右上
+        					h = 1; v = -1;
+        				}
+        			}
+        			
+        			if (k > 0.375F && k < 2F) {
+        				if (b1 < b0) { // 左上
+        					h = -1; v = -1;
+        				} else { // 右下
+        					h = 1; v = 1;
+        				}
+        			}
+        		} else {
+        			h = 0; v = 0;
+        		}
         		
         		mGestureListener.onFling(h, v);    		
         	}
@@ -973,13 +1044,65 @@ public class VideoRegion extends FrameLayout {
         	
         	int h = Math.abs(a1 - a0) > FLIP_DISTANCE ? (a1 - a0 > 0 ? 1 : -1) : 0;  // -1:左；0：水平无滑动；1：右
         	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
+        	
+        	float k = (b1 - b0) / (a1 - a0);
+        	
+        	Log.i(TAG, "slope k=" + k);
             
         	if (!mPtzControl.isPTZModeOn() || !checkIsPTZDeviceConnected()) { // 若设备处于未连接或断开状态，则不启用云台控制手势        			
     			return true;
     		}
     		
     		Log.i(TAG, "h: " + h + ", v: " + v);
+    		
+    		mPtzControl.setIsPTZInMoving(true);
+    		if (h != 0 || v != 0) {
+    			if (k <= -2F || k >= 2F) {
+    				if (b1 < b0) { // 上
+    					Log.i(TAG, "move, up");
+    					mGestureListener.onSlidingUp();
+    				} else { // 下
+    					Log.i(TAG, "move, down");
+    					mGestureListener.onSlidingDown();;
+    				}
+    			}
+    			
+    			if (k >= -0.375F && k <= 0.375F) {
+    				if (a1 < a0) { // 左
+    					Log.i(TAG, "move, left");
+    					mGestureListener.onSlidingLeft();
+    				} else { // 右
+    					Log.i(TAG, "move, right");
+    					mGestureListener.onSlidingRight();
+    				}
+    			}
+    			
+    			if (k > -2F && k < -0.375F) {
+    				if (b1 > b0) { // 左下
+    					Log.i(TAG, "move, left down");
+    					mGestureListener.onSlidingLeftDown();
+    				} else { // 右上
+    					Log.i(TAG, "move, right up");
+    					mGestureListener.onSlidingRightUp();
+    				}
+    			}
+    			
+    			if (k > 0.375F && k < 2F) {
+    				if (b1 < b0) { // 左上
+    					Log.i(TAG, "move, left up");
+    					mGestureListener.onSlidingLeftUp();
+    				} else { // 右下
+    					Log.i(TAG, "move, right down");
+    					mGestureListener.onSlidingRightDown();
+    				}
+    			}
+    		} else {
+    			Log.i(TAG, "move, none");
+    			mPtzControl.setIsPTZInMoving(false);
+    		}
         	
+    		/*
+    		
 //    		mIsPTZInMoving = true;
     		mPtzControl.setIsPTZInMoving(true);
     		
@@ -1014,7 +1137,7 @@ public class VideoRegion extends FrameLayout {
     			break;
     		}
     		
-    		
+    		*/
             
             return super.onScroll(e1, e2, distanceX, distanceY);  
         }  
