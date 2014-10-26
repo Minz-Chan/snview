@@ -1,5 +1,6 @@
 package com.starnet.snview.realplay;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -53,13 +54,29 @@ public class RealplayActivityUtils {
 		if (devices != null && devices.size() == 0) {
 			return devices ;
 		}
+		int tempSize = devices.size();
+		List<Integer> delIndex = new ArrayList<Integer>();
+		//删除不存在的预览通道列表
+		for (int i = 0; i < tempSize; i++) {
+			boolean isExist = isExistPreviewItem(devices.get(i),groupList);
+			if(!isExist){
+				delIndex.add(i);
+			}
+		}
+		if(delIndex.size() > 0 ){
+			for(int i =0 ;i<delIndex.size();i++){
+				devices.remove(delIndex.get(i));
+			}
+		}
+		//删除不存在的预览通道列表
+		
 		int previewSize = devices.size();
 		int groupListSize = groupList.size();
 		for (int i = 0; i < previewSize; i++) {
 			PreviewDeviceItem iPreviewDeviceItem = devices.get(i);
 			for (int j = 0; j < groupListSize; j++) {
 				CloudAccount ica = groupList.get(j);
-				if (iPreviewDeviceItem.getPlatformUsername().equals(ica.getUsername())||iPreviewDeviceItem.getPlatformUsername().equals("收藏设备")) {
+				if (iPreviewDeviceItem.getPlatformUsername().equals(ica.getUsername())) {//||iPreviewDeviceItem.getPlatformUsername().equals("收藏设备")
 					List<DeviceItem> deviceItems = groupList.get(j).getDeviceList();
 					if(deviceItems != null){
 						int deviceSize = deviceItems.size();
@@ -83,6 +100,27 @@ public class RealplayActivityUtils {
 		return devices ;
 	}
 	
+	private static boolean isExistPreviewItem(PreviewDeviceItem previewDeviceItem, List<CloudAccount> groupList) {
+		boolean isExist = false;
+		int groupSize = groupList.size();
+		for(int i =0 ;i<groupSize;i++){
+			CloudAccount ica = groupList.get(i);
+			if(previewDeviceItem.getPlatformUsername().equals(ica.getUsername())){
+				List<DeviceItem> devices = ica.getDeviceList();
+				if(devices!=null && devices.size()>0){
+					int deviceSize = devices.size();
+					for(int k =0 ;k<deviceSize;k++){
+						if(devices.get(k).getDeviceName().contains(previewDeviceItem.getLoginUser())){
+							isExist = true;
+							return isExist;
+						}
+					}
+				}
+			}
+		}
+		return isExist;
+	}
+
 	public static List<PreviewDeviceItem> getPreviceItems(){
 		return mPreviewItem;
 	}
