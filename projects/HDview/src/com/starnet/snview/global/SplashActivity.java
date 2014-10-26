@@ -2,11 +2,26 @@ package com.starnet.snview.global;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
+import org.dom4j.Document;
+
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
+import com.starnet.snview.channelmanager.xml.CloudService;
+import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
+import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.images.LocalFileUtils;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.realplay.RealplayActivityUtils;
+import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.AssetsUtil;
+import com.starnet.snview.util.CloudAccountUtils;
 import com.starnet.snview.util.FileUtility;
+import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.PreviewItemXMLUtils;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -17,6 +32,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -24,7 +40,23 @@ public class SplashActivity extends Activity {
 	private final int SPLASH_DISPLAY_LENGTH = 2000; // 延时5秒
 
 	private SharedPreferences preferences;
-
+	
+	private List<CloudAccount> groupList ;
+	private final int mHandler_initial = 11 ;
+	Intent mainIntent;
+	private final int exception_num = 2;
+	
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+			RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
+			SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+			SplashActivity.this.finish(); // 结束SplashActivity
+		}		
+	};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -51,19 +83,72 @@ public class SplashActivity extends Activity {
 	}
 
 	private void showMainActivity() {
-		new Handler().postDelayed(new Runnable() {
+//		new Handler().postDelayed(new Runnable() {
+		mHandler.postDelayed(new Runnable() {
 			public void run() {
 				// 判断是否为第一次进入，如果是第一次进入时，则显示滑动页面；否则显示RealplayActivity界面
 				preferences = getSharedPreferences("count", MODE_WORLD_READABLE);
 				int count = preferences.getInt("count", 0);
-				Intent mainIntent;
+//				Intent mainIntent;
 				if (count == 1) {
 					mainIntent = new Intent(SplashActivity.this,GuideActivity.class);
 				} else {
 					mainIntent = new Intent(SplashActivity.this,RealplayActivity.class);
 				}
-				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-				SplashActivity.this.finish(); // 结束SplashActivity
+				
+				Thread thread =new Thread(){
+					@Override
+					public void run() {
+						super.run();
+						boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
+						if(isNetOpen){
+							CloudAccountUtil caUtil = new CloudAccountUtil();
+							groupList = caUtil.getCloudAccountInfoFromUI();
+							if (groupList != null) {
+								// List<PreviewDeviceItem> devices =
+								// PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+								for (int i = 1; i < groupList.size(); i++) {
+									CloudAccount iCloudAccount = groupList.get(i);
+									// 利用用户信息访问网络
+									try {
+										if (iCloudAccount.isEnabled()) {
+											CloudService cloudService = new CloudServiceImpl("conn");
+											String domain = iCloudAccount.getDomain();
+											String port = iCloudAccount.getPort();
+											String username = iCloudAccount.getUsername();
+											String password = iCloudAccount.getPassword();
+											String deviceName = "deviceName";
+
+											Document doc = cloudService.SendURLPost(domain, port,username, password,deviceName);
+											String requestStatus = cloudService.readXmlStatus(doc);
+											if (requestStatus == null) {
+												List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);// 获取到设备
+												CloudAccountUtils utils = new CloudAccountUtils();
+												iCloudAccount = utils.getCloudAccountFromDVRDevice(SplashActivity.this,dvrDevices);
+												groupList.set(i, iCloudAccount);
+											}
+										}
+									} catch (Exception e) {// 网络访问异常的情况,使用未经修改的数据...
+										e.printStackTrace();
+										mainIntent.putExtra("exception_num", exception_num);
+										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+										SplashActivity.this.finish(); // 结束SplashActivity
+									} finally {
+										if (i == groupList.size() - 1) {
+											mHandler.sendEmptyMessage(mHandler_initial);
+										}
+									}
+								}
+								mHandler.sendEmptyMessage(mHandler_initial);
+							} 
+						}else{//网络断开的情况
+							mHandler.sendEmptyMessage(mHandler_initial);
+						}
+					}
+				};
+				thread.start();
+//				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+//				SplashActivity.this.finish(); // 结束SplashActivity
 			}
 		}, SPLASH_DISPLAY_LENGTH);
 	}
