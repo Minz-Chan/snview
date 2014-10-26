@@ -47,8 +47,8 @@ public class RealplayActivityUtils {
 	}
 
 	//在groupList中设置通道的选择情形
-	public static List<PreviewDeviceItem> setSelectedAccDevices(List<PreviewDeviceItem> devices,List<CloudAccount> groupList) {
-		if (devices == null || groupList == null) {
+	public static List<PreviewDeviceItem> setSelectedAccDevices(List<PreviewDeviceItem> devices,List<CloudAccount> igroupList) {
+		if (devices == null || igroupList == null) {
 			return devices ;
 		}
 		if (devices != null && devices.size() == 0) {
@@ -58,33 +58,34 @@ public class RealplayActivityUtils {
 		List<Integer> delIndex = new ArrayList<Integer>();
 		//删除不存在的预览通道列表
 		for (int i = 0; i < tempSize; i++) {
-			boolean isExist = isExistPreviewItem(devices.get(i),groupList);
+			boolean isExist = isExistPreviewItem(devices.get(i),igroupList);
 			if(!isExist){
 				delIndex.add(i);
 			}
 		}
 		if(delIndex.size() > 0 ){
-			for(int i =0 ;i<delIndex.size();i++){
-				devices.remove(delIndex.get(i));
+			for(int i = delIndex.size()-1 ;i >= 0;i--){
+				PreviewDeviceItem delPD = devices.get(delIndex.get(i));
+				devices.remove(delPD);
 			}
 		}
 		//删除不存在的预览通道列表
 		
 		int previewSize = devices.size();
-		int groupListSize = groupList.size();
+		int groupListSize = igroupList.size();
 		for (int i = 0; i < previewSize; i++) {
 			PreviewDeviceItem iPreviewDeviceItem = devices.get(i);
 			for (int j = 0; j < groupListSize; j++) {
-				CloudAccount ica = groupList.get(j);
+				CloudAccount ica = igroupList.get(j);
 				if (iPreviewDeviceItem.getPlatformUsername().equals(ica.getUsername())) {//||iPreviewDeviceItem.getPlatformUsername().equals("收藏设备")
-					List<DeviceItem> deviceItems = groupList.get(j).getDeviceList();
+					List<DeviceItem> deviceItems = igroupList.get(j).getDeviceList();
 					if(deviceItems != null){
 						int deviceSize = deviceItems.size();
 						for(int k = 0 ;k<deviceSize;k++){
 							DeviceItem idi = deviceItems.get(k);
 							List<Channel> channels = idi.getChannelList();
 							for(int m =0;m<channels.size();m++){
-								if(channels.get(m).getChannelNo() == iPreviewDeviceItem.getChannel()){
+								if(idi.getDeviceName().contains(iPreviewDeviceItem.getDeviceRecordName())&&channels.get(m).getChannelNo() == iPreviewDeviceItem.getChannel()){
 									iPreviewDeviceItem.setLoginUser(idi.getLoginUser());
 									iPreviewDeviceItem.setLoginPass(idi.getLoginPass());
 									iPreviewDeviceItem.setSvrIp(idi.getSvrIp());
@@ -110,7 +111,7 @@ public class RealplayActivityUtils {
 				if(devices!=null && devices.size()>0){
 					int deviceSize = devices.size();
 					for(int k =0 ;k<deviceSize;k++){
-						if(devices.get(k).getDeviceName().contains(previewDeviceItem.getLoginUser())){
+						if(devices.get(k).getDeviceName().contains(previewDeviceItem.getDeviceRecordName())){
 							isExist = true;
 							return isExist;
 						}

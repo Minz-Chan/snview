@@ -42,7 +42,8 @@ public class SplashActivity extends Activity {
 	private SharedPreferences preferences;
 	
 	private List<CloudAccount> groupList ;
-	private final int mHandler_initial = 11 ;
+	private final int mHandler_close = 11 ;
+	private final int mHandler_initial = 12 ;
 	Intent mainIntent;
 	private final int exception_num = 2;
 	
@@ -50,10 +51,18 @@ public class SplashActivity extends Activity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-			RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
-			SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-			SplashActivity.this.finish(); // 结束SplashActivity
+			switch (msg.what) {
+			case mHandler_close:
+				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+				SplashActivity.this.finish(); // 结束SplashActivity
+				break;
+			case mHandler_initial:
+				List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+				RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
+				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+				SplashActivity.this.finish(); // 结束SplashActivity
+				break;
+			}
 		}		
 	};
 	
@@ -113,6 +122,7 @@ public class SplashActivity extends Activity {
 									try {
 										if (iCloudAccount.isEnabled()) {
 											CloudService cloudService = new CloudServiceImpl("conn");
+											
 											String domain = iCloudAccount.getDomain();
 											String port = iCloudAccount.getPort();
 											String username = iCloudAccount.getUsername();
@@ -125,6 +135,12 @@ public class SplashActivity extends Activity {
 												List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);// 获取到设备
 												CloudAccountUtils utils = new CloudAccountUtils();
 												iCloudAccount = utils.getCloudAccountFromDVRDevice(SplashActivity.this,dvrDevices);
+												
+												iCloudAccount.setDomain(domain);
+												iCloudAccount.setPassword(password);
+												iCloudAccount.setPort(port);
+												iCloudAccount.setUsername(username);
+												
 												groupList.set(i, iCloudAccount);
 											}
 										}
@@ -133,16 +149,17 @@ public class SplashActivity extends Activity {
 										mainIntent.putExtra("exception_num", exception_num);
 										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 										SplashActivity.this.finish(); // 结束SplashActivity
+										break;
 									} finally {
 										if (i == groupList.size() - 1) {
 											mHandler.sendEmptyMessage(mHandler_initial);
+											break;
 										}
 									}
 								}
-								mHandler.sendEmptyMessage(mHandler_initial);
 							} 
 						}else{//网络断开的情况
-							mHandler.sendEmptyMessage(mHandler_initial);
+							mHandler.sendEmptyMessage(mHandler_close);
 						}
 					}
 				};

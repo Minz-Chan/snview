@@ -53,7 +53,7 @@ public class PreviewItemXMLUtils {
 			
 			String platformUsername = previewDeviceItem.getPlatformUsername();
 			
-			subElement.addAttribute("dRName", dRName);
+			subElement.addAttribute("dRName", dRName);//测试使用。。。
 			subElement.addAttribute("lgPass", lgPass);
 			subElement.addAttribute("lgUser", lgUser);
 			
