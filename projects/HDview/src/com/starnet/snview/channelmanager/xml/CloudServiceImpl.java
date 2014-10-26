@@ -64,7 +64,7 @@ public class CloudServiceImpl implements CloudService {
 			httpURLConnection = (HttpURLConnection) url.openConnection(); //获取连接
 			httpURLConnection.setRequestMethod("POST"); //设置请求方法为POST, 也可以为GET
 			httpURLConnection.setDoOutput(true);  
-			httpURLConnection.setConnectTimeout(20000); // 设置连接超时时间为20s
+			httpURLConnection.setConnectTimeout(10000); // 设置连接超时时间为20s
 			String encoded = MD5Util.md5Encode(password);//为密码进行加密；      
 			StringBuffer param = new StringBuffer("wu="+username+"&wp="+encoded+"&pn=");  //请求URL的查询参数     
 			OutputStream os = httpURLConnection.getOutputStream();   

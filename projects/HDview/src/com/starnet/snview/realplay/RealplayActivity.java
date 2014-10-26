@@ -4,8 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.Document;
+
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
+import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
+import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.CloudService;
+import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
+import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.LandscapeToolbar.LandControlbarClickListener;
 import com.starnet.snview.component.LandscapeToolbar.PTZBarClickListener;
@@ -23,10 +30,14 @@ import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.global.SplashActivity;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.VideoPager.VideoPagerChangedCallback;
+import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.CloudAccountUtils;
+import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 import com.starnet.snview.util.ToastUtils;
 
@@ -58,14 +69,16 @@ import android.widget.Toast;
 public class RealplayActivity extends BaseActivity {
 
 	private static final String TAG = "RealplayActivity";
-
+	private CloudAccountXML m_CAXML;
+	private List<CloudAccount> groupList ;
+	private final int mHandler_initial = 11 ;
+	
 	private Toolbar mToolbar;
 
 	private FrameLayout mControlbar;
 	private com.starnet.snview.component.VideoPager mPager;
 	private LinearLayout mQualityControlbarMenu;
 
-	
 	private LiveViewManager liveViewManager;
 	
 	private Animation mShotPictureAnim;
@@ -98,10 +111,57 @@ public class RealplayActivity extends BaseActivity {
 		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
 
+//		obtainAndUpdatePreviewItems();
+		
 		initView();
 		initListener();
 		
 		loadDataFromPreserved();		
+	}
+	
+	//获取初始的预览数据，并且进行更新
+	private void obtainAndUpdatePreviewItems(){
+		
+		Thread cloudThread = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
+				if(isNetOpen){
+					try{
+						CloudAccountUtil caUtil = new CloudAccountUtil();
+						groupList = caUtil.getCloudAccountInfoFromUI();
+						if (groupList != null) {
+//							List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+							for (int i = 1; i < groupList.size(); i++) {
+								CloudAccount iCloudAccount = groupList.get(i);
+								// 利用用户信息访问网络
+								if(iCloudAccount.isEnabled()){
+									CloudService cloudService = new CloudServiceImpl("conn");
+									String domain = iCloudAccount.getDomain();
+									String port = iCloudAccount.getPort();
+									String username = iCloudAccount.getUsername();
+									String password = iCloudAccount.getPassword();
+									String deviceName = "deviceName";
+									Document doc = cloudService.SendURLPost(domain, port,username, password, deviceName);
+									String requestStatus = cloudService.readXmlStatus(doc);
+									if(requestStatus == null){
+										List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);//获取到设备
+										CloudAccountUtils utils = new CloudAccountUtils();
+										iCloudAccount = utils.getCloudAccountFromDVRDevice(RealplayActivity.this, dvrDevices);
+										groupList.set(i, iCloudAccount);
+									}
+								}									
+							}
+						}
+						mHandler.sendEmptyMessage(mHandler_initial);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		cloudThread.start();
 	}
 	
 	private void loadDataFromPreserved() {
@@ -109,11 +169,24 @@ public class RealplayActivity extends BaseActivity {
 		
 		List<PreviewDeviceItem> devices = null;
 		
-		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+//		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 		
-		Log.i(TAG, "Devices size: " + devices.size());
+		//
+		boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
+		if(isNetOpen){
+			int number = getIntent().getIntExtra("exception_num", 0);
+			if(number == 0){
+				devices = RealplayActivityUtils.getPreviceItems();
+			}else{
+				devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+			}
+		}else{
+			devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+		}
 		
-		if (devices.size() != 0) {
+//		Log.i(TAG, "Devices size: " + devices.size());
+		
+		if (devices != null && devices.size() != 0) {
 			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
 			
 			setPreviewDevices(devices);
@@ -364,6 +437,11 @@ public class RealplayActivity extends BaseActivity {
 				t.setView(txt);
 				t.show();
 				
+				break;
+			case mHandler_initial:
+				initView();
+				initListener();
+				loadDataFromPreserved();	
 				break;
 			default:
 				break;
@@ -812,8 +890,7 @@ public class RealplayActivity extends BaseActivity {
 			int count = liveViewManager.getCurrentPageCount();
 
 			for (int i = 0; i < count; i++) {
-				liveViewManager.getListviews().get(i).getRefreshImageView()
-						.performClick();
+				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
 			}
 		} else { // 暂停
 			Log.i(TAG, "stop video");
