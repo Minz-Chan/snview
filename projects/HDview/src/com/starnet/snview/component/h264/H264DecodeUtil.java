@@ -270,6 +270,7 @@ public class H264DecodeUtil {
 		mInRecording = false;
 		mSpsCount = -1;
 		mp4recorder.closeRecordFile(mMP4FileHanlde);
+		mMP4FileHanlde = 0;
 	}
 
 	@Override
