@@ -3,6 +3,8 @@ package com.starnet.snview.global;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.dom4j.Document;
 
@@ -37,17 +39,33 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
-	private final int SPLASH_DISPLAY_LENGTH = 2000; // 延时5秒
+	private final int SPLASH_DISPLAY_LENGTH = 200; // 延时5秒
 
 	private SharedPreferences preferences;
-	
-	private List<CloudAccount> groupList ;
-	private final int mHandler_close = 11 ;
-	private final int mHandler_initial = 12 ;
+
+	private List<CloudAccount> groupList;
+	private final int mHandler_close = 11;
+	private final int mHandler_initial = 12;
 	Intent mainIntent;
 	private final int exception_num = 2;
 	
-	private Handler mHandler = new Handler(){
+//	private boolean timer_flag = true;
+//	private long star_time;
+//	private Timer timer = new Timer(true);
+	private final int timeOut = 5000;
+//	TimerTask timeTask = new TimerTask(){
+//		@Override
+//		public void run() {
+//			while(timer_flag){
+//				long end_time = System.currentTimeMillis();
+//				if(end_time - star_time >=  timeOut){
+//					mHandler.sendEmptyMessage(timeOut);
+//				}
+//			}
+//		}
+//	};
+
+	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -55,17 +73,27 @@ public class SplashActivity extends Activity {
 			case mHandler_close:
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
+//				timer_flag = false;
+//				canceTimer();//执行结束
 				break;
 			case mHandler_initial:
 				List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 				RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
+//				timer_flag = false;
+//				canceTimer();//执行结束
+				break;
+			case timeOut:
+				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+				SplashActivity.this.finish(); // 结束SplashActivity
+//				timer_flag = false;
+//				canceTimer();//执行结束
 				break;
 			}
-		}		
+		}
 	};
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -92,28 +120,34 @@ public class SplashActivity extends Activity {
 	}
 
 	private void showMainActivity() {
-//		new Handler().postDelayed(new Runnable() {
+		// new Handler().postDelayed(new Runnable() {
 		mHandler.postDelayed(new Runnable() {
 			public void run() {
 				// 判断是否为第一次进入，如果是第一次进入时，则显示滑动页面；否则显示RealplayActivity界面
 				preferences = getSharedPreferences("count", MODE_WORLD_READABLE);
 				int count = preferences.getInt("count", 0);
-//				Intent mainIntent;
+				// Intent mainIntent;
 				if (count == 1) {
-					mainIntent = new Intent(SplashActivity.this,GuideActivity.class);
+					mainIntent = new Intent(SplashActivity.this,
+							GuideActivity.class);
 				} else {
-					mainIntent = new Intent(SplashActivity.this,RealplayActivity.class);
+					mainIntent = new Intent(SplashActivity.this,
+							RealplayActivity.class);
 				}
-				
-				Thread thread =new Thread(){
+
+				Thread thread = new Thread() {
 					@Override
 					public void run() {
 						super.run();
 						boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
-						if(isNetOpen){
+						if (isNetOpen) {
 							CloudAccountUtil caUtil = new CloudAccountUtil();
 							groupList = caUtil.getCloudAccountInfoFromUI();
-							if (groupList != null) {
+
+							long start_time = System.currentTimeMillis();
+							if (groupList != null && groupList.size() > 1) {
+//								star_time = System.currentTimeMillis();
+//								timer.schedule(timeTask, 1);//开启计时器
 								// List<PreviewDeviceItem> devices =
 								// PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 								for (int i = 1; i < groupList.size(); i++) {
@@ -122,7 +156,7 @@ public class SplashActivity extends Activity {
 									try {
 										if (iCloudAccount.isEnabled()) {
 											CloudService cloudService = new CloudServiceImpl("conn");
-											
+
 											String domain = iCloudAccount.getDomain();
 											String port = iCloudAccount.getPort();
 											String username = iCloudAccount.getUsername();
@@ -131,41 +165,65 @@ public class SplashActivity extends Activity {
 
 											Document doc = cloudService.SendURLPost(domain, port,username, password,deviceName);
 											String requestStatus = cloudService.readXmlStatus(doc);
-											if (requestStatus == null) {
+											if (requestStatus == null) {//连接获取数据成功
 												List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);// 获取到设备
 												CloudAccountUtils utils = new CloudAccountUtils();
 												iCloudAccount = utils.getCloudAccountFromDVRDevice(SplashActivity.this,dvrDevices);
-												
+
 												iCloudAccount.setDomain(domain);
 												iCloudAccount.setPassword(password);
 												iCloudAccount.setPort(port);
 												iCloudAccount.setUsername(username);
-												
+
 												groupList.set(i, iCloudAccount);
+											}else{
+												if(i == groupList.size() - 1){
+													SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+													SplashActivity.this.finish(); // 结束SplashActivity
+//													timer_flag = false;
+//													canceTimer();//执行结束
+													return;
+												}
 											}
 										}
 									} catch (Exception e) {// 网络访问异常的情况,使用未经修改的数据...
 										e.printStackTrace();
-										mainIntent.putExtra("exception_num", exception_num);
+										mainIntent.putExtra("exception_num",exception_num);
 										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 										SplashActivity.this.finish(); // 结束SplashActivity
+//										timer_flag = false;
+//										canceTimer();//执行结束
 										break;
 									} finally {
+										long end_time = System.currentTimeMillis();
+										long time = (end_time - start_time) / 1000;
+										if (time >= 5) {// 超过5秒没有或得数据的话也要结束...
+											SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+											SplashActivity.this.finish(); // 结束SplashActivity
+//											canceTimer();//执行结束
+											return;
+										}
 										if (i == groupList.size() - 1) {
 											mHandler.sendEmptyMessage(mHandler_initial);
+//											timer_flag = false;
+//											canceTimer();//执行结束
 											break;
 										}
 									}
 								}
-							} 
-						}else{//网络断开的情况
+							} else {//没有星云账户的情况
+								SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+								SplashActivity.this.finish(); // 结束SplashActivity
+							}
+						} else {// 网络断开的情况
 							mHandler.sendEmptyMessage(mHandler_close);
 						}
 					}
 				};
 				thread.start();
-//				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-//				SplashActivity.this.finish(); // 结束SplashActivity
+				// SplashActivity.this.startActivity(mainIntent); //
+				// 启动MainActivity
+				// SplashActivity.this.finish(); // 结束SplashActivity
 			}
 		}, SPLASH_DISPLAY_LENGTH);
 	}
@@ -256,5 +314,12 @@ public class SplashActivity extends Activity {
 			super.onPostExecute(result);
 		}
 
+	}
+	
+	protected void canceTimer(){
+//		if(timer != null){
+//			timer.cancel();
+//			timer = null;
+//		}
 	}
 }
