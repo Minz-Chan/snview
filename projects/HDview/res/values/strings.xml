@@ -83,7 +83,7 @@
     <string name="system_setting_corp_content_txt_chi">福建星网锐捷安防科技有限公司  版权所有</string>
     <string name="system_setting_corp_content_txt_eng">Copyright © 2010-2014 Star-netsecurity</string>
     <string name="system_setting_corp_rights_txt">All Rights Reserved</string>
-    <string name="system_setting_about_build_time">(Build 20140925)</string>
+    <string name="system_setting_about_build_time">(Build 20141031)</string>
     
     
     <string name="device_manager_collect_device">收藏设备</string>
