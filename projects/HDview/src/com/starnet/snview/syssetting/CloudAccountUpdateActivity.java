@@ -275,7 +275,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 							}else if (identifier_flag){															//曾经验证过，检查曾验证用户和当前用户是否相同
 								boolean isSame = isEqualCloudAccounts(identifyCloudAccount,saveCloudAccount);
 								if (isSame) {
-									saveCloudAccount.setEnabled(true);
+									if(identifier_flag_after){
+										saveCloudAccount.setEnabled(true);
+									}else{
+										saveCloudAccount.setEnabled(false);
+									}
 									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
 									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
