@@ -49,21 +49,21 @@ public class SplashActivity extends Activity {
 	Intent mainIntent;
 	private final int exception_num = 2;
 	
-//	private boolean timer_flag = true;
-//	private long star_time;
-//	private Timer timer = new Timer(true);
+	private boolean timer_flag = true;
+	private long star_time;
+	private Timer timer = new Timer(true);
 	private final int timeOut = 5000;
-//	TimerTask timeTask = new TimerTask(){
-//		@Override
-//		public void run() {
-//			while(timer_flag){
-//				long end_time = System.currentTimeMillis();
-//				if(end_time - star_time >=  timeOut){
-//					mHandler.sendEmptyMessage(timeOut);
-//				}
-//			}
-//		}
-//	};
+	TimerTask timeTask = new TimerTask(){
+		@Override
+		public void run() {
+			while(timer_flag){
+				long end_time = System.currentTimeMillis();
+				if(end_time - star_time >=  timeOut){
+					mHandler.sendEmptyMessage(timeOut);
+				}
+			}
+		}
+	};
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -73,22 +73,16 @@ public class SplashActivity extends Activity {
 			case mHandler_close:
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
-//				timer_flag = false;
-//				canceTimer();//执行结束
 				break;
 			case mHandler_initial:
 				List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 				RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
-//				timer_flag = false;
-//				canceTimer();//执行结束
 				break;
 			case timeOut:
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
-//				timer_flag = false;
-//				canceTimer();//执行结束
 				break;
 			}
 		}
@@ -146,7 +140,7 @@ public class SplashActivity extends Activity {
 
 							long start_time = System.currentTimeMillis();
 							if (groupList != null && groupList.size() > 1) {
-//								star_time = System.currentTimeMillis();
+								star_time = System.currentTimeMillis();
 //								timer.schedule(timeTask, 1);//开启计时器
 								// List<PreviewDeviceItem> devices =
 								// PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
@@ -180,8 +174,6 @@ public class SplashActivity extends Activity {
 												if(i == groupList.size() - 1){
 													SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 													SplashActivity.this.finish(); // 结束SplashActivity
-//													timer_flag = false;
-//													canceTimer();//执行结束
 													return;
 												}
 											}
@@ -191,8 +183,6 @@ public class SplashActivity extends Activity {
 										mainIntent.putExtra("exception_num",exception_num);
 										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 										SplashActivity.this.finish(); // 结束SplashActivity
-//										timer_flag = false;
-//										canceTimer();//执行结束
 										break;
 									} finally {
 										long end_time = System.currentTimeMillis();
@@ -200,13 +190,10 @@ public class SplashActivity extends Activity {
 										if (time >= 5) {// 超过5秒没有或得数据的话也要结束...
 											SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 											SplashActivity.this.finish(); // 结束SplashActivity
-//											canceTimer();//执行结束
 											return;
 										}
 										if (i == groupList.size() - 1) {
 											mHandler.sendEmptyMessage(mHandler_initial);
-//											timer_flag = false;
-//											canceTimer();//执行结束
 											break;
 										}
 									}
@@ -221,9 +208,6 @@ public class SplashActivity extends Activity {
 					}
 				};
 				thread.start();
-				// SplashActivity.this.startActivity(mainIntent); //
-				// 启动MainActivity
-				// SplashActivity.this.finish(); // 结束SplashActivity
 			}
 		}, SPLASH_DISPLAY_LENGTH);
 	}

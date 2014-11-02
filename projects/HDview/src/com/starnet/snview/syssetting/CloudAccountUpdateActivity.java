@@ -227,8 +227,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					identifier_flag = isEqualCloudAccounts(saveCloudAccount,
 							identifyCloudAccount);
 					
-					if (isenablYseRadioBtn.isChecked() && (identifier_flag)
-							&& (identifier_flag_after)) {
+					if (isenablYseRadioBtn.isChecked() && (identifier_flag)&& (identifier_flag_after)) {
 						saveCloudAccount.setEnabled(true);
 					} else {
 						saveCloudAccount.setEnabled(false);
