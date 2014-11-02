@@ -39,7 +39,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
-	private final int SPLASH_DISPLAY_LENGTH = 200; // 延时5秒
+	private final int SPLASH_DISPLAY_LENGTH = 2000; // 延时5秒
 
 	private SharedPreferences preferences;
 
