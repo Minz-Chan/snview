@@ -39,7 +39,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
-	private final int SPLASH_DISPLAY_LENGTH = 200; // 延时5秒
+	private final int SPLASH_DISPLAY_LENGTH = 2000; // 延时5秒
 
 	private SharedPreferences preferences;
 
@@ -210,6 +210,22 @@ public class SplashActivity extends Activity {
 				thread.start();
 			}
 		}, SPLASH_DISPLAY_LENGTH);
+	}
+	
+	protected boolean isAllCloudAccountEnabled(List<CloudAccount> cloudAccounts){
+		boolean result = true;
+		if(cloudAccounts == null){
+			return false;
+		}
+		if((cloudAccounts != null)&&(cloudAccounts.size()>1)){
+			for(int i =1;i<cloudAccounts.size();i++){
+				if(!cloudAccounts.get(i).isEnabled()){
+					result = false;
+					break;
+				}
+			}
+		}
+		return result;
 	}
 
 	@SuppressLint("WorldReadableFiles")
