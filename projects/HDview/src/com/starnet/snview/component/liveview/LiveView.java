@@ -155,7 +155,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 			onDisplayContentReset();
 		}
 		//Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
-    	mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
+		if (mScale != null && mVideoBit != null) {
+			mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
+		}    	
 	}
 
 	@Override
