@@ -30,7 +30,6 @@ import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
-import com.starnet.snview.global.SplashActivity;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.VideoPager.VideoPagerChangedCallback;
@@ -39,7 +38,6 @@ import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.CloudAccountUtils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
-import com.starnet.snview.util.ToastUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;

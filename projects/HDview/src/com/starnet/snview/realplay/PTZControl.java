@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -480,6 +481,22 @@ public class PTZControl {
 	public void ptzAuto() {
 		mPTZPopFrame.setVisibility(View.GONE);
 		showPTZFrame(PTZ_POP_FRAME.SCAN, true);
+		
+		ImageButton ptzAuto;
+		boolean isSelected;
+		if (GlobalApplication.getInstance().isIsFullMode()) {
+			ptzAuto = (ImageButton) findViewById(R.id.landscape_liveview_ptz_auto);
+		} else {
+			ptzAuto = (ImageButton) findViewById(R.id.ptz_controlbar_menu_scan);
+		}		
+		isSelected = ptzAuto.isSelected();
+		if (isSelected) {
+			ptzAuto.setSelected(false);
+			getPtzReqSender().stopMove();
+		} else {
+			ptzAuto.setSelected(true);
+			getPtzReqSender().autoScan();
+		}
 	}
 	
 	public void ptzFocalLength() {

@@ -62,6 +62,10 @@ public final class Constants {
 		static final int OWSP_ACTION_SET_PRESET_POSITION = 17;	//设置预置位点
 		static final int OWSP_ACTION_CLEAR_PRESET_POSITION = 18; //清除预置位点
 		static final int OWSP_ACTION_ACTION_RESET = 20;
+		static final int OWSP_ACTION_MV_LEFTUP = 21;		// 左上 
+		static final int OWSP_ACTION_MV_LEFTDOWN = 22;		// 左下
+		static final int OWSP_ACTION_MV_RIGHTUP = 23;		// 右上
+		static final int OWSP_ACTION_MV_RIGHTDOWN = 24;		// 右下
 		static final int OWSP_ACTION_TV_SWITCH = 128;	//切换视频源,消息参数为INT*,1--TV, 2--SV,3--CV1, 4--CV2 
 		static final int OWSP_ACTION_TV_TUNER = 129;		//切换频道, 消息参数为INT*, 为频道号
 		static final int OWSP_ACTION_TV_SET_QUALITY  = 130;		//画质设置, 亮度,色度,饱和度,对比度结构体
