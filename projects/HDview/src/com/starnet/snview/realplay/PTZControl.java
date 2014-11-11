@@ -148,49 +148,16 @@ public class PTZControl {
 			case R.id.landscape_liveview_ptz_focus:
 				Log.i(TAG, "ptz_controlbar_menu_focus");
 				ptzFocus();
-//				if (!mPTZMenuFocus.isSelected()) {
-//					ptzFocus();
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(false);
-//					mPTZMenuFocus.setSelected(true);
-//					mPTZMenuAperture.setSelected(false);
-//					mPTZMenuPreset.setSelected(false);
-//				} else {
-//					showPTZFrame(PTZ_POP_FRAME.FOCUS, false);
-//					mPTZMenuFocus.setSelected(false);
-//				}
 				break;
 			case R.id.ptz_controlbar_menu_aperture:
 			case R.id.landscape_liveview_ptz_aperture:
 				Log.i(TAG, "ptz_controlbar_menu_aperture");
 				ptzAperture();
-//				if (!mPTZMenuAperture.isSelected()) {
-//					ptzAperture();
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(false);
-//					mPTZMenuFocus.setSelected(false);
-//					mPTZMenuAperture.setSelected(true);
-//					mPTZMenuPreset.setSelected(false);
-//				} else {
-//					showPTZFrame(PTZ_POP_FRAME.APERTURE, false);
-//					mPTZMenuAperture.setSelected(false);
-//				}
 				break;
 			case R.id.ptz_controlbar_menu_preset:
 			case R.id.landscape_liveview_ptz_preset_point:
 				Log.i(TAG, "ptz_controlbar_menu_preset");
 				ptzPresetPoint();
-//				if (!mPTZMenuPreset.isSelected()) {
-//					ptzPresetPoint();
-//					mPTZMenuScan.setSelected(false);
-//					mPTZMenuFocalLength.setSelected(false);
-//					mPTZMenuFocus.setSelected(false);
-//					mPTZMenuAperture.setSelected(false);
-//					mPTZMenuPreset.setSelected(true);
-//				} else {
-//					showPTZFrame(PTZ_POP_FRAME.PRESET, false);
-//					mPTZMenuPreset.setSelected(false);
-//				}
 				break;
 			case R.id.landscape_liveview_ptz_bar_back:
 				closePTZ();
@@ -326,10 +293,18 @@ public class PTZControl {
 				mPtzReqSender.apertureDecrease();
 				break;
 			case R.id.ptz_pop_preset_call:
-				Log.i(TAG, "ptz_pop_preset_call");
+				Log.i(TAG, "ptz_pop_preset_call, text:" + mPTZPresetEdit.getText().toString());
+				String num = mPTZPresetEdit.getText().toString();
+				if (num != null && !num.equals("")) {
+					mPtzReqSender.gotoPresetPoint(Integer.valueOf(num));
+				}
 				break;
 			case R.id.ptz_pop_preset_set:
-				Log.i(TAG, "ptz_pop_preset_set");
+				Log.i(TAG, "ptz_pop_preset_set, text:" + mPTZPresetEdit.getText().toString());
+				String num1 = mPTZPresetEdit.getText().toString();
+				if (num1 != null && !num1.equals("")) {
+					mPtzReqSender.setPresetPoint(Integer.valueOf(num1));
+				}
 				break;
 			}
 			

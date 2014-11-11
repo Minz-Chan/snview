@@ -48,7 +48,7 @@
     <string name="toolbar_sub_menu_focal_length">焦距</string>
     <string name="toolbar_sub_menu_focus">聚焦</string>
     <string name="toolbar_sub_menu_aperture">光圈</string>
-    <string name="toolbar_sub_dialog_hint">请输入预置点</string>
+    <string name="toolbar_sub_dialog_hint">1~200</string>
     <string name="toolbar_sub_dialog_call">调用</string>
     <string name="toolbar_sub_dialog_set">设置</string>
     <string name="device_listview_item_securityprotection">安全防护</string>

@@ -97,5 +97,20 @@ public class PTZRequestSender {
 		Log.i(TAG, "apertureDecrease");
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
 	}
+	
+	public void gotoPresetPoint(int num) {
+		Log.i(TAG, "gotoPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_GOTO_PRESET_POSITION, new int[] { num });
+	}
+	
+	public void setPresetPoint(int num) {
+		Log.i(TAG, "setPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_SET_PRESET_POSITION, new int[] { num });
+	}
+	
+	public void clearPresetPoint(int num) {
+		Log.i(TAG, "clearPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_CLEAR_PRESET_POSITION, new int[] { num });
+	}
 
 }

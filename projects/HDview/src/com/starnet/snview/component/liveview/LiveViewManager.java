@@ -248,6 +248,20 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 					+ cmdCode);
 		}
 	}
+	
+	public void sendControlRequest(int cmdCode, int[] args) {
+		int index = pager.getCurrentIndex();
+		int capacity = pager.getPageCapacity();
+		int pos = ((index % capacity) == 0) ? capacity : (index % capacity);
+
+		if (connections.get(pos - 1) != null) {
+			connections.get(pos - 1).sendControlRequest(cmdCode, args);
+
+			Log.i(TAG, "Send Control Request... pos: " + pos + ", cmdcode: "
+					+ cmdCode);
+		}
+	}
+	
 
 	/**
 	 * 切换通道组至下一页，并根据下一页包含的通道个数进行预览操作。若下一页为当前页，则不执行任何操作。
