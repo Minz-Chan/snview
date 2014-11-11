@@ -168,5 +168,11 @@
     
     
     <string name="realplay_toast_take_pic">保存到</string>
+    
+    <string name="alarm_title">报警通知</string>
+    <string name="alarm_dialog_cancel">取消</string>
+    <string name="alarm_dialog_OK">确定</string>
+    <string name="alarm_dialog_title">确定删除</string>
+    <string name="alarm_dialog_infor">报警信息</string>
 
 </resources>

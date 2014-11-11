@@ -2,6 +2,7 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -25,6 +26,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
@@ -289,14 +291,6 @@ public class CloudAccountAddingActivity extends BaseActivity {
 								Builder builder = new Builder(CloudAccountAddingActivity.this);
 								builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
 								builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),null);
-//										new DialogInterface.OnClickListener() {
-//											
-//											@Override
-//											public void onClick(DialogInterface dialog, int which) {
-//												requset4DeviceList_copy();	
-//												synObj.suspend();
-//											}
-//										});
 								builder.show();
 							}else if (identifier_flag&&isenablYseRadioBtn.isChecked()) {
 								boolean isEqual = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
@@ -308,19 +302,16 @@ public class CloudAccountAddingActivity extends BaseActivity {
 									bundle.putSerializable("cloudAccount",save_CloudAccount);
 									intent.putExtras(bundle);
 									setResult(3, intent);
+									//百度云推送的标签设置
+									List<String>tags = new ArrayList<String>();
+									tags.add(save_CloudAccount.getUsername()+"_"+save_CloudAccount.getPassword());
+									PushManager.setTags(CloudAccountAddingActivity.this, tags);
+									//百度云推送的标签设置
 									CloudAccountAddingActivity.this.finish();
 								}else if (!isEqual&&identifier_flag_after){
 									Builder builder = new Builder(CloudAccountAddingActivity.this);
 									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
 									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),null);
-//											new DialogInterface.OnClickListener() {
-//												
-//												@Override
-//												public void onClick(DialogInterface dialog, int which) {
-//													requset4DeviceList_copy();	
-//													synObj.suspend();											
-//												}
-//											});
 									builder.show();
 								}else {
 									save_CloudAccount.setEnabled(false);

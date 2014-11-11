@@ -17,11 +17,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.util.NetWorkUtils;
 
 @SuppressLint("SdCardPath")
 public class CloudAccountViewActivity extends BaseActivity {
@@ -110,6 +112,13 @@ public class CloudAccountViewActivity extends BaseActivity {
 						cloudAccountList.remove(deleteCA);						//列表中删除操作
 						
 						caAdapter.notifyDataSetChanged();
+						
+						if(deleteCA.isEnabled()){//		删除tag
+							List<String>del_tags = new ArrayList<String>();
+							del_tags.add(deleteCA.getUsername()+"_"+deleteCA.getPassword());
+							PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+						}
+						
 					}
 				 });
 				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
@@ -188,6 +197,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 					CloudAccount afterEditCA = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
 					cloudAccountList.set(pos, afterEditCA);
 					caAdapter.notifyDataSetChanged();
+					
 					boolean isChanged = checkCloudAccountChange(afterEditCA,beforeEditCA);	//检测用户信息是否改变
 					if (!isChanged) {
 						changeNoUseState(); 												//通知预览通道禁用
@@ -196,6 +206,25 @@ public class CloudAccountViewActivity extends BaseActivity {
 							changeNoUseState(); 											//通知预览通道禁用
 						}
 					}
+					
+					//针对编译的用户进行tag的注册和删除
+					boolean isOpen = NetWorkUtils.checkNetConnection(CloudAccountViewActivity.this);
+					if(isOpen){
+						if(beforeEditCA.isEnabled()){//之前的用户是可用的
+							if(afterEditCA.isEnabled()){//编辑之后的用户是可用的，则删除以前的，添加当前的
+								List<String>del_tags = new ArrayList<String>();
+								List<String>reg_tags = new ArrayList<String>();
+								del_tags.add(beforeEditCA.getUsername()+"_"+beforeEditCA.getPassword());
+								reg_tags.add(afterEditCA.getUsername()+"_"+afterEditCA.getPassword());
+								PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+								PushManager.setTags(CloudAccountViewActivity.this, reg_tags);
+							}else{//编辑之后的用户是不可用的，则删除以前的
+								List<String>del_tags = new ArrayList<String>();
+								del_tags.add(beforeEditCA.getUsername()+"_"+beforeEditCA.getPassword());
+								PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+							}
+						}
+					}					
 				}
 			}
 		}else if (requestCode == 10) {

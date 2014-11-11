@@ -8,6 +8,11 @@ import java.util.TimerTask;
 
 import org.dom4j.Document;
 
+import com.baidu.android.pushservice.CustomPushNotificationBuilder;
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
+import com.baidu.pushutils.AlarmInfoUtils;
+import com.baidu.pushutils.Utils;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
 import com.starnet.snview.channelmanager.xml.CloudService;
@@ -27,10 +32,12 @@ import com.starnet.snview.util.PreviewItemXMLUtils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -107,10 +114,33 @@ public class SplashActivity extends Activity {
 		if (!CheckWhetherFirstStart()) {
 			showMainActivity();
 		}
-
+		
+		AlarmInfoUtils.flag_start = true;
+		startBaiduPushService();
+		
 		// Animation animatinoGone =
 		// AnimationUtils.loadAnimation(this,R.anim.alpha_gone);
 
+	}
+
+	private void startBaiduPushService() {
+		initWithApiKey();//// 以apikey的方式绑定
+		PushManager.startWork(getApplicationContext(), PushConstants.LOGIN_TYPE_API_KEY,Utils.getMetaValue(SplashActivity.this, "api_key"));
+		Resources resource = this.getResources();
+	    String pkgName = this.getPackageName();
+		CustomPushNotificationBuilder cBuilder = new CustomPushNotificationBuilder(
+                getApplicationContext(), resource.getIdentifier(
+                        "notification_custom_builder", "layout", pkgName),
+                resource.getIdentifier("notification_icon", "id", pkgName),
+                resource.getIdentifier("notification_title", "id", pkgName),
+                resource.getIdentifier("notification_text", "id", pkgName));
+        cBuilder.setNotificationFlags(Notification.FLAG_AUTO_CANCEL);
+        cBuilder.setNotificationDefaults(Notification.DEFAULT_SOUND
+                | Notification.DEFAULT_VIBRATE);
+        cBuilder.setStatusbarIcon(this.getApplicationInfo().icon);
+        cBuilder.setLayoutDrawable(resource.getIdentifier(
+                "simple_notification_icon", "drawable", pkgName));
+        PushManager.setNotificationBuilder(this, 1, cBuilder);
 	}
 
 	private void showMainActivity() {
@@ -316,6 +346,14 @@ public class SplashActivity extends Activity {
 
 	}
 	
+	// 以apikey的方式绑定
+    private void initWithApiKey() {
+        // Push: 无账号初始化，用api key绑定
+    	int api_key = PushConstants.LOGIN_TYPE_API_KEY;
+    	String api_keys = Utils.getMetaValue(SplashActivity.this, "api_key");
+        PushManager.startWork(getApplicationContext(),api_key,api_keys);
+    }
+    
 	protected void canceTimer(){
 //		if(timer != null){
 //			timer.cancel();

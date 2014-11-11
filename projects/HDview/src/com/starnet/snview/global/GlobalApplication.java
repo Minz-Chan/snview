@@ -1,5 +1,6 @@
 package com.starnet.snview.global;
 
+import com.baidu.frontia.FrontiaApplication;
 import com.starnet.snview.R;
 import com.starnet.snview.images.ImageLoader;
 import com.starnet.snview.realplay.RealplayActivity;
@@ -9,7 +10,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Handler;
 
-public class GlobalApplication extends Application {
+//public class GlobalApplication extends Application {
+public class GlobalApplication extends FrontiaApplication {
 	private static GlobalApplication singleton = new GlobalApplication();
 	
 	private String appName;
@@ -142,6 +144,11 @@ public class GlobalApplication extends Application {
 	
 	public RealplayActivity getRealplayActivity() {
 		return mRealplayActivity;
+	}
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
 	}
 
 }

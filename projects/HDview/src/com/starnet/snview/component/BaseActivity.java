@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
+import com.starnet.snview.alarm.AlarmActivity;
 import com.starnet.snview.devicemanager.DeviceViewActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.ImagesManagerActivity;
@@ -252,8 +253,7 @@ public abstract class BaseActivity extends Activity {
 	        switch (mActiveViewId) {
 	        case R.id.menu_drawer_top:
 	        	mActiveViewId = oldActivityViewId;
-				mMenuDrawer.setActiveView(BaseActivity.this
-						.findViewById(mActiveViewId));
+				mMenuDrawer.setActiveView(BaseActivity.this.findViewById(mActiveViewId));
 	        	break;
 	        case R.id.menu_drawer_realtime_preview:
 	        	gotoRealtimePreview();
@@ -270,6 +270,10 @@ public abstract class BaseActivity extends Activity {
 	        case R.id.menu_drawer_sys_setting:
 	        	gotoSystemSetting();
 	        	break;
+	        case R.id.menu_drawer_alarm_management:
+	        	gotoAlarm();
+	        	break;
+	        
 	        }
 	        
 	        if (oldActivityViewId != R.id.menu_drawer_realtime_preview
@@ -281,6 +285,12 @@ public abstract class BaseActivity extends Activity {
 		}
 		
 	};
+	
+	protected void gotoAlarm(){
+		Intent intent = new Intent();
+		intent.setClass(BaseActivity.this, AlarmActivity.class);
+		startActivity(intent);
+	}
 	
 	protected void gotoRealtimePreview() {
 		Intent intent = new Intent();
@@ -419,6 +429,8 @@ public abstract class BaseActivity extends Activity {
         findViewById(R.id.menu_drawer_device_managerment).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_picture_management).setOnClickListener(mOnMenudrawerItemClickListener);
         findViewById(R.id.menu_drawer_sys_setting).setOnClickListener(mOnMenudrawerItemClickListener);
+        
+        findViewById(R.id.menu_drawer_alarm_management).setOnClickListener(mOnMenudrawerItemClickListener);//报警选项
 
         TextView activeView = (TextView) findViewById(mActiveViewId);
         if (activeView != null) {  // 新Activity启动时，活动项设置为上一次所选项

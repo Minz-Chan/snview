@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/device_list_item_bg"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/device_list_item_bottompadding"
-    android:paddingLeft="@dimen/device_list_item_leftpadding"
-    android:paddingRight="@dimen/device_list_item_rightpadding"
-    android:paddingTop="@dimen/device_list_item_toppadding"
-    android:descendantFocusability="blocksDescendants"
-    android:weightSum="1.0" >
+    
+    android:orientation="vertical" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/device_list_item_imgcontainer_height"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:weightSum="1.0" ><!-- android:layout_height="@dimen/device_list_item_imgcontainer_height" -->
+        android:orientation="horizontal" >
 
         <LinearLayout
             android:layout_width="@dimen/device_list_item_imgcontainer_width"
@@ -34,45 +27,53 @@
             android:layout_width="0.0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
+            android:gravity="center_vertical"
             android:orientation="vertical" >
 
             <TextView
                 android:id="@id/device_item_name"
-                android:layout_gravity="center_vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
                 android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
+                android:layout_marginTop="3dp"
                 android:paddingLeft="10sp"
                 android:singleLine="true"
                 android:text="@string/device_manager_name"
                 android:textColor="@color/md__defaultBackground"
                 android:textSize="@dimen/common_textsize_small_16sp" />
 
-           <!--  <TextView
-                android:id="@+id/device_listview_item_ip"
-                android:layout_width="fill_parent"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5sp"
-                android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
-                android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:text="@string/device_managerr_ip"
-                
-                android:textSize="@dimen/common_textsize_small_14sp" /> -->
+                android:layout_marginTop="3dp" >
+
+                <TextView
+                    android:id="@+id/alarm_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="2014-11-03 19:00" />
+
+                <TextView
+                    android:id="@+id/alarm_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="烟雾报警" />
+            </LinearLayout>
         </LinearLayout>
 
-        <ImageButton
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/device_list_item_spacing_5dp"
             android:layout_marginRight="@dimen/device_list_item_spacing_5dp"
             android:background="@drawable/device_list_item_arrow_btn_selector"
+            android:focusable="false"
             android:contentDescription="@string/nothing" />
     </LinearLayout>
 
