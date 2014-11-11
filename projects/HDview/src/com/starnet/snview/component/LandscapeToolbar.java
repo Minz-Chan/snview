@@ -56,13 +56,14 @@ public class LandscapeToolbar extends FrameLayout {
 	private LandControlbarClickListener mLandControlbarListener;
 
 	private LinearLayout mPTZControlBar;
+	private LinearLayout mPTZPopFrame;
 	private ArrayList<View> mPTZControlChildList = new ArrayList<View>();
-	private ImageButton mAutoButton;
-	private ImageButton mFocalLengthButton;
-	private ImageButton mFocusButton;
-	private ImageButton mApertrueButton;
-	private ImageButton mPresetPointButton;
-	private ImageButton mBarBackButton;
+	private ImageButton mLandAutoButton;
+	private ImageButton mLandFocalLengthButton;
+	private ImageButton mLandFocusButton;
+	private ImageButton mLandApertrueButton;
+	private ImageButton mLandPresetPointButton;
+	private ImageButton mLandBarBackButton;
 	private PTZBarClickListener mPTZBarClickListener;
 
 	private LinearLayout mQualityControlBar;
@@ -128,12 +129,12 @@ public class LandscapeToolbar extends FrameLayout {
 		mAlarmButton.setPressed(false);
 		mStopResumeButton.setPressed(false);
 		mEnlargeButton.setPressed(false);
-		mAutoButton.setPressed(false);
-		mFocalLengthButton.setPressed(false);
-		mFocusButton.setPressed(false);
-		mApertrueButton.setPressed(false);
-		mPresetPointButton.setPressed(false);
-		mBarBackButton.setPressed(false);
+		mLandAutoButton.setPressed(false);
+		mLandFocalLengthButton.setPressed(false);
+		mLandFocusButton.setPressed(false);
+		mLandApertrueButton.setPressed(false);
+		mLandPresetPointButton.setPressed(false);
+		mLandBarBackButton.setPressed(false);
 		mClearButton.setPressed(false);
 		mBalanceButton.setPressed(false);
 		mFluentButton.setPressed(false);
@@ -367,22 +368,22 @@ public class LandscapeToolbar extends FrameLayout {
 			mEnlargeButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_auto:
-			mAutoButton.setPressed(true);
+			mLandAutoButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_focal_length:
-			mFocalLengthButton.setPressed(true);
+			mLandFocalLengthButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_focus:
-			mFocusButton.setPressed(true);
+			mLandFocusButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_aperture:
-			mApertrueButton.setPressed(true);
+			mLandApertrueButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_preset_point:
-			mPresetPointButton.setPressed(true);
+			mLandPresetPointButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_ptz_bar_back:
-			mBarBackButton.setPressed(true);
+			mLandBarBackButton.setPressed(true);
 			break;
 		case R.id.landscape_liveview_quality_clear_button:
 			mClearButton.setPressed(true);
@@ -466,19 +467,20 @@ public class LandscapeToolbar extends FrameLayout {
 
 		/* PTZ控制条 */
 		mPTZControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_ptz_control_bar));
-		mAutoButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_auto));
-		mFocalLengthButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length));
-		mFocusButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focus));
-		mApertrueButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture));
-		mPresetPointButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point));
-		mBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_bar_back));
+		mPTZPopFrame = (LinearLayout) ((RealplayActivity) mContext).findViewById(R.id.ptz_pop_frame);
+		mLandAutoButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_auto));
+		mLandFocalLengthButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length));
+		mLandFocusButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focus));
+		mLandApertrueButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture));
+		mLandPresetPointButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point));
+		mLandBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_bar_back));
 
-		mPTZControlChildList.add(mAutoButton);
-		mPTZControlChildList.add(mFocalLengthButton);
-		mPTZControlChildList.add(mFocusButton);
-		mPTZControlChildList.add(mApertrueButton);
-		mPTZControlChildList.add(mPresetPointButton);
-		mPTZControlChildList.add(mBarBackButton);
+		mPTZControlChildList.add(mLandAutoButton);
+		mPTZControlChildList.add(mLandFocalLengthButton);
+		mPTZControlChildList.add(mLandFocusButton);
+		mPTZControlChildList.add(mLandApertrueButton);
+		mPTZControlChildList.add(mLandPresetPointButton);
+		mPTZControlChildList.add(mLandBarBackButton);
 
 		/* 视频质量控制条 */
 		mQualityControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_quality_control_bar));
@@ -507,10 +509,20 @@ public class LandscapeToolbar extends FrameLayout {
 		}
 	}
 	
+	private void restoreLandscapePTZPopFrameStatus() {
+		boolean canPopFrameShow = mLandFocalLengthButton.isSelected()
+				|| mLandFocusButton.isSelected()
+				|| mLandApertrueButton.isSelected()
+				|| mLandPresetPointButton.isSelected();
+		
+		mPTZPopFrame.setVisibility(canPopFrameShow ? View.VISIBLE : View.GONE);
+	}
+	
 	public void showLandscapeToolbar() {
 		setLandToolbarShow(true);
 		mLandscapeBarContent.setVisibility(View.VISIBLE);
 		mPageIndicatorFrame.setVisibility(View.VISIBLE);
+		restoreLandscapePTZPopFrameStatus();
 		
 		mPageIndicator.setText(((RealplayActivity) mContext).getPager().getPagerText());
 		
@@ -528,6 +540,9 @@ public class LandscapeToolbar extends FrameLayout {
 						setLandToolbarShow(false);
 						mLandscapeBarContent.setVisibility(View.GONE);
 						mPageIndicatorFrame.setVisibility(View.GONE);
+						if (GlobalApplication.getInstance().isIsFullMode()) {
+							mPTZPopFrame.setVisibility(View.GONE);
+						}
 					}
 				});
 			}
@@ -568,6 +583,7 @@ public class LandscapeToolbar extends FrameLayout {
 		setLandToolbarShow(false);
 		mLandscapeBarContent.setVisibility(View.GONE);
 		mPageIndicatorFrame.setVisibility(View.GONE);
+		mPTZPopFrame.setVisibility(View.GONE);
 		
 		if (mLandscapeBarAutoDismissTask != null) {
 			mLandscapeBarAutoDismissTask.cancel();
@@ -828,11 +844,11 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public ImageButton getApertureButton() {
-		return mApertrueButton;
+		return mLandApertrueButton;
 	}
 
 	public ImageButton getAutoButton() {
-		return mAutoButton;
+		return mLandAutoButton;
 	}
 
 	public Button getBalanceButton() {
@@ -856,15 +872,15 @@ public class LandscapeToolbar extends FrameLayout {
 	}
 
 	public ImageButton getFocalLengthButton() {
-		return mFocalLengthButton;
+		return mLandFocalLengthButton;
 	}
 
 	public ImageButton getFocusButton() {
-		return mFocusButton;
+		return mLandFocusButton;
 	}
 
 	public ImageButton getPresetPointButton() {
-		return mPresetPointButton;
+		return mLandPresetPointButton;
 	}
 
 	public ImageButton getPtzButton() {

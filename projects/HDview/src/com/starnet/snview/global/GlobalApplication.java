@@ -21,6 +21,9 @@ public class GlobalApplication extends FrontiaApplication {
 	private int mScreenWidth;
 	private int mScreenHeight;
 	
+	private int mRealplayContainerWidth;
+	private int mRealplayContainerHeight;
+	
 	private int mLandscapeControlWidth;
 	private int mLandscapeControlHeight;
 	
@@ -59,8 +62,6 @@ public class GlobalApplication extends FrontiaApplication {
 	public void setScreenWidth(int width) {
 		this.mScreenWidth = width;
 	}
-	
-	
 
 	public int getLandscapeControlWidth() {
 		return mLandscapeControlWidth;
@@ -120,6 +121,22 @@ public class GlobalApplication extends FrontiaApplication {
 
 	public void setScreenHeight(int height) {
 		this.mScreenHeight = height;
+	}
+	
+	public int getRealplayContainerWidth() {
+		return mRealplayContainerWidth;
+	}
+
+	public void setRealplayContainerWidth(int realplayContainerWidth) {
+		this.mRealplayContainerWidth = realplayContainerWidth;
+	}
+
+	public int getRealplayContainerHeight() {
+		return mRealplayContainerHeight;
+	}
+
+	public void setRealplayContainerHeight(int realplayContainerHeight) {
+		this.mRealplayContainerHeight = realplayContainerHeight;
 	}
 
 	public Handler getHandler() {

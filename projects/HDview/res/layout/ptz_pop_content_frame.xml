@@ -31,4 +31,18 @@
         <ImageButton android:id="@id/ptz_pop_aperture_increase" android:background="@drawable/ptz_pop_frame_increase_btn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
         <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
     </LinearLayout>
+    <!-- 预置点弹窗 -->
+    <LinearLayout android:orientation="vertical" android:id="@id/ptz_pop_preset_frame" android:visibility="gone" android:clickable="true" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:background="@drawable/ptz_presetpanelbg1" android:paddingLeft="10.0dip" android:paddingTop="9.0dip" android:paddingRight="10.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <EditText android:textSize="@dimen/common_textsize_small_16sp" android:id="@id/ptz_pop_preset_edit" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="@string/toolbar_sub_dialog_hint" android:maxLength="3" android:numeric="integer" />
+        </LinearLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:background="@drawable/ptz_presetpanelbg2" android:paddingBottom="3.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="2.5">
+            <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+            <Button android:textSize="@dimen/common_textsize_small_16sp" android:id="@id/ptz_pop_preset_call" android:background="@drawable/ptz_presetbtn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/toolbar_sub_dialog_call" />
+            <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="0.5" />
+            <Button android:textSize="@dimen/common_textsize_small_16sp" android:id="@id/ptz_pop_preset_set" android:background="@drawable/ptz_presetbtn_selector" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/toolbar_sub_dialog_set" />
+            <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
+        </LinearLayout>
+    </LinearLayout>
+    
 </LinearLayout>
