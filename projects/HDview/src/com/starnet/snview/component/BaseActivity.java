@@ -26,7 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
-import com.starnet.snview.alarm.AlarmActivity;
+import com.starnet.snview.alarmmanager.AlarmActivity;
 import com.starnet.snview.devicemanager.DeviceViewActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.ImagesManagerActivity;

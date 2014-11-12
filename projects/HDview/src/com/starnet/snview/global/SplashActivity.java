@@ -11,9 +11,9 @@ import org.dom4j.Document;
 import com.baidu.android.pushservice.CustomPushNotificationBuilder;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
-import com.baidu.pushutils.AlarmInfoUtils;
-import com.baidu.pushutils.Utils;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmPersistenceUtils;
+import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
@@ -115,7 +115,7 @@ public class SplashActivity extends Activity {
 			showMainActivity();
 		}
 		
-		AlarmInfoUtils.flag_start = true;
+		AlarmPersistenceUtils.flag_start = true;
 		startBaiduPushService();
 		
 		// Animation animatinoGone =

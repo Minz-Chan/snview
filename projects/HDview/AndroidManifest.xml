@@ -72,7 +72,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.alarm.AlarmActivity"
+            android:name="com.starnet.snview.alarmmanager.AlarmActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
@@ -144,7 +144,7 @@
         <!-- android推送服务权限 -->
         <meta-data android:name="api_key" android:value="EIAswaeFPPggZZ95AruWxj6Y" />
                 <!-- push应用定义消息receiver声明 -->
-        <receiver android:name="com.baidu.pushutils.MyPushMessageReceiver">
+        <receiver android:name="com.starnet.snview.alarmmanager.AlarmReceiver">
             <intent-filter>
                 <!-- 接收push消息 -->
                 <action android:name="com.baidu.android.pushservice.action.MESSAGE" />

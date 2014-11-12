@@ -1,6 +1,6 @@
-package com.baidu.pushutils;
+package com.starnet.snview.alarmmanager;
 
-public class AlarmDeviceInfo {
+public class AlarmDevice {
 
 	private String deviceName; // 设备名称
 	private String alarm_time; // 报警时间

@@ -1,4 +1,4 @@
-package com.baidu.pushutils;
+package com.starnet.snview.alarmmanager;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class AlarmInfoAdapter extends BaseAdapter {
+public class AlarmDeviceAdapter extends BaseAdapter {
 	
-	private List <AlarmDeviceInfo> alarmInfoList;
+	private List <AlarmDevice> alarmInfoList;
 	private Context context;
 	
-	public AlarmInfoAdapter(List <AlarmDeviceInfo> alarmInfoList,Context context){
+	public AlarmDeviceAdapter(List <AlarmDevice> alarmInfoList,Context context){
 		this.alarmInfoList = alarmInfoList;
 		this.context = context;
 	}

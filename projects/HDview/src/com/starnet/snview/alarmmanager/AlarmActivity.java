@@ -1,4 +1,4 @@
-package com.starnet.snview.alarm;
+package com.starnet.snview.alarmmanager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +8,12 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,9 +22,6 @@ import android.widget.Toast;
 import com.baidu.android.pushservice.CustomPushNotificationBuilder;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
-import com.baidu.pushutils.AlarmDeviceInfo;
-import com.baidu.pushutils.AlarmInfoAdapter;
-import com.baidu.pushutils.Utils;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
@@ -35,8 +29,8 @@ public class AlarmActivity extends BaseActivity {
 
 	private Button navBackBtn;
 	private ListView alarmInfoListView;
-	private AlarmInfoAdapter listviewAdapter;
-	private List<AlarmDeviceInfo> alarmInfoList;
+	private AlarmDeviceAdapter listviewAdapter;
+	private List<AlarmDevice> alarmInfoList;
 	private Context mContext;
 
 	private TextView titleView;// 报警
@@ -117,7 +111,7 @@ public class AlarmActivity extends BaseActivity {
 		alarmInfoListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				AlarmDeviceInfo selectDevice = alarmInfoList.get(position); // 单击的报警设备
+				AlarmDevice selectDevice = alarmInfoList.get(position); // 单击的报警设备
 				Toast.makeText(mContext, "单击了：" + selectDevice.getDeviceName(),Toast.LENGTH_SHORT).show();
 			}
 		});
@@ -163,14 +157,14 @@ public class AlarmActivity extends BaseActivity {
 		navBackBtn.setVisibility(View.GONE);
 		// navBackBtn.setBackgroundResource(R.drawable.alarm_right_back);
 		
-		alarmInfoList = new ArrayList<AlarmDeviceInfo>();// 模拟数据
+		alarmInfoList = new ArrayList<AlarmDevice>();// 模拟数据
 
-		AlarmDeviceInfo alarmDevice1 = new AlarmDeviceInfo();
-		AlarmDeviceInfo alarmDevice2 = new AlarmDeviceInfo();
-		AlarmDeviceInfo alarmDevice3 = new AlarmDeviceInfo();
-		AlarmDeviceInfo alarmDevice4 = new AlarmDeviceInfo();
-		AlarmDeviceInfo alarmDevice5 = new AlarmDeviceInfo();
-		AlarmDeviceInfo alarmDevice6 = new AlarmDeviceInfo();
+		AlarmDevice alarmDevice1 = new AlarmDevice();
+		AlarmDevice alarmDevice2 = new AlarmDevice();
+		AlarmDevice alarmDevice3 = new AlarmDevice();
+		AlarmDevice alarmDevice4 = new AlarmDevice();
+		AlarmDevice alarmDevice5 = new AlarmDevice();
+		AlarmDevice alarmDevice6 = new AlarmDevice();
 
 		alarmDevice1.setAlarm_time("2014-11-03 19:00");
 		alarmDevice1.setDeviceName("乌鲁木齐平台");
@@ -203,7 +197,7 @@ public class AlarmActivity extends BaseActivity {
 		alarmInfoList.add(alarmDevice5);
 		alarmInfoList.add(alarmDevice6);
 		
-		listviewAdapter = new AlarmInfoAdapter(alarmInfoList, this);
+		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, this);
 		alarmInfoListView.setAdapter(listviewAdapter);
 
 	}

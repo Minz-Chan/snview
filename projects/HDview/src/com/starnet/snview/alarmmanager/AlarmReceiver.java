@@ -1,4 +1,4 @@
-package com.baidu.pushutils;
+package com.starnet.snview.alarmmanager;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
-import com.starnet.snview.alarm.AlarmActivity;
 import com.starnet.snview.global.SplashActivity;
 import com.starnet.snview.realplay.RealplayActivity;
 
@@ -40,9 +39,9 @@ import com.starnet.snview.realplay.RealplayActivity;
  * 当您遇到以上返回错误时，如果解释不了您的问题，请用同一请求的返回值requestId和errorCode联系我们追查问题。
  * 
  */
-public class MyPushMessageReceiver extends FrontiaPushMessageReceiver {
+public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
-    public static final String TAG = MyPushMessageReceiver.class.getSimpleName();
+    public static final String TAG = AlarmReceiver.class.getSimpleName();
 
     private final String message_path = "";
     /**
@@ -149,7 +148,7 @@ public class MyPushMessageReceiver extends FrontiaPushMessageReceiver {
             }
         }
         // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        if(AlarmInfoUtils.flag_start){//如果程序已经启动的时候，则直接进入到AlarmActivity
+        if(AlarmPersistenceUtils.flag_start){//如果程序已经启动的时候，则直接进入到AlarmActivity
 //        	updateAlarmContent(context, notifyString);
         	updateContent(context, notifyString);
         }else{//如果程序已经启动的时候，则直接进入到SplashActivity

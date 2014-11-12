@@ -1,4 +1,4 @@
-package com.baidu.pushutils;
+package com.starnet.snview.alarmmanager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,8 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.TextView;
 
 public class Utils {
     public static final String TAG = "PushDemoActivity";
@@ -105,14 +103,6 @@ public class Utils {
         Editor editor = sp.edit();
         editor.putString("log_text", text);
         editor.commit();
-    }
-    
-    //获取报警时间
-    public static String getAlarmTime(){
-    	String start_time = "";
-    	
-    	
-    	return start_time;
     }
 
 }
