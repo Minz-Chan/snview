@@ -252,7 +252,7 @@
     <item name="ptz_pop_aperture_subtract" type="id"/>
     <item name="ptz_pop_preset_frame" type="id"/>
     <item name="ptz_pop_preset_set" type="id"/>
-    <item name="ptz_pop_preset_get" type="id"/>
+    <item name="ptz_pop_preset_call" type="id"/>
     <item name="ptz_pop_preset_edit" type="id"/>
     <item name="arrow_left" type="id"/>
     <item name="arrow_left_down" type="id"/>

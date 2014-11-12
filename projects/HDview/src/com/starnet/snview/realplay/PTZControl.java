@@ -5,12 +5,16 @@ import com.starnet.snview.component.LandscapeToolbar;
 import com.starnet.snview.component.liveview.LiveViewManager;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.RealplayActivity.TOOLBAR_EXTEND_MENU;
+import com.starnet.snview.util.ActivityUtility;
 
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,6 +39,11 @@ public class PTZControl {
 	private ImageButton mPTZMenuFocus;
 	private ImageButton mPTZMenuAperture;
 	private ImageButton mPTZMenuPreset;
+	private ImageButton mPTZLandMenuScan;
+	private ImageButton mPTZLandMenuFocalLength;
+	private ImageButton mPTZLandMenuFocus;
+	private ImageButton mPTZLandMenuAperture;
+	private ImageButton mPTZLandMenuPreset;	
 	
 	private ImageButton mPTZPopFocalLengthIncrease;  
 	private ImageButton mPTZPopFocalLengthDecrease;
@@ -42,6 +51,9 @@ public class PTZControl {
 	private ImageButton mPTZPopFocusDecrease;
 	private ImageButton mPTZPopApertureIncrease;  
 	private ImageButton mPTZPopApertureDecrease;
+	private EditText mPTZPresetEdit;
+	private Button mPTZPresetCall;
+	private Button mPTZPresetSet;
 	
 	private LandscapeToolbar mLandscapeToolbar;
 	
@@ -61,12 +73,22 @@ public class PTZControl {
 		mPTZMenuFocus = (ImageButton) findViewById(R.id.ptz_controlbar_menu_focus);
 		mPTZMenuAperture = (ImageButton) findViewById(R.id.ptz_controlbar_menu_aperture);
 		mPTZMenuPreset = (ImageButton) findViewById(R.id.ptz_controlbar_menu_preset);
+		mPTZLandMenuScan = (ImageButton) findViewById(R.id.landscape_liveview_ptz_auto);
+		mPTZLandMenuFocalLength = (ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length);
+		mPTZLandMenuFocus = (ImageButton) findViewById(R.id.landscape_liveview_ptz_focus);
+		mPTZLandMenuAperture = (ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture);
+		mPTZLandMenuPreset = (ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point);
 
 		mPTZMenuScan.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuFocalLength.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuFocus.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuAperture.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuPreset.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuScan.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuFocalLength.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuFocus.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuAperture.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuPreset.setOnClickListener(mOnPTZMenuClickListener);
 		
 		
 		mPTZPopFocalLengthIncrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_increase);  
@@ -75,6 +97,9 @@ public class PTZControl {
 		mPTZPopFocusDecrease = (ImageButton) findViewById(R.id.ptz_pop_focus_decrease);
 		mPTZPopApertureIncrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_increase);  
 		mPTZPopApertureDecrease = (ImageButton) findViewById(R.id.ptz_pop_aperture_decrease);
+		mPTZPresetEdit = (EditText) findViewById(R.id.ptz_pop_preset_edit);
+		mPTZPresetCall = (Button) findViewById(R.id.ptz_pop_preset_call);
+		mPTZPresetSet = (Button) findViewById(R.id.ptz_pop_preset_set);
 		
 		//mPTZPopFocalLengthIncrease.setOnClickListener(mOnPTZPopClickListener);  
 		//mPTZPopFocalLengthDecrease.setOnClickListener(mOnPTZPopClickListener);mOnPTZFocalLengthListener
@@ -84,6 +109,8 @@ public class PTZControl {
 		mPTZPopFocusDecrease.setOnClickListener(mOnPTZPopClickListener);
 		mPTZPopApertureIncrease.setOnClickListener(mOnPTZPopClickListener);  
 		mPTZPopApertureDecrease.setOnClickListener(mOnPTZPopClickListener);
+		mPTZPresetCall.setOnClickListener(mOnPTZPopClickListener);
+		mPTZPresetSet.setOnClickListener(mOnPTZPopClickListener);
 		
 		mPTZPopFrame = (LinearLayout) findViewById(R.id.ptz_pop_frame);
 		
@@ -108,66 +135,32 @@ public class PTZControl {
 
 			switch (v.getId()) {
 			case R.id.ptz_controlbar_menu_scan:
+			case R.id.landscape_liveview_ptz_auto:
 				Log.i(TAG, "ptz_controlbar_menu_scan");
 				ptzAuto();
 				break;
 			case R.id.ptz_controlbar_menu_focal_length:
+			case R.id.landscape_liveview_ptz_focal_length:
 				Log.i(TAG, "ptz_controlbar_menu_focal_length");
-				if (!mPTZMenuFocalLength.isSelected()) {
-					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focal_length));
-					ptzFocalLength();
-					//showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
-					mPTZMenuScan.setSelected(false);
-					mPTZMenuFocalLength.setSelected(true);
-					mPTZMenuFocus.setSelected(false);
-					mPTZMenuAperture.setSelected(false);
-					mPTZMenuPreset.setSelected(false);
-				} else {
-					// mToolbarSubMenu.setVisibility(View.GONE);
-					showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, false);
-					mPTZMenuFocalLength.setSelected(false);
-				}
+				ptzFocalLength();
 				break;
 			case R.id.ptz_controlbar_menu_focus:
+			case R.id.landscape_liveview_ptz_focus:
 				Log.i(TAG, "ptz_controlbar_menu_focus");
-				if (!mPTZMenuFocus.isSelected()) {
-					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_focus));
-					ptzFocus();
-					//showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
-					mPTZMenuScan.setSelected(false);
-					mPTZMenuFocalLength.setSelected(false);
-					mPTZMenuFocus.setSelected(true);
-					mPTZMenuAperture.setSelected(false);
-					mPTZMenuPreset.setSelected(false);
-				} else {
-					// mToolbarSubMenu.setVisibility(View.GONE);
-					showPTZFrame(PTZ_POP_FRAME.FOCUS, false);
-					mPTZMenuFocus.setSelected(false);
-				}
+				ptzFocus();
 				break;
 			case R.id.ptz_controlbar_menu_aperture:
+			case R.id.landscape_liveview_ptz_aperture:
 				Log.i(TAG, "ptz_controlbar_menu_aperture");
-				if (!mPTZMenuAperture.isSelected()) {
-					// mToolbarSubMenu.setVisibility(View.VISIBLE);
-					// mToolbarSubMenuText.setText(getString(R.string.toolbar_sub_menu_aperture));
-					ptzAperture();
-					//showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
-					mPTZMenuScan.setSelected(false);
-					mPTZMenuFocalLength.setSelected(false);
-					mPTZMenuFocus.setSelected(false);
-					mPTZMenuAperture.setSelected(true);
-					mPTZMenuPreset.setSelected(false);
-				} else {
-					// mToolbarSubMenu.setVisibility(View.GONE);
-					showPTZFrame(PTZ_POP_FRAME.APERTURE, false);
-					mPTZMenuAperture.setSelected(false);
-				}
+				ptzAperture();
 				break;
 			case R.id.ptz_controlbar_menu_preset:
+			case R.id.landscape_liveview_ptz_preset_point:
 				Log.i(TAG, "ptz_controlbar_menu_preset");
 				ptzPresetPoint();
+				break;
+			case R.id.landscape_liveview_ptz_bar_back:
+				closePTZ();
 				break;
 			}
 
@@ -184,6 +177,8 @@ public class PTZControl {
 						.setVisibility(View.GONE);
 				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
 						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
+						.setVisibility(View.GONE);
 				break;
 			case FOCAL_LENGTH:
 				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
@@ -191,6 +186,8 @@ public class PTZControl {
 				((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
 						.setVisibility(View.GONE);
 				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
 						.setVisibility(View.GONE);
 				break;
 			case FOCUS:
@@ -200,6 +197,8 @@ public class PTZControl {
 						.setVisibility(View.VISIBLE);
 				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
 						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
+						.setVisibility(View.GONE);
 				break;
 			case APERTURE:
 				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
@@ -208,6 +207,8 @@ public class PTZControl {
 						.setVisibility(View.GONE);
 				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
 						.setVisibility(View.VISIBLE);
+				((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
+						.setVisibility(View.GONE);
 				break;
 			case PRESET:
 				((LinearLayout) findViewById(R.id.ptz_pop_focal_length_frame))
@@ -216,6 +217,8 @@ public class PTZControl {
 						.setVisibility(View.GONE);
 				((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
 						.setVisibility(View.GONE);
+				((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
+						.setVisibility(View.VISIBLE);
 				break;
 			}
 		} else {
@@ -224,6 +227,8 @@ public class PTZControl {
 			((LinearLayout) findViewById(R.id.ptz_pop_focus_frame))
 					.setVisibility(View.GONE);
 			((LinearLayout) findViewById(R.id.ptz_pop_aperture_frame))
+					.setVisibility(View.GONE);
+			((LinearLayout) findViewById(R.id.ptz_pop_preset_frame))
 					.setVisibility(View.GONE);
 		}
 	}
@@ -287,6 +292,20 @@ public class PTZControl {
 				Log.i(TAG, "ptz_pop_aperture_decrease");
 				mPtzReqSender.apertureDecrease();
 				break;
+			case R.id.ptz_pop_preset_call:
+				Log.i(TAG, "ptz_pop_preset_call, text:" + mPTZPresetEdit.getText().toString());
+				String num = mPTZPresetEdit.getText().toString();
+				if (num != null && !num.equals("")) {
+					mPtzReqSender.gotoPresetPoint(Integer.valueOf(num));
+				}
+				break;
+			case R.id.ptz_pop_preset_set:
+				Log.i(TAG, "ptz_pop_preset_set, text:" + mPTZPresetEdit.getText().toString());
+				String num1 = mPTZPresetEdit.getText().toString();
+				if (num1 != null && !num1.equals("")) {
+					mPtzReqSender.setPresetPoint(Integer.valueOf(num1));
+				}
+				break;
 			}
 			
 		}
@@ -324,11 +343,11 @@ public class PTZControl {
 		if (!GlobalApplication.getInstance().isIsFullMode()) { // 竖屏状态
 			if (isShow) {
 				mPTZControlbarMenu.setVisibility(View.VISIBLE);
-				mPTZPopFrame.setVisibility(View.VISIBLE);
-				showPTZFrame(PTZ_POP_FRAME.SCAN, false);
+				//mPTZPopFrame.setVisibility(View.VISIBLE);
+				//showPTZFrame(PTZ_POP_FRAME.SCAN, false);
 			} else {
 				mPTZControlbarMenu.setVisibility(View.GONE);
-				mPTZPopFrame.setVisibility(View.GONE);
+				//mPTZPopFrame.setVisibility(View.GONE);
 				showPTZFrame(PTZ_POP_FRAME.SCAN, false);
 				mPTZMenuScan.setSelected(false);
 				mPTZMenuFocalLength.setSelected(false);
@@ -353,14 +372,30 @@ public class PTZControl {
 	public void syncPTZStatus() {
 		if (mIsPTZModeOn) {
 			if (GlobalApplication.getInstance().isIsFullMode()) { // 当前为横屏状态
+				initPTZPopFramePos(mPTZMenuPreset.isSelected()); // 调整弹窗位置
 				mPTZControlbarMenu.setVisibility(View.GONE);
-				mPTZPopFrame.setVisibility(View.GONE);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
 				mLandscapeToolbar.setVisibility(View.VISIBLE);
+				
+				mPTZLandMenuScan.setSelected(mPTZMenuScan.isSelected());
+				mPTZLandMenuFocalLength.setSelected(mPTZMenuFocalLength.isSelected());
+				mPTZLandMenuFocus.setSelected(mPTZMenuFocus.isSelected());
+				mPTZLandMenuAperture.setSelected(mPTZMenuAperture.isSelected());
+				mPTZLandMenuPreset.setSelected(mPTZMenuPreset.isSelected());
+				
 				mLandscapeToolbar.showPTZControlbar();
 			} else { // 当前为竖屏状态
+				initPTZPopFramePos(mPTZLandMenuPreset.isSelected());
 				mLandscapeToolbar.setVisibility(View.GONE);
 				mPTZControlbarMenu.setVisibility(View.VISIBLE);
 				mPTZPopFrame.setVisibility(View.VISIBLE);
+				
+				mPTZMenuScan.setSelected(mPTZLandMenuScan.isSelected());
+				mPTZMenuFocalLength.setSelected(mPTZLandMenuFocalLength.isSelected());
+				mPTZMenuFocus.setSelected(mPTZLandMenuFocus.isSelected());
+				mPTZMenuAperture.setSelected(mPTZLandMenuAperture.isSelected());
+				mPTZMenuPreset.setSelected(mPTZLandMenuPreset.isSelected());
+				
 				showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.MENU_PTZ);
 			}
 		} else {
@@ -453,21 +488,34 @@ public class PTZControl {
 		mLiveviewManager.selectLiveView(index);
 	}
 	
-	private void initPTZPopFramePos() {
+	private void initPTZPopFramePos(boolean isPreset) {
 		GlobalApplication g = GlobalApplication.getInstance();
-		RelativeLayout.LayoutParams lp = new LayoutParams(
-				g.getPTZPopFrameWidth(), g.getPTZPopFrameHeight());
+		Resources res = mLiveActivity.getResources();
+		RelativeLayout.LayoutParams lp;
+		int w, h;
 		
+		if (isPreset) {
+			w = LayoutParams.WRAP_CONTENT;
+			h = res.getDrawable(R.drawable.ptz_presetpanelbg1).getIntrinsicHeight()
+					+ res.getDrawable(R.drawable.ptz_presetpanelbg2).getIntrinsicHeight();
+		} else {
+			w = g.getPTZPopFrameWidth();
+			h = g.getPTZPopFrameHeight();
+		}
+		lp = new LayoutParams(w, h);
 		lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		
 		if (g.isIsFullMode()) {
-			lp.topMargin = g.getVideoRegionHeight()
-					- g.getPTZPopFrameHeight()
+			lp.topMargin = g.getScreenHeight() - h
 					- (int) mLiveActivity.getResources().getDimension(
 							R.dimen.landscape_pop_frame_bottom_margin);
 		} else {
-			lp.topMargin = ((RelativeLayout) mPTZPopFrame.getParent())
-					.getHeight() - g.getPTZPopFrameHeight()
+			lp.topMargin = g.getScreenHeight()
+					- ActivityUtility.getStatusBarHeight(mLiveActivity)
+					- mLiveActivity.getNavbarContainer().getHeight()
+					- h
+					- (int) mLiveActivity.getResources().getDimension(
+							R.dimen.toolbar_height) * 2
 					- (int) mLiveActivity.getResources().getDimension(
 							R.dimen.portrait_pop_frame_bottom_margin);
 		}
@@ -477,35 +525,168 @@ public class PTZControl {
 		mPTZPopFrame.setLayoutParams(lp);
 	}
 	
+	private void resetButtonStatus() {
+		//mPTZMenuScan.setSelected(false);
+		mPTZMenuFocalLength.setSelected(false);
+		mPTZMenuFocus.setSelected(false);
+		mPTZMenuAperture.setSelected(false);
+		mPTZMenuPreset.setSelected(false);
+		//mPTZLandMenuScan.setSelected(false);
+		mPTZLandMenuFocalLength.setSelected(false);
+		mPTZLandMenuFocus.setSelected(false);
+		mPTZLandMenuAperture.setSelected(false);
+		mPTZLandMenuPreset.setSelected(false);
+	}
+	
 	public void ptzAuto() {
+		resetButtonStatus();
 		mPTZPopFrame.setVisibility(View.GONE);
 		showPTZFrame(PTZ_POP_FRAME.SCAN, true);
+		
+		ImageButton ptzAuto;
+		boolean isSelected;
+		if (GlobalApplication.getInstance().isIsFullMode()) {
+			ptzAuto = (ImageButton) findViewById(R.id.landscape_liveview_ptz_auto);
+		} else {
+			ptzAuto = (ImageButton) findViewById(R.id.ptz_controlbar_menu_scan);
+		}		
+		isSelected = ptzAuto.isSelected();
+		if (isSelected) {
+			ptzAuto.setSelected(false);
+			getPtzReqSender().stopMove();
+		} else {
+			ptzAuto.setSelected(true);
+			getPtzReqSender().autoScan();
+		}
 	}
 	
 	public void ptzFocalLength() {
-		initPTZPopFramePos();
+		if (!GlobalApplication.getInstance().isIsFullMode()) {
+			if (!mPTZMenuFocalLength.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
+				mPTZMenuScan.setSelected(false);
+				mPTZMenuFocalLength.setSelected(true);
+				mPTZMenuFocus.setSelected(false);
+				mPTZMenuAperture.setSelected(false);
+				mPTZMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, false);
+				mPTZMenuFocalLength.setSelected(false);
+			}
+		} else {
+			if (!mPTZLandMenuFocalLength.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
+				mPTZLandMenuScan.setSelected(false);
+				mPTZLandMenuFocalLength.setSelected(true);
+				mPTZLandMenuFocus.setSelected(false);
+				mPTZLandMenuAperture.setSelected(false);
+				mPTZLandMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, false);
+				mPTZLandMenuFocalLength.setSelected(false);
+			}
+		}
 		
-		mPTZPopFrame.setVisibility(View.VISIBLE);
-		showPTZFrame(PTZ_POP_FRAME.FOCAL_LENGTH, true);
 	}
 	
 	public void ptzFocus() {
-		initPTZPopFramePos();
-		
-		mPTZPopFrame.setVisibility(View.VISIBLE);
-		showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
+		if (!GlobalApplication.getInstance().isIsFullMode()) {
+			if (!mPTZMenuFocus.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
+				mPTZMenuScan.setSelected(false);
+				mPTZMenuFocalLength.setSelected(false);
+				mPTZMenuFocus.setSelected(true);
+				mPTZMenuAperture.setSelected(false);
+				mPTZMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.FOCUS, false);
+				mPTZMenuFocus.setSelected(false);
+			}
+		} else {
+			if (!mPTZLandMenuFocus.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.FOCUS, true);
+				mPTZLandMenuScan.setSelected(false);
+				mPTZLandMenuFocalLength.setSelected(false);
+				mPTZLandMenuFocus.setSelected(true);
+				mPTZLandMenuAperture.setSelected(false);
+				mPTZLandMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.FOCUS, false);
+				mPTZLandMenuFocus.setSelected(false);
+			}
+		}		
 	}
 	
 	public void ptzAperture() {
-		initPTZPopFramePos();
-		
-		mPTZPopFrame.setVisibility(View.VISIBLE);
-		showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
+		if (!GlobalApplication.getInstance().isIsFullMode()) {
+			if (!mPTZMenuAperture.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
+				mPTZMenuScan.setSelected(false);
+				mPTZMenuFocalLength.setSelected(false);
+				mPTZMenuFocus.setSelected(false);
+				mPTZMenuAperture.setSelected(true);
+				mPTZMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.APERTURE, false);
+				mPTZMenuAperture.setSelected(false);
+			}
+		} else {
+			if (!mPTZLandMenuAperture.isSelected()) {
+				initPTZPopFramePos(false);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.APERTURE, true);
+				mPTZLandMenuScan.setSelected(false);
+				mPTZLandMenuFocalLength.setSelected(false);
+				mPTZLandMenuFocus.setSelected(false);
+				mPTZLandMenuAperture.setSelected(true);
+				mPTZLandMenuPreset.setSelected(false);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.APERTURE, false);
+				mPTZLandMenuAperture.setSelected(false);
+			}
+		}
 	}
 	
 	public void ptzPresetPoint() {
-		mPTZPopFrame.setVisibility(View.GONE);
-		showPTZFrame(PTZ_POP_FRAME.PRESET, true);
+		if (!GlobalApplication.getInstance().isIsFullMode()) {
+			if (!mPTZMenuPreset.isSelected()) {
+				initPTZPopFramePos(true);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.PRESET, true);
+				mPTZMenuScan.setSelected(false);
+				mPTZMenuFocalLength.setSelected(false);
+				mPTZMenuFocus.setSelected(false);
+				mPTZMenuAperture.setSelected(false);
+				mPTZMenuPreset.setSelected(true);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.PRESET, false);
+				mPTZMenuPreset.setSelected(false);
+			}
+		} else {
+			if (!mPTZLandMenuPreset.isSelected()) {
+				initPTZPopFramePos(true);
+				mPTZPopFrame.setVisibility(View.VISIBLE);
+				showPTZFrame(PTZ_POP_FRAME.PRESET, true);
+				mPTZLandMenuScan.setSelected(false);
+				mPTZLandMenuFocalLength.setSelected(false);
+				mPTZLandMenuFocus.setSelected(false);
+				mPTZLandMenuAperture.setSelected(false);
+				mPTZLandMenuPreset.setSelected(true);
+			} else {
+				showPTZFrame(PTZ_POP_FRAME.PRESET, false);
+				mPTZLandMenuPreset.setSelected(false);
+			}
+		}
 	}
 	
 	private boolean checkIsPTZDeviceConnected() {

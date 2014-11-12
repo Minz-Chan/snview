@@ -2,6 +2,8 @@ package com.starnet.snview.protocol;
 
 
 import java.net.InetSocketAddress;
+import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
@@ -19,9 +21,11 @@ import android.view.View;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.OnLiveViewChangedListener;
+import com.starnet.snview.protocol.codec.decoder.OwspDecoder;
 import com.starnet.snview.protocol.codec.factory.OwspFactory;
 import com.starnet.snview.protocol.codec.factory.TlvMessageFactory;
 import com.starnet.snview.protocol.message.ChannelResponse;
+import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.protocol.message.ControlRequest;
 import com.starnet.snview.protocol.message.ControlResponse;
 import com.starnet.snview.protocol.message.DVSInfoRequest;
@@ -58,6 +62,7 @@ public class Connection extends DemuxingIoHandler {
 //	private AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 	
 	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
+	private final AttributeKey SEQUENCE = new AttributeKey(OwspDecoder.class, "sequence4send");
 
 	public static final int CONNECT_TIMEOUT = 5000;
 
@@ -314,6 +319,57 @@ public class Connection extends DemuxingIoHandler {
     	});*/
     	
     	
+    }
+    
+    private void sendBuffer(int msgType, byte[] buffer) {
+    	if (session == null) {
+    		return;
+    	}
+    	
+		int type = msgType;
+		int length = buffer.length;
+		byte[] value = buffer;
+		int packetLength = 8 + length; // 4 + 2 + 2(Seq + type + length)
+		AtomicLong seq = (AtomicLong) session.getAttribute(SEQUENCE);
+		
+		if (seq != null) {
+			seq.incrementAndGet();  // make sequence increase by 1
+			session.setAttribute(SEQUENCE, seq);
+		} else {
+			session.setAttribute(SEQUENCE, new AtomicLong(1));
+		}
+		
+		
+		IoBuffer sendBuf = IoBuffer.allocate(4 + packetLength).order(ByteOrder.BIG_ENDIAN);
+		sendBuf.putUnsignedInt(packetLength);  // packet length
+		sendBuf.order(ByteOrder.LITTLE_ENDIAN);
+		sendBuf.putUnsignedInt(seq.intValue());	// sequence
+		sendBuf.putUnsignedShort(type); //  type of type-length-value
+		sendBuf.putUnsignedShort(length); // length of type-length-value
+		sendBuf.put(value);	// value of type-length-value
+		sendBuf.flip();
+		
+		session.write(sendBuf);
+    }
+    
+    public void sendControlRequest(int comCode, int[] args) {
+    	IoBuffer buffer = null;
+    	
+    	switch (comCode) {
+    	case Constants.OWSP_ACTION_CODE.OWSP_ACTION_GOTO_PRESET_POSITION:
+    	case Constants.OWSP_ACTION_CODE.OWSP_ACTION_SET_PRESET_POSITION:
+    	case Constants.OWSP_ACTION_CODE.OWSP_ACTION_CLEAR_PRESET_POSITION:
+    		buffer = IoBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN);
+    		buffer.putUnsignedInt(1);
+    		buffer.putUnsigned((byte) channel);
+    		buffer.putUnsigned((byte) comCode);
+    		buffer.putUnsignedShort(4);
+    		buffer.putUnsignedInt(args[0]); // uint, preset point number (1~200)
+    		break;
+    	}
+    	
+    	buffer.flip();
+    	sendBuffer(comCode, buffer.array());
     }
     
     public void sendControlRequest(int cmdCode) {

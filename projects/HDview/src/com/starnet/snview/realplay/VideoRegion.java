@@ -696,10 +696,9 @@ public class VideoRegion extends FrameLayout {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 					Constants.ARROW.LEFT_UP);
 
-			/*
-			 * if (ptzControl != null) { ptzControl.moveLeft();
-			 * ptzControl.moveUp(); }
-			 */
+			if (mPtzControl.getPtzReqSender() != null) {
+				mPtzControl.getPtzReqSender().moveLeftUp();
+			}
 		}
 
 		@Override
@@ -707,10 +706,9 @@ public class VideoRegion extends FrameLayout {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 					Constants.ARROW.LEFT_DOWN);
 
-			/*
-			 * if (ptzControl != null) { ptzControl.moveLeft();
-			 * ptzControl.moveDown(); }
-			 */
+			if (mPtzControl.getPtzReqSender() != null) {
+				mPtzControl.getPtzReqSender().moveLeftDown();
+			}
 		}
 
 		@Override
@@ -718,13 +716,8 @@ public class VideoRegion extends FrameLayout {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 					Constants.ARROW.RIGHT_UP);
 
-			/*
-			 * if (ptzControl != null) { ptzControl.moveRight();
-			 * ptzControl.moveUp(); }
-			 */
-			if (mPtzControl.getPtzReqSender() != null) { 
-				mPtzControl.getPtzReqSender().moveRight();
-				mPtzControl.getPtzReqSender().moveUp(); 
+			if (mPtzControl.getPtzReqSender() != null) {
+				mPtzControl.getPtzReqSender().moveRightUp();
 			}
 		}
 
@@ -733,10 +726,9 @@ public class VideoRegion extends FrameLayout {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 					Constants.ARROW.RIGHT_DOWN);
 
-			/*
-			 * if (ptzControl != null) { ptzControl.moveRight();
-			 * ptzControl.moveDown(); }
-			 */
+			if (mPtzControl.getPtzReqSender() != null) {
+				mPtzControl.getPtzReqSender().moveRightDown();
+			}
 		}
 
 		@Override

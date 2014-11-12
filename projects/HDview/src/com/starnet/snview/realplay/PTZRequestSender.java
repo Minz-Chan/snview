@@ -18,6 +18,11 @@ public class PTZRequestSender {
 		this.lvManager = liveViewmanager;
 	}
 	
+	public void autoScan() {
+		Log.i(TAG, "auto scan");
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_AUTO_CRUISE);
+	}
+	
 	public void moveUp() {
 		Log.i(TAG, "moveUp");
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_UP);
@@ -36,6 +41,26 @@ public class PTZRequestSender {
 	public void moveRight() {
 		Log.i(TAG, "moveRight");
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_RIGHT);
+	}
+	
+	public void moveLeftUp() {
+		Log.i(TAG, "moveLeftUp");
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTUP);
+	}
+	
+	public void moveLeftDown() {
+		Log.i(TAG, "moveLeftDown");
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTDOWN);
+	}
+	
+	public void moveRightUp() {
+		Log.i(TAG, "moveRightUp");
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTUP);
+	}
+	
+	public void moveRightDown() {
+		Log.i(TAG, "moveRightDown");
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTDOWN);
 	}
 	
 	public void stopMove() {
@@ -71,6 +96,21 @@ public class PTZRequestSender {
 	public void apertureDecrease() {
 		Log.i(TAG, "apertureDecrease");
 		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
+	}
+	
+	public void gotoPresetPoint(int num) {
+		Log.i(TAG, "gotoPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_GOTO_PRESET_POSITION, new int[] { num });
+	}
+	
+	public void setPresetPoint(int num) {
+		Log.i(TAG, "setPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_SET_PRESET_POSITION, new int[] { num });
+	}
+	
+	public void clearPresetPoint(int num) {
+		Log.i(TAG, "clearPresetPoint, num:" + num);
+		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_CLEAR_PRESET_POSITION, new int[] { num });
 	}
 
 }

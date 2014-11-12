@@ -45,6 +45,9 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
+import android.view.View.MeasureSpec;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -268,15 +271,6 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onPostCreate");
-		
-		//new DelayOrientationSetting().execute(new Object());
-		//liveViewManager.invalidateLiveViews();
-		
-//		ActionImageButton playBtn = new ActionImageButton(this);
-//		playBtn.setItemData(new ItemData(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector));
-//		
-//		mToolbarOnItemClickListener.onItemClick(playBtn);
-
 		super.onPostCreate(savedInstanceState);
 	}
 	
@@ -604,9 +598,10 @@ public class RealplayActivity extends BaseActivity {
 	
 
 	private void initView() {
-		Button deviceList = super.getRightButton();
-
-		deviceList.setOnClickListener(new OnClickListener() {
+		super.getExtendButton().setVisibility(View.GONE);
+		
+		Button btnDeviceList = super.getRightButton();
+		btnDeviceList.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
@@ -622,11 +617,9 @@ public class RealplayActivity extends BaseActivity {
 				}
 			}
 		});
+
 		
-		super.getExtendButton().setVisibility(View.GONE);
-		
-		//mVideoRegion = (FrameLayout) findViewById(R.id.video_region);
-//		mVideoSwitchAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.video_switch);
+
 		mShotPictureAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.shot_picture);
 		liveViewManager = new LiveViewManager(this);
 		previewDevices = new ArrayList<PreviewDeviceItem>();
@@ -943,34 +936,34 @@ public class RealplayActivity extends BaseActivity {
 	};
 	
 	/** 横屏工具栏PTZ项点击监听器 */
-	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
-		@Override
-		public void ptzBarClick(View v) {
-			Log.i(TAG, "ptzBarClick");
-			
-			switch (v.getId()) {
-			case R.id.landscape_liveview_ptz_auto:
-				ptzControl.ptzAuto();
-				break;
-			case R.id.landscape_liveview_ptz_focal_length:
-				ptzControl.ptzFocalLength();
-				break;
-			case R.id.landscape_liveview_ptz_focus:
-				ptzControl.ptzFocus();
-				break;
-			case R.id.landscape_liveview_ptz_aperture:
-				ptzControl.ptzAperture();
-				break;
-			case R.id.landscape_liveview_ptz_preset_point:
-				ptzControl.ptzPresetPoint();
-				break;
-			case R.id.landscape_liveview_ptz_bar_back:
-				ptzControl.closePTZ();
-				break;
-			}
-			
-		}
-	};
+//	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
+//		@Override
+//		public void ptzBarClick(View v) {
+//			Log.i(TAG, "ptzBarClick");
+//			
+//			switch (v.getId()) {
+//			case R.id.landscape_liveview_ptz_auto:
+//				ptzControl.ptzAuto();
+//				break;
+//			case R.id.landscape_liveview_ptz_focal_length:
+//				ptzControl.ptzFocalLength();
+//				break;
+//			case R.id.landscape_liveview_ptz_focus:
+//				ptzControl.ptzFocus();
+//				break;
+//			case R.id.landscape_liveview_ptz_aperture:
+//				ptzControl.ptzAperture();
+//				break;
+//			case R.id.landscape_liveview_ptz_preset_point:
+//				ptzControl.ptzPresetPoint();
+//				break;
+//			case R.id.landscape_liveview_ptz_bar_back:
+//				ptzControl.closePTZ();
+//				break;
+//			}
+//			
+//		}
+//	};
 	
 	private QualityClickListener mLandscapeQualityBarClickListener = new QualityClickListener() {
 
@@ -1018,7 +1011,7 @@ public class RealplayActivity extends BaseActivity {
 		liveControl = new LiveControl(this);
 		liveControl.hideLandscapeToolbarFrame();
 		liveControl.getLandscapeToolbar().setOnControlbarClickListener(mLandscapeControlbarClickListener);
-		liveControl.getLandscapeToolbar().setOnPTZBarClickListener(mLandscapePTZBarClickListener);
+		//liveControl.getLandscapeToolbar().setOnPTZBarClickListener(mLandscapePTZBarClickListener);
 		liveControl.getLandscapeToolbar().setOnQualityClickListener(mLandscapeQualityBarClickListener);
 	}
 
@@ -1432,6 +1425,9 @@ public class RealplayActivity extends BaseActivity {
 		return liveViewManager;
 	}
 	
+	public RelativeLayout getNavbarContainer() {
+		return super.getNavbarContainer();
+	}
 
 	
 	private VideoPagerChangedCallback mVideoPagerChangedCallback = new VideoPagerChangedCallback() {

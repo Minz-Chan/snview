@@ -59,6 +59,7 @@
             android:alwaysRetainTaskState="true"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.images.ImagesManagerActivity"
