@@ -304,7 +304,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 									setResult(3, intent);
 									//百度云推送的标签设置
 									List<String>tags = new ArrayList<String>();
-									tags.add(save_CloudAccount.getUsername()+"_"+save_CloudAccount.getPassword());
+									tags.add(save_CloudAccount.getUsername()+""+save_CloudAccount.getPassword());
 									PushManager.setTags(CloudAccountAddingActivity.this, tags);
 									//百度云推送的标签设置
 									CloudAccountAddingActivity.this.finish();

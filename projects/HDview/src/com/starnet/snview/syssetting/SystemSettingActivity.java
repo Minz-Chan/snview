@@ -149,7 +149,7 @@ public class SystemSettingActivity extends BaseActivity {
 		Intent intent = new Intent();
 		//。。。。。
 		
-		Toast.makeText(SystemSettingActivity.this, "第二个页面", Toast.LENGTH_SHORT).show();
+//		Toast.makeText(SystemSettingActivity.this, "第二个页面", Toast.LENGTH_SHORT).show();
 	}
 	
 	protected void gotoCloudAccount() {
