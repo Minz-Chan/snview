@@ -106,7 +106,8 @@ public class RealplayActivityUtils {
 		int groupSize = groupList.size();
 		for(int i =0 ;i<groupSize;i++){
 			CloudAccount ica = groupList.get(i);
-			if(previewDeviceItem.getPlatformUsername().equals(ica.getUsername())){
+			String platFormUsername = previewDeviceItem.getPlatformUsername();
+			if(platFormUsername!=null&&platFormUsername.equals(ica.getUsername())){
 				List<DeviceItem> devices = ica.getDeviceList();
 				if(devices!=null && devices.size()>0){
 					int deviceSize = devices.size();

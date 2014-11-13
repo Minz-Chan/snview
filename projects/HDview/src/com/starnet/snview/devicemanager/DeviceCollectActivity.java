@@ -180,7 +180,8 @@ public class DeviceCollectActivity extends BaseActivity {
 										@Override
 										public void onClick(DialogInterface dialog, int which) {
 											try {
-												
+//												String usernmae = getString(R.string.device_manager_collect_device);
+//												saveDeviceItem.setPlatformUsername(usernmae);
 												String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
 												Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 												toast.show();
@@ -198,6 +199,8 @@ public class DeviceCollectActivity extends BaseActivity {
 									});
 									builder.show();
 								}else {//如果不存在设备，则直接添加...
+//									String usernmae = getString(R.string.device_manager_collect_device);
+//									saveDeviceItem.setPlatformUsername(usernmae);
 									String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
 									Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 									toast.show();

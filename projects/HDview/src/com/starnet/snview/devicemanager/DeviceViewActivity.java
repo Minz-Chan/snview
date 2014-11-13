@@ -37,6 +37,9 @@ public class DeviceViewActivity extends BaseActivity {
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	private CloudAccountXML caxml;
 
+	private static final int EDIT=20;
+	private static final int ADD = 10;
+	
 	private ListView mDeviceList;
 	private Button navigation_bar_add_btn;														// 添加设备按钮
 	private DeviceListAdapter dLAdapter;
@@ -202,13 +205,14 @@ public class DeviceViewActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == 10) {															// 从添加设备界面返回后
+		if (requestCode == ADD) {															// 从添加设备界面返回后
 			if (resultCode == 11) {															//从手动添加设备界面返回
 				if (data != null) {
 					Bundle bundle = data.getExtras();
 					if (bundle != null) {
 						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
-						
+						String usernmae = getString(R.string.device_manager_collect_device);
+						svDevItem.setPlatformUsername(usernmae);
 						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);	//检测列表中是否包含该DeviceItem
 						if(!result){
 							deviceItemList.add(svDevItem);
@@ -229,7 +233,7 @@ public class DeviceViewActivity extends BaseActivity {
 				}
 			}			
 
-		} else if (requestCode == 20) {// 从查看\编辑设备界面返回后...
+		} else if (requestCode == EDIT) {// 从查看\编辑设备界面返回后...
 			if (data != null) {
 				SharedPreferences spf = getSharedPreferences("user",Context.MODE_PRIVATE);
 				String dName = spf.getString("dName", "defaultValue");

@@ -3,10 +3,6 @@ package com.starnet.snview.global;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import org.dom4j.Document;
 
 import com.baidu.android.pushservice.CustomPushNotificationBuilder;
 import com.baidu.android.pushservice.PushConstants;
@@ -14,19 +10,13 @@ import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmPersistenceUtils;
 import com.starnet.snview.alarmmanager.Utils;
-import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
-import com.starnet.snview.channelmanager.xml.CloudService;
-import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
-import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.realplay.RealplayActivityUtils;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.AssetsUtil;
-import com.starnet.snview.util.CloudAccountUtils;
 import com.starnet.snview.util.FileUtility;
-import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 
 import android.annotation.SuppressLint;
@@ -54,24 +44,7 @@ public class SplashActivity extends Activity {
 	private final int mHandler_close = 11;
 	private final int mHandler_initial = 12;
 	Intent mainIntent;
-	private final int exception_num = 2;
 	
-	private boolean timer_flag = true;
-	private long star_time;
-	private Timer timer = new Timer(true);
-	private final int timeOut = 5000;
-	TimerTask timeTask = new TimerTask(){
-		@Override
-		public void run() {
-			while(timer_flag){
-				long end_time = System.currentTimeMillis();
-				if(end_time - star_time >=  timeOut){
-					mHandler.sendEmptyMessage(timeOut);
-				}
-			}
-		}
-	};
-
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -84,10 +57,6 @@ public class SplashActivity extends Activity {
 			case mHandler_initial:
 				List<PreviewDeviceItem> devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 				RealplayActivityUtils.setSelectedAccDevices(devices, groupList);
-				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-				SplashActivity.this.finish(); // 结束SplashActivity
-				break;
-			case timeOut:
 				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
 				SplashActivity.this.finish(); // 结束SplashActivity
 				break;
@@ -159,85 +128,87 @@ public class SplashActivity extends Activity {
 							RealplayActivity.class);
 				}
 
-				Thread thread = new Thread() {
-					@Override
-					public void run() {
-						super.run();
-						boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
-						if (isNetOpen) {
-							CloudAccountUtil caUtil = new CloudAccountUtil();
-							groupList = caUtil.getCloudAccountInfoFromUI();
-
-							long start_time = System.currentTimeMillis();
-							if (groupList != null && groupList.size() > 1) {
-								star_time = System.currentTimeMillis();
-//								timer.schedule(timeTask, 1);//开启计时器
-								// List<PreviewDeviceItem> devices =
-								// PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-								for (int i = 1; i < groupList.size(); i++) {
-									CloudAccount iCloudAccount = groupList.get(i);
-									// 利用用户信息访问网络
-									try {
-										if (iCloudAccount.isEnabled()) {
-											CloudService cloudService = new CloudServiceImpl("conn");
-
-											String domain = iCloudAccount.getDomain();
-											String port = iCloudAccount.getPort();
-											String username = iCloudAccount.getUsername();
-											String password = iCloudAccount.getPassword();
-											String deviceName = "deviceName";
-
-											Document doc = cloudService.SendURLPost(domain, port,username, password,deviceName);
-											String requestStatus = cloudService.readXmlStatus(doc);
-											if (requestStatus == null) {//连接获取数据成功
-												List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);// 获取到设备
-												CloudAccountUtils utils = new CloudAccountUtils();
-												iCloudAccount = utils.getCloudAccountFromDVRDevice(SplashActivity.this,dvrDevices);
-
-												iCloudAccount.setDomain(domain);
-												iCloudAccount.setPassword(password);
-												iCloudAccount.setPort(port);
-												iCloudAccount.setUsername(username);
-
-												groupList.set(i, iCloudAccount);
-											}else{
-												if(i == groupList.size() - 1){
-													SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-													SplashActivity.this.finish(); // 结束SplashActivity
-													return;
-												}
-											}
-										}
-									} catch (Exception e) {// 网络访问异常的情况,使用未经修改的数据...
-										e.printStackTrace();
-										mainIntent.putExtra("exception_num",exception_num);
-										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-										SplashActivity.this.finish(); // 结束SplashActivity
-										break;
-									} finally {
-										long end_time = System.currentTimeMillis();
-										long time = (end_time - start_time) / 1000;
-										if (time >= 5) {// 超过5秒没有或得数据的话也要结束...
-											SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-											SplashActivity.this.finish(); // 结束SplashActivity
-											return;
-										}
-										if (i == groupList.size() - 1) {
-											mHandler.sendEmptyMessage(mHandler_initial);
-											break;
-										}
-									}
-								}
-							} else {//没有星云账户的情况
-								SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
-								SplashActivity.this.finish(); // 结束SplashActivity
-							}
-						} else {// 网络断开的情况
-							mHandler.sendEmptyMessage(mHandler_close);
-						}
-					}
-				};
-				thread.start();
+				SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+				SplashActivity.this.finish(); // 结束SplashActivity
+//				Thread thread = new Thread() {
+//					@Override
+//					public void run() {
+//						super.run();
+//						boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
+//						if (isNetOpen) {
+//							CloudAccountUtil caUtil = new CloudAccountUtil();
+//							groupList = caUtil.getCloudAccountInfoFromUI();
+//
+//							long start_time = System.currentTimeMillis();
+//							if (groupList != null && groupList.size() > 1) {
+//								star_time = System.currentTimeMillis();
+////								timer.schedule(timeTask, 1);//开启计时器
+//								// List<PreviewDeviceItem> devices =
+//								// PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+//								for (int i = 1; i < groupList.size(); i++) {
+//									CloudAccount iCloudAccount = groupList.get(i);
+//									// 利用用户信息访问网络
+//									try {
+//										if (iCloudAccount.isEnabled()) {
+//											CloudService cloudService = new CloudServiceImpl("conn");
+//
+//											String domain = iCloudAccount.getDomain();
+//											String port = iCloudAccount.getPort();
+//											String username = iCloudAccount.getUsername();
+//											String password = iCloudAccount.getPassword();
+//											String deviceName = "deviceName";
+//
+//											Document doc = cloudService.SendURLPost(domain, port,username, password,deviceName);
+//											String requestStatus = cloudService.readXmlStatus(doc);
+//											if (requestStatus == null) {//连接获取数据成功
+//												List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(doc);// 获取到设备
+//												CloudAccountUtils utils = new CloudAccountUtils();
+//												iCloudAccount = utils.getCloudAccountFromDVRDevice(SplashActivity.this,dvrDevices);
+//
+//												iCloudAccount.setDomain(domain);
+//												iCloudAccount.setPassword(password);
+//												iCloudAccount.setPort(port);
+//												iCloudAccount.setUsername(username);
+//
+//												groupList.set(i, iCloudAccount);
+//											}else{
+//												if(i == groupList.size() - 1){
+//													SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+//													SplashActivity.this.finish(); // 结束SplashActivity
+//													return;
+//												}
+//											}
+//										}
+//									} catch (Exception e) {// 网络访问异常的情况,使用未经修改的数据...
+//										e.printStackTrace();
+//										mainIntent.putExtra("exception_num",exception_num);
+//										SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+//										SplashActivity.this.finish(); // 结束SplashActivity
+//										break;
+//									} finally {
+//										long end_time = System.currentTimeMillis();
+//										long time = (end_time - start_time) / 1000;
+//										if (time >= 5) {// 超过5秒没有或得数据的话也要结束...
+//											SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+//											SplashActivity.this.finish(); // 结束SplashActivity
+//											return;
+//										}
+//										if (i == groupList.size() - 1) {
+//											mHandler.sendEmptyMessage(mHandler_initial);
+//											break;
+//										}
+//									}
+//								}
+//							} else {//没有星云账户的情况
+//								SplashActivity.this.startActivity(mainIntent); // 启动MainActivity
+//								SplashActivity.this.finish(); // 结束SplashActivity
+//							}
+//						} else {// 网络断开的情况
+//							mHandler.sendEmptyMessage(mHandler_close);
+//						}
+//					}
+//				};
+//				thread.start();
 			}
 		}, SPLASH_DISPLAY_LENGTH);
 	}
@@ -353,11 +324,4 @@ public class SplashActivity extends Activity {
     	String api_keys = Utils.getMetaValue(SplashActivity.this, "api_key");
         PushManager.startWork(getApplicationContext(),api_key,api_keys);
     }
-    
-	protected void canceTimer(){
-//		if(timer != null){
-//			timer.cancel();
-//			timer = null;
-//		}
-	}
 }

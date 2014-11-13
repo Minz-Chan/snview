@@ -98,12 +98,16 @@ public class RealplayActivity extends BaseActivity {
 		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
 
-//		obtainAndUpdatePreviewItems();
+		obtainAndUpdatePreviewItems();//从网络获取新的数据列表，并且进行通道列表的更新
 		
 		initView();
 		initListener();
 		
 		loadDataFromPreserved();		
+	}
+	
+	private void obtainAndUpdatePreviewItems(){
+		
 	}
 	
 	private void loadDataFromPreserved() {
@@ -1416,6 +1420,11 @@ public class RealplayActivity extends BaseActivity {
 		super.gotoSystemSetting();
 	}
 	
+	@Override
+	protected void gotoAlarm() {//进入AlarmActivity界面...
+		leaveRealtimePreview();
+		super.gotoAlarm();
+	}
 	
 	public LiveViewManager getLiveviewManager() {
 		return liveViewManager;
@@ -1515,4 +1524,6 @@ public class RealplayActivity extends BaseActivity {
 	public void setPreviewDevices_copy(List<PreviewDeviceItem> devices) {
 		this.previewDevices = devices;
 	}
+
+
 }
