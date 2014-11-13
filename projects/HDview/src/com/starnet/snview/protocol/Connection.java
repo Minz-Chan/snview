@@ -369,7 +369,7 @@ public class Connection extends DemuxingIoHandler {
     	}
     	
     	buffer.flip();
-    	sendBuffer(comCode, buffer.array());
+    	sendBuffer(Constants.MSG_TYPE.CONTROL_REQUEST, buffer.array());
     }
     
     public void sendControlRequest(int cmdCode) {
