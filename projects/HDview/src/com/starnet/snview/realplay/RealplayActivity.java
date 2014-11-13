@@ -115,22 +115,8 @@ public class RealplayActivity extends BaseActivity {
 		
 		List<PreviewDeviceItem> devices = null;
 		
-//		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-		
-		//
-		boolean isNetOpen = NetWorkUtils.checkNetConnection(getApplicationContext());
-		if(isNetOpen){
-			int number = getIntent().getIntExtra("exception_num", 0);
-			if(number == 0){
-				devices = RealplayActivityUtils.getPreviceItems();
-			}else{
-				devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-			}
-		}else{
-			devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-		}
-		
-//		Log.i(TAG, "Devices size: " + devices.size());
+		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+		//Log.i(TAG, "Devices size: " + devices.size());
 		
 		if (devices != null && devices.size() != 0) {
 			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
@@ -335,7 +321,8 @@ public class RealplayActivity extends BaseActivity {
 			liveControl.hideLandscapeToolbarFrame();
 		}
 
-		ptzControl.syncPTZStatus();
+		ptzControl.syncPTZStatus();  // PTZ工具条状态同步
+		updateUIElementsStatus();
 
 		super.onConfigurationChanged(newConfig);
 	}
@@ -896,17 +883,17 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	
-	public void updateUIElementsStatus(boolean autoUpdate) {
+	public void updateUIElementsStatus(boolean autoUpdate) {		
 		// 更新录像按钮状态
 		if (autoUpdate) {
 			bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
 		}
-		if (bVideoRecordPressed) { // 开启录像
+		
+		if (!GlobalApplication.getInstance().isIsFullMode()) {
 			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
-		} else { // 关闭录像
-			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, bVideoRecordPressed);
+		} else {
+			liveControl.getLandscapeToolbar().getRecoredButton().setSelected(bVideoRecordPressed);
 		}
 	}
 	

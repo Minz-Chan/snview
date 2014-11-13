@@ -345,6 +345,7 @@ public class LandscapeToolbar extends FrameLayout {
 			break;
 		case R.id.landscape_liveview_record_button:
 			mRecordButton.setPressed(true);
+			mRecordButton.setSelected(!mRecordButton.isSelected());
 			break;
 		case R.id.landscape_liveview_ptz_button:
 			mPtzButton.setPressed(true);
@@ -439,8 +440,8 @@ public class LandscapeToolbar extends FrameLayout {
 		mPTZControlChildList.clear();
 		mLandscapeBarContent = ((FrameLayout) findViewById(R.id.landscape_liveview_controlbar_content));
 
-		mPageIndicator = (TextView) ((RealplayActivity) mContext).findViewById(R.id.landscape_liveview_pageindicator);
-		mPageIndicatorFrame = (LinearLayout) ((RealplayActivity) mContext).findViewById(R.id.landscape_liveview_pageindicator_frame);
+		mPageIndicator = (TextView) getRP().findViewById(R.id.landscape_liveview_pageindicator);
+		mPageIndicatorFrame = (LinearLayout) getRP().findViewById(R.id.landscape_liveview_pageindicator_frame);
 		
 		
 		/* 功能工具条 */
@@ -467,7 +468,7 @@ public class LandscapeToolbar extends FrameLayout {
 
 		/* PTZ控制条 */
 		mPTZControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_ptz_control_bar));
-		mPTZPopFrame = (LinearLayout) ((RealplayActivity) mContext).findViewById(R.id.ptz_pop_frame);
+		mPTZPopFrame = (LinearLayout) getRP().findViewById(R.id.ptz_pop_frame);
 		mLandAutoButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_auto));
 		mLandFocalLengthButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focal_length));
 		mLandFocusButton = ((ImageButton) findViewById(R.id.landscape_liveview_ptz_focus));
@@ -509,22 +510,15 @@ public class LandscapeToolbar extends FrameLayout {
 		}
 	}
 	
-	private void restoreLandscapePTZPopFrameStatus() {
-		boolean canPopFrameShow = mLandFocalLengthButton.isSelected()
-				|| mLandFocusButton.isSelected()
-				|| mLandApertrueButton.isSelected()
-				|| mLandPresetPointButton.isSelected();
-		
-		mPTZPopFrame.setVisibility(canPopFrameShow ? View.VISIBLE : View.GONE);
-	}
+	
 	
 	public void showLandscapeToolbar() {
 		setLandToolbarShow(true);
 		mLandscapeBarContent.setVisibility(View.VISIBLE);
 		mPageIndicatorFrame.setVisibility(View.VISIBLE);
-		restoreLandscapePTZPopFrameStatus();
+		syncUIElementsStatus();
 		
-		mPageIndicator.setText(((RealplayActivity) mContext).getPager().getPagerText());
+		mPageIndicator.setText(getRP().getPager().getPagerText());
 		
 		//mTimer.cancel();
 		if (mLandscapeBarAutoDismissTask != null) {
@@ -549,6 +543,24 @@ public class LandscapeToolbar extends FrameLayout {
 		};
 		
 		mTimer.schedule(mLandscapeBarAutoDismissTask, AUTO_DISMISS_TIME * 1000);
+	}
+	
+	private void syncUIElementsStatus() {
+		restoreLandscapePTZPopFrameStatus();
+		getRP().updateUIElementsStatus();
+	}
+	
+	private void restoreLandscapePTZPopFrameStatus() {
+		boolean canPopFrameShow = mLandFocalLengthButton.isSelected()
+				|| mLandFocusButton.isSelected()
+				|| mLandApertrueButton.isSelected()
+				|| mLandPresetPointButton.isSelected();
+		
+		mPTZPopFrame.setVisibility(canPopFrameShow ? View.VISIBLE : View.GONE);
+	}
+	
+	private RealplayActivity getRP() {
+		return (RealplayActivity) mContext;
 	}
 	
 	public void showControlbar() {
@@ -715,7 +727,7 @@ public class LandscapeToolbar extends FrameLayout {
 //				return true;
 //			}
 
-			canclePressedStatus();
+			//canclePressedStatus();
 			mIsCancleLongTouch = true;
 			if (mClickMode) {
 				mClickMode = false;
