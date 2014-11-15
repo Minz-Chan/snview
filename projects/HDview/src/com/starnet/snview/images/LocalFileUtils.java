@@ -71,10 +71,7 @@ public class LocalFileUtils {
 
 	public static String getLocalFileRootPath() {
 		return SDCardUtils.getSDCardPath()
-				+ GlobalApplication.getInstance().getAppName();
-//		return SDCardUtils.getSDCardPath()
-//				+ "iVMS-4500";
-		
+				+ GlobalApplication.getInstance().getAppName();		
 	}
 
 	public static String getRecordFileFullPath(String filename,
