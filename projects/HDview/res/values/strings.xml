@@ -171,6 +171,7 @@
     
     
     <string name="realplay_toast_take_pic">保存到</string>
+    <string name="realplay_updating_devicedata_wait">通道数据更新中，请等待...</string>
     
     <string name="alarm_title">报警通知</string>
     <string name="alarm_dialog_cancel">取消</string>

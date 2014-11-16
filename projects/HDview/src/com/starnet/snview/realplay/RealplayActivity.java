@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
@@ -27,12 +26,15 @@ import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.VideoPager.VideoPagerChangedCallback;
 import com.starnet.snview.util.ActivityUtility;
-import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -58,7 +60,6 @@ import android.widget.Toast;
 public class RealplayActivity extends BaseActivity {
 
 	private static final String TAG = "RealplayActivity";
-	private final int mHandler_initial = 11 ;
 	
 	private Toolbar mToolbar;
 
@@ -97,37 +98,42 @@ public class RealplayActivity extends BaseActivity {
 		 
 		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
-
-		obtainAndUpdatePreviewItems();//从网络获取新的数据列表，并且进行通道列表的更新
 		
 		initView();
 		initListener();
 		
-		loadDataFromPreserved();		
+		Intent intent = getIntent();
+		if (intent!=null) {
+			List<PreviewDeviceItem> devices = intent.getParcelableArrayListExtra("previewItems");
+			previewWithUpdatedData(devices);
+		}else{
+			previewWithUpdatedData(null);
+		}
+	}
+
+	public void previewWithUpdatedData(List<PreviewDeviceItem> devices) {
+		initVideoRegionByPreservedDataAndPreview(devices);
 	}
 	
-	private void obtainAndUpdatePreviewItems(){
-		
+	public void previewWithLastPreservedData() {
+		List<PreviewDeviceItem> devices = PreviewItemXMLUtils
+				.getPreviewItemListInfoFromXML(this
+						.getString(R.string.common_last_devicelist_path));
+		if (devices != null && devices.size() > 0) {
+			initVideoRegionByPreservedDataAndPreview(devices);
+		}
 	}
 	
-	private void loadDataFromPreserved() {
+	private void initVideoRegionByPreservedDataAndPreview(List<PreviewDeviceItem> devices) {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		List<PreviewDeviceItem> devices = null;
-		
-		devices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
-		//Log.i(TAG, "Devices size: " + devices.size());
 		
 		if (devices != null && devices.size() != 0) {
 			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
-			
 			setPreviewDevices(devices);
-			
 			if (mode != -1) {
 				updateVideoPagerAdapter(mode);
 			}
 		}
-
 	}
 	
 	private void updateVideoPagerAdapter(int mode) {
@@ -257,6 +263,7 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onPostCreate");
+//		new RefreshDeviceConnectionInfo(this).start();
 		super.onPostCreate(savedInstanceState);
 	}
 	
@@ -361,11 +368,6 @@ public class RealplayActivity extends BaseActivity {
 				t.setView(txt);
 				t.show();
 				
-				break;
-			case mHandler_initial:
-				initView();
-				initListener();
-				loadDataFromPreserved();	
 				break;
 			default:
 				break;
@@ -605,25 +607,15 @@ public class RealplayActivity extends BaseActivity {
 			}
 		});
 
-		
-
 		mShotPictureAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.shot_picture);
 		liveViewManager = new LiveViewManager(this);
 		previewDevices = new ArrayList<PreviewDeviceItem>();
-		
 		
 		initToolbar();
 		initLandScapeToolbar();
 		
 		ptzControl = new PTZControl(this);
-
 		initToolbarExtendMenu();
-
-		initToolbarSubMenu();
-		
-		
-		
-		
 	}
 	
 	
@@ -718,10 +710,6 @@ public class RealplayActivity extends BaseActivity {
 
 		@Override
 		public void onItemClick(ActionImageButton imgBtn) {
-			//LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
-		
-			
-			
 			switch (imgBtn.getItemData().getActionID()) {
 			case PLAY_PAUSE:
 				playAndPause();
@@ -922,35 +910,6 @@ public class RealplayActivity extends BaseActivity {
 		}
 	};
 	
-	/** 横屏工具栏PTZ项点击监听器 */
-//	private PTZBarClickListener mLandscapePTZBarClickListener = new PTZBarClickListener() {
-//		@Override
-//		public void ptzBarClick(View v) {
-//			Log.i(TAG, "ptzBarClick");
-//			
-//			switch (v.getId()) {
-//			case R.id.landscape_liveview_ptz_auto:
-//				ptzControl.ptzAuto();
-//				break;
-//			case R.id.landscape_liveview_ptz_focal_length:
-//				ptzControl.ptzFocalLength();
-//				break;
-//			case R.id.landscape_liveview_ptz_focus:
-//				ptzControl.ptzFocus();
-//				break;
-//			case R.id.landscape_liveview_ptz_aperture:
-//				ptzControl.ptzAperture();
-//				break;
-//			case R.id.landscape_liveview_ptz_preset_point:
-//				ptzControl.ptzPresetPoint();
-//				break;
-//			case R.id.landscape_liveview_ptz_bar_back:
-//				ptzControl.closePTZ();
-//				break;
-//			}
-//			
-//		}
-//	};
 	
 	private QualityClickListener mLandscapeQualityBarClickListener = new QualityClickListener() {
 
@@ -1109,61 +1068,38 @@ public class RealplayActivity extends BaseActivity {
 		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 	}
 
-	private void initToolbarSubMenu() {
-		// mToolbarSubMenu = (LinearLayout) findViewById(R.id.toolbar_sub_menu);
-		// mToolbarSubMenuText = (TextView)
-		// findViewById(R.id.base_toolbar_sub_menu_text);
-
-		// int menuWidth = (int)
-		// (GlobalApplication.getInstance().getScreenWidth() / 5 * 2);
-		// int menuHeight = getResources().getDimensionPixelSize(
-		// R.dimen.toolbar_height);
-		// LinearLayout.LayoutParams subMenuLayout = new
-		// LinearLayout.LayoutParams(
-		// menuWidth, menuHeight);
-		// mToolbarSubMenu.setLayoutParams(subMenuLayout);
-	}
-
 	public void showToolbarExtendMenu(TOOLBAR_EXTEND_MENU menuId) {
 
 		switch (menuId) {
 		case PAGER:
 			mPager.setVisibility(View.VISIBLE);
 			mQualityControlbarMenu.setVisibility(View.GONE);
-//			mPTZControlbarMenu.setVisibility(View.GONE);
 			ptzControl.showPTZBar(false);
 
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.QUALITY, false);
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, false);
 
 			bQualityPressed = false;
-//			bPTZPressed = false;
 			break;
 		case MENU_QUALITY:
 			mPager.setVisibility(View.GONE);
 			mQualityControlbarMenu.setVisibility(View.VISIBLE);
-//			mPTZControlbarMenu.setVisibility(View.GONE);
 			ptzControl.showPTZBar(false);
 
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.QUALITY, true);
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, false);
 
 			bQualityPressed = true;
-//			bPTZPressed = false;
 			break;
 		case MENU_PTZ:
 			mPager.setVisibility(View.GONE);
 			mQualityControlbarMenu.setVisibility(View.GONE);
-//			mPTZControlbarMenu.setVisibility(View.VISIBLE);
-//
-//			mPTZPopFrame.setVisibility(View.VISIBLE);
 			ptzControl.showPTZBar(true);
 
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.QUALITY, false);
 			mToolbar.setActionItemSelected(Toolbar.ACTION_ENUM.PTZ, true);
 
 			bQualityPressed = false;
-//			bPTZPressed = true;
 		}
 	}
 
@@ -1224,11 +1160,9 @@ public class RealplayActivity extends BaseActivity {
 		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
 		
 		if (!liveViewManager.isMultiMode()) {
-			//showSingleOrMultiMode(true);
 			getVR().showSingleOrMultiMode(true);
 			ptzControl.setIsEnterPTZInSingleMode(true);
 		} else {
-			//showSingleOrMultiMode(false);
 			getVR().showSingleOrMultiMode(false);
 			ptzControl.setIsEnterPTZInSingleMode(false);
 		}
@@ -1251,42 +1185,37 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {		
 		liveViewManager.closeAllConnection(false);
-		//makeSureVideoRecordOff();
-		
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		Editor editor = sharedPreferences.edit();
-		boolean isMultiMode = liveViewManager.isMultiMode(); 
-		
-		if (isMultiMode) {
-			editor.putInt("PREVIEW_MODE", 4);  // 当前预览模式
-		} else {
-			editor.putInt("PREVIEW_MODE", 1);  
-		}
+		// makeSureVideoRecordOff();
 
-		if (liveViewManager.getPager() != null) {
-			editor.putInt("PAGE", liveViewManager.getCurrentPageNumber());       // 当前页数
-			editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount());  // 当前页项数
+		SharedPreferences sharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		Editor editor = sharedPreferences.edit();
+		boolean isMultiMode = liveViewManager.isMultiMode();
+		if (isMultiMode) {
+			editor.putInt("PREVIEW_MODE", 4); // 当前预览模式
 		} else {
-			editor.putInt("PAGE", 0);      
-			editor.putInt("PAGE_COUNT", 0); 
+			editor.putInt("PREVIEW_MODE", 1);
 		}
-		
+		if (liveViewManager.getPager() != null) {
+			editor.putInt("PAGE", liveViewManager.getCurrentPageNumber()); // 当前页数
+			editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount()); // 当前页项数
+		} else {
+			editor.putInt("PAGE", 0);
+			editor.putInt("PAGE_COUNT", 0);
+		}
 		editor.commit();
-		
-		// /data/data/com.starsecurity
+
 		try {
-			PreviewItemXMLUtils.writePreviewItemListInfoToXML(previewDevices, getString(R.string.common_last_devicelist_path));
+			PreviewItemXMLUtils.writePreviewItemListInfoToXML(previewDevices,
+					getString(R.string.common_last_devicelist_path));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		//Log.i(TAG, "onDestroy@Devices size: " + liveViewManager.getDeviceList().size() + ", mode: " + (isMultiMode ? 4 : 1) 
-		//		+ ", page: " + liveViewManager.getCurrentPageNumber() + ", page count: " + liveViewManager.getCurrentPageCount() );
-		
 		super.onDestroy();
 	}
 	
-	private void setPreviewDevices(List<PreviewDeviceItem> devices) {
+	public void setPreviewDevices(List<PreviewDeviceItem> devices) {
 		if (devices == null || devices.size() == 0) {
 			throw new IllegalArgumentException("Invalid parameter devices, null or zero size.");
 		}
@@ -1389,7 +1318,6 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void gotoPlayback() {
 		leaveRealtimePreview();
-		
 		super.gotoPlayback();
 	}
 
@@ -1408,7 +1336,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	@Override
-	protected void gotoAlarm() {//进入AlarmActivity界面...
+	protected void gotoAlarm() {
 		leaveRealtimePreview();
 		super.gotoAlarm();
 	}
@@ -1496,8 +1424,7 @@ public class RealplayActivity extends BaseActivity {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
-			
+			}			
 			return null;
 		}
 
@@ -1511,6 +1438,4 @@ public class RealplayActivity extends BaseActivity {
 	public void setPreviewDevices_copy(List<PreviewDeviceItem> devices) {
 		this.previewDevices = devices;
 	}
-
-
 }

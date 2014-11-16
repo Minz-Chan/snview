@@ -3,6 +3,8 @@ package com.starnet.snview.realplay;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.DocumentException;
+
 import android.content.Context;
 
 import com.starnet.snview.R;
@@ -16,7 +18,7 @@ public class RealplayActivityUtils {
 	private static List<PreviewDeviceItem> mPreviewItem;
 
 	// 负责启动时预览通道信息的修改
-	public static List<PreviewDeviceItem> updatePreviewItemInfo(Context context,List<CloudAccount>cloudAccounts) {
+	public static List<PreviewDeviceItem> updatePreviewItemInfo(Context context,List<CloudAccount>cloudAccounts) throws DocumentException {
 		List<PreviewDeviceItem> oldDevices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(context.getString(R.string.common_last_devicelist_path));
 		if(oldDevices==null){
 			return oldDevices;
