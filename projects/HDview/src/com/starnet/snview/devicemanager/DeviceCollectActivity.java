@@ -53,6 +53,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	private Button leftButton;// 左边按钮
 	private Button device_add_shdong_btn;// 右边按钮，手动添加,手动输入数据，进行"添加"
 	private Button device_add_choose_btn;//选择按钮，单击可从网络下载星云平台数据,"选择添加"
+	
+	private int auto_flag = 1;
 
 	private CloudAccountXML caXML;
 	private EditText et_device_add_record;
@@ -60,7 +62,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText et_device_add_port;
 	private EditText et_device_add_username;
 	private EditText et_device_add_password;
-	private EditText et_device_add_channelnumber;
+//	private EditText et_device_add_channelnumber;
 	private EditText et_device_add_defaultchannel;
 	private EditText et_device_choose;
 	
@@ -124,109 +126,98 @@ public class DeviceCollectActivity extends BaseActivity {
 			public void onClick(View v) {
 				// 判断用户设置为空的时候
 				String recordName = getEditTextString(et_device_add_record).trim();
-				String serverIP = getEditTextString(et_device_add_server).trim();//IP地址
-				String serverPort = getEditTextString(et_device_add_port).trim();//端口号
+				String serverIP = getEditTextString(et_device_add_server).trim();// IP地址
+				String serverPort = getEditTextString(et_device_add_port).trim();// 端口号
 				String userName = getEditTextString(et_device_add_username).trim();
 				String password = getEditTextString(et_device_add_password).trim();
-				String channelNumber = getEditTextString(et_device_add_channelnumber).trim();
 				String defaultChannel = getEditTextString(et_device_add_defaultchannel).trim();
 
 				// 当所有的内容都不为空的时候，则保存到指定的文档中
 				if (!recordName.equals("") && !serverIP.equals("")
-					&& !serverPort.equals("") && !userName.equals("")
-					&& !defaultChannel.equals("")&& !channelNumber.equals("")) {
-					
-					//进行IP与端口号的检测
+						&& !serverPort.equals("") && !userName.equals("")
+						&& !defaultChannel.equals("")) {
+
+					// 进行IP与端口号的检测
 					IPAndPortUtils ipapu = new IPAndPortUtils();
 					boolean isIP = ipapu.isIp(serverIP);
 					boolean isPort = ipapu.isNetPort(serverPort);
-					if (isPort&&isIP) {
+					if (isPort && isIP) {
 						int dChannel = Integer.valueOf(defaultChannel);
-						int channelNum = Integer.valueOf(channelNumber);
+						// int channelNum = Integer.valueOf(channelNumber);
 						saveDeviceItem.setDeviceName(recordName);
-						saveDeviceItem.setChannelSum(channelNumber);
+						// saveDeviceItem.setChannelSum(channelNumber);
 						saveDeviceItem.setLoginUser(userName);
 						saveDeviceItem.setLoginPass(password);
 						saveDeviceItem.setDefaultChannel(dChannel);
 						saveDeviceItem.setSvrIp(serverIP);
 						saveDeviceItem.setSvrPort(serverPort);
 						saveDeviceItem.setSecurityProtectionOpen(true);
-
+						
 						try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
-							if (dChannel <= channelNum) {
+							if (auto_flag ==1) {
+								saveDeviceItem.setChannelSum("1");
 								List<Channel> channelList = new ArrayList<Channel>();
-								for (int i = 0; i < channelNum; i++) {
-									Channel channel = new Channel();
-									String text = getString(R.string.device_manager_channel);
-									channel.setChannelName(text+(i+1));
-									channel.setChannelNo((i+1));
-									channel.setSelected(false);
-									channelList.add(channel);
-								}
-
+								Channel channel = new Channel();
+								String text = getString(R.string.device_manager_channel);
+								channel.setChannelName(text + "1");
+								channel.setChannelNo(dChannel);
+								channel.setSelected(false);
+								channelList.add(channel);
 								saveDeviceItem.setChannelList(channelList);
-								
-								//检查是否存在？若是存在则弹出对话框，询问用户是否覆盖；否则直接添加...
-								
-								List<DeviceItem> collectList = caXML.getCollectDeviceListFromXML(filePath);
-								boolean isExist = checkDeviceItemListExist(saveDeviceItem,collectList);//检查列表中是否存在该用户...
-								if (isExist) {//弹出对话框...用户选择确定时，则添加覆盖；
-									
-									Builder builder = new Builder(DeviceCollectActivity.this);
-									builder.setTitle(getString(R.string.device_manager_devicecollect_cover));
-									builder.setNegativeButton(getString(R.string.device_manager_devicecollect_cancel), null);
-									builder.setPositiveButton(getString(R.string.device_manager_devicecollect_ensure), new DialogInterface.OnClickListener() {
-										
-										@Override
-										public void onClick(DialogInterface dialog, int which) {
-											try {
-//												String usernmae = getString(R.string.device_manager_collect_device);
-//												saveDeviceItem.setPlatformUsername(usernmae);
-												String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-												Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-												toast.show();
-												Intent intent = new Intent();
-												Bundle bundle = new Bundle();
-												bundle.putSerializable("saveDeviceItem",saveDeviceItem);
-												intent.putExtras(bundle);
-												setResult(11, intent);
-												DeviceCollectActivity.this.finish();
-												
-											} catch (Exception e) {
-												
-											}
-										}
-									});
-									builder.show();
-								}else {//如果不存在设备，则直接添加...
-//									String usernmae = getString(R.string.device_manager_collect_device);
-//									saveDeviceItem.setPlatformUsername(usernmae);
-									String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-									Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-									toast.show();
-									Intent intent = new Intent();
-									Bundle bundle = new Bundle();
-									bundle.putSerializable("saveDeviceItem",saveDeviceItem);
-									intent.putExtras(bundle);
-									setResult(11, intent);
-									DeviceCollectActivity.this.finish();// 添加成功后，关闭页面
-								}	// 添加成功后，关闭页面
-							} else {
-								// 文档读写异常
-								String text = getString(R.string.device_manager_deCh_chNum);
-								Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
-								toast.show();
 							}
+							// 检查是否存在？若是存在则弹出对话框，询问用户是否覆盖；否则直接添加...
+
+							List<DeviceItem> collectList = caXML.getCollectDeviceListFromXML(filePath);
+							boolean isExist = checkDeviceItemListExist(saveDeviceItem, collectList);// 检查列表中是否存在该用户...
+							if (isExist) {// 弹出对话框...用户选择确定时，则添加覆盖；
+
+								Builder builder = new Builder(DeviceCollectActivity.this);
+								builder.setTitle(getString(R.string.device_manager_devicecollect_cover));
+								builder.setNegativeButton(getString(R.string.device_manager_devicecollect_cancel),null);
+								builder.setPositiveButton(getString(R.string.device_manager_devicecollect_ensure),
+										new DialogInterface.OnClickListener() {
+
+											@Override
+											public void onClick(DialogInterface dialog,int which) {
+												try {
+													auto_flag = 1;
+													String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);// 保存
+													Toast toast = Toast.makeText(DeviceCollectActivity.this,saveResult,Toast.LENGTH_SHORT);
+													toast.show();
+													Intent intent = new Intent();
+													Bundle bundle = new Bundle();
+													bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+													intent.putExtras(bundle);
+													setResult(11, intent);
+													DeviceCollectActivity.this.finish();
+
+												} catch (Exception e) {
+
+												}
+											}
+										});
+								builder.show();
+							} else {// 如果不存在设备，则直接添加...
+								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
+								toast.show();
+								Intent intent = new Intent();
+								Bundle bundle = new Bundle();
+								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+								intent.putExtras(bundle);
+								setResult(11, intent);
+								DeviceCollectActivity.this.finish();// 添加成功后，关闭页面
+							} // 添加成功后，关闭页面
 						} catch (Exception e) {
 							String text = getString(R.string.device_manager_save_failed);
 							Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 							toast.show();
 						}// 保存到指定的文档中
-					}else if (!isPort) {
+					} else if (!isPort) {
 						String text = getString(R.string.device_manager_port_wrong);
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 						toast.show();
-					}else {
+					} else {
 						String text = getString(R.string.device_manager_collect_ip_wrong);
 						Toast toast = Toast.makeText(DeviceCollectActivity.this, text,Toast.LENGTH_SHORT);
 						toast.show();
@@ -337,7 +328,6 @@ public class DeviceCollectActivity extends BaseActivity {
 		et_device_add_username = (EditText) findViewById(R.id.et_device_add_username);
 		et_device_add_password = (EditText) findViewById(R.id.et_device_add_password);
 		et_device_add_defaultchannel = (EditText) findViewById(R.id.et_device_add_defaultChannel);
-		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		et_device_choose = (EditText) findViewById(R.id.device_add_choose_et);
 		device_add_choose_btn = (Button) findViewById(R.id.device_add_button_state);
 		et_device_choose.setKeyListener(null);
@@ -445,6 +435,19 @@ public class DeviceCollectActivity extends BaseActivity {
 				Bundle bundle = data.getExtras();
 				if (bundle != null) {
 					DeviceItem chooseDeviceItem = (DeviceItem) bundle.getSerializable("chooseDeviceItem");
+					saveDeviceItem.setChannelSum(chooseDeviceItem.getChannelSum());
+					List<Channel> channelList = new ArrayList<Channel>();
+					for (int i = 0; i < Integer.valueOf(chooseDeviceItem.getChannelSum()); i++) {
+						Channel channel = new Channel();
+						String text = getString(R.string.device_manager_channel);
+						channel.setChannelName(text + "1");
+						channel.setChannelNo((i+1));
+						channel.setSelected(false);
+						channelList.add(channel);
+					}
+					saveDeviceItem.setChannelList(channelList);
+					
+					auto_flag = bundle.getInt("auto_flag");
 					
 					String lgUsr = chooseDeviceItem.getLoginUser();
 					String lgPas = chooseDeviceItem.getLoginPass();
@@ -452,7 +455,6 @@ public class DeviceCollectActivity extends BaseActivity {
 					String svrPt = chooseDeviceItem.getSvrPort();
 					
 					String dName = chooseDeviceItem.getDeviceName();
-					String chSum = chooseDeviceItem.getChannelSum();
 					int defltChl = chooseDeviceItem.getDefaultChannel();
 					String dChnl = String.valueOf(defltChl);
 					
@@ -463,10 +465,8 @@ public class DeviceCollectActivity extends BaseActivity {
 					et_device_add_username.setText(lgUsr);
 					
 					et_device_add_password.setText(lgPas);
-					et_device_add_channelnumber.setText(chSum);
 					et_device_add_defaultchannel.setText(dChnl);
 					
-					et_device_add_channelnumber.setKeyListener(null);
 					et_device_choose.setKeyListener(null);
 					
 					String username = chooseDeviceItem.getPlatformUsername();

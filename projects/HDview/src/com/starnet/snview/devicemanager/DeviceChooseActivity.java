@@ -160,6 +160,7 @@ public class DeviceChooseActivity extends BaseActivity {
 				Intent data = new Intent();
 				Bundle extras = new Bundle();
 				extras.putSerializable("chooseDeviceItem", clickDeviceItem);
+				extras.putInt("auto_flag", 2);
 				data.putExtras(extras);
 				setResult(RESULTCODE, data);
 				DeviceChooseActivity.this.finish();

@@ -294,41 +294,6 @@
                 android:singleLine="true"
                 android:textSize="18sp" />
         </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
-            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
-
-            <LinearLayout
-                android:id="@+id/txt_device_add_channelnumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true" >
-
-                <TextView
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/device_manager_add_scan_edit_layout_channel_number"
-                    android:textColor="@color/md__defaultBackground"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_device_add_channelnumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="47dp"
-                android:layout_toRightOf="@id/txt_device_add_channelnumber"
-                android:ems="10"
-                android:inputType="number"
-                android:singleLine="true"
-                android:textSize="18sp" />
-        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView> <!-- </LinearLayout> -->

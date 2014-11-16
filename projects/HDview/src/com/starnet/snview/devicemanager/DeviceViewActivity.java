@@ -2,12 +2,10 @@ package com.starnet.snview.devicemanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.dom4j.DocumentException;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
