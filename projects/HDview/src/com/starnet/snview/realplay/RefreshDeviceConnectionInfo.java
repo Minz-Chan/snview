@@ -27,6 +27,7 @@ public class RefreshDeviceConnectionInfo {
 	private final int DEFAULT_TIMEOUT_IN_SECONDS = 7; 
 	
 	private boolean isTimeout;
+	private boolean isWorkFinished;
 	private boolean shouldTimeoutThreadOver;
 	private boolean hasDataToBeUpdated = false;
 	
@@ -53,6 +54,7 @@ public class RefreshDeviceConnectionInfo {
 					e.printStackTrace();
 				} finally {
 					if (!isTimeout) {
+						isWorkFinished = true;
 						onWorkFinished();
 					} 
 				}
@@ -70,7 +72,9 @@ public class RefreshDeviceConnectionInfo {
 						if (timeCount == DEFAULT_TIMEOUT_IN_SECONDS) {
 							isTimeout = true;
 							canRun = false;
-							onTimeout();
+							if (!isWorkFinished) {
+								onTimeout();
+							}
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -213,6 +217,7 @@ public class RefreshDeviceConnectionInfo {
 	
 	public void start() {
 		isTimeout = false;
+		isWorkFinished = false;
 		shouldTimeoutThreadOver = false;
 		workThread.start();
 		timeoutThread.start();

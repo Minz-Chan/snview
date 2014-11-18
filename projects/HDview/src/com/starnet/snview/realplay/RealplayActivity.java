@@ -13,8 +13,6 @@ import com.starnet.snview.component.LandscapeToolbar.QualityClickListener;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
-import com.starnet.snview.component.Toolbar.ACTION_ENUM;
-import com.starnet.snview.component.Toolbar.ItemData;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
@@ -29,12 +27,8 @@ import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.PreviewItemXMLUtils;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -62,26 +56,19 @@ public class RealplayActivity extends BaseActivity {
 	private static final String TAG = "RealplayActivity";
 	
 	private Toolbar mToolbar;
-
 	private FrameLayout mControlbar;
-	private com.starnet.snview.component.VideoPager mPager;
 	private LinearLayout mQualityControlbarMenu;
-
+	private com.starnet.snview.realplay.VideoPager mVideoPager; 	
+	private com.starnet.snview.component.VideoPager mPager;
+	
 	private LiveViewManager liveViewManager;
-	
-	private Animation mShotPictureAnim;
-	
 	private LiveControl liveControl;
 	private PTZControl ptzControl;
 	
+	private Animation mShotPictureAnim;
 	private List<PreviewDeviceItem> previewDevices;  // 当前正在预览的设备列表
-	
-	
-	private com.starnet.snview.realplay.VideoPager mVideoPager; 
-	
 	private int mOldOrientation;
 	private boolean mIsStartedCompleted = false;
-	
 	
 	@SuppressLint("NewApi")
 	@Override
@@ -95,81 +82,60 @@ public class RealplayActivity extends BaseActivity {
 		setContentView(R.layout.realplay_activity);
 		
 		setBackPressedExitEventValid(true);
-		 
 		GlobalApplication.getInstance().init(this);		
 		GlobalApplication.getInstance().setHandler(mHandler);
-		
 		initView();
 		initListener();
-		
-		Intent intent = getIntent();
-		if (intent!=null) {
-			List<PreviewDeviceItem> devices = intent.getParcelableArrayListExtra("previewItems");
-			previewWithUpdatedData(devices);
-		}else{
-			previewWithUpdatedData(null);
-		}
-	}
-
-	public void previewWithUpdatedData(List<PreviewDeviceItem> devices) {
-		initVideoRegionByPreservedDataAndPreview(devices);
+		restoreLastPreviewStatus();
 	}
 	
-	public void previewWithLastPreservedData() {
-		List<PreviewDeviceItem> devices = PreviewItemXMLUtils
-				.getPreviewItemListInfoFromXML(this
-						.getString(R.string.common_last_devicelist_path));
-		if (devices != null && devices.size() > 0) {
-			initVideoRegionByPreservedDataAndPreview(devices);
-		}
+	private void restoreLastPreviewStatus() {
+		restoreLastPreviewVideo();
 	}
 	
-	private void initVideoRegionByPreservedDataAndPreview(List<PreviewDeviceItem> devices) {
+	private void restoreLastPreviewVideo() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		final int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
+		final int page = sharedPreferences.getInt("PAGE", -1);
+		final int pageCount = sharedPreferences.getInt("PAGE_COUNT", -1);
 		
-		if (devices != null && devices.size() != 0) {
-			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
+		List<PreviewDeviceItem> devices = getPreservedDevices();
+		if (devices.size() > 0) {
 			setPreviewDevices(devices);
-			if (mode != -1) {
-				updateVideoPagerAdapter(mode);
-			}
+			initVideoPagerAdapter(mode, devices);
+			mVideoPager.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
+				@Override
+				public void run() {
+					restoreVideoRegionLayout(mode, page, pageCount);
+					new DelayOrientationSetting().execute(new Object());
+					playAndPause();
+				}
+			});
+			
 		}
 	}
 	
-	private void updateVideoPagerAdapter(int mode) {
+	private List<PreviewDeviceItem> getPreservedDevices() {
+		return PreviewItemXMLUtils.getPreviewItemListInfoFromXML(this
+				.getString(R.string.common_last_devicelist_path));
+	}
+	
+	private void initVideoPagerAdapter(int mode, List<PreviewDeviceItem> devices) {
 		VideoPagerAdapter vpAdapter = null;
 		if (mode == 1) { // 单通道
-			vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, previewDevices);
+			vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, devices);
 		} else { // 多通道
-			vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, previewDevices);
+			vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, devices);
 		}
-		
 		mVideoPager.setAdapter(vpAdapter);
 		vpAdapter.notifyDataSetChanged();
-		
-		mVideoPager.post(new Runnable() {
-			@Override
-			public void run() {
-				updateViewOnStart();				
-				new DelayOrientationSetting().execute(new Object());
-			}
-		});
 	}
 	
-	private void updateViewOnStart() {
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
+	private void restoreVideoRegionLayout(int mode, int page, int pageCount) {
 		if (previewDevices.size() != 0) {
-			int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
-			int page = sharedPreferences.getInt("PAGE", -1);
-			int pageCount = sharedPreferences.getInt("PAGE_COUNT", -1);
-
-			
-			
 			Log.i(TAG, "mode: " + mode + ", page: " + page);
 			if (mode != -1 && page != -1) {				
 				liveViewManager.setMultiMode(mode == 4 ? true : false);
-				
 				mVideoPager.setCurrentItem(page - 1);
 				
 				// 重新装载LiveViews
@@ -190,37 +156,25 @@ public class RealplayActivity extends BaseActivity {
 				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
 				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
 				liveViewManager.selectLiveView(newCurrPos);
-				
-				liveViewManager.resetLiveView(pageCount);
-				
+				liveViewManager.resetLiveView(pageCount);				
 				mPager.setAmount(previewDevices.size());
 				mPager.setNum(newCurrPos);
 			}
 			
-			ActionImageButton playBtn = new ActionImageButton(this);
-			playBtn.setItemData(new ItemData(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector));
-			
-			mToolbarOnItemClickListener.onItemClick(playBtn);
-			
-			
-			//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 		} else { // 首次进入
 			liveViewManager.setDeviceList(null);
 			liveViewManager.setMultiMode(null);
 			getVR().showSingleOrMultiMode(null);
+			mPager.setAmount(0);
+			mPager.setNum(0);
 			
 			bIsPlaying = false;
 			updatePlayStatus(bIsPlaying);
 			
-			mPager.setAmount(0);
-			mPager.setNum(0);
-			
-			//setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		}
 	}
-	
 	
 
 	@Override
@@ -246,7 +200,6 @@ public class RealplayActivity extends BaseActivity {
 		
 		super.onRestart();
 	}
-	
 	
 
 	@Override
@@ -867,7 +820,9 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	public void updateUIElementsStatus() {
-		updateUIElementsStatus(true);
+		if (mIsStartedCompleted) {
+			updateUIElementsStatus(true);
+		}
 	}
 	
 	
