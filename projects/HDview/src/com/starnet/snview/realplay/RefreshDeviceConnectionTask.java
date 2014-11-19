@@ -16,6 +16,7 @@ import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CloudAccountUtils;
+import com.starnet.snview.util.ParamsUtils;
 
 public abstract class RefreshDeviceConnectionTask {
 	public static final int REFRESH_CLOUDACCOUT_PROCESS_DIALOG = 0x0008;
@@ -113,13 +114,15 @@ public abstract class RefreshDeviceConnectionTask {
 		List<String> cloudAccountNamesToBeUpdated = new ArrayList<String>();
 		for (PreviewDeviceItem item : updatedDevices) {
 			if (!cloudAccountNamesToBeUpdated.contains(item
-					.getPlatformUsername()) && !cloudAccountNamesToBeUpdated.equals("收藏设备")) {
+					.getPlatformUsername())
+					&& item.getPlatformUsername() != null
+					&& !item.getPlatformUsername().equals(ParamsUtils.param)) {
 				cloudAccountNamesToBeUpdated.add(item.getPlatformUsername());
 			}
 		}
 		for (String cloudAccountName : cloudAccountNamesToBeUpdated) {
 			for (CloudAccount ca : allCloudAccounts) {
-				if (cloudAccountName.equals(ca.getUsername())) {
+				if (cloudAccountName.equals(ca.getUsername())) {//&&ca.isEnabled()
 					cloudAccountsToBeUpdated.add(ca);
 				}	
 			}
@@ -179,7 +182,7 @@ public abstract class RefreshDeviceConnectionTask {
 			for (PreviewDeviceItem itemUpdated : updatedDevices) { // 更新已有设备列表连接信息
 				for (PreviewDeviceItem newItem : allUpdatedDevices) {
 					if (itemUpdated.getDeviceRecordName().equals(
-							newItem.getDeviceRecordName())) {
+							newItem.getDeviceRecordName().substring(4))) {
 						itemUpdated.setSvrIp(newItem.getSvrIp());
 						itemUpdated.setSvrPort(newItem.getSvrPort());
 						itemUpdated.setLoginPass(newItem.getLoginPass());

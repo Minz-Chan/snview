@@ -10,6 +10,7 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
+import com.starnet.snview.util.ParamsUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -109,7 +110,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
 			}
 			
-			if(selectCloudAccount.getUsername().equals("收藏设备")&&(selectCloudAccount.getDomain().equals("com"))
+			if(selectCloudAccount.getUsername().equals(ParamsUtils.param)&&(selectCloudAccount.getDomain().equals("com"))
 			&&(selectCloudAccount.getPort().equals("808"))&&(selectCloudAccount.getPassword().equals("0208"))){
 				Thread thread = new Thread(){
 					@Override

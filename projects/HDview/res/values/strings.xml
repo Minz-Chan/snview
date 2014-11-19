@@ -178,6 +178,8 @@
     <string name="alarm_dialog_OK">确定</string>
     <string name="alarm_dialog_title">确定删除</string>
     <string name="alarm_dialog_infor">报警信息</string>
+    <string name="alarm_manageradapter_imageload">图片下载</string>
+    <string name="alarm_manageradapter_videoload">视频下载</string>
 
 </resources>
 

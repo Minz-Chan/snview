@@ -4,12 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <ListView
-        android:id="@+id/alarm_info_listview"
+    <ExpandableListView
+        android:id="@+id/alarm_expandlistview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:cacheColorHint="#00000000"
-        android:descendantFocusability="blocksDescendants" >
-    </ListView>
+        android:layout_height="wrap_content"
+        android:groupIndicator="@null" >
+    </ExpandableListView>
 
 </LinearLayout>

@@ -8,10 +8,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-public class AlarmDeviceAdapter extends BaseAdapter {
+public class AlarmDeviceAdapter extends BaseExpandableListAdapter  {
 	
 	private List <AlarmDevice> alarmInfoList;
 	private Context context;
@@ -22,40 +22,75 @@ public class AlarmDeviceAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public int getCount() {
-		int size = 0;
-		if(alarmInfoList!= null){
-			size = alarmInfoList.size();
+	public int getGroupCount() {
+		int size = 0 ;
+		if (alarmInfoList!=null) {
+			size = alarmInfoList.size() ;
 		}
 		return size;
 	}
 
 	@Override
-	public Object getItem(int position) {
-		return alarmInfoList.get(position);
+	public int getChildrenCount(int groupPosition) {
+		return 1;
 	}
 
 	@Override
-	public long getItemId(int position) {
-		return position;
+	public Object getGroup(int groupPosition) {
+		return alarmInfoList.get(groupPosition);
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		if(convertView==null){
+	public Object getChild(int groupPosition, int childPosition) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public long getGroupId(int groupPosition) {
+		// TODO Auto-generated method stub
+		return groupPosition;
+	}
+
+	@Override
+	public long getChildId(int groupPosition, int childPosition) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean hasStableIds() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public View getGroupView(int groupPosition, boolean isExpanded,
+			View convertView, ViewGroup parent) {
+		if (convertView==null) {
 			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_item_layout, null);
 		}
-		
-		TextView device_item_name = (TextView) convertView.findViewById(R.id.device_item_name);	//设备名称
-		device_item_name.setText(alarmInfoList.get(position).getDeviceName());
-		
-		TextView alarm_time_txt = (TextView) convertView.findViewById(R.id.alarm_time);			//设备报警时间
-		alarm_time_txt.setText(alarmInfoList.get(position).getAlarm_time());
-		
-		TextView alarm_type_txt = (TextView) convertView.findViewById(R.id.alarm_type);			//设备报警类型
-		alarm_type_txt.setText(alarmInfoList.get(position).getAlarm_type());
+		TextView deviceTxt = (TextView) convertView.findViewById(R.id.device_item_name);
+		deviceTxt.setText(alarmInfoList.get(groupPosition).getDeviceName());
+//		ImageView arrowImg = (ImageView) convertView.findViewById(R.id.alarm_arrow_img);
+//		arrowImg.setImageResource(resId);
+		return convertView;
+	}
+
+	@Override
+	public View getChildView(int groupPosition, int childPosition,
+			boolean isLastChild, View convertView, ViewGroup parent) {
+		if (convertView==null) {
+			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_subitem_layout, null);
+		}
 		
 		return convertView;
+	}
+
+	@Override
+	public boolean isChildSelectable(int groupPosition, int childPosition) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

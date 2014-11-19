@@ -6,6 +6,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.ParamsUtils;
 
 import java.io.IOException;
 
@@ -165,7 +166,7 @@ public class CloudAccountUtil {
 			collectDevice.setEnabled(true);
 			collectDevice.setExpanded(false);
 			collectDevice.setRotate(true);
-			collectDevice.setUsername("收藏设备");
+			collectDevice.setUsername(ParamsUtils.param);
 			collectDevice.setDomain("com");
 			collectDevice.setPort("808");
 			collectDevice.setPassword("0208");
