@@ -189,15 +189,21 @@ public class RealplayActivity extends BaseActivity {
 	private RefreshDeviceConnectionTask refreshDeviceConnectionTask = 
 			new RefreshDeviceConnectionTask(this) {
 		@Override
-		protected void onUpdateWorkFinished(List<PreviewDeviceItem> devices) {
+		protected void onUpdateWorkFinished(List<PreviewDeviceItem> devices,
+				boolean isDeviceConnectionInfoUpdated) {
 			final List<PreviewDeviceItem> updatedPreviewDevices = devices;
+			final boolean isDeviceUpdated = isDeviceConnectionInfoUpdated;
 			if (devices.size() > 0) {
 				RealplayActivity.this.runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						setPreviewDevices(updatedPreviewDevices);
-						RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
-						ToastUtils.show(RealplayActivity.this, "更新列表成功!");
+						RealplayActivity.this
+								.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+						if (isDeviceUpdated) {
+							setPreviewDevices(updatedPreviewDevices);
+							ToastUtils.show(RealplayActivity.this,
+								getString(R.string.realplay_update_previewdevicelist_succ));
+						}
 						Log.i(TAG, "更新列表成功!");
 						playAndPause();
 					}
@@ -211,8 +217,10 @@ public class RealplayActivity extends BaseActivity {
 			RealplayActivity.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
-					ToastUtils.show(RealplayActivity.this, "更新列表超时!");
+					RealplayActivity.this
+							.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+					ToastUtils.show(RealplayActivity.this,
+						getString(R.string.realplay_update_previewdevicelist_timeout));
 					Log.i(TAG, "更新列表超时!");
 					playAndPause();
 				}
@@ -224,8 +232,10 @@ public class RealplayActivity extends BaseActivity {
 			RealplayActivity.this.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
-					ToastUtils.show(RealplayActivity.this, "更新列表失败!");
+					RealplayActivity.this
+							.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+					ToastUtils.show(RealplayActivity.this,
+						getString(R.string.realplay_update_previewdevicelist_failed));
 					Log.i(TAG, "更新列表失败!");
 					playAndPause();
 				}
@@ -237,13 +247,16 @@ public class RealplayActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG:
-			final ProgressDialog progress = ProgressDialog.show(this, "", getString(R.string.realplay_updating_devicedata_wait), true, false);
-			progress.setButton(DialogInterface.BUTTON_NEGATIVE, "取消加载", new DialogInterface.OnClickListener(){
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					progress.cancel();
-				}
-			});
+			final ProgressDialog progress = ProgressDialog.show(this, "",
+					getString(R.string.realplay_updating_devicedata_wait),
+					true, false);
+			progress.setButton(DialogInterface.BUTTON_NEGATIVE, "取消加载",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							progress.cancel();
+						}
+					});
 			progress.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {

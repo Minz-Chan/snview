@@ -8,7 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.dom4j.Document;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
@@ -27,6 +29,7 @@ public abstract class RefreshDeviceConnectionTask {
 	private boolean shouldTimeoutThreadOver;
 	private boolean isCanceled;
 	private boolean isExistCloudAccount;
+	private boolean isDeviceConnectionInfoUpdated;
 	private AtomicInteger subWorkFinishedCount;
 	
 	private Context context;
@@ -122,7 +125,7 @@ public abstract class RefreshDeviceConnectionTask {
 		}
 		for (String cloudAccountName : cloudAccountNamesToBeUpdated) {
 			for (CloudAccount ca : allCloudAccounts) {
-				if (cloudAccountName.equals(ca.getUsername())) {//&&ca.isEnabled()
+				if (cloudAccountName.equals(ca.getUsername())) {
 					cloudAccountsToBeUpdated.add(ca);
 				}	
 			}
@@ -159,9 +162,11 @@ public abstract class RefreshDeviceConnectionTask {
 			return;
 		}
 		
+		
+		
 		shouldTimeoutThreadOver = true;
 		updatePreviewDevices();
-		onUpdateWorkFinished(updatedDevices);
+		onUpdateWorkFinished(updatedDevices, isDeviceConnectionInfoUpdated);
 	}
 	
 	private void updatePreviewDevices() {
@@ -169,28 +174,44 @@ public abstract class RefreshDeviceConnectionTask {
 		if (successWorkCount > 0) {
 			ArrayList<PreviewDeviceItem> allUpdatedDevices = new ArrayList<PreviewDeviceItem>();
 			for (CloudAccount account : updatedAccounts) {  // 获取所有已更新设备信息
+				Log.i(TAG, "Account updated: " + account.getUsername());
 				for (DeviceItem di : account.getDeviceList()) {
 					PreviewDeviceItem pdi = new PreviewDeviceItem();
-					pdi.setDeviceRecordName(di.getDeviceName());
+					pdi.setDeviceRecordName(di.getDeviceName()
+							.replace(getString(R.string.device_manager_online_en), "")
+							.replace(getString(R.string.device_manager_offline_en), ""));
 					pdi.setSvrIp(di.getSvrIp());
 					pdi.setSvrPort(di.getSvrPort());
 					pdi.setLoginPass(di.getLoginPass());
 					pdi.setLoginUser(di.getLoginUser());
+					pdi.setPlatformUsername(account.getUsername());
+					allUpdatedDevices.add(pdi);
 				}
 			}
 			
 			for (PreviewDeviceItem itemUpdated : updatedDevices) { // 更新已有设备列表连接信息
 				for (PreviewDeviceItem newItem : allUpdatedDevices) {
-					if (itemUpdated.getDeviceRecordName().equals(
-							newItem.getDeviceRecordName().substring(4))) {
+					if (isSameDevice(itemUpdated, newItem)) {
 						itemUpdated.setSvrIp(newItem.getSvrIp());
 						itemUpdated.setSvrPort(newItem.getSvrPort());
 						itemUpdated.setLoginPass(newItem.getLoginPass());
 						itemUpdated.setLoginUser(newItem.getLoginUser());
+						isDeviceConnectionInfoUpdated = true;
 					}
 				}
 			}
 		}
+	}
+	
+	private boolean isSameDevice(PreviewDeviceItem d1, PreviewDeviceItem d2) {
+		return d1.getPlatformUsername() != null && d2.getPlatformUsername() != null 
+				&& d1.getPlatformUsername().equals(d2.getPlatformUsername())
+				&& d1.getDeviceRecordName() != null && d2.getDeviceRecordName() != null
+				&& d1.getDeviceRecordName().equals(d2.getDeviceRecordName());
+	}
+	
+	private String getString(int resId) {
+		return context.getString(resId);
 	}
 	
 	private void onTimeout() {
@@ -198,15 +219,19 @@ public abstract class RefreshDeviceConnectionTask {
 			return;
 		}
 		
-		onUpdateWorkTimeout();
+		if (subWorkFinishedCount.get() == 0) { // 所有星云账户更新超时，可能网络不连通
+			onUpdateWorkTimeout();
+		} else { // 部分星云账户更新超时，更新未超时账户相关设备信息至预览列表
+			onWorkFinished();
+		}
 	}
 	
 	public void start() {
 		isTimeout = false;
 		shouldTimeoutThreadOver = false;
 		isCanceled = false;
+		isDeviceConnectionInfoUpdated = false;
 		subWorkFinishedCount.set(0);
-//		subWorkSuccessCount.set(0);
 		
 		init();		
 		workThread.start();
@@ -226,7 +251,7 @@ public abstract class RefreshDeviceConnectionTask {
 		shouldTimeoutThreadOver = true;
 	}
 	
-	protected abstract void onUpdateWorkFinished(List<PreviewDeviceItem> devices);
+	protected abstract void onUpdateWorkFinished(List<PreviewDeviceItem> devices, boolean isDeviceConnectionInfoUpdated);
 	protected abstract void onUpdateWorkTimeout();
 	protected abstract void onUpdateWorkFailed();
 	
@@ -255,7 +280,10 @@ public abstract class RefreshDeviceConnectionTask {
 				responseErrorText = cloudService.readXmlStatus(doc);
 				if (responseErrorText == null) { // 无失败原因，即成功
 					List<DVRDevice> dvrDeviceList = cloudService.readXmlDVRDevices(doc);
-					CloudAccount cloudAccount = cloudAccoutnUtils.getCloudAccountFromDVRDevice(context, dvrDeviceList);
+					//CloudAccount cloudAccount = cloudAccoutnUtils.getCloudAccountFromDVRDevice(context, dvrDeviceList);
+					cloudAccount.setDeviceList(cloudAccoutnUtils
+							.getCloudAccountFromDVRDevice(context,
+									dvrDeviceList).getDeviceList());
 					updatedAccounts.add(cloudAccount);
 				}
 			} catch (Exception e) {
