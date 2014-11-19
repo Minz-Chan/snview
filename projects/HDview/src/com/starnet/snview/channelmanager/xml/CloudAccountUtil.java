@@ -106,7 +106,7 @@ public class CloudAccountUtil {
 			int channeNumber = Integer.valueOf(channelSum);
 			for (int j = 0; j < channeNumber; j++) {
 				Channel channel = new Channel();
-				channel.setChannelName("通道"+(j+1));
+				channel.setChannelName(CollectDeviceItemParams.param+(j+1));
 				channel.setSelected(false);
 				channel.setChannelNo((j+1));
 				channelList.add(channel);

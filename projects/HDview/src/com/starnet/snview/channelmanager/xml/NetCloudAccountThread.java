@@ -2,14 +2,18 @@ package com.starnet.snview.channelmanager.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.dom4j.Document;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.CollectDeviceItemParams;
 
 /**
  * 
@@ -130,7 +134,7 @@ public class NetCloudAccountThread extends Thread {
 			if(channeNumber != 0){
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName("通道"+(j+1));
+					channel.setChannelName(CollectDeviceItemParams.channelName+(j+1));
 					channel.setSelected(false);
 					channel.setChannelNo((j+1));
 					channelList.add(channel);

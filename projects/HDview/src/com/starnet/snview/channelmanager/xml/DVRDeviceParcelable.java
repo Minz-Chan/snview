@@ -13,7 +13,7 @@ import android.os.Parcelable;
  * @description 修改说明	             首次增加
  *
  */
-public class DVRDevice_Parcelable implements Parcelable{
+public class DVRDeviceParcelable implements Parcelable{
 	
 	private String loginUsername;	// <du>登陆设备用户名</du>
 	private String loginPassword;	// <dp>登陆设备密码</dp>
@@ -205,7 +205,7 @@ public class DVRDevice_Parcelable implements Parcelable{
 	}
 	
 	
-	public DVRDevice_Parcelable() { }
+	public DVRDeviceParcelable() { }
 	@Override
 	public int describeContents() {
 		return 0;
@@ -246,7 +246,7 @@ public class DVRDevice_Parcelable implements Parcelable{
 		dest.writeString(isUPNP);
 	}
 	
-	private DVRDevice_Parcelable(Parcel in){
+	private DVRDeviceParcelable(Parcel in){
 		this.loginUsername = in.readString() ;	// <du>登陆设备用户名</du>
 		this.loginPassword = in.readString() ;	// <dp>登陆设备密码</dp>
 		this.loginMode = in.readString() ;		// <dm>登陆设备模式(0.IP  1.域名)</dm>
@@ -275,16 +275,16 @@ public class DVRDevice_Parcelable implements Parcelable{
 		this.isUPNP = in.readString() ;              
 	}
 	
-	public static final Parcelable.Creator<DVRDevice_Parcelable> CREATOR = new Parcelable.Creator<DVRDevice_Parcelable>() {
+	public static final Parcelable.Creator<DVRDeviceParcelable> CREATOR = new Parcelable.Creator<DVRDeviceParcelable>() {
 
 		@Override
-		public DVRDevice_Parcelable createFromParcel(Parcel source) {
-			return new DVRDevice_Parcelable(source);
+		public DVRDeviceParcelable createFromParcel(Parcel source) {
+			return new DVRDeviceParcelable(source);
 		}
 
 		@Override
-		public DVRDevice_Parcelable[] newArray(int size) {
-			return new DVRDevice_Parcelable[size];
+		public DVRDeviceParcelable[] newArray(int size) {
+			return new DVRDeviceParcelable[size];
 		}
 	};
 }
