@@ -25,10 +25,15 @@ import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.VideoPager.VideoPagerChangedCallback;
 import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.PreviewItemXMLUtils;
+import com.starnet.snview.util.ToastUtils;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -104,11 +109,15 @@ public class RealplayActivity extends BaseActivity {
 			setPreviewDevices(devices);
 			initVideoPagerAdapter(mode, devices);
 			mVideoPager.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
+				@SuppressWarnings("deprecation")
 				@Override
 				public void run() {
 					restoreVideoRegionLayout(mode, page, pageCount);
 					new DelayOrientationSetting().execute(new Object());
-					playAndPause();
+					refreshDeviceConnectionTask.start();
+					RealplayActivity.this
+							.showDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+					// playAndPause();
 				}
 			});
 			
@@ -176,6 +185,78 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+	private RefreshDeviceConnectionTask refreshDeviceConnectionTask = 
+			new RefreshDeviceConnectionTask(this) {
+		@Override
+		protected void onUpdateWorkFinished(List<PreviewDeviceItem> devices) {
+			final List<PreviewDeviceItem> updatedPreviewDevices = devices;
+			if (devices.size() > 0) {
+				RealplayActivity.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						setPreviewDevices(updatedPreviewDevices);
+						RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+						ToastUtils.show(RealplayActivity.this, "更新列表成功!");
+						Log.i(TAG, "更新列表成功!");
+						playAndPause();
+					}
+				});
+			}
+			
+		}
+		
+		@Override
+		protected void onUpdateWorkTimeout() {
+			RealplayActivity.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+					ToastUtils.show(RealplayActivity.this, "更新列表超时!");
+					Log.i(TAG, "更新列表超时!");
+					playAndPause();
+				}
+			});
+		}
+		
+		@Override
+		protected void onUpdateWorkFailed() {
+			RealplayActivity.this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					RealplayActivity.this.dismissDialog(RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG);
+					ToastUtils.show(RealplayActivity.this, "更新列表失败!");
+					Log.i(TAG, "更新列表失败!");
+					playAndPause();
+				}
+			});
+		}
+	};
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG:
+			final ProgressDialog progress = ProgressDialog.show(this, "", getString(R.string.realplay_updating_devicedata_wait), true, false);
+			progress.setButton(DialogInterface.BUTTON_NEGATIVE, "取消加载", new DialogInterface.OnClickListener(){
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					progress.cancel();
+				}
+			});
+			progress.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					refreshDeviceConnectionTask.cancel();
+					progress.dismiss();
+					playAndPause();
+				}
+			});
+			return progress;
+		default:
+			return null;
+		}
+	}
 
 	@Override
 	protected void onRestart() {
