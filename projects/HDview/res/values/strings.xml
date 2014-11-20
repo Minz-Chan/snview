@@ -86,7 +86,7 @@
     <string name="system_setting_corp_content_txt_chi">福建星网锐捷安防科技有限公司  版权所有</string>
     <string name="system_setting_corp_content_txt_eng">Copyright © 2010-2014 Star-netsecurity</string>
     <string name="system_setting_corp_rights_txt">All Rights Reserved</string>
-    <string name="system_setting_about_build_time">(Build 20141102)</string>
+    <string name="system_setting_about_build_time">(Build 20141120)</string>
     
     
     <string name="device_manager_collect_device">收藏设备</string>
@@ -171,7 +171,8 @@
     
     
     <string name="realplay_toast_take_pic">保存到</string>
-    <string name="realplay_updating_devicedata_wait">通道数据更新中，请等待...</string>
+    <string name="realplay_update_previewdevicelist_wait">通道数据更新中，请等待...</string>
+    <string name="realplay_update_previewdevicelist_btn_cancel">设备信息更新超时!</string>
     <string name="realplay_update_previewdevicelist_succ">设备信息已更新!</string>
     <string name="realplay_update_previewdevicelist_failed">设备信息更新失败!</string>
     <string name="realplay_update_previewdevicelist_timeout">设备信息更新超时!</string>
