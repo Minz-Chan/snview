@@ -18,7 +18,7 @@ import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CloudAccountUtils;
-import com.starnet.snview.util.CollectDeviceItemParams;
+import com.starnet.snview.util.CollectDeviceParams;
 
 public abstract class RefreshDeviceConnectionTask {
 	public static final int REFRESH_CLOUDACCOUT_PROCESS_DIALOG = 0x0008;
@@ -119,7 +119,7 @@ public abstract class RefreshDeviceConnectionTask {
 			if (!cloudAccountNamesToBeUpdated.contains(item
 					.getPlatformUsername())
 					&& item.getPlatformUsername() != null
-					&& !item.getPlatformUsername().equals(CollectDeviceItemParams.param)) {
+					&& !item.getPlatformUsername().equals(CollectDeviceParams.DEFAULT_COLLECTDEVICENAME_PREVIEWITEM_UPDATE)) {
 				cloudAccountNamesToBeUpdated.add(item.getPlatformUsername());
 			}
 		}
@@ -161,8 +161,6 @@ public abstract class RefreshDeviceConnectionTask {
 		if (isCanceled) {
 			return;
 		}
-		
-		
 		
 		shouldTimeoutThreadOver = true;
 		updatePreviewDevices();

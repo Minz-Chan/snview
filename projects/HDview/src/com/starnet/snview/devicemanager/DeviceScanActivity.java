@@ -13,12 +13,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 
 public class DeviceScanActivity extends BaseActivity {
 	
-	private static final String TAG = "DeviceScanActivity";
+	static final String TAG = "DeviceScanActivity";
 	
 	@SuppressLint("SdCardPath")
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
@@ -92,10 +92,9 @@ public class DeviceScanActivity extends BaseActivity {
 						password_et.setText(lPass);
 						defaultChannel_et.setText(dfChl);
 						channelnumber_et.setText(chSum);
-						CloudAccountXML caXml = new CloudAccountXML();
 						try {
-							caXml.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
-							caXml.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
+							XMLFileOperationForCloudAccount.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
+							XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
 							
 							SharedPreferences spf = getSharedPreferences("user", Context.MODE_PRIVATE);
 							Editor editor = spf.edit();

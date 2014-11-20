@@ -30,8 +30,8 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.IPAndPortUtils;
@@ -42,7 +42,6 @@ import com.starnet.snview.util.SynObject;
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 	
-	@SuppressWarnings("unused")
 	private static final String TAG = "DeviceCollectActivity";
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";// 用于保存收藏设备...
@@ -56,7 +55,6 @@ public class DeviceCollectActivity extends BaseActivity {
 	
 	private int auto_flag = 1;
 
-	private CloudAccountXML caXML;
 	private EditText et_device_add_record;
 	private EditText et_device_add_server;
 	private EditText et_device_add_port;
@@ -75,6 +73,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private SynObject synObject = new SynObject();
 	private List<DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();// 保存全部数据
 
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 		@SuppressWarnings("deprecation")
 		@Override
@@ -167,7 +166,7 @@ public class DeviceCollectActivity extends BaseActivity {
 							}
 							// 检查是否存在？若是存在则弹出对话框，询问用户是否覆盖；否则直接添加...
 
-							List<DeviceItem> collectList = caXML.getCollectDeviceListFromXML(filePath);
+							List<DeviceItem> collectList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
 							boolean isExist = checkDeviceItemListExist(saveDeviceItem, collectList);// 检查列表中是否存在该用户...
 							if (isExist) {// 弹出对话框...用户选择确定时，则添加覆盖；
 
@@ -181,7 +180,7 @@ public class DeviceCollectActivity extends BaseActivity {
 											public void onClick(DialogInterface dialog,int which) {
 												try {
 													auto_flag = 1;
-													String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);// 保存
+													String saveResult = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);// 保存
 													Toast toast = Toast.makeText(DeviceCollectActivity.this,saveResult,Toast.LENGTH_SHORT);
 													toast.show();
 													Intent intent = new Intent();
@@ -198,7 +197,7 @@ public class DeviceCollectActivity extends BaseActivity {
 										});
 								builder.show();
 							} else {// 如果不存在设备，则直接添加...
-								String saveResult = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+								String saveResult = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
 								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 								toast.show();
 								Intent intent = new Intent();
@@ -242,7 +241,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (isConn) {
 					String printSentence;
 					try {
-						List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(fileName);
+						List<CloudAccount> cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(fileName);
 						int size = cloudAccountList.size();
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
@@ -321,7 +320,6 @@ public class DeviceCollectActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
 
-		caXML = new CloudAccountXML();
 		et_device_add_record = (EditText) findViewById(R.id.et_device_add_record);
 		et_device_add_server = (EditText) findViewById(R.id.et_device_add_server);
 		et_device_add_port = (EditText) findViewById(R.id.et_device_add_port);
@@ -373,10 +371,9 @@ public class DeviceCollectActivity extends BaseActivity {
 		public void run() {
 			super.run();
 			Message msg = new Message();
-			caXML = new CloudAccountXML();
 			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 			try {
-				cloudAccountList = caXML.getCloudAccountList(fileName);
+				cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(fileName);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

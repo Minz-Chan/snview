@@ -13,7 +13,7 @@ import android.os.Message;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceItemParams;
+import com.starnet.snview.util.CollectDeviceParams;
 
 /**
  * 
@@ -36,13 +36,11 @@ public class NetCloudAccountThread extends Thread {
 	private Handler netHandler;//主线程的handler
 	private int postition;//代表组的号码
 	
-	private CloudAccountXML caXml ;
 	@Override
 	public void run() {//线程的执行方法
 		super.run();	
 		try {
 			Message msg = new Message();
-			caXml = new CloudAccountXML();
 			//如果网络访问成功msg.what = 1；否则，msg.what = 0；
 			String domain = cAccount.getDomain();
 			String port = cAccount.getPort();
@@ -55,7 +53,7 @@ public class NetCloudAccountThread extends Thread {
 				List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取到设备
 				CloudAccount netCloudAccount = getCloudAccountFromDVRDevice(dvrDevices);//将获取的内容封装成CloudAccount
 				//写操作的同步,是否有必要向文档中写入保存呢。。。？？？？
-				caXml.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
+				XMLFileOperationForCloudAccount.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountSuccess(data,netCloudAccount);//封装数据:将网络访问获取得到的数据打包
 				data.putSerializable("netCloudAccount", netCloudAccount);
@@ -68,7 +66,6 @@ public class NetCloudAccountThread extends Thread {
 				data.putString("visit_flag", "nosuc");
 				msg.setData(data);
 				netHandler.sendMessage(msg);
-				
                }
            } catch (Exception e) {
 			e.printStackTrace();
@@ -134,13 +131,11 @@ public class NetCloudAccountThread extends Thread {
 			if(channeNumber != 0){
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceItemParams.channelName+(j+1));
+					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE+(j+1));
 					channel.setSelected(false);
 					channel.setChannelNo((j+1));
 					channelList.add(channel);
 				}
-			}else {//通道为空的情况；人为的添加一个通道...
-				
 			}
 			deviceItem.setChannelList(channelList);
 			deviceList.add(deviceItem);

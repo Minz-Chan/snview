@@ -28,14 +28,14 @@ import android.widget.Toast;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.SynObject;
 
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class CloudAccountAddingActivity extends BaseActivity {
 
 	@SuppressWarnings("unused")
@@ -52,11 +52,9 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	private EditText passwordEditText;
 	private RadioButton isenablYseRadioBtn;
 	private RadioButton isenablNoRadioBtn;
-	private RadioGroup isenableRadioGroup;
+	RadioGroup isenableRadioGroup;
 
 	private CloudAccount cloudAccount;
-	private CloudAccountXML caXML;
-	private String showStatus;
 
 	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
 	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
@@ -69,13 +67,11 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	private final int DDNS_SYS_FAILURE_COPY = 0x1107; // 非DDNS返回错误
 	
 	private CloudService cloudService = new CloudServiceImpl("conn1");
-//	private List<DVRDevice> deviceInfoList;
 	String server;
 	String port;
 	String username;
 	String password;
 
-	// private CloudAccount clickCloudAccount;
 	private Button identify_btn;//验证客户是否网络可达按钮
 	private CloudAccount identify_CloudAccount;//验证后的账号；
 	
@@ -85,6 +81,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	private SynObject synObj = new SynObject();
 
 	private Handler responseHandler = new Handler() {
+		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -113,7 +110,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				break;
 			case DDNS_RESP_SUCC_COPY://验证后保存
 				save_CloudAccount.setEnabled(true);
-				caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+				XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -275,10 +272,9 @@ public class CloudAccountAddingActivity extends BaseActivity {
 						save_CloudAccount.setEnabled(false);
 					}
 					
-					caXML = new CloudAccountXML();
 					try {
 						//判断是否已经包含该用户
-						List<CloudAccount> cloudAcountList = caXML.getCloudAccountList(filePath);
+						List<CloudAccount> cloudAcountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(save_CloudAccount, cloudAcountList);
 						if (result) {//如果包含，则不添加
 							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
@@ -296,7 +292,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 								boolean isEqual = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
 								if (isEqual&&identifier_flag_after) {
 									save_CloudAccount.setEnabled(true);
-									caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
 									bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -315,7 +311,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 									builder.show();
 								}else {
 									save_CloudAccount.setEnabled(false);
-									caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
 									bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -325,7 +321,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 								}
 							}else {
 								save_CloudAccount.setEnabled(false);
-								caXML.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+								XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
 								bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -370,15 +366,16 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void requset4DeviceList() {
 		showDialog(1);
 		(new RequestDeviceInfoThread(responseHandler)).start();
 	}
-	
-	private void requset4DeviceList_copy() {
+	/*
+	private void requset4DeviceList_copys() {
 		showDialog(1);
 		(new RequestDeviceInfoThread_copy(responseHandler)).start();
-	}
+	}*/
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -386,6 +383,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		case 1:
 			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.system_set_setting_identify_user_right), true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					dismissDialog(1);

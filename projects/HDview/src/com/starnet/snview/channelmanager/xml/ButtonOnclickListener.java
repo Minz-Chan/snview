@@ -3,11 +3,9 @@ package com.starnet.snview.channelmanager.xml;
 import java.util.List;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.ChannelListViewActivity;
-import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
@@ -39,13 +37,12 @@ public class ButtonOnclickListener implements OnClickListener {
 	private int parentPos;//父元素的位置
 	private int childPos;//子元素的位置
 	
-	private Button state_button;
-	private ButtonState bs;
+	Button state_button;
+	ButtonState bs;
 	
-	private TextView titleView;
+	TextView titleView;
 	
-	private CloudAccountXML csxml;//
-	private List<CloudAccount> cloudAccountList;//星云账号信息
+	List<CloudAccount> cloudAccountList;//星云账号信息
 	private CloudAccount clickCloudAccount;//星云账号信息
 	ChannelExpandableListviewAdapter cela;
 	List<CloudAccount> groupAccountList;
@@ -61,7 +58,6 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.bs = bs;
 		this.cloudAccountList = cloudAccountList;
 		this.titleView = titleView;
-		csxml = new CloudAccountXML();
 	}
 
 	public ButtonOnclickListener(Button state_button,ButtonState bs,int parentPos, int childPos) {
@@ -70,7 +66,6 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.childPos = childPos;
 		this.state_button = state_button;
 		this.bs = bs;
-		csxml = new CloudAccountXML();
 	}
 
 	public ButtonOnclickListener(Context context,int parentPos,int childPos) {
@@ -92,8 +87,6 @@ public class ButtonOnclickListener implements OnClickListener {
 			intent.putExtra("clickCloudA", clickCloudAccount);
 			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 			intent.putExtras(bundle);
-//			cela.notify_number = 2;
-//			cela.notifyDataSetChanged();
 			((ChannelListActivity) context).startActivityForResult(intent, 31);
 			break;
 		default:
@@ -104,12 +97,10 @@ public class ButtonOnclickListener implements OnClickListener {
 	public ButtonOnclickListener(Context context) {
 		super();
 		this.context = context;
-		csxml = new CloudAccountXML();
 	}
 
 	public ButtonOnclickListener(Context context2,ChannelExpandableListviewAdapter cela,CloudAccount clickCloudAccount,List<CloudAccount> groupAccountList, int groupPosition, int childPosition,Button staButton,TextView titleView) {
 		this.context = context2;
-		csxml = new CloudAccountXML();
 		this.clickCloudAccount = clickCloudAccount;
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;

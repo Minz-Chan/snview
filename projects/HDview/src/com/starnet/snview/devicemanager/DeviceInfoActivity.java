@@ -13,7 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 
 @SuppressLint("SdCardPath")
@@ -128,10 +128,9 @@ public class DeviceInfoActivity extends BaseActivity {
 				
 				boolean allEdit = examineAllEditAndRight();//检查是否全部输入,并且IP地址、网络端口号等是否合法
 				if (allEdit) {//已经全部输入，将输入的项保存到文档中，并且验证是否可达...
-					CloudAccountXML caXML = new CloudAccountXML();
 					try {
 						//保存到文档中...
-						String status = caXML.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
+						String status = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
 						Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
 						toast.show();
 						SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);

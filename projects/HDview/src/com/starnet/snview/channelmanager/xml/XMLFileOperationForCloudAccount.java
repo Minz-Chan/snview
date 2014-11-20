@@ -29,7 +29,7 @@ import com.starnet.snview.syssetting.CloudAccount;
  * @Modify date Jul 10, 2014
  * @Modify description TODO
  */
-public class CloudAccountXML {
+public class XMLFileOperationForCloudAccount {
 
 	/**
 	 * 
@@ -40,7 +40,7 @@ public class CloudAccountXML {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<CloudAccount> readCloudAccountFromXML(String fileName) {
+	public static List<CloudAccount> readCloudAccountFromXML(String fileName) {
 		List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 		SAXReader saxReader = new SAXReader();
 		try {
@@ -133,7 +133,7 @@ public class CloudAccountXML {
 	 * @param fileName
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized void writeNewCloudAccountToXML(CloudAccount cloudAccount,String fileName) {
+	public synchronized static void writeNewCloudAccountToXML(CloudAccount cloudAccount,String fileName) {
 
 		File file = new File(fileName);
 		try {
@@ -234,7 +234,7 @@ public class CloudAccountXML {
 	 * @param rootName
 	 *            根的名字
 	 */
-	public boolean createRootXMLForCloudAccout(String fileName, String rootName) {
+	public static boolean createRootXMLForCloudAccout(String fileName, String rootName) {
 		boolean result = false;
 		Document document = DocumentHelper.createDocument();
 		document.addElement("cloudAccounts");
@@ -265,7 +265,7 @@ public class CloudAccountXML {
 	 * @param cloudAccount 星云账户
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized boolean addNewCloudAccoutNodeToRootXML(String fileName,CloudAccount cloudAccount) {//
+	public static synchronized boolean addNewCloudAccoutNodeToRootXML(String fileName,CloudAccount cloudAccount) {//
 		boolean result = false;
 		try {
 		    File file = new File(fileName);
@@ -333,7 +333,7 @@ public class CloudAccountXML {
 	 * @return 移除成功与否，true表示移除成功；FALSE，表示移除失败；
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized boolean removeCloudAccoutFromXML(String fileName,CloudAccount cloudAccount) {
+	public static synchronized boolean removeCloudAccoutFromXML(String fileName,CloudAccount cloudAccount) {
 		// 首先从文档中构造出一个对象，如果该对象的数据和cloudAccount的属性值相同的话，那么则删除该用户
 		boolean result = false;
 		SAXReader saxReader = new SAXReader();
@@ -378,7 +378,7 @@ public class CloudAccountXML {
 	 * @Description 增加新的设备到收藏设备文档中
 	 */
 	@SuppressWarnings("unchecked")
-	public String addNewDeviceItemToCollectEquipmentXML(DeviceItem deviceItem,String filePath) throws Exception{
+	public static String addNewDeviceItemToCollectEquipmentXML(DeviceItem deviceItem,String filePath) throws Exception{
 		
 		String saveResult = "";
 		//创建一个文档，并检查文档是否存在，若存在则不创建；否则，则创建；
@@ -437,7 +437,7 @@ public class CloudAccountXML {
 			return saveResult;
 	}
 
-	private boolean judgeSubElementsContainsDeviceItem(List<Element> subElements, DeviceItem deviceItem) {
+	private static boolean judgeSubElementsContainsDeviceItem(List<Element> subElements, DeviceItem deviceItem) {
 		boolean result = false;
 		int subElementSize = subElements.size();
 		for (int i = 0; i < subElementSize; i++) {//检查是否包含相同的元素，如果包含的话，则删除；
@@ -464,7 +464,7 @@ public class CloudAccountXML {
 	}
 	//从指定的xml文档中获取收藏设备列表...
 	@SuppressWarnings("unchecked")
-	public List<DeviceItem> getCollectDeviceListFromXML(String fileName) throws Exception{
+	public static List<DeviceItem> getCollectDeviceListFromXML(String fileName) throws Exception{
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		SAXReader saxReader = new SAXReader();
 		File file = new File(fileName);
@@ -537,7 +537,7 @@ public class CloudAccountXML {
 	
 	//从指定的文档中获取内容
 	@SuppressWarnings("unchecked")
-	public List<CloudAccount>  getCloudAccountList(String filePath) throws Exception{
+	public static List<CloudAccount>  getCloudAccountList(String filePath) throws Exception{
 		List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 		File file = new File(filePath);
 		if(!file.exists()){
@@ -570,7 +570,7 @@ public class CloudAccountXML {
 		return cloudAccountList;
 	}
 	//从收藏设备文档中删除指定的设备...
-	public void removeDeviceItemToCollectEquipmentXML(DeviceItem deviceItem,String filePath) throws DocumentException, IOException{
+	public static void removeDeviceItemToCollectEquipmentXML(DeviceItem deviceItem,String filePath) throws DocumentException, IOException{
 		File file = new File(filePath);
 		if(!file.exists()){
 			return;
@@ -607,7 +607,7 @@ public class CloudAccountXML {
 		fileWriter.close();
 	}
 	//一键添加"设备列表"到指定的文档中?????????测试.........
-	public void addDeviceItemListToXML(List<DeviceItem> deviceItemList,String filePath) throws IOException{
+	public static void addDeviceItemListToXML(List<DeviceItem> deviceItemList,String filePath) throws IOException{
 		File file = new File(filePath);
 		if(file.exists()){
 			file.delete();
@@ -659,7 +659,7 @@ public class CloudAccountXML {
 	 * @param cloudAccountes:替换成的用户
 	 */
 	@SuppressWarnings("deprecation")
-	public void replaceSpecifyCloudAccount(String filePath,CloudAccount cloudAccounted,CloudAccount cloudAccountes) throws Exception {
+	public static void replaceSpecifyCloudAccount(String filePath,CloudAccount cloudAccounted,CloudAccount cloudAccountes) throws Exception {
 		File file = new File(filePath);
 		if (!file.exists()) {
 			return ;

@@ -19,7 +19,7 @@ import android.widget.ListView;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -34,7 +34,6 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private ListView mNetWorkSettingList;
 	private CloudAccountAdapter caAdapter;
 
-	private CloudAccountXML caXML;
 	private List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 	private int pos;
 	private String titleName;
@@ -106,11 +105,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 //							}
 						}
 						
-						caXML = new CloudAccountXML();
-						caXML.removeCloudAccoutFromXML(filePath, deleteCA);		//文件中删除操作
-						
-						cloudAccountList.remove(deleteCA);						//列表中删除操作
-						
+						XMLFileOperationForCloudAccount.removeCloudAccoutFromXML(filePath, deleteCA);
+						cloudAccountList.remove(deleteCA);
 						caAdapter.notifyDataSetChanged();
 						
 						if(deleteCA.isEnabled()){//		删除tag
@@ -153,8 +149,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		try {
-			caXML = new CloudAccountXML();
-			cloudAccountList = caXML.getCloudAccountList(filePath);
+			cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
 			caAdapter = new CloudAccountAdapter(this, cloudAccountList);
 			mNetWorkSettingList.setAdapter(caAdapter);
 		} catch (Exception e) {

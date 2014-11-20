@@ -23,7 +23,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -33,13 +33,12 @@ public class DeviceViewActivity extends BaseActivity {
 
 	private static final String TAG = "DeviceViewActivity";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	private CloudAccountXML caxml;
 
 	private static final int EDIT=20;
 	private static final int ADD = 10;
 	
 	private ListView mDeviceList;
-	private Button navigation_bar_add_btn;														// 添加设备按钮
+	private Button navigation_bar_add_btn;
 	private DeviceListAdapter dLAdapter;
 	private List<DeviceItem> deviceItemList;
 	private DeviceItem deleteDeviceItem;
@@ -100,11 +99,7 @@ public class DeviceViewActivity extends BaseActivity {
 				builder.setPositiveButton(getString(R.string.device_manager_deviceview_ok),new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,int which) {
-								// 从文档中删除操作....
-
-								caxml = new CloudAccountXML();
 								try {
-									//======检测删除的收藏设备在，预览通道中是否存在
 									int previewSize = previewDeviceItems.size();
 									for (int i = 0; i < previewSize; i++) {
 										PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
@@ -123,8 +118,7 @@ public class DeviceViewActivity extends BaseActivity {
 									if (delSize > 0) {
 										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
-									//======检测删除的收藏设备在，预览通道中是否存在
-									caxml.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
+									XMLFileOperationForCloudAccount.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
 									
 								} catch (DocumentException e) {
 									e.printStackTrace();
@@ -147,17 +141,17 @@ public class DeviceViewActivity extends BaseActivity {
 	}
 	private boolean checkPreviewDeviceIsInDevicesCollect(PreviewDeviceItem previewDeviceItem,DeviceItem delDeviceItem) {
 		boolean isContain = false;
-		String prevwSvrIP = previewDeviceItem.getSvrIp();
+		/*String prevwSvrIP = previewDeviceItem.getSvrIp();
 		String preSvrPort = previewDeviceItem.getSvrPort();
 		String preLogPass = previewDeviceItem.getLoginPass();
-		String preLogUser = previewDeviceItem.getLoginUser();
+		String preLogUser = previewDeviceItem.getLoginUser();*/
 		String prePlatFormUserName = previewDeviceItem.getPlatformUsername();
 		String deviceName = previewDeviceItem.getDeviceRecordName();
 		
-		String devvwSvrIP = delDeviceItem.getSvrIp();
+		/*String devvwSvrIP = delDeviceItem.getSvrIp();
 		String devSvrPort = delDeviceItem.getSvrPort();
 		String devLogPass = delDeviceItem.getLoginPass();
-		String devLogUser = delDeviceItem.getLoginUser();
+		String devLogUser = delDeviceItem.getLoginUser();*/
 		String devPlatFormUserName = delDeviceItem.getPlatformUsername();
 		String ddeviceName = delDeviceItem.getDeviceName();
 		
@@ -175,26 +169,23 @@ public class DeviceViewActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 
 		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-		Log.v(TAG, "===previewDeviceItems.size():"+previewDeviceItems.size());
 		
-		caxml = new CloudAccountXML();
 		mDeviceList = (ListView) findViewById(R.id.device_listview);
-		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);// zk
+		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);
 
 		try {
-			deviceItemList = caxml.getCollectDeviceListFromXML(filePath);
+			deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
 			dLAdapter = new DeviceListAdapter(this, deviceItemList);
 			mDeviceList.setAdapter(dLAdapter);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
-		navigation_bar_add_btn.setOnClickListener(new OnClickListener() { // 手动与选择增加设备...
+		navigation_bar_add_btn.setOnClickListener(new OnClickListener() { // 手动与选择增加设备
 
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent();
-						intent.setClass(DeviceViewActivity.this,
-								DeviceCollectActivity.class);
+						intent.setClass(DeviceViewActivity.this,DeviceCollectActivity.class);
 						startActivityForResult(intent, 10);
 					}
 				});
@@ -203,7 +194,7 @@ public class DeviceViewActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == ADD) {															// 从添加设备界面返回后
+		if (requestCode == ADD) {
 			if (resultCode == 11) {															//从手动添加设备界面返回
 				if (data != null) {
 					Bundle bundle = data.getExtras();
@@ -221,9 +212,8 @@ public class DeviceViewActivity extends BaseActivity {
 				}
 			}else {
 				//进行文档更新，从文档中读取元素
-				caxml = new CloudAccountXML();
 				try {
-					deviceItemList = caxml.getCollectDeviceListFromXML(filePath);
+					deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
 					dLAdapter = new DeviceListAdapter(this, deviceItemList);
 					mDeviceList.setAdapter(dLAdapter);
 				} catch (Exception e) {
@@ -231,7 +221,7 @@ public class DeviceViewActivity extends BaseActivity {
 				}
 			}			
 
-		} else if (requestCode == EDIT) {// 从查看\编辑设备界面返回后...
+		} else if (requestCode == EDIT) {// 从查看/编辑设备界面返回后...
 			if (data != null) {
 				SharedPreferences spf = getSharedPreferences("user",Context.MODE_PRIVATE);
 				String dName = spf.getString("dName", "defaultValue");
@@ -259,7 +249,7 @@ public class DeviceViewActivity extends BaseActivity {
 		}
 	}
 
-	private boolean checkDefValueOfSpf(String dName,String chSum,String dChnl,String svrIp,
+	protected boolean checkDefValueOfSpf(String dName,String chSum,String dChnl,String svrIp,
 			String lgUsr,String lgPas,String svrPt) {//检测是否存在defValue
 		boolean isDefValue = false;
 		if (dName.equals("defValue")||chSum.equals("defValue")||dChnl.equals("defValue")

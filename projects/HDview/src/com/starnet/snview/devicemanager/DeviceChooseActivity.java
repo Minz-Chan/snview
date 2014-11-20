@@ -29,8 +29,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CloudAccountUtils;
@@ -189,11 +189,10 @@ public class DeviceChooseActivity extends BaseActivity {
 			super.run();
 			try {
 				// 检查重复性，若已经包含则不添加，若不包含，则添加到新的通道列表中；
-				CloudAccountXML caXML = new CloudAccountXML();
-				List<DeviceItem> oldDeviceList = caXML.getCollectDeviceListFromXML(devicefilePath);
+				List<DeviceItem> oldDeviceList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(devicefilePath);
 				deviceItemList = recreateDeviceList(oldDeviceList,deviceItemList);//重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
 				//在线(离线)字样的删除...
-				caXML.addDeviceItemListToXML(deviceItemList, devicefilePath);
+				XMLFileOperationForCloudAccount.addDeviceItemListToXML(deviceItemList, devicefilePath);
 				msg.what = ADD_SUCCESS;// 添加成功
 				handler.sendMessage(msg);
 			} catch (Exception e) {

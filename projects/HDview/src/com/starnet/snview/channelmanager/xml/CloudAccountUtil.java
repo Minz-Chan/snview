@@ -6,7 +6,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceItemParams;
+import com.starnet.snview.util.CollectDeviceParams;
 
 import java.io.IOException;
 
@@ -106,7 +106,7 @@ public class CloudAccountUtil {
 			int channeNumber = Integer.valueOf(channelSum);
 			for (int j = 0; j < channeNumber; j++) {
 				Channel channel = new Channel();
-				channel.setChannelName(CollectDeviceItemParams.param+(j+1));
+				channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE+(j+1));
 				channel.setSelected(false);
 				channel.setChannelNo((j+1));
 				channelList.add(channel);
@@ -128,45 +128,19 @@ public class CloudAccountUtil {
 	 */
 	public List<CloudAccount> getCloudAccountInfoFromUI() {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
-		CloudAccountXML caXML = new CloudAccountXML();
+//		CloudAccountXML caXML = new CloudAccountXML();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
-			List<DeviceItem> deviceItemList = caXML.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
+			List<DeviceItem> deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
 			int devicelist_size = deviceItemList.size();
 			
-			List<CloudAccount> cloudAccountList = caXML.getCloudAccountList(filePathOfCloudAccount);
-			
-//			for (int i = 0; i < devicelist_size; i++) {
-//				DeviceItem deviceItem = deviceItemList.get(i);
-//				String accountUsername = deviceItem.getPlatformUsername();
-//				int caSize = cloudAccountList.size();
-				
-//				for (int j = 0; j < caSize; j++) {//星云账户存在并禁用时，收藏设备列表中则不显示该设备
-//					if (accountUsername.equals(cloudAccountList.get(j)
-//							.getUsername())
-//							&& !cloudAccountList.get(j).isEnabled()) {
-//						deviceItemList.remove(deviceItem);
-//						break;
-//					}
-//				}
-				
-//				boolean isExist = false;
-//				for (int j = 0; j < caSize; j++) {//星云账户不存在时，收藏设备列表中则不显示该设备
-//					if (accountUsername.equals(cloudAccountList.get(j).getUsername())) {
-//						isExist = true;
-//						break;
-//					}
-//					if (!isExist) {
-//						deviceItemList.remove(deviceItem);
-//					}
-//				}
-//			}			
-			
+			List<CloudAccount> cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePathOfCloudAccount);
+						
 			collectDevice.setDeviceList(deviceItemList);
 			collectDevice.setEnabled(true);
 			collectDevice.setExpanded(false);
 			collectDevice.setRotate(true);
-			collectDevice.setUsername(CollectDeviceItemParams.param);
+			collectDevice.setUsername(CollectDeviceParams.COLLECTDEVICENAME_NETTHREAD_GETCHANNELLIST);
 			collectDevice.setDomain("com");
 			collectDevice.setPort("808");
 			collectDevice.setPassword("0208");

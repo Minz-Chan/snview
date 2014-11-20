@@ -27,11 +27,11 @@ import android.widget.ImageButton;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
@@ -58,7 +58,7 @@ public class ChannelListActivity extends BaseActivity {
 	final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	private ExpandableListView mExpandableListView;
-	private CloudAccountXML caXML;
+//	private CloudAccountXML caXML;
 
 	private ImageButton startScanButton;// 开始预览按钮；// 用于通道列表选择的显示,(选择前和选择后)
 	private List<CloudAccount> origin_cloudAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
@@ -78,7 +78,7 @@ public class ChannelListActivity extends BaseActivity {
 	private long start_time = 0;
 	private long end_time = 0;
 
-	private List<PreviewDeviceItem> originPreviewChannelList;
+	List<PreviewDeviceItem> originPreviewChannelList;
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
 	private List<CloudAccount> cloudAccounts_enable;//保存原来用户的Enable的值
 	
@@ -90,31 +90,18 @@ public class ChannelListActivity extends BaseActivity {
 			Bundle data = msg.getData();
 			String position = data.getString("position");
 			String success = data.getString("success");
-//			String suc_con = data.getString("visit_flag");
 			
-			if (success.equals("Yes")) {// 通知ExpandableListView的第position个位置的progressBar不再转动;获取到访问的整个网络数据；
+			if (success.equals("Yes")) {
 				int pos = Integer.valueOf(position);
-				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");
 				cloudAccount.setRotate(true);
 				origin_cloudAccounts.set(pos, cloudAccount);
 			} else {
 				int pos = Integer.valueOf(position);
-				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
+				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");
 				cloudAccount.setRotate(false);
 				origin_cloudAccounts.set(pos, cloudAccount);
 			}
-			
-//			if(suc_con!=null&&suc_con.equals("nosuc")){//加载圈的一直转动问题
-//				int pos = Integer.valueOf(position);
-//				CloudAccount cloudAccount = (CloudAccount) data.getSerializable("netCloudAccount");// 取回网络访问数据；
-//				try {
-////					Thread.sleep(3000);
-//					cloudAccount.setRotate(true);
-//					origin_cloudAccounts.set(pos, cloudAccount);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
 
 			int size = origin_cloudAccounts.size();
 			for (int i = 1; i < size; i++) {
@@ -167,10 +154,8 @@ public class ChannelListActivity extends BaseActivity {
 					String input_content = search_edt.getText().toString().trim();
 					if (searchList != null && searchList.size() > 0) {
 						searchList.clear();
-//						return;
 					}
 					if (search_edt.getText().toString().trim().length() > 0) {
-						List<CloudAccount> mySearchList = getSearchListFromCloudAccounts(input_content);
 						searchList = getSearchListFromCloudAccounts(input_content);
 						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, searchList, titleView);
 						mExpandableListView.setAdapter(chExpandableListAdapter);
@@ -440,7 +425,7 @@ public class ChannelListActivity extends BaseActivity {
 		search_edt = (EditText) findViewById(R.id.search_et);
 		search_edt.setVisibility(View.GONE);
 		
-		caXML = new CloudAccountXML();
+//		caXML = new CloudAccountXML();
 		origin_cloudAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
 		int netSize = origin_cloudAccounts.size();
 		copyCloudAccountEnable();
@@ -568,7 +553,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	/**从本地获取设备的通道列表*/
 	public List<CloudAccount> getGroupListFromLocal() {// 注意，目前只有一个用户的情况下；从收藏设备中读取账户
-		List<CloudAccount> groupList = caXML.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		List<CloudAccount> groupList = XMLFileOperationForCloudAccount.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
 		return groupList;
 	}
 
@@ -597,7 +582,6 @@ public class ChannelListActivity extends BaseActivity {
 				}
 				//查看searchList值是否有变化，考虑searchList.set(i, collectCloudAccount);
 				
-//				Toast.makeText(curContext, "搜索框", Toast.LENGTH_SHORT).show();
 				chExpandableListAdapter.notify_number = 22;
 				chExpandableListAdapter.notifyDataSetChanged();
 
@@ -625,13 +609,11 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}
 			
-//			List<PreviewDeviceItem> newPreviewList = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-//			GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 			List<PreviewDeviceItem> newPreviewList = getPreviewChannelList(origin_cloudAccounts);
 			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(newPreviewList);
 			Log.i(TAG, ""+origin_cloudAccounts.size());
 			
-			caXML = new CloudAccountXML();//判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
+			//判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
 			if (collectCloudAccount.getUsername().equals(getString(R.string.device_manager_collect_device))
 					&& (collectCloudAccount.getDomain().equals("com"))
 					&& (collectCloudAccount.getPort().equals("808"))
@@ -645,7 +627,7 @@ public class ChannelListActivity extends BaseActivity {
 						int size = deviceList.size();
 						for (int i = 0; i < size; i++) {
 							try {
-								caXML.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+								XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

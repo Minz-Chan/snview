@@ -2,20 +2,6 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-//import java.util.List;
-
-
-
-
-
-
-
-
-
-
-
-
-
 import java.util.List;
 
 import org.dom4j.Document;
@@ -40,7 +26,7 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
@@ -68,7 +54,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 	private CloudAccount identifyCloudAccount;						//验证后的账户
 	private CloudAccount saveCloudAccount;							//保存账户
 	private CloudAccount clickCloudAccount = new CloudAccount();	//要修改的原始账户
-	private CloudAccountXML  caXml;
+//	private CloudAccountXML  caXml;
 	
 	private int clickPostion;
 	
@@ -232,10 +218,9 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					} else {
 						saveCloudAccount.setEnabled(false);
 					}
-					caXml = new CloudAccountXML();
 					try {
 						
-						List<CloudAccount> cloudAcountList = caXml.getCloudAccountList(filePath);
+						List<CloudAccount> cloudAcountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);		// 检测是否已经存在账户
 						
 						if (result) {																			// 如果包含，弹出对话框，询问是否覆盖？
@@ -245,7 +230,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 						} else {
 							if (isenablNoRadioBtn.isChecked()) {
 								saveCloudAccount.setEnabled(false);
-								caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
+								XMLFileOperationForCloudAccount.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
 								String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 								Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 								toast3.show();
@@ -280,7 +265,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}
-									caXml.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
+									XMLFileOperationForCloudAccount.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
 									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 									toast3.show();

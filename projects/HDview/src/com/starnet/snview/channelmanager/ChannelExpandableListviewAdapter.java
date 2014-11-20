@@ -7,8 +7,8 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
-import com.starnet.snview.channelmanager.xml.CloudAccountXML;
 import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
+import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -244,7 +244,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					
 					//保存数据
 					if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
-						final CloudAccountXML csxml = new CloudAccountXML();
+//						final CloudAccountXML csxml = new CloudAccountXML();
 						final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 						final List<DeviceItem> deviceList = groupAccountList.get(pos).getDeviceList();
 						final int size = deviceList.size();
@@ -254,7 +254,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 								super.run();
 								for(int i =0 ;i<size;i++){
 									try {
-										csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+										XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 									} catch (Exception e) {
 										e.printStackTrace();
 									}

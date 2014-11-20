@@ -10,7 +10,7 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
-import com.starnet.snview.util.CollectDeviceItemParams;
+import com.starnet.snview.util.CollectDeviceParams;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -31,7 +31,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	private Button state_button;
 //	private ButtonState bs;
 
-	private CloudAccountXML csxml;//
+//	private CloudAccountXML csxml;//
 	private List<CloudAccount> cloudAccountList;// 星云账号信息
 	private CloudAccount selectCloudAccount;
 	private DeviceItem deviceItem;
@@ -47,7 +47,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		this.childPos = childPosition;
 		this.state_button = state_button;
 		this.cloudAccountList = groupAccountList;
-		csxml = new CloudAccountXML();
 		this.cela = cela;
 		this.titleView = titleView;
 		this.context = context;
@@ -61,7 +60,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		this.state_button = state_button;
 //		this.bs = bs;
 		this.cloudAccountList = groupAccountList;
-		csxml = new CloudAccountXML();
 	};
 
 	@Override
@@ -70,7 +68,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		if (!ClickUtils.isFastDoubleClick()) {
 			selectCloudAccount = cloudAccountList.get(parentPos);
 			deviceItem = selectCloudAccount.getDeviceList().get(childPos);
-			csxml = new CloudAccountXML();
 			List<Channel> channels = deviceItem.getChannelList();
 			String state = getChannelSelectNum(deviceItem);
 			
@@ -110,7 +107,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				titleView.setText(context.getString(R.string.navigation_title_channel_list)+"("+number+")");// 设置列表标题名
 			}
 			
-			if(selectCloudAccount.getUsername().equals(CollectDeviceItemParams.param)&&(selectCloudAccount.getDomain().equals("com"))
+			if(selectCloudAccount.getUsername().equals(CollectDeviceParams.COLLECTDEVICENAME_CHANNEL_TOUCH)&&(selectCloudAccount.getDomain().equals("com"))
 			&&(selectCloudAccount.getPort().equals("808"))&&(selectCloudAccount.getPassword().equals("0208"))){
 				Thread thread = new Thread(){
 					@Override
@@ -120,7 +117,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 						int size = deviceList.size();
 						for(int i =0 ;i<size;i++){
 							try {
-								csxml.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+								XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
