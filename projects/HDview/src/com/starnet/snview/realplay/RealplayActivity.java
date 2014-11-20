@@ -247,10 +247,12 @@ public class RealplayActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case RefreshDeviceConnectionTask.REFRESH_CLOUDACCOUT_PROCESS_DIALOG:
-			final ProgressDialog progress = ProgressDialog.show(this, "",
-					getString(R.string.realplay_updating_devicedata_wait),
-					true, false);
-			progress.setButton(DialogInterface.BUTTON_NEGATIVE, "取消加载",
+			final ProgressDialog progress = new ProgressDialog(this);
+			progress.setMessage(getString(R.string.realplay_update_previewdevicelist_wait));
+			progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			progress.setButton(
+					DialogInterface.BUTTON_NEGATIVE,
+					getString(R.string.realplay_update_previewdevicelist_btn_cancel),
 					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
