@@ -11,7 +11,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
+import com.starnet.snview.channelmanager.xml.CloudAccountInfoInXMLFile;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
@@ -112,7 +112,7 @@ public abstract class RefreshDeviceConnectionTask {
 	 * @return 待更新星云账户列表
 	 */
 	private List<CloudAccount> getCloudAccountToBeUpdated() {
-		List<CloudAccount> allCloudAccounts = new CloudAccountUtil().getCloudAccountInfoFromUI();
+		List<CloudAccount> allCloudAccounts = new CloudAccountInfoInXMLFile().getCloudAccountInfoFromUI();
 		List<CloudAccount> cloudAccountsToBeUpdated = new ArrayList<CloudAccount>();
 		List<String> cloudAccountNamesToBeUpdated = new ArrayList<String>();
 		for (PreviewDeviceItem item : updatedDevices) {

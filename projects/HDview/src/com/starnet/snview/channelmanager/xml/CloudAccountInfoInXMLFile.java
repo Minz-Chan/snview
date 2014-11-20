@@ -17,30 +17,23 @@ import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 
 /**
- * 
- * @author zhaohongxu
- * @Date Jul 12, 2014
- * @ClassName CloudAccountUtil.java
- * @Description TODO
- * @Modifier zhaohongxu
- * @Modify date Jul 12, 2014
- * @Modify description 封装有关获取星云平台用户信息
+ *封装有关获取星云平台用户信息
  */
 @SuppressLint("SdCardPath")
-public class CloudAccountUtil {
+public class CloudAccountInfoInXMLFile {
 	
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//收藏设备的存放地址；获取得打的数据放在ExpandableListView的第一个位置
 	private CloudService cloudService ;
 	private final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	
 	//请求星云账号中设备平台的信息
-	private String domain;//域名设置
-	private String port;//端口号
-	private String username;//用户名称
-	private String password;//登陆密码
-	private String deviceName;//设备名称
+	private String domain;
+	private String port;
+	private String username;
+	private String password;
+	private String deviceName;
 
-	public CloudAccountUtil(CloudService cloudService, String domain,String port, String username, String password, String deviceName) {
+	public CloudAccountInfoInXMLFile(CloudService cloudService, String domain,String port, String username, String password, String deviceName) {
 		super();
 		this.cloudService = cloudService;
 		this.domain = domain;
@@ -50,7 +43,7 @@ public class CloudAccountUtil {
 		this.deviceName = deviceName;
 	}
 	
-	public CloudAccountUtil() {
+	public CloudAccountInfoInXMLFile() {
 	}
 
 	public CloudAccount getCloudAccountFromURL() throws IOException, DocumentException{
@@ -120,19 +113,14 @@ public class CloudAccountUtil {
 
 	
 	/**
-	 * 
-	 * @author zhongxu
-	 * @Date 2014年7月23日
-	 * @Description 从用户保存界面获取拥护数据
-	 * @return
+	 * 从XML文档中获取星云平台用户数据，数据内容主要包括：domain、port、username、 password、deviceName，其中星云账户的DeviceList
+	 * 为空；
 	 */
 	public List<CloudAccount> getCloudAccountInfoFromUI() {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
-//		CloudAccountXML caXML = new CloudAccountXML();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
 			List<DeviceItem> deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
-			int devicelist_size = deviceItemList.size();
 			
 			List<CloudAccount> cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePathOfCloudAccount);
 						

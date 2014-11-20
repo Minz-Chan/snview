@@ -26,7 +26,7 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountUtil;
+import com.starnet.snview.channelmanager.xml.CloudAccountInfoInXMLFile;
 import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
@@ -544,7 +544,7 @@ public class ChannelListActivity extends BaseActivity {
 	/**从设置界面中获取用户信息*/
 	private List<CloudAccount> getCloudAccountInfoFromUI() {
 
-		CloudAccountUtil caUtil = new CloudAccountUtil();
+		CloudAccountInfoInXMLFile caUtil = new CloudAccountInfoInXMLFile();
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
 		accoutInfo = caUtil.getCloudAccountInfoFromUI();
 		return accoutInfo;
