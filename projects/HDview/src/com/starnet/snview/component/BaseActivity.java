@@ -446,6 +446,10 @@ public abstract class BaseActivity extends Activity {
         //mMenuDrawer.peekDrawer();
     }
 	
+	protected void restoreActiveViewIdToMain() {
+		BaseActivity.mActiveViewId = R.id.menu_drawer_realtime_preview;
+	}
+	
 	protected void reattachActiveView() {
 		TextView v = (TextView) findViewById(mActiveViewId);
 		mMenuDrawer.setActiveView(v);

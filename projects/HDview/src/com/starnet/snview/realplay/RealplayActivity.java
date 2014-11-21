@@ -300,6 +300,7 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onStart() {
+		super.restoreActiveViewIdToMain();
 		super.reattachActiveView();
 		super.onStart();
 	}
