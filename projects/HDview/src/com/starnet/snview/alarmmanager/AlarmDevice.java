@@ -1,13 +1,17 @@
 package com.starnet.snview.alarmmanager;
 
 public class AlarmDevice {
-
-	private String deviceName; // 设备名称
-	private String alarm_time; // 报警时间
-	private String alarm_type; // 报警类型
-	private String device_ip; // 报警IP
-	private String device_port; // 报警端口号
-
+	private String deviceName;
+	private String alarmTime; // YYYY-MM-DD HH:MM:SS
+	private String alarmType;
+	private String alarmContent;
+	private String imageUrl;
+	private String ip;
+	private int port;
+	private int channel;
+	private String userName;
+	private String password;
+	
 	public String getDeviceName() {
 		return deviceName;
 	}
@@ -16,36 +20,76 @@ public class AlarmDevice {
 		this.deviceName = deviceName;
 	}
 
-	public String getAlarm_time() {
-		return alarm_time;
+	public String getAlarmTime() {
+		return alarmTime;
 	}
 
-	public void setAlarm_time(String alarm_time) {
-		this.alarm_time = alarm_time;
+	public void setAlarmTime(String alarmTime) {
+		this.alarmTime = alarmTime;
 	}
 
-	public String getAlarm_type() {
-		return alarm_type;
+	public String getAlarmType() {
+		return alarmType;
 	}
 
-	public void setAlarm_type(String alarm_type) {
-		this.alarm_type = alarm_type;
+	public void setAlarmType(String alarmType) {
+		this.alarmType = alarmType;
 	}
 
-	public String getDevice_ip() {
-		return device_ip;
+	public String getAlarmContent() {
+		return alarmContent;
 	}
 
-	public void setDevice_ip(String device_ip) {
-		this.device_ip = device_ip;
+	public void setAlarmContent(String alarmContent) {
+		this.alarmContent = alarmContent;
 	}
 
-	public String getDevice_port() {
-		return device_port;
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
-	public void setDevice_port(String device_port) {
-		this.device_port = device_port;
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getChannel() {
+		return channel;
+	}
+
+	public void setChannel(int channel) {
+		this.channel = channel;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

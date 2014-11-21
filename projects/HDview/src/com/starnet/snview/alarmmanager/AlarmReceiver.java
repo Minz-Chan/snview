@@ -16,6 +16,7 @@ import android.util.Log;
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
 import com.starnet.snview.global.SplashActivity;
 import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
  * Push消息处理receiver。请编写您需要的回调函数， 一般来说： onBind是必须的，用来处理startWork返回值；
@@ -147,19 +148,19 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 e.printStackTrace();
             }
         }
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        if(AlarmPersistenceUtils.flag_start){//如果程序已经启动的时候，则直接进入到AlarmActivity
-//        	updateAlarmContent(context, notifyString);
-        	updateContent(context, notifyString);
-        }else{//如果程序已经启动的时候，则直接进入到SplashActivity
-        	updateContent(context, notifyString);	
-        }
-        
-        //将收到的信息写入到文档中
-        File file = new File(message_path);
-        if(!file.exists()){
-        	
-        }
+//        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
+//        if(ReadWriteXmlUtils.flag_start){//如果程序已经启动的时候，则直接进入到AlarmActivity
+////        	updateAlarmContent(context, notifyString);
+//        	updateContent(context, notifyString);
+//        }else{//如果程序已经启动的时候，则直接进入到SplashActivity
+//        	updateContent(context, notifyString);	
+//        }
+//        
+//        //将收到的信息写入到文档中
+//        File file = new File(message_path);
+//        if(!file.exists()){
+//        	
+//        }
     }
 
     /**

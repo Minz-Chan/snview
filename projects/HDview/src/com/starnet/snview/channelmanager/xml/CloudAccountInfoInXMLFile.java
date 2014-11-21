@@ -54,7 +54,7 @@ public class CloudAccountInfoInXMLFile {
 			List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取得到DVRDevice的信息	
 			cloudAccount  = getCloudAccountFromDVRDevice(dvrDevices);	
 		}else{//返回给用户请求失败的信息，不能进行接下来的操作			
-			System.out.println("请求不成功！！！！");			
+			System.out.println("请求不成功！！！！");
 		}
 		return cloudAccount;
 	}

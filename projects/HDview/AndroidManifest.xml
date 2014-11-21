@@ -73,7 +73,7 @@
             android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.alarmmanager.AlarmActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity

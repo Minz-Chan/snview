@@ -7,12 +7,12 @@ import com.baidu.android.pushservice.CustomPushNotificationBuilder;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
-import com.starnet.snview.alarmmanager.AlarmPersistenceUtils;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.AssetsUtil;
 import com.starnet.snview.util.FileUtility;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -60,7 +60,7 @@ public class SplashActivity extends Activity {
 			startActivity(intent);
 			finish();
 		} else {
-			AlarmPersistenceUtils.flag_start = true;
+//			ReadWriteXmlUtils.flag_start = true;
 			
 			Intent intent = new Intent(this, RealplayActivity.class);
 			startActivity(intent);

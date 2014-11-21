@@ -27,7 +27,6 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 /**
  * 
  * @author zhaohongxu
@@ -49,14 +48,13 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private Button state_button;
 	private ButtonState bs;	
 	private List<DeviceItem> deviceList;
-	private boolean isOpen;//判断网络是否打开...
+	private boolean isOpen;
 	
 	public int notify_number = 1;
 	
 	private TextView titleView;//显示用户选择的通道数量
 	private ImageView channel_listview_select;
 	
-	private int click_time =0;
 	
 	private List<Integer> colorPosList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
 		
@@ -180,18 +178,18 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 //		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
 		String tileName = cloudAccount.getUsername();
-		title.setText(tileName);// 设置组名      // 单击之后，箭头该为向下，背景颜色改变
-		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);// 设备图像的展示
-		ImageView arrow = (ImageView) convertView.findViewById(R.id.channel_listview_arrow);// 组列表的小箭头的展示
+		title.setText(tileName);
+		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);
+		ImageView arrow = (ImageView) convertView.findViewById(R.id.channel_listview_arrow);
 		if (groupAccountList.get(groupPosition).isExpanded()) {// 判断组列表是否展开
-			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));// 设置背景颜色
-			itemIcon.setBackgroundResource(R.drawable.channel_listview_account_sel);// 设置设备的图像
-			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);// 设置小箭头的图像
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_account_sel);
+			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 			((ExpandableListView) parent).expandGroup(groupPosition);
 		} else {
-			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));// 设置背景颜色
-			itemIcon.setBackgroundResource(R.drawable.channel_listview_account);// 设置设备的图像
-			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);// 设置小箭头的图像
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
+			itemIcon.setBackgroundResource(R.drawable.channel_listview_account);
+			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);
 			((ExpandableListView) parent).collapseGroup(groupPosition);
 		}
 		
@@ -357,7 +355,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		ButtonOnclickListener bol = new ButtonOnclickListener(context,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
 		button_channel_list.setOnClickListener(bol);
 		
-		click_time++;
 		return convertView;
 	}
 	
