@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CollectDeviceParams;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import java.io.IOException;
 
@@ -120,9 +121,9 @@ public class CloudAccountInfoInXMLFile {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
-			List<DeviceItem> deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
+			List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
 			
-			List<CloudAccount> cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePathOfCloudAccount);
+			List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePathOfCloudAccount);
 						
 			collectDevice.setDeviceList(deviceItemList);
 			collectDevice.setEnabled(true);

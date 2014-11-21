@@ -28,11 +28,11 @@ import android.widget.Toast;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint({ "SdCardPath", "HandlerLeak" })
@@ -110,7 +110,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 				break;
 			case DDNS_RESP_SUCC_COPY://验证后保存
 				save_CloudAccount.setEnabled(true);
-				XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+				ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -274,7 +274,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 					
 					try {
 						//判断是否已经包含该用户
-						List<CloudAccount> cloudAcountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
+						List<CloudAccount> cloudAcountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(save_CloudAccount, cloudAcountList);
 						if (result) {//如果包含，则不添加
 							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
@@ -292,7 +292,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 								boolean isEqual = isEqualSaveAndIdentifyCloudAccount(save_CloudAccount,identify_CloudAccount);
 								if (isEqual&&identifier_flag_after) {
 									save_CloudAccount.setEnabled(true);
-									XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
 									bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -311,7 +311,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 									builder.show();
 								}else {
 									save_CloudAccount.setEnabled(false);
-									XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+									ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
 									bundle.putSerializable("cloudAccount",save_CloudAccount);
@@ -321,7 +321,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 								}
 							}else {
 								save_CloudAccount.setEnabled(false);
-								XMLFileOperationForCloudAccount.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
+								ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(filePath,save_CloudAccount);
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
 								bundle.putSerializable("cloudAccount",save_CloudAccount);

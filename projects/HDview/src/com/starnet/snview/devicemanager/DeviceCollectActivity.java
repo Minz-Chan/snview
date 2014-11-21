@@ -31,12 +31,12 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PinyinComparatorUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
@@ -166,7 +166,7 @@ public class DeviceCollectActivity extends BaseActivity {
 							}
 							// 检查是否存在？若是存在则弹出对话框，询问用户是否覆盖；否则直接添加...
 
-							List<DeviceItem> collectList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
+							List<DeviceItem> collectList = ReadWriteXmlUtils.getCollectDeviceListFromXML(filePath);
 							boolean isExist = checkDeviceItemListExist(saveDeviceItem, collectList);// 检查列表中是否存在该用户...
 							if (isExist) {// 弹出对话框...用户选择确定时，则添加覆盖；
 
@@ -180,7 +180,7 @@ public class DeviceCollectActivity extends BaseActivity {
 											public void onClick(DialogInterface dialog,int which) {
 												try {
 													auto_flag = 1;
-													String saveResult = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);// 保存
+													String saveResult = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem,filePath);// 保存
 													Toast toast = Toast.makeText(DeviceCollectActivity.this,saveResult,Toast.LENGTH_SHORT);
 													toast.show();
 													Intent intent = new Intent();
@@ -197,7 +197,7 @@ public class DeviceCollectActivity extends BaseActivity {
 										});
 								builder.show();
 							} else {// 如果不存在设备，则直接添加...
-								String saveResult = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+								String saveResult = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
 								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
 								toast.show();
 								Intent intent = new Intent();
@@ -241,7 +241,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (isConn) {
 					String printSentence;
 					try {
-						List<CloudAccount> cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(fileName);
+						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(fileName);
 						int size = cloudAccountList.size();
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
@@ -373,7 +373,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			Message msg = new Message();
 			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 			try {
-				cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(fileName);
+				cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(fileName);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

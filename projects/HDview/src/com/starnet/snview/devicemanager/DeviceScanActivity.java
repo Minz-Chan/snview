@@ -13,8 +13,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class DeviceScanActivity extends BaseActivity {
 	
@@ -93,8 +93,8 @@ public class DeviceScanActivity extends BaseActivity {
 						defaultChannel_et.setText(dfChl);
 						channelnumber_et.setText(chSum);
 						try {
-							XMLFileOperationForCloudAccount.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
-							XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
+							ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
+							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
 							
 							SharedPreferences spf = getSharedPreferences("user", Context.MODE_PRIVATE);
 							Editor editor = spf.edit();

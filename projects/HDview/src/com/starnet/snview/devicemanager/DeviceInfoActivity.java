@@ -13,8 +13,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("SdCardPath")
 public class DeviceInfoActivity extends BaseActivity {
@@ -130,7 +130,7 @@ public class DeviceInfoActivity extends BaseActivity {
 				if (allEdit) {//已经全部输入，将输入的项保存到文档中，并且验证是否可达...
 					try {
 						//保存到文档中...
-						String status = XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
+						String status = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
 						Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
 						toast.show();
 						SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);

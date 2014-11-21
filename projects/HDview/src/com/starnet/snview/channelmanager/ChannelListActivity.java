@@ -31,13 +31,13 @@ import com.starnet.snview.channelmanager.xml.CloudService;
 import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
  * @author 陈名珍
@@ -553,7 +553,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	/**从本地获取设备的通道列表*/
 	public List<CloudAccount> getGroupListFromLocal() {// 注意，目前只有一个用户的情况下；从收藏设备中读取账户
-		List<CloudAccount> groupList = XMLFileOperationForCloudAccount.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		List<CloudAccount> groupList = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
 		return groupList;
 	}
 
@@ -627,7 +627,7 @@ public class ChannelListActivity extends BaseActivity {
 						int size = deviceList.size();
 						for (int i = 0; i < size; i++) {
 							try {
-								XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+								ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

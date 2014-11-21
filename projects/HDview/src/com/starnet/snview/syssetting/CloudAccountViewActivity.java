@@ -19,11 +19,11 @@ import android.widget.ListView;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("SdCardPath")
 public class CloudAccountViewActivity extends BaseActivity {
@@ -105,7 +105,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 //							}
 						}
 						
-						XMLFileOperationForCloudAccount.removeCloudAccoutFromXML(filePath, deleteCA);
+						ReadWriteXmlUtils.removeCloudAccoutFromXML(filePath, deleteCA);
 						cloudAccountList.remove(deleteCA);
 						caAdapter.notifyDataSetChanged();
 						
@@ -149,7 +149,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		try {
-			cloudAccountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
+			cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
 			caAdapter = new CloudAccountAdapter(this, cloudAccountList);
 			mNetWorkSettingList.setAdapter(caAdapter);
 		} catch (Exception e) {

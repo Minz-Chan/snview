@@ -8,12 +8,12 @@ import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
 import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.content.Context;
 import android.util.Log;
@@ -252,7 +252,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 								super.run();
 								for(int i =0 ;i<size;i++){
 									try {
-										XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+										ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 									} catch (Exception e) {
 										e.printStackTrace();
 									}

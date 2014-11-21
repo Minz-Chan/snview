@@ -11,6 +11,7 @@ import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ClickUtils;
 import com.starnet.snview.util.CollectDeviceParams;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -117,7 +118,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 						int size = deviceList.size();
 						for(int i =0 ;i<size;i++){
 							try {
-								XMLFileOperationForCloudAccount.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
+								ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

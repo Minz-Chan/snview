@@ -23,10 +23,10 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("SdCardPath")
 public class DeviceViewActivity extends BaseActivity {
@@ -118,7 +118,7 @@ public class DeviceViewActivity extends BaseActivity {
 									if (delSize > 0) {
 										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
-									XMLFileOperationForCloudAccount.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
+									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
 									
 								} catch (DocumentException e) {
 									e.printStackTrace();
@@ -174,7 +174,7 @@ public class DeviceViewActivity extends BaseActivity {
 		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);
 
 		try {
-			deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
+			deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(filePath);
 			dLAdapter = new DeviceListAdapter(this, deviceItemList);
 			mDeviceList.setAdapter(dLAdapter);
 		} catch (Exception e) {
@@ -213,7 +213,7 @@ public class DeviceViewActivity extends BaseActivity {
 			}else {
 				//进行文档更新，从文档中读取元素
 				try {
-					deviceItemList = XMLFileOperationForCloudAccount.getCollectDeviceListFromXML(filePath);
+					deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(filePath);
 					dLAdapter = new DeviceListAdapter(this, deviceItemList);
 					mDeviceList.setAdapter(dLAdapter);
 				} catch (Exception e) {

@@ -26,12 +26,12 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.XMLFileOperationForCloudAccount;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint({ "HandlerLeak", "SdCardPath" })
@@ -220,7 +220,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					}
 					try {
 						
-						List<CloudAccount> cloudAcountList = XMLFileOperationForCloudAccount.getCloudAccountList(filePath);
+						List<CloudAccount> cloudAcountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);		// 检测是否已经存在账户
 						
 						if (result) {																			// 如果包含，弹出对话框，询问是否覆盖？
@@ -230,7 +230,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 						} else {
 							if (isenablNoRadioBtn.isChecked()) {
 								saveCloudAccount.setEnabled(false);
-								XMLFileOperationForCloudAccount.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
+								ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
 								String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 								Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 								toast3.show();
@@ -265,7 +265,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}
-									XMLFileOperationForCloudAccount.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
+									ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
 									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
 									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
 									toast3.show();
