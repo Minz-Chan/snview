@@ -75,6 +75,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
+            android:name="com.starnet.snview.alarmmanager.AlarmImageActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Dialog" />
+        <activity
             android:name="com.starnet.snview.devicemanager.DeviceViewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
