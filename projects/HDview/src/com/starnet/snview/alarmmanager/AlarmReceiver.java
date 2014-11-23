@@ -1,21 +1,23 @@
 package com.starnet.snview.alarmmanager;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
-import com.starnet.snview.global.SplashActivity;
-import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.R;
+import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
@@ -44,7 +46,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
     public static final String TAG = AlarmReceiver.class.getSimpleName();
 
-    private final String message_path = "";
     /**
      * 调用PushManager.startWork后，sdk将对push
      * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -76,8 +77,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         if (errorCode == 0) {
             Utils.setBind(context, true);
         }
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-       // updateContent(context, responseString);
     }
 
     /**
@@ -97,24 +96,108 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 + "\" customContentString=" + customContentString;
         Log.d(TAG, messageString);
 
-        // 自定义内容获取方式，mykey和myvalue对应透传消息推送时自定义内容中设置的键和值
         if (!TextUtils.isEmpty(customContentString)) {
-            JSONObject customJson = null;
+            JSONObject customContentJsonObj = null;
             try {
-                customJson = new JSONObject(customContentString);
-                String myvalue = null;
-                if (customJson.isNull("mykey")) {
-                    myvalue = customJson.getString("mykey");
-                }
+                String alarmContent = null;
+                String imageUrl = null;
+                String videoUrl = null;
+                customContentJsonObj = new JSONObject(customContentString);
+				if (!customContentJsonObj.isNull("alarm_content")) {
+					alarmContent = Base64Util.decode(customContentJsonObj
+							.getString("alarm_content")); // 需先BASE64解密
+				}
+				if (!customContentJsonObj.isNull("image_path")) {
+					imageUrl = Base64Util.decode(customContentJsonObj
+							.getString("image_path"));
+				}
+				if (!customContentJsonObj.isNull("video_url")) {
+					videoUrl = Base64Util.decode(customContentJsonObj
+							.getString("video_url"));
+				}
+
+                AlarmDevice ad = parseAlarmMessage(alarmContent, imageUrl, videoUrl);
+                ReadWriteXmlUtils.writeAlarm(ad); // 持久化报警信息到文件中
+                
+				showNotification(context, ad.getAlarmContent(), "哈尔滨平台",
+						ad.getIp() + ":" + ad.getPort());
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
+            } catch (Exception e) {
+            	// error processing
+            	e.printStackTrace();
             }
         }
-
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        updateContent(context, messageString);
     }
+    
+    private AlarmDevice parseAlarmMessage(String alarmContent, String imageUrl, String videoUrl) {
+    	AlarmDevice ad = new AlarmDevice();
+    	ad.setAlarmContent(alarmContent);
+    	ad.setImageUrl(imageUrl);
+    	
+    	if (TextUtils.isEmpty(videoUrl)) {
+    		return ad;
+    	}  
+    	
+    	/*
+    	 * example:
+    	 *     rtsp://admin:123456@192.168.0.2:8081/ch1/3
+    	 *     rtsp://192.168.0.2:8081/ch1/3
+    	 */
+		String userPattern = "(([a-z]|[A-Z]|[0-9]){1,16})"; 
+	    String passwordPattern = "(([a-z]|[A-Z]|[0-9]){0,32})";
+	    String ipPattern = "([\\d]+\\.[\\d]+\\.[\\d]+\\.[\\d]+)"; 
+	    String portPattern = "([\\d]+)";
+	    String channelPattern = "ch([\\d]+)";	       
+	    boolean isExistUserPass = videoUrl.indexOf("@") != -1;
+	    Pattern pattern;
+	    
+	    if (isExistUserPass) { // there exists user and password
+			pattern = Pattern.compile("rtsp://" + userPattern + ":"
+					+ passwordPattern + "@" + ipPattern + ":" + portPattern
+					+ "/" + channelPattern + "/[\\d]+");
+	    } else {  // no user and password
+	    	pattern = Pattern.compile("rtsp://" + ipPattern + ":" + portPattern
+					+ "/" + channelPattern + "/[\\d]+");
+	    }
+	    Matcher matcher = pattern.matcher(videoUrl);
+	    if (matcher.find()) {
+	    	if (isExistUserPass) {
+	    		ad.setUserName(matcher.group(1));	// user
+	    		ad.setPassword(matcher.group(3));	// password
+		    	ad.setIp(matcher.group(5));			// ip
+		    	ad.setPort(Integer.valueOf(matcher.group(6)));		// port
+		    	ad.setChannel(Integer.valueOf(matcher.group(7)));	// channel
+	    	} else {
+	    		ad.setIp(matcher.group(1));  // ip
+	    		ad.setPort(Integer.valueOf(matcher.group(2)));  // port
+	    		ad.setChannel(Integer.valueOf(matcher.group(3)));  // channel
+	    	}
+	    } else {
+    		throw new IllegalStateException("Invalid video url, which should match pattern"
+    				+ "rtsp://[username]:[password]@[ip]:[port]/[channel]/[subtype]"
+    				+ " or rtsp://[ip]:[port]/[channel]/[subtype]");
+	    }
+	    
+	    return ad;
+    }
+    
+    @SuppressWarnings("deprecation")
+	private void showNotification(Context context, String title,
+			String contentTitle, String contentText) {
+		Intent intent = new Intent(OnAlarmMessageArrivedReceiver.ACTION);
+		PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0,
+				intent, 0);
+		Notification notification = new Notification(R.drawable.ic_launcher,
+				title, System.currentTimeMillis());
+		notification.setLatestEventInfo(context, contentTitle, contentText,
+				contentIntent);
+		NotificationManager notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.notify(1, notification);
+
+	}
+
 
     /**
      * 接收通知点击的函数。注：推送通知被用户点击前，应用无法通过接口获取通知的内容。
@@ -130,38 +213,12 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
      */
     @Override
     public void onNotificationClicked(Context context, String title,
-            String description, String customContentString) {//点击通知栏的处理
+            String description, String customContentString) {
         String notifyString = "通知点击 title=\"" + title + "\" description=\""
                 + description + "\" customContent=" + customContentString;
-        Log.d(TAG, notifyString);
-        // 自定义内容获取方式，mykey和myvalue对应通知推送时自定义内容中设置的键和值
-        if (!TextUtils.isEmpty(customContentString)) {
-            JSONObject customJson = null;
-            try {
-                customJson = new JSONObject(customContentString);
-                String myvalue = null;
-                if (customJson.isNull("mykey")) {
-                    myvalue = customJson.getString("mykey");
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-//        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-//        if(ReadWriteXmlUtils.flag_start){//如果程序已经启动的时候，则直接进入到AlarmActivity
-////        	updateAlarmContent(context, notifyString);
-//        	updateContent(context, notifyString);
-//        }else{//如果程序已经启动的时候，则直接进入到SplashActivity
-//        	updateContent(context, notifyString);	
-//        }
-//        
-//        //将收到的信息写入到文档中
-//        File file = new File(message_path);
-//        if(!file.exists()){
-//        	
-//        }
+        Log.d(TAG, notifyString);        
     }
+    
 
     /**
      * setTags() 的回调函数。
@@ -184,9 +241,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 + " sucessTags=" + sucessTags + " failTags=" + failTags
                 + " requestId=" + requestId;
         Log.d(TAG, responseString);
-
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-//        updateContent(context, responseString);
     }
 
     /**
@@ -210,9 +264,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 + " sucessTags=" + sucessTags + " failTags=" + failTags
                 + " requestId=" + requestId;
         Log.d(TAG, responseString);
-
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        //updateContent(context, responseString);
     }
 
     /**
@@ -234,9 +285,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 + tags;
         Log.d(TAG, responseString);
 
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        updateContent(context, responseString);
-        
     }
 
     /**
@@ -258,53 +306,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         // 解绑定成功，设置未绑定flag，
         if (errorCode == 0) {
             Utils.setBind(context, false);
-        }
-        // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
-        updateContent(context, responseString);
+        };
     }
-    
-    protected void updateAlarmContent(Context context, String content) {
-        Log.d(TAG, "updateContent");
-        String logText = "" + Utils.logStringCache;
-
-        if (!logText.equals("")) {
-            logText += "\n";
-        }
-
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("HH-mm-ss");
-        logText += sDateFormat.format(new Date()) + ": ";
-        logText += content;
-
-        Utils.logStringCache = logText;
-
-        Intent intent = new Intent();
-        intent.setClass(context.getApplicationContext(), AlarmActivity.class);//开机时，启动注册
-//        intent.setClass(context.getApplicationContext(), SplashActivity.class);//开机时，启动注册
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.getApplicationContext().startActivity(intent);
-    }
-
-    private void updateContent(Context context, String content) {
-        Log.d(TAG, "updateContent");
-        String logText = "" + Utils.logStringCache;
-
-        if (!logText.equals("")) {
-            logText += "\n";
-        }
-
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("HH-mm-ss");
-        logText += sDateFormat.format(new Date()) + ": ";
-        logText += content;
-
-        Utils.logStringCache = logText;
-
-        Intent intent = new Intent();
-//        intent.setClass(context.getApplicationContext(), AlarmActivity.class);//开机时，启动注册
-        intent.setClass(context.getApplicationContext(), RealplayActivity.class);//开机时，启动注册
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.getApplicationContext().startActivity(intent);
-    }
-    
-    
-
 }

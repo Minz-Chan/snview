@@ -89,7 +89,7 @@ public abstract class BaseActivity extends Activity {
 	    	initMenuDrawer();
 	    }
 	    
-		
+	    GlobalApplication.getInstance().setCurrentActivity(this);
 	}
     
     public void setContentView(int layoutResid) {
@@ -286,6 +286,10 @@ public abstract class BaseActivity extends Activity {
 		
 	};
 	
+	public void performClickAction(int resId) {
+		mOnMenudrawerItemClickListener.onClick(findViewById(resId));
+	}
+	
 	protected void gotoAlarm(){
 		Intent intent = new Intent();
 		intent.setClass(BaseActivity.this, AlarmActivity.class);
@@ -445,6 +449,13 @@ public abstract class BaseActivity extends Activity {
         // called on first launch.
         //mMenuDrawer.peekDrawer();
     }
+	
+	protected void setCurrentActiveViewId(int resId) {
+		mActiveViewId = resId;
+		TextView v = (TextView) findViewById(mActiveViewId);
+		mMenuDrawer.setActiveView(v);
+		GlobalApplication.getInstance().setCurrentActivity(this);
+	}
 	
 	protected void restoreActiveViewIdToMain() {
 		BaseActivity.mActiveViewId = R.id.menu_drawer_realtime_preview;

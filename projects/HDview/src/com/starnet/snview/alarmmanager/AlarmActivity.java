@@ -28,8 +28,9 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("HandlerLeak")
 public class AlarmActivity extends BaseActivity {
+	private static final String TAG = "AlarmActivity";
+	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 
-	final String TAG = "AlarmActivity";
 	private Button navBackBtn;
 	private ExpandableListView alarmInfoListView;
 	private AlarmDeviceAdapter listviewAdapter;
@@ -40,7 +41,6 @@ public class AlarmActivity extends BaseActivity {
 	private final int REQUESTCODE = 0x0023;
 
 	private Handler mHandler = new Handler() {
-
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -60,15 +60,58 @@ public class AlarmActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setContainerMenuDrawer(true);
+		setContainerMenuDrawer(!isStartFromNotificationBar());	
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.alarm_manager_layout);
-		initUiWadgets();
-		setOnClickListersForWadget();
+		initView();
+
+		initListener();
+
+	}
+	
+	private boolean isStartFromNotificationBar() {
+		Boolean startFromNotification = null;
+		if (getIntent().getExtras() == null) {
+			startFromNotification = false;
+		} else {
+			startFromNotification = (Boolean) getIntent().getExtras().get(
+					START_FROM_NOTIFICATION);
+			if (startFromNotification == null) {
+				startFromNotification = false;
+			}
+		}
+		
+		return startFromNotification;
+	}
+	
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		setIntent(intent);
+		setNewAlarmDevices();		
+		super.onNewIntent(intent);
+	}
+	
+	private void initView() {
+		if (isStartFromNotificationBar()) {
+			super.hideLeftButton();
+		}
+		super.hideExtendButton();
+		super.setToolbarVisiable(false);
+		titleView = super.getTitleView();
+		titleView.setText(getString(R.string.alarm_title));
+		mContext = AlarmActivity.this;
+		navBackBtn = (Button) findViewById(R.id.base_navigationbar_right_btn);
+		alarmInfoListView = (ExpandableListView) findViewById(R.id.alarm_expandlistview);
+		navBackBtn.setVisibility(View.GONE);
+		List<AlarmDevice> alarmDevices = ReadWriteXmlUtils.readAlarms();
+		if (alarmDevices != null) {
+			alarmInfoList = getShowAlarmItems(alarmDevices);
+			setAdapterForListView();
+		}
 	}
 
-	private void setOnClickListersForWadget() {
-
+	private void initListener() {
 		alarmInfoListView
 				.setOnItemLongClickListener(new OnItemLongClickListener() {
 					@Override
@@ -105,7 +148,6 @@ public class AlarmActivity extends BaseActivity {
 						return true;
 					}
 				});
-
 		alarmInfoListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,
@@ -120,47 +162,6 @@ public class AlarmActivity extends BaseActivity {
 				return false;
 			}
 		});
-	}
-
-	private void initUiWadgets() {
-		super.hideExtendButton();
-		super.setToolbarVisiable(false);
-		titleView = super.getTitleView();
-		titleView.setText(getString(R.string.alarm_title));
-		mContext = AlarmActivity.this;
-		navBackBtn = (Button) findViewById(R.id.base_navigationbar_right_btn);
-		alarmInfoListView = (ExpandableListView) findViewById(R.id.alarm_expandlistview);
-		navBackBtn.setVisibility(View.GONE);
-		List<AlarmDevice> alarmDevices = ReadWriteXmlUtils.readAlarms();
-		if (alarmDevices != null) {
-			alarmInfoList = getShowAlarmItems(alarmDevices);
-			setAdapterForListView();
-		}
-		// AlarmDevice alarmDevice1 = new AlarmDevice();
-		// AlarmDevice alarmDevice2 = new AlarmDevice();
-		// AlarmShowItem item1 = new AlarmShowItem();
-		// AlarmShowItem item2 = new AlarmShowItem();
-		//
-		// alarmDevice1.setAlarmTime("2014-11-03 19:00");
-		// alarmDevice1.setDeviceName("南京平台");
-		// alarmDevice1.setAlarmType("烟雾报警");
-		// alarmDevice1.setPassword("476430");
-		// alarmDevice1.setUserName("jtpt");
-		// item1.setAlarm(alarmDevice1);
-		//
-		// alarmDevice2.setAlarmTime("2014-10-04 19:00");
-		// alarmDevice2.setDeviceName("巴黎平台");
-		// alarmDevice2.setAlarmType("入侵报警");
-		// alarmDevice2.setPassword("47643");
-		// alarmDevice2.setUserName("why");
-		// item2.setAlarm(alarmDevice2);
-
-		// alarmInfoList.add(item1);
-		// alarmInfoList.add(item2);
-
-		// ReadWriteXmlUtils.writeAlarm(alarmDevice1);
-		// ReadWriteXmlUtils.writeAlarm(alarmDevice2);
-		// new ArrayList<AlarmShowItem>();// 模拟数据
 	}
 
 	private void setAdapterForListView() {
@@ -232,12 +233,7 @@ public class AlarmActivity extends BaseActivity {
 		setNewAlarmDevices();
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		setIntent(intent);
-		setNewAlarmDevices();
-	}
+
 
 	public void dismissProgressDialog() {
 		imgprogress.dismiss();

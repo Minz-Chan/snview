@@ -16,6 +16,7 @@ public class GlobalApplication extends FrontiaApplication {
 	
 	private String appName;
 	
+	private Activity mCurrentActivity;
 	private RealplayActivity mRealplayActivity;
 	
 	private int mScreenWidth;
@@ -161,6 +162,14 @@ public class GlobalApplication extends FrontiaApplication {
 	
 	public RealplayActivity getRealplayActivity() {
 		return mRealplayActivity;
+	}
+
+	public Activity getCurrentActivity() {
+		return mCurrentActivity;
+	}
+
+	public void setCurrentActivity(Activity currentActivity) {
+		this.mCurrentActivity = currentActivity;
 	}
 
 	@Override
