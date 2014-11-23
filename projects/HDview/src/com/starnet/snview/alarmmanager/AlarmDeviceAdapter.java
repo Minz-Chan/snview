@@ -3,9 +3,11 @@ package com.starnet.snview.alarmmanager;
 import java.util.List;
 
 import com.starnet.snview.R;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.NetWorkUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,9 +108,10 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_subitem_layout, null);
 		}
 
+		final int pos = groupPosition;
 		Button imgLoadBtn = (Button) convertView.findViewById(R.id.image_load_btn);
 		Button vdoLoadBtn = (Button) convertView.findViewById(R.id.video_load_btn);
-		final int pos = groupPosition;
+		
 		imgLoadBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -130,19 +133,19 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
-					showImgLoadDialog(VIDEO_LOAD_DIALOG);
-					String ip = alarmInfoList.get(pos).getAlarm().getIp();
-					int port = alarmInfoList.get(pos).getAlarm().getPort();
-					String pwd = alarmInfoList.get(pos).getAlarm().getPassword();
-					String userName = alarmInfoList.get(pos).getAlarm().getUserName();
-					String videoUrl = ip+pwd+port+userName;
-					startVideoLoadTask(videoUrl);// 开启视频下载线程
+					AlarmDevice device = alarmInfoList.get(pos).getAlarm();
+					Intent intent = new Intent(context, RealplayActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra(AlarmActivity.ALARM_DEVICE_DETAIL, device);
+					context.startActivity(intent);
+					((AlarmActivity)context).finish();
 				} else {
 					String netNotOpenContent = context.getString(R.string.alarm_net_notopen);
 					Toast.makeText(context, netNotOpenContent, Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
+
 		return convertView;
 	}
 
@@ -156,120 +159,13 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		getAlarmActivity().showDialog(id);
 	}
 
-	private void startVideoLoadTask(String videoUrl) {
-//		Intent intent = new Intent();
-//		intent.setClass(getAlarmActivity(), cls);
-//		getAlarmActivity().startActivity(intent);
-//		getAlarmActivity().finish();
-	}
-
 	private AlarmActivity getAlarmActivity() {
 		return (AlarmActivity) context;
 	}
 
 	public void cancel(boolean isCanceld) {
-		// this.isCanceled = isCanceld;
 		if (imgLoadTask!=null) {
 			imgLoadTask.setCancel(isCanceld);
 		}
 	}
-
-	// private final int TIMEOUT = 5;
-	// private final int REQUESTCODE = 0x0010;
-	// private ImageLoaderAyncTask imgLoadTask ;
-	// private boolean isCanceled = false;
-	// private boolean isTimeOut = false;
-	// protected void startImageLoadTask(String imageUrl) {
-	// imgLoadTask = new ImageLoaderAyncTask(imageUrl);
-	// imgLoadTask.execute(imageUrl);
-	// new TimeOutThread().start();
-	// }
-
-	// public class ImageLoaderAyncTask extends AsyncTask<String, Void, Bitmap>
-	// {
-	//
-	// private String imageUrl;
-	//
-	// public ImageLoaderAyncTask(String imageUrl) {
-	// this.imageUrl = imageUrl;
-	// }
-	//
-	// @Override
-	// protected Bitmap doInBackground(String... params) {// 从网络获取图片
-	// Bitmap bitmap = null;
-	// try {
-	// byte[] data = getImageFromNet();
-	// if (data!= null) {
-	// bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-	// if (!isCanceled&&!isTimeOut) {
-	// getAlarmActivity().dismissProgressDialog();
-	// Intent intent = new Intent();
-	// intent.setClass(context, AlarmImageActivity.class);
-	// intent.putExtra("image", data);
-	// getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
-	// }
-	// }
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return bitmap;
-	// }
-	//
-	// @Override
-	// protected void onPostExecute(Bitmap result) {
-	// super.onPostExecute(result);
-	// }
-	//
-	// private byte[] getImageFromNet() throws Exception {
-	// URL url = new URL(imageUrl);
-	// HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	// conn.setConnectTimeout(TIMEOUT * 1000);
-	// conn.setRequestMethod("GET");
-	// InputStream inStream = conn.getInputStream();
-	// if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-	// return readStream(inStream);
-	// }
-	// return null;
-	// }
-	// }
-	//
-	// private byte[] readStream(InputStream inStream) throws IOException {
-	// ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-	// byte[] buffer = new byte[1024];
-	// int len = 0;
-	// while( (len=inStream.read(buffer)) != -1){
-	// outStream.write(buffer, 0, len);
-	// }
-	// outStream.close();
-	// inStream.close();
-	// return outStream.toByteArray();
-	// };
-
-	// class TimeOutThread extends Thread {
-	// @Override
-	// public void run() {
-	// super.run();
-	// boolean canRun = true;
-	// int countNum = 0;
-	// while (canRun && !isCanceled) {
-	// try {
-	// Thread.sleep(1000);
-	// countNum++;
-	// if (countNum == TIMEOUT) {
-	// canRun = false;
-	// onTimeOut();
-	// }
-	// } catch (InterruptedException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// }
-	//
-	// private void onTimeOut(){
-	// isTimeOut = true;
-	// getAlarmActivity().dismissProgressDialog();
-	// // Toast.makeText(getAlarmActivity(), "访问网络超时了",
-	// Toast.LENGTH_LONG).show();
-	// }
-	// }
 }

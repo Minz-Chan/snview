@@ -102,10 +102,16 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         if (!TextUtils.isEmpty(customContentString)) {
             JSONObject customContentJsonObj = null;
             try {
+            	String deviceName = null;
                 String alarmContent = null;
                 String imageUrl = null;
                 String videoUrl = null;
                 customContentJsonObj = new JSONObject(customContentString);
+                
+                if (!customContentJsonObj.isNull("device_name")) {
+                	deviceName = Base64Util.decode(customContentJsonObj
+							.getString("device_name")); // 需先BASE64解密
+				}
 				if (!customContentJsonObj.isNull("alarm_content")) {
 					alarmContent = Base64Util.decode(customContentJsonObj
 							.getString("alarm_content")); // 需先BASE64解密
@@ -119,10 +125,13 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 							.getString("video_url"));
 				}
 
-                AlarmDevice ad = parseAlarmMessage(alarmContent, imageUrl, videoUrl);
+                AlarmDevice ad = createAlarmDevice(videoUrl);
+                ad.setDeviceName(deviceName);
+                ad.setAlarmContent(alarmContent);
+                ad.setImageUrl(imageUrl);
                 ReadWriteXmlUtils.writeAlarm(ad); // 持久化报警信息到文件中
                 
-				showNotification(context, ad.getAlarmContent(), "哈尔滨平台",
+				showNotification(context, ad.getAlarmContent(), deviceName,
 						ad.getIp() + ":" + ad.getPort());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -133,10 +142,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         }
     }
     
-    private AlarmDevice parseAlarmMessage(String alarmContent, String imageUrl, String videoUrl) {
+    private AlarmDevice createAlarmDevice(String videoUrl) {
     	AlarmDevice ad = new AlarmDevice();
-    	ad.setAlarmContent(alarmContent);
-    	ad.setImageUrl(imageUrl);
     	
     	if (TextUtils.isEmpty(videoUrl)) {
     		return ad;

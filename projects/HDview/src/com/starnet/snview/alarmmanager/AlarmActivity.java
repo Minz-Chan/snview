@@ -31,6 +31,7 @@ public class AlarmActivity extends BaseActivity {
 
 	private static final String TAG = "AlarmActivity";
 	public static final String START_FROM_NOTIFICATION = "start_from_notification";
+	public static final String ALARM_DEVICE_DETAIL = "alarm_device_detail";
 
 	private Context mContext;
 	private Button navBackBtn;
