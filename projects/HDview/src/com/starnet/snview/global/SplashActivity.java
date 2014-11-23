@@ -12,7 +12,6 @@ import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.AssetsUtil;
 import com.starnet.snview.util.FileUtility;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -168,5 +167,7 @@ public class SplashActivity extends Activity {
 		}
 	}
 
-    
+	@Override
+	public void onBackPressed() {
+	}
 }

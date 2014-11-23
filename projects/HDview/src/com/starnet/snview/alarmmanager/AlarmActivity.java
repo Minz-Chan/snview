@@ -2,6 +2,7 @@ package com.starnet.snview.alarmmanager;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -12,9 +13,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -22,6 +21,7 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
+
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -29,35 +29,21 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("HandlerLeak")
 public class AlarmActivity extends BaseActivity {
 
-	final String TAG = "AlarmActivity";
-	private Button navBackBtn;
-	private ExpandableListView alarmInfoListView;
-	private AlarmDeviceAdapter listviewAdapter;
-	private List<AlarmShowItem> alarmInfoList;
 	private Context mContext;
+	private Button navBackBtn;
 	private TextView titleView;
-	
-	private final int REQUESTCODE = 0x0023;
+	private boolean cancel = false;
 
-	private Handler mHandler = new Handler() {
+	public ProgressDialog imgprogress;
+	private List<AlarmShowItem> alarmInfoList;
+	private AlarmDeviceAdapter listviewAdapter;
+	private ExpandableListView alarmInfoListView;
 
-		@Override
-		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
+	private final int IMAGE_LOAD_DIALOG = 0x0013;
+	private final int VIDEO_LOAD_DIALOG = 0x0014;
 
-			Bundle data = msg.getData();
-			byte[] imgData = data.getByteArray("image");
-			if (imgData != null) {
-				Log.i(TAG, "mgData.length：" + imgData.length);
-				Intent intent = new Intent();
-				intent.setClass(AlarmActivity.this, AlarmImageActivity.class);
-				intent.putExtra("image", imgData);
-				startActivityForResult(intent, REQUESTCODE);
-			}
-		}
-
-	};
-
+	// private final String TAG = "AlarmActivity";
+	// private final int REQUESTCODE = 0x0023;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(true);
@@ -80,23 +66,16 @@ public class AlarmActivity extends BaseActivity {
 
 						String alarm_info = getString(R.string.alarm_dialog_infor);
 						String alarm_titl = getString(R.string.alarm_dialog_title);
-						String deviceName = alarmInfoList.get(position)
-								.getAlarm().getDeviceName();
-						String title = alarm_titl + " " + deviceName + " "
-								+ alarm_info + " ?";
+						String deviceName = alarmInfoList.get(position).getAlarm().getDeviceName();
+						String title = alarm_titl + " " + deviceName + " " + alarm_info + " ?";
 						builder.setTitle(title);
 
-						builder.setNegativeButton(
-								getString(R.string.alarm_dialog_cancel), null);
-						builder.setPositiveButton(
-								getString(R.string.alarm_dialog_OK),
+						builder.setNegativeButton(getString(R.string.alarm_dialog_cancel), null);
+						builder.setPositiveButton(getString(R.string.alarm_dialog_OK),
 								new OnClickListener() {
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-										ReadWriteXmlUtils
-												.removeAlarm(alarmInfoList.get(
-														pos).getAlarm());
+									public void onClick(DialogInterface dialog,int which) {
+										ReadWriteXmlUtils.removeAlarm(alarmInfoList.get(pos).getAlarm());
 										alarmInfoList.remove(pos);
 										listviewAdapter.notifyDataSetChanged();
 									}
@@ -110,8 +89,7 @@ public class AlarmActivity extends BaseActivity {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,
 					int groupPosition, long id) {
-				boolean isExpanded = alarmInfoList.get(groupPosition)
-						.isExpanded();
+				boolean isExpanded = alarmInfoList.get(groupPosition).isExpanded();
 				if (isExpanded) {
 					alarmInfoList.get(groupPosition).setExpanded(false);
 				} else {
@@ -124,10 +102,10 @@ public class AlarmActivity extends BaseActivity {
 
 	private void initUiWadgets() {
 		super.hideExtendButton();
+		mContext = AlarmActivity.this;
 		super.setToolbarVisiable(false);
 		titleView = super.getTitleView();
 		titleView.setText(getString(R.string.alarm_title));
-		mContext = AlarmActivity.this;
 		navBackBtn = (Button) findViewById(R.id.base_navigationbar_right_btn);
 		alarmInfoListView = (ExpandableListView) findViewById(R.id.alarm_expandlistview);
 		navBackBtn.setVisibility(View.GONE);
@@ -164,13 +142,9 @@ public class AlarmActivity extends BaseActivity {
 	}
 
 	private void setAdapterForListView() {
-		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext,mHandler);
+		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
 		alarmInfoListView.setAdapter(listviewAdapter);
 	}
-
-	private final int IMAGE_LOAD_DIALOG = 0x0013;
-	private final int VIDEO_LOAD_DIALOG = 0x0014;
-	public ProgressDialog imgprogress;
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -183,7 +157,7 @@ public class AlarmActivity extends BaseActivity {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					listviewAdapter.cancel(true);
-					if (imgprogress!=null) {
+					if (imgprogress != null) {
 						imgprogress.dismiss();
 					}
 				}
@@ -209,14 +183,12 @@ public class AlarmActivity extends BaseActivity {
 	private void setNewAlarmDevices() {
 		alarmInfoList.clear();
 		alarmInfoList = getShowAlarmItems(ReadWriteXmlUtils.readAlarms());
-		// listviewAdapter.notifyDataSetChanged();
-		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext,mHandler);
+		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
 		alarmInfoListView.setAdapter(listviewAdapter);
 	}
 
 	// 获取新的报警显示（AlarmShowItem）信息
-	private ArrayList<AlarmShowItem> getShowAlarmItems(
-			List<AlarmDevice> alarmDevices) {
+	private ArrayList<AlarmShowItem> getShowAlarmItems(List<AlarmDevice> alarmDevices) {
 		ArrayList<AlarmShowItem> showItems = new ArrayList<AlarmShowItem>();
 		for (int i = 0; i < alarmDevices.size(); i++) {
 			AlarmShowItem showItem = new AlarmShowItem();
@@ -238,21 +210,44 @@ public class AlarmActivity extends BaseActivity {
 		setIntent(intent);
 		setNewAlarmDevices();
 	}
-
-	public void dismissProgressDialog() {
-		imgprogress.dismiss();
-	}
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (data != null) {
-			boolean cancel = data.getBooleanExtra("cancel", false);
-			
-			if (imgprogress!=null) {
+			boolean alarmCancel = data.getBooleanExtra("alarmCancel", false);
+			if (imgprogress != null) {
 				imgprogress.dismiss();
 			}
-			listviewAdapter.cancel(cancel);
+			listviewAdapter.cancel(alarmCancel);
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+			cancel = true;
+			if (listviewAdapter!=null) {
+				listviewAdapter.cancel(cancel);
+			}
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	// private Handler mHandler = new Handler() {
+	// @Override
+	// public void handleMessage(Message msg) {
+	// super.handleMessage(msg);
+	// Bundle data = msg.getData();
+	// byte[] imgData = data.getByteArray("image");
+	// if (imgData != null) {
+	// Log.i(TAG, "mgData.length：" + imgData.length);
+	// Intent intent = new Intent();
+	// intent.setClass(AlarmActivity.this, AlarmImageActivity.class);
+	// intent.putExtra("image", imgData);
+	// intent.putExtra("cancel", cancel);
+	// startActivityForResult(intent, REQUESTCODE);
+	// }
+	// }
+	// };
 }

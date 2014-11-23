@@ -28,7 +28,7 @@ public class ReadWriteXmlUtils {
 
 	public final static String ALARMS_PERSISTANCE_PATH = "/data/data/com.starnet.snview/ALARMS_PERSISTANCE_FILE.xml";
 
-	private static String INDENT = "    ";
+	private static String INDENT = "";
 	private static String CHARSET = "UTF-8";
 
 	/**

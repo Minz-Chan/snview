@@ -1,8 +1,10 @@
 package com.starnet.snview.alarmmanager;
 
 import java.util.List;
+
 import com.starnet.snview.R;
 import com.starnet.snview.util.NetWorkUtils;
+
 import android.content.Context;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -15,15 +17,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
-		OnClickListener {
-
-	private final int IMAGE_LOAD_DIALOG = 0x0013;
-	private final int VIDEO_LOAD_DIALOG = 0x0014;
-	private AlarmImageDownLoadTask imgLoadTask;
-	private List<AlarmShowItem> alarmInfoList;
+public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	private Context context;
 	private Handler handler;
+	private String deviceName;
+	private List<AlarmShowItem> alarmInfoList;
+	private AlarmImageDownLoadTask imgLoadTask;
+	private final int IMAGE_LOAD_DIALOG = 0x0013;
+	private final int VIDEO_LOAD_DIALOG = 0x0014;
+	
 
 	public AlarmDeviceAdapter(List<AlarmShowItem> alarmInfoList,
 			Context context, Handler handler) {
@@ -32,6 +34,11 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
 		this.handler = handler;
 	}
 
+	public AlarmDeviceAdapter(List<AlarmShowItem> alarmInfoList,
+			Context context) {
+		this.alarmInfoList = alarmInfoList;
+		this.context = context;
+	}
 	@Override
 	public int getGroupCount() {
 		int size = 0;
@@ -75,11 +82,15 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_item_layout, null);
+			convertView = LayoutInflater.from(context).inflate(
+					R.layout.alarm_listview_item_layout, null);
 		}
-		TextView deviceTxt = (TextView) convertView.findViewById(R.id.device_item_name);
-		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm().getDeviceName());
-		ImageView arrowImg = (ImageView) convertView.findViewById(R.id.alarm_arrow_img);
+		TextView deviceTxt = (TextView) convertView
+				.findViewById(R.id.device_item_name);
+		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm()
+				.getDeviceName());
+		ImageView arrowImg = (ImageView) convertView
+				.findViewById(R.id.alarm_arrow_img);
 		if (alarmInfoList.get(groupPosition).isExpanded()) {
 			arrowImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 		} else {
@@ -92,14 +103,46 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(
-					R.layout.alarm_listview_subitem_layout, null);
+			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_subitem_layout, null);
 		}
 
 		Button imgLoadBtn = (Button) convertView.findViewById(R.id.image_load_btn);
 		Button vdoLoadBtn = (Button) convertView.findViewById(R.id.video_load_btn);
-		imgLoadBtn.setOnClickListener(this);
-		vdoLoadBtn.setOnClickListener(this);
+		final int pos = groupPosition;
+		imgLoadBtn.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				if (NetWorkUtils.checkNetConnection(context)) {
+					showImgLoadDialog(IMAGE_LOAD_DIALOG);
+					String imgUrl = "http://img.my.csdn.net/uploads/201402/24/1393242467_3999.jpg";// 测试地址
+//					String imgUrl = alarmInfoList.get(pos).getAlarm().getImageUrl();// 测试地址
+					deviceName = alarmInfoList.get(pos).getAlarm().getDeviceName();
+					imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context);
+					imgLoadTask.setTitle(deviceName);
+					imgLoadTask.start();
+				} else {
+					String netNotOpenContent = context.getString(R.string.alarm_net_notopen);
+					Toast.makeText(context, netNotOpenContent, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		vdoLoadBtn.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				if (NetWorkUtils.checkNetConnection(context)) {
+					showImgLoadDialog(VIDEO_LOAD_DIALOG);
+					String ip = alarmInfoList.get(pos).getAlarm().getIp();
+					int port = alarmInfoList.get(pos).getAlarm().getPort();
+					String pwd = alarmInfoList.get(pos).getAlarm().getPassword();
+					String userName = alarmInfoList.get(pos).getAlarm().getUserName();
+					String videoUrl = ip+pwd+port+userName;
+					startVideoLoadTask(videoUrl);// 开启视频下载线程
+				} else {
+					String netNotOpenContent = context.getString(R.string.alarm_net_notopen);
+					Toast.makeText(context, netNotOpenContent, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 		return convertView;
 	}
 
@@ -108,49 +151,16 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
 		return false;
 	}
 
-	@Override
-	public void onClick(View v) {
-
-		String netNotOpenContent = context
-				.getString(R.string.alarm_net_notopen);
-		switch (v.getId()) {
-		case R.id.image_load_btn:
-			if (NetWorkUtils.checkNetConnection(context)) {
-				showImgLoadDialog(IMAGE_LOAD_DIALOG);
-				String imgUrl = "http://img.my.csdn.net/uploads/201402/24/1393242467_3999.jpg";// 测试地址
-				// startImageLoadTask(imageUrl);// 开启图片下载线程
-				imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context);
-				imgLoadTask.setHandler(handler);
-				imgLoadTask.start();
-			} else {
-				Toast.makeText(context, netNotOpenContent, Toast.LENGTH_SHORT)
-						.show();
-			}
-			break;
-		case R.id.video_load_btn:
-			if (NetWorkUtils.checkNetConnection(context)) {
-				showImgLoadDialog(VIDEO_LOAD_DIALOG);
-				String imageUrl = "";
-				startVideoLoadTask(imageUrl);// 开启视频下载线程
-			} else {
-				context.getString(R.string.alarm_net_notopen);
-				Toast.makeText(context, netNotOpenContent, Toast.LENGTH_SHORT)
-						.show();
-			}
-			break;
-		default:
-			break;
-		}
-	}
-
 	@SuppressWarnings("deprecation")
 	private void showImgLoadDialog(int id) {
 		getAlarmActivity().showDialog(id);
 	}
 
 	private void startVideoLoadTask(String videoUrl) {
-		// TODO Auto-generated method stub
-
+//		Intent intent = new Intent();
+//		intent.setClass(getAlarmActivity(), cls);
+//		getAlarmActivity().startActivity(intent);
+//		getAlarmActivity().finish();
 	}
 
 	private AlarmActivity getAlarmActivity() {
@@ -159,7 +169,9 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter implements
 
 	public void cancel(boolean isCanceld) {
 		// this.isCanceled = isCanceld;
-		imgLoadTask.setCancel(isCanceld);
+		if (imgLoadTask!=null) {
+			imgLoadTask.setCancel(isCanceld);
+		}
 	}
 
 	// private final int TIMEOUT = 5;

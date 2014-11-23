@@ -25,7 +25,7 @@
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
             android:gravity="center"
-            android:text="@string/alarm_manageradapter_videoload" />
+            android:text="@string/alarm_manageradapter_videopreview" />
     </LinearLayout>
 
 </LinearLayout>

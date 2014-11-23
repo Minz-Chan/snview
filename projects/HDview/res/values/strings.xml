@@ -163,7 +163,7 @@
     <string name="alarm_dialog_title">确定删除</string>
     <string name="alarm_dialog_infor">报警信息</string>
     <string name="alarm_manageradapter_imageload">图片下载</string>
-    <string name="alarm_manageradapter_videoload">视频下载</string>
+    <string name="alarm_manageradapter_videopreview">视频预览</string>
     <string name="alarm_net_notopen">网络未开启，请打开网络再下载</string>
     <string name="alarm_iamgeload_wait">图片正在下载,请等待&#8230;</string>
     <string name="alarm_videoload_wait">视频正在下载,请等待&#8230;</string>

@@ -1,22 +1,17 @@
 package com.starnet.snview.alarmmanager;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
-import com.starnet.snview.global.SplashActivity;
 import com.starnet.snview.realplay.RealplayActivity;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
  * Push消息处理receiver。请编写您需要的回调函数， 一般来说： onBind是必须的，用来处理startWork返回值；
@@ -40,11 +35,12 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  * 当您遇到以上返回错误时，如果解释不了您的问题，请用同一请求的返回值requestId和errorCode联系我们追查问题。
  * 
  */
+@SuppressLint("SdCardPath")
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
     public static final String TAG = AlarmReceiver.class.getSimpleName();
 
-    private final String message_path = "";
+    final String message_path = "/data/data/com.starnet.snview/ALARMS_PERSISTANCE_FILE.xml";
     /**
      * 调用PushManager.startWork后，sdk将对push
      * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -304,7 +300,4 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.getApplicationContext().startActivity(intent);
     }
-    
-    
-
 }
