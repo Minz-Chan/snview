@@ -1,8 +1,11 @@
 package com.starnet.snview.util;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -20,6 +23,22 @@ import com.starnet.snview.util.Params;
  */
 public final class ActivityUtility {
 
+	/**
+	 * 获取当前任务栈栈顶
+	 * @param context
+	 * @return
+	 */
+	public static String getTopActivity(Activity context)
+	{
+	     ActivityManager manager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE) ;
+	     List<RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1) ;
+	         
+	     if(runningTaskInfos != null)
+	       return (runningTaskInfos.get(0).topActivity).toString() ;
+	          else
+	       return null ;
+	}
+	
 	/**
 	 * 切换全屏状态。
 	 * @param activity Activity

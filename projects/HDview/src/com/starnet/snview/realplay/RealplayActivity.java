@@ -300,8 +300,7 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onStart() {
-		super.restoreActiveViewIdToMain();
-		super.reattachActiveView();
+		super.setCurrentActiveViewId(R.id.menu_drawer_realtime_preview);
 		super.onStart();
 	}
 
@@ -1217,20 +1216,6 @@ public class RealplayActivity extends BaseActivity {
 		} else {
 			getVR().showSingleOrMultiMode(false);
 			ptzControl.setIsEnterPTZInSingleMode(false);
-		}
-	}
-	
-	/**
-	 * 确保页面切换或程序退出时，正在进行的录像操作正常保存
-	 */
-	private void makeSureVideoRecordOff() {
-		List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
-		int count = liveviews.size();
-		
-		for (int i = 0; i < count; i++) {
-			if (liveviews.get(i).getSurfaceView().isStartRecord()) {
-				liveviews.get(i).stopMP4Record();
-			}
 		}
 	}
 

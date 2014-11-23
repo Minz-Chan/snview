@@ -52,15 +52,12 @@ public class SplashActivity extends Activity {
 //		LoadDemoDataAsync loadtask = new LoadDemoDataAsync();
 //		loadtask.execute();
 		
+		startBaiduPushService();
 		if (checkWhetherFirstStart()) { // 首次启动
-			startBaiduPushService();
-			
 			Intent intent = new Intent(this, GuideActivity.class);
 			startActivity(intent);
 			finish();
-		} else {
-//			ReadWriteXmlUtils.flag_start = true;
-			
+		} else {			
 			Intent intent = new Intent(this, RealplayActivity.class);
 			startActivity(intent);
 			finish();
