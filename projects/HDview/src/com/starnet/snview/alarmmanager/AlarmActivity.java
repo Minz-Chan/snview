@@ -29,25 +29,24 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("HandlerLeak")
 public class AlarmActivity extends BaseActivity {
 
-	private static final String TAG = "AlarmActivity";
+	protected static final String TAG = "AlarmActivity";
 	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 
 	private Context mContext;
 	private Button navBackBtn;
 	private TextView titleView;
 	private boolean cancel = false;
-
 	public ProgressDialog imgprogress;
+	private ExpandableListView alarmListView;
 	private List<AlarmShowItem> alarmInfoList;
 	private AlarmDeviceAdapter listviewAdapter;
-	private ExpandableListView alarmInfoListView;
 
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
 	private final int VIDEO_LOAD_DIALOG = 0x0014;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setContainerMenuDrawer(!isStartFromNotificationBar());	
+		setContainerMenuDrawer(!isStartFromNotificationBar());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.alarm_manager_layout);
 		initView();
@@ -55,7 +54,7 @@ public class AlarmActivity extends BaseActivity {
 		initListener();
 
 	}
-	
+
 	private boolean isStartFromNotificationBar() {
 		Boolean startFromNotification = null;
 		if (getIntent().getExtras() == null) {
@@ -67,18 +66,17 @@ public class AlarmActivity extends BaseActivity {
 				startFromNotification = false;
 			}
 		}
-		
+
 		return startFromNotification;
 	}
-	
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		setIntent(intent);
-		setNewAlarmDevices();		
+		setNewAlarmDevices();
 		super.onNewIntent(intent);
 	}
-	
+
 	private void initView() {
 		if (isStartFromNotificationBar()) {
 			super.hideLeftButton();
@@ -89,7 +87,7 @@ public class AlarmActivity extends BaseActivity {
 		titleView.setText(getString(R.string.alarm_title));
 		mContext = AlarmActivity.this;
 		navBackBtn = (Button) findViewById(R.id.base_navigationbar_right_btn);
-		alarmInfoListView = (ExpandableListView) findViewById(R.id.alarm_expandlistview);
+		alarmListView = (ExpandableListView) findViewById(R.id.alarm_expandlistview);
 		navBackBtn.setVisibility(View.GONE);
 		List<AlarmDevice> alarmDevices = ReadWriteXmlUtils.readAlarms();
 		if (alarmDevices != null) {
@@ -99,39 +97,36 @@ public class AlarmActivity extends BaseActivity {
 	}
 
 	private void initListener() {
-		alarmInfoListView
-				.setOnItemLongClickListener(new OnItemLongClickListener() {
-					@Override
-					public boolean onItemLongClick(AdapterView<?> parent,
-							View view, int position, long id) {
-
-						final int pos = position;
-						Builder builder = new Builder(AlarmActivity.this);
-
-						String alarm_info = getString(R.string.alarm_dialog_infor);
-						String alarm_titl = getString(R.string.alarm_dialog_title);
-						String deviceName = alarmInfoList.get(position).getAlarm().getDeviceName();
-						String title = alarm_titl + " " + deviceName + " " + alarm_info + " ?";
-						builder.setTitle(title);
-
-						builder.setNegativeButton(getString(R.string.alarm_dialog_cancel), null);
-						builder.setPositiveButton(getString(R.string.alarm_dialog_OK),
-								new OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog,int which) {
-										ReadWriteXmlUtils.removeAlarm(alarmInfoList.get(pos).getAlarm());
-										alarmInfoList.remove(pos);
-										listviewAdapter.notifyDataSetChanged();
-									}
-								});
-						builder.show();
-						return true;
-					}
-				});
-		alarmInfoListView.setOnGroupClickListener(new OnGroupClickListener() {
+		alarmListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
-			public boolean onGroupClick(ExpandableListView parent, View v,
-					int groupPosition, long id) {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+
+				final int pos = position;
+				Builder builder = new Builder(AlarmActivity.this);
+
+				String alarm_info = getString(R.string.alarm_dialog_infor);
+				String alarm_titl = getString(R.string.alarm_dialog_title);
+				String deviceName = alarmInfoList.get(position).getAlarm().getDeviceName();
+				String title = alarm_titl + " " + deviceName + " " + alarm_info + " ?";
+				builder.setTitle(title);
+
+				builder.setNegativeButton(getString(R.string.alarm_dialog_cancel), null);
+				builder.setPositiveButton(getString(R.string.alarm_dialog_OK), new OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								ReadWriteXmlUtils.removeAlarm(alarmInfoList.get(pos).getAlarm());
+								alarmInfoList.remove(pos);
+								listviewAdapter.notifyDataSetChanged();
+							}
+						});
+				builder.show();
+				return true;
+			}
+		});
+		alarmListView.setOnGroupClickListener(new OnGroupClickListener() {
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
 				boolean isExpanded = alarmInfoList.get(groupPosition).isExpanded();
 				if (isExpanded) {
 					alarmInfoList.get(groupPosition).setExpanded(false);
@@ -145,7 +140,7 @@ public class AlarmActivity extends BaseActivity {
 
 	private void setAdapterForListView() {
 		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
-		alarmInfoListView.setAdapter(listviewAdapter);
+		alarmListView.setAdapter(listviewAdapter);
 	}
 
 	@Override
@@ -172,7 +167,6 @@ public class AlarmActivity extends BaseActivity {
 			videoProgress.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
-
 					videoProgress.dismiss();
 				}
 			});
@@ -183,14 +177,19 @@ public class AlarmActivity extends BaseActivity {
 	}
 
 	private void setNewAlarmDevices() {
-		alarmInfoList.clear();
+		if ((alarmInfoList!=null && alarmInfoList.size()>0)) {
+			alarmInfoList.clear();
+		}
 		alarmInfoList = getShowAlarmItems(ReadWriteXmlUtils.readAlarms());
 		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
-		alarmInfoListView.setAdapter(listviewAdapter);
+		alarmListView.setAdapter(listviewAdapter);
 	}
 
 	// 获取新的报警显示（AlarmShowItem）信息
 	private ArrayList<AlarmShowItem> getShowAlarmItems(List<AlarmDevice> alarmDevices) {
+		if (alarmDevices==null) {
+			return null;
+		}
 		ArrayList<AlarmShowItem> showItems = new ArrayList<AlarmShowItem>();
 		for (int i = 0; i < alarmDevices.size(); i++) {
 			AlarmShowItem showItem = new AlarmShowItem();
@@ -220,29 +219,13 @@ public class AlarmActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
 			cancel = true;
-			if (listviewAdapter!=null) {
+			if (listviewAdapter != null) {
 				listviewAdapter.cancel(cancel);
 			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-
-	// private Handler mHandler = new Handler() {
-	// @Override
-	// public void handleMessage(Message msg) {
-	// super.handleMessage(msg);
-	// Bundle data = msg.getData();
-	// byte[] imgData = data.getByteArray("image");
-	// if (imgData != null) {
-	// Log.i(TAG, "mgData.length：" + imgData.length);
-	// Intent intent = new Intent();
-	// intent.setClass(AlarmActivity.this, AlarmImageActivity.class);
-	// intent.putExtra("image", imgData);
-	// intent.putExtra("cancel", cancel);
-	// startActivityForResult(intent, REQUESTCODE);
-	// }
-	// }
-	// };
 }

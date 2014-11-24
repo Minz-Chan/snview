@@ -125,11 +125,10 @@ public class ReadWriteXmlUtils {
 			int size = subElements.size();
 			for (int i = 0; i < size; i++) {
 				Element subElement = subElements.get(i);
-				String deviceName = subElement.attributeValue("deviceName");
+//				String deviceName = subElement.attributeValue("deviceName");alarmDevice.getDeviceName().equals(deviceName)
 				String password = subElement.attributeValue("password");
 				String userName = subElement.attributeValue("userName");
-				if (alarmDevice.getDeviceName().equals(deviceName)
-				&& (alarmDevice.getPassword().equals(password))&& (alarmDevice.getUserName().equals(userName))) {//
+				if ((alarmDevice.getPassword().equals(password))&& (alarmDevice.getUserName().equals(userName))) {//
 					subElement.detach();
 				}
 			}

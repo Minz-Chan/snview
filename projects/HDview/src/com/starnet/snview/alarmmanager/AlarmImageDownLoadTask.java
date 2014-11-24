@@ -21,7 +21,7 @@ public class AlarmImageDownLoadTask {
 	private final int TIMEOUT = 7;
 	private boolean isDownloadSuc = true;
 	private final int REQUESTCODE = 0x0023;
-	private final String TAG = "AlarmImageDownLoadTask";
+	protected final String TAG = "AlarmImageDownLoadTask";
 
 	public AlarmImageDownLoadTask(String imageUrl, Context context) {
 		this.imageUrl = imageUrl;

@@ -1,6 +1,5 @@
 package com.starnet.snview.devicemanager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;

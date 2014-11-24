@@ -47,8 +47,6 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
     public static final String TAG = AlarmReceiver.class.getSimpleName();
-
-    final String message_path = "/data/data/com.starnet.snview/ALARMS_PERSISTANCE_FILE.xml";
     /**
      * 调用PushManager.startWork后，sdk将对push
      * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
