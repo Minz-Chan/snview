@@ -1,6 +1,9 @@
 package com.starnet.snview.alarmmanager;
 
-public class AlarmDevice {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class AlarmDevice implements Parcelable{
 	private String deviceName;
 	private String alarmTime; // YYYY-MM-DD HH:MM:SS
 	private String alarmType;
@@ -11,6 +14,23 @@ public class AlarmDevice {
 	private int channel;
 	private String userName;
 	private String password;
+	
+	public AlarmDevice() {
+		
+	}
+	
+	private AlarmDevice(Parcel in) {
+		this.deviceName = in.readString();
+		this.alarmTime = in.readString();
+		this.alarmType = in.readString();
+		this.alarmContent = in.readString();
+		this.imageUrl = in.readString();
+		this.ip = in.readString();
+		this.port = in.readInt();
+		this.channel = in.readInt();
+		this.userName = in.readString();
+		this.password = in.readString();
+	}
 	
 	public String getDeviceName() {
 		return deviceName;
@@ -91,5 +111,37 @@ public class AlarmDevice {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(deviceName);
+		dest.writeString(alarmTime);
+		dest.writeString(alarmType);
+		dest.writeString(alarmContent);
+		dest.writeString(imageUrl);
+		dest.writeString(ip);
+		dest.writeInt(port);
+		dest.writeInt(channel);
+		dest.writeString(userName);
+		dest.writeString(password);
+	}
+	
+	public static final Parcelable.Creator<AlarmDevice> CREATOR = new Parcelable.Creator<AlarmDevice>() {
+
+		@Override
+		public AlarmDevice createFromParcel(Parcel in) {
+			return new AlarmDevice(in);
+		}
+
+		@Override
+		public AlarmDevice[] newArray(int size) {
+			return new AlarmDevice[size];
+		}
+	};
 
 }

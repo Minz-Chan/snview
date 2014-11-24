@@ -3,9 +3,11 @@ package com.starnet.snview.alarmmanager;
 import java.util.List;
 
 import com.starnet.snview.R;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.NetWorkUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,12 +110,14 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 					R.layout.alarm_listview_subitem_layout, null);
 		}
 
+
 		Button imgLoadBtn = (Button) convertView
 				.findViewById(R.id.image_load_btn);
 		Button vdoLoadBtn = (Button) convertView
 				.findViewById(R.id.video_load_btn);
 		final int pos = groupPosition;
-		imgLoadBtn.setOnClickListener(new OnClickListener() {
+		
+		imgLoadBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
@@ -140,15 +144,13 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
-					getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
-					String ip = alarmInfoList.get(pos).getAlarm().getIp();
-					int port = alarmInfoList.get(pos).getAlarm().getPort();
-					String pwd = alarmInfoList.get(pos).getAlarm()
-							.getPassword();
-					String userName = alarmInfoList.get(pos).getAlarm()
-							.getUserName();
-					String videoUrl = ip + pwd + port + userName;
-					startVideoLoadTask(videoUrl);// 开启视频播放线程
+
+					AlarmDevice device = alarmInfoList.get(pos).getAlarm();
+					Intent intent = new Intent(context, RealplayActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intent.putExtra(AlarmActivity.ALARM_DEVICE_DETAIL, device);
+					context.startActivity(intent);
+					((AlarmActivity)context).finish();
 				} else {
 					String netNotOpenContent = context
 							.getString(R.string.alarm_net_notopen);
@@ -157,6 +159,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 				}
 			}
 		});
+
 		return convertView;
 	}
 
@@ -165,20 +168,12 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		return false;
 	}
 
-	private void startVideoLoadTask(String videoUrl) {
-		// Intent intent = new Intent();
-		// intent.setClass(getAlarmActivity(), cls);
-		// getAlarmActivity().startActivity(intent);
-		// getAlarmActivity().finish();
-	}
-
 	private AlarmActivity getAlarmActivity() {
 		return (AlarmActivity) context;
 	}
 
 	public void cancel(boolean isCanceld) {
-		// this.isCanceled = isCanceld;
-		if (imgLoadTask != null) {
+		if (imgLoadTask!=null) {
 			imgLoadTask.setCancel(isCanceld);
 		}
 	}
