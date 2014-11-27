@@ -52,12 +52,12 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 	
 	private Button mBackBtn ;						// 左上角返回按钮
 	
-	private String mVideoPath;						// 实时传过来的录像路径...
+	private String mVideoPath;						// 实时传过来的录像路径
 
 	private MediaPlayer mMediaPlayer;
 	private SurfaceView mSurfaceView;				// 视屏播放控件
 
-	private ImageButton mPlayBtn;					// surfaceView上的按钮...
+	private ImageButton mPlayBtn;					// surfaceView上的按钮
 	private ImageButton mPlayStopBtn;				// 播放、停止按钮
 	private ImageButton mSoundBtn;					// 声音按钮,控制静音或者播放音量
 	private ImageButton mCaptureBtn;				// 拍照按钮

@@ -22,9 +22,9 @@ public class ImagesManagerActivity extends BaseActivity {
 	
 	private final String TAG = "ImagesManagerActivity";
 
-	private FrameLayout mBaseContentView;//框布局...
-	private ExpandableListView mExpandableListView;//表示加载图片的扩展列表...
-	private ImagesExpandableListAdapter mExpandableListAdapter;//ExpandableListView的适配器...
+	private FrameLayout mBaseContentView;
+	private ExpandableListView mExpandableListView;
+	private ImagesExpandableListAdapter mExpandableListAdapter;
 	
 	private final ArrayList<ImagesGroup> mImagesThumbnailGroupList = new ArrayList<ImagesGroup>();
 	
@@ -88,20 +88,17 @@ public class ImagesManagerActivity extends BaseActivity {
 				if (!mIsEdit) {	// 进入图像管理编辑状态
 					switch2EditStatus(true);					
 					mIsEdit = true;
-				} else {	// 删除所选图片,进入非编辑状态...
-					Log.i(TAG, "处在编辑状态");
+				} else {	// 删除所选图片,进入非编辑状态
 					mImagesManager.deleteSelectedImages();
-					
 					for (int i = 0; i < mImagesThumbnailGroupList.size(); i++) {
 						int size = mImagesThumbnailGroupList.get(i).getGroupSize();
 						if (size == 0) {
-							mImagesThumbnailGroupList.remove(i);//需要remove掉，整个组...
+							mImagesThumbnailGroupList.remove(i);
 						}
 					}
-					mExpandableListAdapter.notifyDataSetChanged();//更新图像管理
-					//更新导航栏....
+					mExpandableListAdapter.notifyDataSetChanged();
 					mIsEdit = false;
-					switch2EditStatus(false);//转化为非编辑状态...????/
+					switch2EditStatus(false);
 				}
 			}
 		});

@@ -40,14 +40,14 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 	private Context context;
 	private int showSum;									// 导航栏中总数
 	private int showNum;									// 导航栏中第几幅画面
-	private TextView imagepreview_title;					// 显示设备的数量，以及显示画面的序号...
+	private TextView imagepreview_title;					// 显示设备的数量，以及显示画面的序号
 	private Button imagepreview_leftBtn;					// 返回按钮
 
 	private SelfDefViewPager mSelfDefViewPager;				// 自定义的ViewPager可以判断是左滑，还是右滑
 	private SelfPagerAdapter selfPagerAdapter;
 
 	private FrameLayout nToolbar;
-	private RelativeLayout mNavigationBar;					// 导航栏...
+	private RelativeLayout mNavigationBar;					// 导航栏
 	private int click_time = 0;
 	private Button delete_button;
 	private PhotoView photoView;

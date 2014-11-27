@@ -111,10 +111,9 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		}
 
 
-		Button imgLoadBtn = (Button) convertView
-				.findViewById(R.id.image_load_btn);
-		Button vdoLoadBtn = (Button) convertView
-				.findViewById(R.id.video_load_btn);
+		Button imgLoadBtn = (Button) convertView.findViewById(R.id.image_load_btn);
+		Button vdoLoadBtn = (Button) convertView.findViewById(R.id.video_load_btn);		
+		Button contentBtn = (Button) convertView.findViewById(R.id.alarm_content_btn);
 		final int pos = groupPosition;
 		
 		imgLoadBtn.setOnClickListener(new OnClickListener(){
@@ -122,13 +121,11 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
 					getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
-					String imgUrl = alarmInfoList.get(pos).getAlarm()
-							.getImageUrl();// 测试地址
+					String imgUrl = alarmInfoList.get(pos).getAlarm().getImageUrl();
 					if (imgUrl == null) {
 						imgUrl = "http://img.my.csdn.net/uploads/201402/24/1393242467_3999.jpg";// 网络测试地址
 					}
-					deviceName = alarmInfoList.get(pos).getAlarm()
-							.getDeviceName();
+					deviceName = alarmInfoList.get(pos).getAlarm().getDeviceName();
 					imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context);
 					imgLoadTask.setTitle(deviceName);
 					imgLoadTask.start();
@@ -144,7 +141,6 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
-
 					AlarmDevice device = alarmInfoList.get(pos).getAlarm();
 					Intent intent = new Intent(context, RealplayActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -157,6 +153,16 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 					Toast.makeText(context, netNotOpenContent,
 							Toast.LENGTH_SHORT).show();
 				}
+			}
+		});
+		
+		contentBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AlarmDevice device = alarmInfoList.get(pos).getAlarm();
+				Intent intent = new Intent(context,AlarmContentActivity.class);
+				intent.putExtra("alarmDevice", device);
+				context.startActivity(intent);
 			}
 		});
 

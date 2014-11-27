@@ -59,6 +59,7 @@ public class AlarmImageDownLoadTask {
 				super.run();
 				try {
 					imgData = startDownloadImage();// 比较耗时的操作，下载图像数据
+					
 				} catch (IOException e) {
 					onDownloadFailed();// 下载失败的处理
 					e.printStackTrace();
@@ -86,6 +87,7 @@ public class AlarmImageDownLoadTask {
 		intent.putExtra("image", imgData);
 		intent.putExtra("cancel", isCanceled);
 		intent.putExtra("title", deviceName);
+		intent.putExtra("imageUrl", imageUrl);
 		intent.setClass(getAlarmActivity(), AlarmImageActivity.class);
 		getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
 	}
@@ -143,4 +145,5 @@ public class AlarmImageDownLoadTask {
 	public AlarmActivity getAlarmActivity() {
 		return (AlarmActivity) mContext;
 	}
+	
 }

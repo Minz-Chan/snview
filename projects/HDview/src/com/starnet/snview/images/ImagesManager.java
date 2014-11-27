@@ -18,6 +18,8 @@ import java.util.TreeMap;
 
 
 
+
+
 import com.starnet.snview.images.Image.ImageType;
 
 import android.util.Log;
@@ -69,6 +71,7 @@ public class ImagesManager {
 			mTreeComparator);
 
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean addImage(Image image) {
 		boolean result = false;
 		
@@ -97,6 +100,7 @@ public class ImagesManager {
 		return result;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void deleteImage(Image image) {
 		List imageList = (List) mImagesMap.get(image.getDate());
 
@@ -107,6 +111,13 @@ public class ImagesManager {
 			File thumbnailFile = new File(image.getThumbnailsPath());
 			imageFile.delete();
 			thumbnailFile.delete();
+			
+			String path = image.getImagePath();
+			if (path.contains("mp4")) {
+				path = path.replace("record", "capture").replace("mp4", "jpg");
+				File captureFile = new File(path);
+				captureFile.delete();
+			}
 
 			File captureFolder = new File(
 					LocalFileUtils.getCaptureFolderPathForDate(image.getDate()));
@@ -134,20 +145,28 @@ public class ImagesManager {
 		Iterator<Image> it = imageList.iterator();
 		while (it.hasNext()) {
 			Image image = it.next();
+			String path = image.getImagePath();
 			File imageFile = new File(image.getImagePath());
 			File thumbnailFile = new File(image.getThumbnailsPath());
-			imageFile.delete();
-			thumbnailFile.delete();
+			boolean isImgSuc = imageFile.delete();
+			boolean isthmSuc = thumbnailFile.delete();
+			System.out.println("isImgSuc:"+isImgSuc+"--isthmSuc:"+isthmSuc);
+			if (path.contains("mp4")) {
+				path = path.replace("record", "capture").replace("mp4", "jpg");
+				File captureFile = new File(path);
+				captureFile.delete();
+			}
 		}
 
 		String str1 = LocalFileUtils.getCaptureFolderPathForDate(folderName);
 		String str2 = LocalFileUtils.getRecordFolderPathForDate(folderName);
 		File file1 = new File(str1);
 		File file2 = new File(str2);
-		file1.delete();
-		file2.delete();
+		boolean isF1Suc = file1.delete();
+		boolean isF2Suc = file2.delete();
+		System.out.println("isF1Suc:"+isF1Suc+"--isF2Suc:"+isF2Suc);
 	}
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void deleteSelectedImages() {
 		ArrayList foldersToBeDeleted = new ArrayList();
 		LinkedList selectedImages = new LinkedList();
@@ -176,7 +195,6 @@ public class ImagesManager {
 			if (imageList.isEmpty()) {
 				foldersToBeDeleted.add(strDate);
 			}
-			
 		}
 		
 
@@ -184,7 +202,6 @@ public class ImagesManager {
 		
 		while (it3.hasNext()) {
 			String folderName = (String) it3.next();
-			
 			mDateList.remove(folderName);
 			mImagesMap.remove(folderName);
 		}
@@ -201,34 +218,6 @@ public class ImagesManager {
 		String[] pathList = file.list();
 		if (pathList.length == 0) {
 			file.delete();
-		}
-	}
-	
-	//删除文件，但是不考虑空的情况...
-	public void deleteSelectedImages_copy() {
-		ArrayList foldersToBeDeleted = new ArrayList();
-		LinkedList selectedImages = new LinkedList();
-		Iterator itEntrySet = mImagesMap.entrySet().iterator();
-		
-		while (itEntrySet.hasNext()) {
-			
-			Map.Entry entry = (Map.Entry)itEntrySet.next();
-			String strDate = (String) entry.getKey();
-			List imageList = (List) entry.getValue();
-			Iterator itImageList = imageList.iterator();
-			
-			while (itImageList.hasNext()) {
-				Image image = (Image) itImageList.next();
-				
-				if (image.isSelected()) {
-					selectedImages.add(image);
-				}
-			}
-			
-			if (!selectedImages.isEmpty()) {
-				imageList.removeAll(selectedImages);
-				deleteImages(strDate, selectedImages);
-			}
 		}
 	}
 	

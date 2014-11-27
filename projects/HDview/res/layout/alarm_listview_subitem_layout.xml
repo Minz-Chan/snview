@@ -9,6 +9,14 @@
         android:layout_height="wrap_content"
         android:background="@color/channel_listview_account_item_bg_collapsed"
         android:gravity="center" >
+        <Button
+            android:id="@+id/alarm_content_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:text="@string/alarm_manageradapter_content"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/image_load_btn"
