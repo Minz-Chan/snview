@@ -151,6 +151,8 @@ public class DeviceCollectActivity extends BaseActivity {
 						saveDeviceItem.setSvrIp(serverIP);
 						saveDeviceItem.setSvrPort(serverPort);
 						saveDeviceItem.setSecurityProtectionOpen(true);
+						String platformUsername = getString(R.string.device_manager_collect_device);
+						saveDeviceItem.setPlatformUsername(platformUsername);
 						
 						try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
 							if (auto_flag ==1) {

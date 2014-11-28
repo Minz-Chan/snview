@@ -108,31 +108,24 @@ public class DeviceViewActivity extends BaseActivity {
 											deletePDeviceItems.add(previewDeviceItem);//获取需要删除的预览通道
 										}
 									}
-									
 									int delSize = deletePDeviceItems.size();
 									for (int i = 0; i < delSize; i++) {
 										PreviewDeviceItem delPreDeviceItem = deletePDeviceItems.get(i);
 										previewDeviceItems.remove(delPreDeviceItem);
 									}
-									
 									if (delSize > 0) {
 										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
 									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem, filePath);
-									
 								} catch (DocumentException e) {
 									e.printStackTrace();
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
-								
 								deviceItemList.remove(deletPosition);
 								dLAdapter.notifyDataSetChanged();							// 列表的更新操作
 							}
-
-							
 						});
-
 				builder.setNegativeButton(getString(R.string.device_manager_deviceview_cancel),null);
 				builder.show();
 				return true;
