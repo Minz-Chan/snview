@@ -101,32 +101,52 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
             JSONObject customContentJsonObj = null;
             try {
             	String deviceName = null;
+            	String alarmTime = null;
+            	String alarmType = null;
                 String alarmContent = null;
                 String imageUrl = null;
                 String videoUrl = null;
+                String pushUserUrl = null;
                 customContentJsonObj = new JSONObject(customContentString);
                 
-                if (!customContentJsonObj.isNull("device_name")) {
+                if (!customContentJsonObj.isNull("DeviceName")) {
                 	deviceName = Base64Util.decode(customContentJsonObj
-							.getString("device_name")); // 需先BASE64解密
+							.getString("DeviceName")); // 需先BASE64解密
 				}
-				if (!customContentJsonObj.isNull("alarm_content")) {
+                if (!customContentJsonObj.isNull("AlarmTime")) {
+                	alarmTime = Base64Util.decode(customContentJsonObj
+							.getString("AlarmTime"));
+				}
+                if (!customContentJsonObj.isNull("AlarmType")) {
+                	alarmType = Base64Util.decode(customContentJsonObj
+							.getString("AlarmType"));
+				}
+				if (!customContentJsonObj.isNull("AlarmContent")) {
 					alarmContent = Base64Util.decode(customContentJsonObj
-							.getString("alarm_content")); // 需先BASE64解密
+							.getString("AlarmContent")); 
 				}
-				if (!customContentJsonObj.isNull("image_path")) {
+				if (!customContentJsonObj.isNull("PushUser")) {
+					pushUserUrl = Base64Util.decode(customContentJsonObj
+							.getString("PushUser"));
+				}
+				if (!customContentJsonObj.isNull("ImageUrl")) {
 					imageUrl = Base64Util.decode(customContentJsonObj
-							.getString("image_path"));
+							.getString("ImageUrl"));
 				}
-				if (!customContentJsonObj.isNull("video_url")) {
+				if (!customContentJsonObj.isNull("VideoUrl")) {
 					videoUrl = Base64Util.decode(customContentJsonObj
-							.getString("video_url"));
+							.getString("VideoUrl"));
 				}
 
-                AlarmDevice ad = createAlarmDevice(videoUrl);
+                AlarmDevice ad = new AlarmDevice();
                 ad.setDeviceName(deviceName);
+                ad.setAlarmTime(alarmTime);
+                ad.setAlarmType(alarmType);
                 ad.setAlarmContent(alarmContent);
-                ad.setImageUrl(imageUrl);
+                parseImageUrl(ad, imageUrl);
+                parseVideoUrl(ad, videoUrl);
+                parsePushUser(ad, pushUserUrl);
+                
                 ReadWriteXmlUtils.writeAlarm(ad); // 持久化报警信息到文件中
                 
 				showNotification(context, ad.getAlarmContent(), deviceName,
@@ -140,42 +160,79 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         }
     }
     
-    private AlarmDevice createAlarmDevice(String videoUrl) {
-    	AlarmDevice ad = new AlarmDevice();
+    /**
+     * 解析ImageUrl
+     * @param ad 被填充的对象，接收格式化后的信息
+     * @param imageUrl ImageUrl字符串
+     * @return 更新后的AlarmDevice对象
+     */
+    private AlarmDevice parseImageUrl(AlarmDevice ad, String imageUrl) {
+    	if (TextUtils.isEmpty(imageUrl)) {
+    		return ad;
+    	}
     	
+    	/*
+    	 * example:
+    	 *     why:1@http://xy.star-netsecurity.com/p/jtpt/2014-11-24/1416790466581653.jpg
+    	 */
+    	String userPattern = "([a-zA-Z0-9]{1,16})"; 
+	    String passwordPattern = "([a-zA-Z0-9]{0,32})";
+	    String imageUrlPattern = "([a-zA-z]+://[^\\s]*)";
+	    Pattern pattern = Pattern.compile(userPattern + ":" + passwordPattern
+	    		+ "@" + imageUrlPattern);
+	    Matcher matcher = pattern.matcher(imageUrl);
+	    if (matcher.find()) {
+	    	ad.setImageUrl(matcher.group(3));
+	    } else {
+	    	throw new IllegalStateException("Invalid image url, which should match pattern"
+    				+ "[username]:[password]@[url]");
+	    }
+    	
+    	return ad;
+    }
+    
+    
+    /**
+     * 解析VideoUrl
+     * @param ad 被填充的对象，接收格式化后的信息
+     * @param videoUrl VideoUrl字符串
+     * @return 更新后的AlarmDevice对象
+     */
+    private AlarmDevice parseVideoUrl(AlarmDevice ad, String videoUrl) {
     	if (TextUtils.isEmpty(videoUrl)) {
     		return ad;
     	}  
     	
     	/*
     	 * example:
-    	 *     rtsp://admin:123456@192.168.0.2:8081/ch1/3
-    	 *     rtsp://192.168.0.2:8081/ch1/3
+    	 *     why:1@owsp://106.91.60.24:8080/chn2
+    	 *     owsp://106.91.60.24:8080/chn2
     	 */
-		String userPattern = "(([a-z]|[A-Z]|[0-9]){1,16})"; 
-	    String passwordPattern = "(([a-z]|[A-Z]|[0-9]){0,32})";
+		String userPattern = "([a-zA-Z0-9]{1,16})"; 
+	    String passwordPattern = "([a-zA-Z0-9]{0,32})";
 	    String ipPattern = "([\\d]+\\.[\\d]+\\.[\\d]+\\.[\\d]+)"; 
 	    String portPattern = "([\\d]+)";
-	    String channelPattern = "ch([\\d]+)";	       
+	    String channelPattern = "chn([\\d]+)";	 
+	    String schemePattern = "owsp";
 	    boolean isExistUserPass = videoUrl.indexOf("@") != -1;
 	    Pattern pattern;
 	    
 	    if (isExistUserPass) { // there exists user and password
-			pattern = Pattern.compile("rtsp://" + userPattern + ":"
-					+ passwordPattern + "@" + ipPattern + ":" + portPattern
-					+ "/" + channelPattern + "/[\\d]+");
+	    	pattern = Pattern.compile(userPattern + ":" + passwordPattern
+	    			+ "@" + schemePattern + "://" + ipPattern
+	    			+ ":" + portPattern + "/" + channelPattern);
 	    } else {  // no user and password
-	    	pattern = Pattern.compile("rtsp://" + ipPattern + ":" + portPattern
-					+ "/" + channelPattern + "/[\\d]+");
+	    	pattern = Pattern.compile(schemePattern + "://" + ipPattern 
+	    			+ ":" + portPattern + "/" + channelPattern);
 	    }
 	    Matcher matcher = pattern.matcher(videoUrl);
 	    if (matcher.find()) {
 	    	if (isExistUserPass) {
 	    		ad.setUserName(matcher.group(1));	// user
-	    		ad.setPassword(matcher.group(3));	// password
-		    	ad.setIp(matcher.group(5));			// ip
-		    	ad.setPort(Integer.valueOf(matcher.group(6)));		// port
-		    	ad.setChannel(Integer.valueOf(matcher.group(7)));	// channel
+	    		ad.setPassword(matcher.group(2));	// password
+		    	ad.setIp(matcher.group(3));			// ip
+		    	ad.setPort(Integer.valueOf(matcher.group(4)));		// port
+		    	ad.setChannel(Integer.valueOf(matcher.group(5)));	// channel
 	    	} else {
 	    		ad.setIp(matcher.group(1));  // ip
 	    		ad.setPort(Integer.valueOf(matcher.group(2)));  // port
@@ -183,11 +240,43 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	    	}
 	    } else {
     		throw new IllegalStateException("Invalid video url, which should match pattern"
-    				+ "rtsp://[username]:[password]@[ip]:[port]/[channel]/[subtype]"
-    				+ " or rtsp://[ip]:[port]/[channel]/[subtype]");
+    				+ "[username]:[password]@[scheme]://[ip]:[port]/[channel]"
+    				+ " or [scheme]://[ip]:[port]/[channel]");
 	    }
 	    
 	    return ad;
+    }
+    
+    /**
+     * 解析PushUser
+     * @param ad 被填充的对象，接收格式化后的信息
+     * @param pushUser PushUser字符串
+     * @return 更新后的AlarmDevice对象
+     */
+    private AlarmDevice parsePushUser(AlarmDevice ad, String pushUser) {
+    	if (TextUtils.isEmpty(pushUser)) {
+    		return ad;
+    	}
+    	
+    	/*
+    	 * example:
+    	 *     why:1@xy.star-netsecurity.com
+    	 */
+    	String pusherUsernamePattern = "([a-zA-Z0-9]{1,32})"; 
+	    String pusherPasswordPattern = "([a-zA-Z0-9]{0,128})";
+	    String pusherDomainPattern = "(([\\w-]+\\.)+[\\w-]+)";
+	    Pattern pattern = Pattern.compile(pusherUsernamePattern+ ":"
+	    		+ pusherPasswordPattern + "@" + pusherDomainPattern);
+	    Matcher matcher = pattern.matcher(pushUser);
+	    if (matcher.find()) {
+	    	ad.setPusherUserName(matcher.group(1));
+	    	ad.setPusherPassword(matcher.group(2));
+	    	ad.setPusherDomain(matcher.group(3));
+	    } else {
+	    	throw new IllegalStateException("Invalid PushUser url, which should match pattern"
+    				+ "[username]:[password]@[Domain/IP]");
+	    }
+    	return ad;
     }
     
     @SuppressWarnings("deprecation")

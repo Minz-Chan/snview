@@ -14,6 +14,10 @@ public class AlarmDevice implements Parcelable{
 	private int channel;
 	private String userName;
 	private String password;
+	private String pusherUserName;
+	private String pusherPassword;
+	private String pusherDomain;  // domain or ip
+	
 	
 	public AlarmDevice() {
 		
@@ -30,6 +34,9 @@ public class AlarmDevice implements Parcelable{
 		this.channel = in.readInt();
 		this.userName = in.readString();
 		this.password = in.readString();
+		this.pusherUserName = in.readString();
+		this.pusherPassword = in.readString();
+		this.pusherDomain = in.readString();
 	}
 	
 	public String getDeviceName() {
@@ -112,6 +119,30 @@ public class AlarmDevice implements Parcelable{
 		this.password = password;
 	}
 
+	public String getPusherUserName() {
+		return pusherUserName;
+	}
+
+	public void setPusherUserName(String pusherUserName) {
+		this.pusherUserName = pusherUserName;
+	}
+
+	public String getPusherPassword() {
+		return pusherPassword;
+	}
+
+	public void setPusherPassword(String pusherPassword) {
+		this.pusherPassword = pusherPassword;
+	}
+
+	public String getPusherDomain() {
+		return pusherDomain;
+	}
+
+	public void setPusherDomain(String pusherDomain) {
+		this.pusherDomain = pusherDomain;
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -129,6 +160,9 @@ public class AlarmDevice implements Parcelable{
 		dest.writeInt(channel);
 		dest.writeString(userName);
 		dest.writeString(password);
+		dest.writeString(pusherUserName);
+		dest.writeString(pusherPassword);
+		dest.writeString(pusherDomain);;
 	}
 	
 	public static final Parcelable.Creator<AlarmDevice> CREATOR = new Parcelable.Creator<AlarmDevice>() {
