@@ -158,6 +158,7 @@
     <string name="realplay_update_previewdevicelist_failed">设备信息更新失败!</string>
     <string name="realplay_update_previewdevicelist_timeout">设备信息更新超时!</string>
     <string name="alarm_title">报警通知</string>
+    <string name="alarm_manager">报警管理</string>
     <string name="alarm_dialog_cancel">取消</string>
     <string name="alarm_dialog_OK">确定</string>
     <string name="alarm_dialog_title">确定删除</string>
@@ -171,7 +172,12 @@
     <string name="alarm_content_info">报警信息</string>
     <string name="alarm_content_devicename">报警设备</string>
     <string name="alarm_content_time">报警时间</string>
+    <string name="alarm_content_ip">报警IP</string>
     <string name="alarm_content_type">报警类型</string>
-    <string name="alarm_content_contents">报警内容:</string>
-
+    <string name="alarm_content_port">报警端口</string>
+    <string name="alarm_content_channel">报警通道</string>
+    <string name="alarm_content_contents">报警内容</string>
+    <string name="alarm_content_pushdomain">推送域名</string>
+    <string name="alarm_content_pushusername">推送用户</string>
+    
 </resources>

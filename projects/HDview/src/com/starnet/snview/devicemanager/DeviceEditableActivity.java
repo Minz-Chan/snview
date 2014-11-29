@@ -89,10 +89,11 @@ public class DeviceEditableActivity extends BaseActivity {
 //								channelList.add(channel);
 //							}
 //							clickDeviceItem.setChannelList(channelList);
-							boolean isBelong = isBelongtoPreviewDeviceItem(clickDeviceItem,mPreviewDeviceItems);
-							if (isBelong) {
-								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-							}
+							
+//							boolean isBelong = isBelongtoPreviewDeviceItem(clickDeviceItem,mPreviewDeviceItems);
+//							if (isBelong) {
+//								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+//							}
 							// 并返回原来的界面
 							Intent data = new Intent();
 							Bundle bundle = new Bundle();

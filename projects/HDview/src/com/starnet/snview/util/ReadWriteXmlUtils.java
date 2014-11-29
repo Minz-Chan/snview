@@ -1,13 +1,18 @@
 package com.starnet.snview.util;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
+import android.util.Xml;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import junit.framework.Protectable;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -16,6 +21,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.xmlpull.v1.XmlSerializer;
 
 import com.starnet.snview.alarmmanager.AlarmDevice;
 import com.starnet.snview.channelmanager.Channel;
@@ -943,5 +949,50 @@ public class ReadWriteXmlUtils {
 			e.printStackTrace();
 		}
 		return cloudAccountList;
+	}
+
+	/**添加一条报警信息记录到xml文档中**/
+	public static boolean appendAlarmToXMLWithParser(AlarmDevice alarmDevice){
+		
+		boolean isSuccess = false;
+		try {
+			File file = new File(ALARMS_PERSISTANCE_PATH);
+			FileOutputStream outStream = new FileOutputStream(file);
+			XmlSerializer serializer = Xml.newSerializer();
+			serializer.setOutput(outStream, "UTF-8");
+			serializer.startDocument("UTF-8", true);
+			serializer.startTag("", "AlarmDevices");			
+			serializer.startTag("", "AlarmDevice");
+			serializer.attribute("", "userName", alarmDevice.getUserName());
+			serializer.attribute("", "password", alarmDevice.getPassword());
+			serializer.attribute("", "type", alarmDevice.getAlarmType());
+			serializer.attribute("", "time", alarmDevice.getAlarmTime());
+			serializer.attribute("", "deviceName", alarmDevice.getDeviceName());
+			serializer.attribute("", "imageUrl", alarmDevice.getImageUrl());
+			serializer.attribute("", "ip", alarmDevice.getIp());
+			int port = 8080;
+			if (alarmDevice.getPort()!=0) {
+				port = alarmDevice.getPort();
+			}
+			serializer.attribute("", "port", ""+port);
+			int channel = 1;
+			if (alarmDevice.getChannel()!=0) {
+				channel = alarmDevice.getChannel();
+			}
+			serializer.attribute("", "channel", ""+channel);
+			serializer.attribute("", "content", alarmDevice.getAlarmContent());
+			serializer.endTag("", "AlarmDevice");
+			serializer.endTag("", "AlarmDevices");
+			serializer.endDocument();
+			outStream.flush();
+			outStream.close();
+			isSuccess = true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			isSuccess = false;
+			String tag = "ReadWriteXmlUtils";
+			Log.i(tag, e.toString());
+		}
+		return isSuccess;
 	}
 }

@@ -129,19 +129,21 @@ public class DeviceCollectActivity extends BaseActivity {
 				String serverPort = getEditTextString(et_device_add_port).trim();// 端口号
 				String userName = getEditTextString(et_device_add_username).trim();
 				String password = getEditTextString(et_device_add_password).trim();
-				String defaultChannel = getEditTextString(et_device_add_defaultchannel).trim();
-
+				
 				// 当所有的内容都不为空的时候，则保存到指定的文档中
 				if (!recordName.equals("") && !serverIP.equals("")
 						&& !serverPort.equals("") && !userName.equals("")
-						&& !defaultChannel.equals("")) {
-
+						) {//&& !defaultChannel.equals("")
 					// 进行IP与端口号的检测
 					IPAndPortUtils ipapu = new IPAndPortUtils();
 					boolean isIP = ipapu.isIp(serverIP);
 					boolean isPort = ipapu.isNetPort(serverPort);
 					if (isPort && isIP) {
-						int dChannel = Integer.valueOf(defaultChannel);
+						String defaultChannel = getEditTextString(et_device_add_defaultchannel).trim();
+						int dChannel = 1;
+						if (defaultChannel != null && !defaultChannel.equals("")) {
+							dChannel = Integer.valueOf(defaultChannel);
+						}
 						// int channelNum = Integer.valueOf(channelNumber);
 						saveDeviceItem.setDeviceName(recordName);
 						// saveDeviceItem.setChannelSum(channelNumber);
@@ -154,7 +156,7 @@ public class DeviceCollectActivity extends BaseActivity {
 						String platformUsername = getString(R.string.device_manager_collect_device);
 						saveDeviceItem.setPlatformUsername(platformUsername);
 						
-						try {// 测试saveDeviceItem的数据；？？？？？？？？？？？？
+						try {
 							if (auto_flag ==1) {
 								saveDeviceItem.setChannelSum("1");
 								List<Channel> channelList = new ArrayList<Channel>();
@@ -232,12 +234,9 @@ public class DeviceCollectActivity extends BaseActivity {
 		});
 
 		device_add_choose_btn.setOnClickListener(new OnClickListener() {
-
 			// 从网络获取数据，获取后，进入DeviceChooseActivity界面；单击返回后，则不进入；
-
 			@Override
 			public void onClick(View v) {
-				
 				Context context = DeviceCollectActivity.this;
 				boolean isConn = NetWorkUtils.checkNetConnection(context);
 				if (isConn) {
@@ -251,8 +250,8 @@ public class DeviceCollectActivity extends BaseActivity {
 								if (dvrDeviceList.size() > 0) {
 									dvrDeviceList.clear();
 								}
-								requestNetDataFromNet();// 请求网络数据；
-								synObject.suspend();// 挂起线程
+								requestNetDataFromNet();
+								synObject.suspend();
 							} else {
 								printSentence = getString(R.string.check_account_enabled);
 								Toast toast = Toast.makeText(DeviceCollectActivity.this, printSentence,Toast.LENGTH_SHORT);

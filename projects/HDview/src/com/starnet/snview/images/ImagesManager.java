@@ -162,9 +162,12 @@ public class ImagesManager {
 		String str2 = LocalFileUtils.getRecordFolderPathForDate(folderName);
 		File file1 = new File(str1);
 		File file2 = new File(str2);
-		boolean isF1Suc = file1.delete();
-		boolean isF2Suc = file2.delete();
-		System.out.println("isF1Suc:"+isF1Suc+"--isF2Suc:"+isF2Suc);
+		if (file1.listFiles()!=null && file1.listFiles().length == 0 ) {
+			file1.delete();
+		}
+		if (file2.listFiles()!=null && file2.listFiles().length == 0 ) {
+			file2.delete();
+		}
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void deleteSelectedImages() {

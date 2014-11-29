@@ -52,9 +52,8 @@ public class AlarmActivity extends BaseActivity {
 		initView();
 
 		initListener();
-
 	}
-
+	
 	private boolean isStartFromNotificationBar() {
 		Boolean startFromNotification = null;
 		if (getIntent().getExtras() == null) {
@@ -160,17 +159,6 @@ public class AlarmActivity extends BaseActivity {
 				}
 			});
 			return imgprogress;
-		case VIDEO_LOAD_DIALOG:
-			final ProgressDialog videoProgress = new ProgressDialog(this);
-			videoProgress.setMessage(getString(R.string.alarm_videoload_wait));
-			videoProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			videoProgress.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					videoProgress.dismiss();
-				}
-			});
-			return videoProgress;
 		default:
 			return null;
 		}

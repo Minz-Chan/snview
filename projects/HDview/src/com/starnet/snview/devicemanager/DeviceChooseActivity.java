@@ -40,15 +40,15 @@ import com.starnet.snview.util.SynObject;
 public class DeviceChooseActivity extends BaseActivity {
 	
 	private final String TAG = "DeviceChooseActivity";
-	final String devicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
+	final String devicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
 	private final int RESULTCODE = 11;
 	
-	private boolean is_blur_search = false;											//等于false 意味着味进行模糊搜索，否则进行了模糊搜索
+	private boolean is_blur_search = false;
 
-	private Button leftButton;														// 左边按钮
+	private Button leftButton;														
 	private ListView deviceListView;
-	private ArrayList <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();		//保存全部数据
+	private ArrayList <DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();
 	private CloudAccountUtils caUtils= new CloudAccountUtils();
 	private List<DeviceItem> deviceItemList = new ArrayList<DeviceItem>();			//保存全部数据
 	private List<DeviceItem> searchDeviceItemList = new ArrayList<DeviceItem>();	//保存模糊搜索数据
@@ -76,10 +76,8 @@ public class DeviceChooseActivity extends BaseActivity {
 			case ADD_SUCCESS:
 				dismissDialog(ADDDATESTOXMLDialog);
 				printSentence = getString(R.string.device_manager_devicechoose_adding_success);
-				Toast toast1 = Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT);
-				toast1.show();
+				Toast.makeText(DeviceChooseActivity.this,printSentence, Toast.LENGTH_SHORT).show();
 				DeviceChooseActivity.this.finish();
-				
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
 				break;
