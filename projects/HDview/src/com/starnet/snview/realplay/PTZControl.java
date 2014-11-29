@@ -43,7 +43,8 @@ public class PTZControl {
 	private ImageButton mPTZLandMenuFocalLength;
 	private ImageButton mPTZLandMenuFocus;
 	private ImageButton mPTZLandMenuAperture;
-	private ImageButton mPTZLandMenuPreset;	
+	private ImageButton mPTZLandMenuPreset;
+	private ImageButton mPTZLandMenuBack;
 	
 	private ImageButton mPTZPopFocalLengthIncrease;  
 	private ImageButton mPTZPopFocalLengthDecrease;
@@ -78,6 +79,7 @@ public class PTZControl {
 		mPTZLandMenuFocus = (ImageButton) findViewById(R.id.landscape_liveview_ptz_focus);
 		mPTZLandMenuAperture = (ImageButton) findViewById(R.id.landscape_liveview_ptz_aperture);
 		mPTZLandMenuPreset = (ImageButton) findViewById(R.id.landscape_liveview_ptz_preset_point);
+		mPTZLandMenuBack  = (ImageButton) findViewById(R.id.landscape_liveview_ptz_bar_back);
 
 		mPTZMenuScan.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZMenuFocalLength.setOnClickListener(mOnPTZMenuClickListener);
@@ -89,6 +91,7 @@ public class PTZControl {
 		mPTZLandMenuFocus.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZLandMenuAperture.setOnClickListener(mOnPTZMenuClickListener);
 		mPTZLandMenuPreset.setOnClickListener(mOnPTZMenuClickListener);
+		mPTZLandMenuBack.setOnClickListener(mOnPTZMenuClickListener);
 		
 		
 		mPTZPopFocalLengthIncrease = (ImageButton) findViewById(R.id.ptz_pop_focal_length_increase);  

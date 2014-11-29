@@ -68,10 +68,10 @@ public class LandscapeToolbar extends FrameLayout {
 
 	private LinearLayout mQualityControlBar;
 	private ArrayList<View> mQualityControlChildList = new ArrayList<View>();
-	private Button mClearButton;
-	private Button mBalanceButton;
-	private Button mFluentButton;
-	private Button mCustomButton;
+	private ImageButton mClearButton;
+	private ImageButton mBalanceButton;
+	private ImageButton mFluentButton;
+	private ImageButton mCustomButton;
 	private ImageButton mQualityBarBackButton;
 	private QualityClickListener mQualityClickListener;
 
@@ -485,10 +485,10 @@ public class LandscapeToolbar extends FrameLayout {
 
 		/* 视频质量控制条 */
 		mQualityControlBar = ((LinearLayout) findViewById(R.id.landscape_liveview_quality_control_bar));
-		mClearButton = ((Button) findViewById(R.id.landscape_liveview_quality_clear_button));
-		mBalanceButton = ((Button) findViewById(R.id.landscape_liveview_quality_balance_button));
-		mFluentButton = ((Button) findViewById(R.id.landscape_liveview_quality_fluent_button));
-		mCustomButton = ((Button) findViewById(R.id.landscape_liveview_quality_custom_button));
+		mClearButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_clear_button));
+		mBalanceButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_balance_button));
+		mFluentButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_fluent_button));
+		mCustomButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_custom_button));
 		mQualityBarBackButton = ((ImageButton) findViewById(R.id.landscape_liveview_quality_back_button));
 
 		mQualityControlChildList.add(mClearButton);
@@ -863,15 +863,15 @@ public class LandscapeToolbar extends FrameLayout {
 		return mLandAutoButton;
 	}
 
-	public Button getBalanceButton() {
+	public ImageButton getBalanceButton() {
 		return mBalanceButton;
 	}
 
-	public Button getClearButton() {
+	public ImageButton getClearButton() {
 		return mClearButton;
 	}
 
-	public Button getCustomButton() {
+	public ImageButton getCustomButton() {
 		return mCustomButton;
 	}
 
@@ -879,7 +879,7 @@ public class LandscapeToolbar extends FrameLayout {
 		return mEnlargeButton;
 	}
 
-	public Button getFluentButton() {
+	public ImageButton getFluentButton() {
 		return mFluentButton;
 	}
 

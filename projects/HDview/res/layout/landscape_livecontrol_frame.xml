@@ -16,21 +16,21 @@
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/landscape_liveview_quality_control_bar" android:background="@drawable/fullscreen_bar" android:paddingLeft="13.0dip" android:paddingRight="10.0dip" android:visibility="gone" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:weightSum="9.0">
                 <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
 				<!-- 清晰 -->
-                <Button android:textSize="@dimen/common_textsize_small_14sp" android:textColor="@color/quality_button_colorstatelist_selector" android:id="@id/landscape_liveview_quality_clear_button" android:background="@drawable/landscape_quality_button_bg_selector" android:clickable="false" android:layout_width="60.0dip" android:layout_height="fill_parent" android:text="@string/toolbar_quality_menu_high" />
+                <ImageButton android:id="@id/landscape_liveview_quality_clear_button" android:background="@drawable/landscape_liveview_quality_clear_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 				
-                <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+                <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 均衡 -->
-                <Button android:textSize="@dimen/common_textsize_small_14sp" android:textColor="@color/quality_button_colorstatelist_selector" android:id="@id/landscape_liveview_quality_balance_button" android:background="@drawable/landscape_quality_button_bg_selector" android:clickable="false" android:layout_width="60.0dip" android:layout_height="fill_parent" android:text="@string/toolbar_quality_menu_standard" />
+                <ImageButton android:id="@id/landscape_liveview_quality_balance_button" android:background="@drawable/landscape_liveview_quality_balance_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 				
-                <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+                <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 流畅 -->
-                <Button android:textSize="@dimen/common_textsize_small_14sp" android:textColor="@color/quality_button_colorstatelist_selector" android:id="@id/landscape_liveview_quality_fluent_button" android:background="@drawable/landscape_quality_button_bg_selector" android:clickable="false" android:layout_width="60.0dip" android:layout_height="fill_parent" android:text="@string/toolbar_quality_menu_fluency" />
+                <ImageButton android:id="@id/landscape_liveview_quality_fluent_button" android:background="@drawable/landscape_liveview_quality_fluent_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 				
-                <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+                <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 自定义 -->
-                <Button android:textSize="@dimen/common_textsize_small_14sp" android:textColor="@color/quality_button_colorstatelist_selector" android:id="@id/landscape_liveview_quality_custom_button" android:background="@drawable/landscape_quality_button_bg_selector" android:clickable="false" android:layout_width="60.0dip" android:layout_height="fill_parent" android:text="@string/toolbar_quality_menu_custom" />
+                <ImageButton android:id="@id/landscape_liveview_quality_custom_button" android:background="@drawable/landscape_liveview_quality_custom_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 				
-                <LinearLayout android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
+                <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 关闭 -->
                 <ImageButton android:id="@id/landscape_liveview_quality_back_button" android:background="@drawable/landscape_bar_back_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
             </LinearLayout>
