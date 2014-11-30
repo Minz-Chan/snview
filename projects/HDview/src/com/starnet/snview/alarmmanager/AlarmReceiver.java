@@ -43,7 +43,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  * 当您遇到以上返回错误时，如果解释不了您的问题，请用同一请求的返回值requestId和errorCode联系我们追查问题。
  * 
  */
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "SimpleDateFormat" })
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
     public static final String TAG = AlarmReceiver.class.getSimpleName();
@@ -332,8 +332,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         Utils.logStringCache = logText;
 
         Intent intent = new Intent();
-        intent.setClass(context.getApplicationContext(), AlarmActivity.class);//开机时，启动注册
-//        intent.setClass(context.getApplicationContext(), SplashActivity.class);//开机时，启动注册
+        intent.setClass(context.getApplicationContext(), AlarmActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.getApplicationContext().startActivity(intent);
     }

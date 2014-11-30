@@ -42,15 +42,12 @@ public class AlarmActivity extends BaseActivity {
 	private AlarmDeviceAdapter listviewAdapter;
 
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
-	private final int VIDEO_LOAD_DIALOG = 0x0014;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(!isStartFromNotificationBar());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.alarm_manager_layout);
 		initView();
-
 		initListener();
 	}
 	

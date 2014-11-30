@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.starnet.snview.util.BitmapUtils;
+import com.starnet.snview.util.SDCardUtils;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -58,11 +61,9 @@ public class AlarmImageDownLoadTask {
 			public void run() {
 				super.run();
 				try {
-					imgData = startDownloadImage();// 比较耗时的操作，下载图像数据
-					
+					imgData = startDownloadImage();// 耗时操作
 				} catch (IOException e) {
 					onDownloadFailed();// 下载失败的处理
-					e.printStackTrace();
 				} finally {
 					if (isDownloadSuc&&!isCanceled && !isTimeOut) {
 						onStartFinished(imgData);
@@ -72,26 +73,36 @@ public class AlarmImageDownLoadTask {
 		};
 	}
 
+	/***下载失败的处理**/
 	protected void onDownloadFailed() {
 		isDownloadSuc = false;
 	}
 
+	/***下载图像文件成功的处理**/
 	protected void onStartFinished(byte[] imgData) {
 		if (getAlarmActivity().imgprogress != null) {
 			getAlarmActivity().imgprogress.dismiss();
 		}
 		if (imgData == null) {
 			return;
+		}		
+		if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
+			String[] urls = imageUrl.split("/");
+			String imagename = urls[urls.length - 1];
+			String fullImgPath = SDCardUtils.getSDCardPath() + imagename;
+			BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fullImgPath);
 		}
 		Intent intent = new Intent();
+		intent.putExtra("isExist", false);
 		intent.putExtra("image", imgData);
-		intent.putExtra("cancel", isCanceled);
 		intent.putExtra("title", deviceName);
+		intent.putExtra("cancel", isCanceled);
 		intent.putExtra("imageUrl", imageUrl);
 		intent.setClass(getAlarmActivity(), AlarmImageActivity.class);
 		getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
 	}
 
+	/***开始从网络上下载数据**/
 	protected byte[] startDownloadImage() throws IOException {
 		byte[] data = null;
 		URL url = new URL(imageUrl);
@@ -104,16 +115,16 @@ public class AlarmImageDownLoadTask {
 		}
 		return data;
 	}
-
-	private byte[] readStream(InputStream inStream) throws IOException {
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
+	/***从输入流中读取数据，并包装成byte数组**/
+	private byte[] readStream(InputStream inPutStream) throws IOException {
 		int len = 0;
-		while ((len = inStream.read(buffer)) != -1) {
+		byte[] buffer = new byte[1024];
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		while ((len = inPutStream.read(buffer)) != -1) {
 			outStream.write(buffer, 0, len);
 		}
 		outStream.close();
-		inStream.close();
+		inPutStream.close();
 		return outStream.toByteArray();
 	};
 

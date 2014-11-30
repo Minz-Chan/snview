@@ -114,6 +114,7 @@ public class BitmapUtils {
         return b2;
     }
     
+    /***保存下载的图像文件到指定的sdcard上**/
     public static boolean saveBmpFile(Bitmap b, String fullImgPath) {
 		File f = new File(fullImgPath);
 		FileOutputStream fout =  null;

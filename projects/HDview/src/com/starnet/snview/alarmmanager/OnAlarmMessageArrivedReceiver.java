@@ -6,6 +6,7 @@ import android.content.Intent;
 
 public class OnAlarmMessageArrivedReceiver extends BroadcastReceiver {
 	public static final String ACTION = "com.starnet.snview.action.ALARM_MESSAGE_ARRIVED";
+	@SuppressWarnings("unused")
 	private static final String TAG = "OnAlarmMessageArrivedReceiver";
 	
 	@Override

@@ -23,7 +23,6 @@ public class AlarmContentActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.alarm_content_activity);
 
 		initViews();
@@ -32,10 +31,10 @@ public class AlarmContentActivity extends BaseActivity {
 
 	private void initViews() {
 
-		super.hideLeftButton();
+		super.hideRightButton();
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
-		super.setRightButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.getTitleView().setText(getString(R.string.alarm_manageradapter_content));
 
 		alarm_content_ip = (EditText) findViewById(R.id.alarm_content_ip);
@@ -73,7 +72,7 @@ public class AlarmContentActivity extends BaseActivity {
 	}
 
 	protected void setListeners() {
-		super.getRightButton().setOnClickListener(new OnClickListener() {
+		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				AlarmContentActivity.this.finish();
