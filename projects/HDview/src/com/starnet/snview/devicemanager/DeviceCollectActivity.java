@@ -201,9 +201,9 @@ public class DeviceCollectActivity extends BaseActivity {
 										});
 								builder.show();
 							} else {// 如果不存在设备，则直接添加...
-								String saveResult = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
-								Toast toast = Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT);
-								toast.show();
+								ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+								String saveResult = DeviceCollectActivity.this.getString(R.string.device_manager_save_success);
+								Toast.makeText(DeviceCollectActivity.this, saveResult,Toast.LENGTH_SHORT).show();
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
 								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
@@ -438,13 +438,12 @@ public class DeviceCollectActivity extends BaseActivity {
 					for (int i = 0; i < Integer.valueOf(chooseDeviceItem.getChannelSum()); i++) {
 						Channel channel = new Channel();
 						String text = getString(R.string.device_manager_channel);
-						channel.setChannelName(text + "1");
+						channel.setChannelName(text + ""+(i+1));
 						channel.setChannelNo((i+1));
 						channel.setSelected(false);
 						channelList.add(channel);
 					}
 					saveDeviceItem.setChannelList(channelList);
-					
 					auto_flag = bundle.getInt("auto_flag");
 					
 					String lgUsr = chooseDeviceItem.getLoginUser();

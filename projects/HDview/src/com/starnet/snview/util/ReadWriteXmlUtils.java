@@ -1,26 +1,13 @@
 package com.starnet.snview.util;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
-import android.util.Xml;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -29,8 +16,6 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
-import org.w3c.dom.Node;
-import org.xmlpull.v1.XmlSerializer;
 
 import com.starnet.snview.alarmmanager.AlarmDevice;
 import com.starnet.snview.channelmanager.Channel;
@@ -76,6 +61,7 @@ public class ReadWriteXmlUtils {
 
 			if (isFileExist) {
 				doc = (new SAXReader()).read(f);
+				doc.normalize();
 			} else {
 				doc = DocumentHelper.createDocument();
 				doc.addElement("AlarmDevices");
@@ -545,19 +531,14 @@ public class ReadWriteXmlUtils {
 		subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
 		subElement.addAttribute("loginUser", deviceItem.getLoginUser());
 		subElement.addAttribute("loginPass", deviceItem.getLoginPass());
-		subElement.addAttribute("platformusername",
-				deviceItem.getPlatformUsername());
+		subElement.addAttribute("platformusername",deviceItem.getPlatformUsername());
 
-		subElement.addAttribute("defaultChannel",
-				String.valueOf(deviceItem.getDefaultChannel()));
+		subElement.addAttribute("defaultChannel",String.valueOf(deviceItem.getDefaultChannel()));
 		subElement.addAttribute("serverIP", deviceItem.getSvrIp());
 		subElement.addAttribute("serverPort", deviceItem.getSvrPort());
-		subElement.addAttribute("deviceType",
-				String.valueOf(deviceItem.getDeviceType()));
-		subElement.addAttribute("isSecurityProtectionOpen",
-				String.valueOf(deviceItem.isSecurityProtectionOpen()));
-		subElement.addAttribute("isExpanded",
-				String.valueOf(deviceItem.isExpanded()));
+		subElement.addAttribute("deviceType",String.valueOf(deviceItem.getDeviceType()));
+		subElement.addAttribute("isSecurityProtectionOpen",String.valueOf(deviceItem.isSecurityProtectionOpen()));
+		subElement.addAttribute("isExpanded",String.valueOf(deviceItem.isExpanded()));
 		List<Channel> channelList = deviceItem.getChannelList();
 		if (channelList != null) {
 			int channelSize = channelList.size();
@@ -578,7 +559,7 @@ public class ReadWriteXmlUtils {
 		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
 		xmlWriter.write(document);
 		fileWriter.close();
-		saveResult = "保存成功！";
+		saveResult = "saving success...";
 		return saveResult;
 	}
 

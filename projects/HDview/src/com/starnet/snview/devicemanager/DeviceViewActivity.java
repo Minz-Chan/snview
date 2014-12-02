@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.DocumentException;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -31,20 +29,19 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("SdCardPath")
 public class DeviceViewActivity extends BaseActivity {
 
-	private static final String TAG = "DeviceViewActivity";
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	private static final int EDIT=20;
 	private static final int ADD = 10;
 	
 	private ListView mDeviceList;
-	private Button navigation_bar_add_btn;
-	private DeviceListAdapter dLAdapter;
-	private List<DeviceItem> deviceItemList;
-	private DeviceItem deleteDeviceItem;
 	private int clickPosition = 0;
 	private int deletPosition = 0;
 	private DeviceItem clickDeviceItem;
+	private DeviceListAdapter dLAdapter;
+	private DeviceItem deleteDeviceItem;
+	private Button navigation_bar_add_btn;
+	private List<DeviceItem> deviceItemList;
 	
 	private List<PreviewDeviceItem> previewDeviceItems;											//预览通道
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>();											//预览通道
@@ -198,7 +195,6 @@ public class DeviceViewActivity extends BaseActivity {
 						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);	//检测列表中是否包含该DeviceItem
 						if(!result){
 							deviceItemList.add(svDevItem);
-							Log.i(TAG, "不包含defValue，可以构造新的deviceItem，并更新列表...");
 						}
 						dLAdapter.notifyDataSetChanged();
 					}

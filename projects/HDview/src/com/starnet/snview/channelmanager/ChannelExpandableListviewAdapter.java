@@ -280,7 +280,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		String logUser = previewDeviceItem.getDeviceRecordName();
 		String logSvrIp = previewDeviceItem.getSvrIp();
 		String logSvrPot = previewDeviceItem.getSvrPort();
-		
+		String on = context.getString(R.string.device_manager_online_en);
+		String off = context.getString(R.string.device_manager_offline_en);
 		//定位到cloudAccount的设备
 		List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
 		if (deviceItems != null) {
@@ -292,7 +293,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				String dUser = deviceItem.getDeviceName();
 				String dPass = deviceItem.getLoginPass();
 				if (dUser != null) {
-					if (dUser.length() >= 4) {
+					
+					if (dUser.contains(on)||dUser.contains(off)) {
 						dUser = dUser.substring(4);
 					}
 				}

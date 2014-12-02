@@ -20,7 +20,6 @@ public class DeviceListAdapter extends BaseAdapter {
 	private List<DeviceItem> mDeviceList;
 	private LayoutInflater mLayoutInflater;
 	
-	
 	public DeviceListAdapter(Context context, List<DeviceItem> mDeviceList) {
 		super();
 		this.mContext = context;
@@ -53,28 +52,9 @@ public class DeviceListAdapter extends BaseAdapter {
 			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout_other, null);
 		}
 		
-		DeviceItem item  = mDeviceList.get(position);
-		
 		TextView deviceItemName = (TextView) convertView.findViewById(R.id.device_item_name);
-		/*TextView deviceIp  = (TextView) convertView.findViewById(R.id.device_listview_item_ip);*/
-		
-		/*deviceIp.setText("IP:"+item.getSvrIp()+":"+item.getSvrPort()+"  "+item.getChannelSum());*/
+		DeviceItem item  = mDeviceList.get(position);
 		String deviceName = item.getDeviceName();
-//		String wordLen = mContext.getString(R.string.device_manager_off_on_line_length);
-//		int len = Integer.valueOf(wordLen);
-//		if (deviceName.length() >= 4) {
-//			String word1 = mContext.getString(R.string.device_manager_offline_en);
-//			String word2 = mContext.getString(R.string.device_manager_offline_cn);
-//			String word3 = mContext.getString(R.string.device_manager_online_cn);
-//			String word4 = mContext.getString(R.string.device_manager_online_en);
-//			
-//			String dName = deviceName.substring(0, len);
-//			
-//			if(dName.contains(word1)||dName.contains(word2)||dName.contains(word3)||dName.contains(word4)){
-//				deviceName = deviceName.substring(len);
-//			}
-//		}
-//		
 		deviceItemName.setText(deviceName);
 		
 		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);

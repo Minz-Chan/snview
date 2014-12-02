@@ -111,6 +111,7 @@
     <string name="device_manager_deviceeditable_ip_wrong">服务器IP有错，请检查</string>
     <string name="device_manager_deviceeditable_port_wrong">端口号有错，请检查</string>
     <string name="device_manager_deviceeditable_ip_port_wrong">端口号和服务器IP都有错，请检查</string>
+    <string name="device_manager_save_success">保存成功</string>
     <string name="device_manager_online_en">(在线)</string>
     <string name="device_manager_online_cn">（在线）</string>
     <string name="device_manager_offline_cn">（离线）</string>

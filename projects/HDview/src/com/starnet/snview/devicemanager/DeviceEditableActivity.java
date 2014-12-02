@@ -1,5 +1,7 @@
 package com.starnet.snview.devicemanager;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.Intent;
@@ -17,23 +19,21 @@ import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.IPAndPortUtils;
 
 public class DeviceEditableActivity extends BaseActivity {
-	
+
 	protected static final String TAG = "DeviceEditableActivity";
-	
+
+	private EditText port_et;
+	private Button saveButton;
 	private EditText record_et;
 	private EditText server_et;
-	private EditText port_et;
 	private EditText username_et;
 	private EditText password_et;
-	private EditText defaultChannel_et;
 	private EditText channelnumber_et;
-
+	private EditText defaultChannel_et;
 	private DeviceItem clickDeviceItem;
-
-	private Button saveButton;
-	
+	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,92 +54,140 @@ public class DeviceEditableActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				// 获取信息
+				String svrPt = port_et.getText().toString();
 				String dName = record_et.getText().toString();
 				String svrIp = server_et.getText().toString();
-				String svrPt = port_et.getText().toString();
-				String lUser = username_et.getText().toString();
-
 				String lPass = password_et.getText().toString();
-				String dfChl = defaultChannel_et.getText().toString();
+				String lUser = username_et.getText().toString();
 				String chSum = channelnumber_et.getText().toString();
-
+				String dfChl = defaultChannel_et.getText().toString();
+				String cName = DeviceEditableActivity.this.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
 						&& !svrPt.trim().equals("") && !lUser.trim().equals("")
 						&& !dfChl.trim().equals("") && !chSum.trim().equals(""))) {// 检查信息是否为空
 					IPAndPortUtils ipAndPortUtils = new IPAndPortUtils();
 					boolean isIp = ipAndPortUtils.isIp(svrIp);
 					boolean isPort = ipAndPortUtils.isNetPort(svrPt);
-					if (isPort&&isIp) {
+					if (isPort && isIp) {
 						int defaultChannl = Integer.valueOf(dfChl);
 						int newChannelNum = Integer.valueOf(chSum);
 						if (defaultChannl <= newChannelNum) {
-							clickDeviceItem.setChannelSum(chSum);
-							clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
-							clickDeviceItem.setDeviceName(dName);
-							clickDeviceItem.setSvrIp(svrIp);
-							clickDeviceItem.setSvrPort(svrPt);
-							clickDeviceItem.setLoginUser(lUser);
-							clickDeviceItem.setLoginPass(lPass);
-//							List<Channel> channelList = new ArrayList<Channel>();
-//							for (int i = 0; i < newChannelNum; i++) {
-//								Channel channel = new Channel();
-//								channel.setChannelName("通道"+(i+1));
-//								channel.setChannelNo((i+1));
-//								channel.setSelected(false);
-//								channelList.add(channel);
-//							}
-//							clickDeviceItem.setChannelList(channelList);
-							
-//							boolean isBelong = isBelongtoPreviewDeviceItem(clickDeviceItem,mPreviewDeviceItems);
-//							if (isBelong) {
-//								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-//							}
+							boolean isBelong = isBelongDeviceItem(clickDeviceItem, mPreviewDeviceItems);
 							// 并返回原来的界面
 							Intent data = new Intent();
 							Bundle bundle = new Bundle();
-							bundle.putSerializable("cDeviceItem", clickDeviceItem);
+							bundle.putSerializable("cDeviceItem",clickDeviceItem);
+							if (isBelong) {
+								HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
+								bundle.putBoolean("priviewUpdate", true);
+								bundle.putIntegerArrayList("indexes",map.get("indexs"));
+								bundle.putIntegerArrayList("channelids",map.get("channelids"));
+								clickDeviceItem.setSvrIp(svrIp);
+								clickDeviceItem.setSvrPort(svrPt);
+								clickDeviceItem.setLoginUser(lUser);
+								clickDeviceItem.setLoginPass(lPass);
+								clickDeviceItem.setChannelSum(chSum);
+								clickDeviceItem.setDeviceName(dName);
+								clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
+								ArrayList<Integer> channelids = map.get("channelids");
+								ArrayList<Integer> indexs = map.get("indexs");
+								for (int i = 0; i < map.get("indexs").size(); i++) {
+									PreviewDeviceItem temp = new PreviewDeviceItem();
+									temp.setSvrIp(svrIp);
+									temp.setSvrPort(svrPt);
+									temp.setLoginPass(lPass);
+									temp.setLoginUser(lUser);
+									temp.setDeviceRecordName(dName);
+									temp.setPlatformUsername(cName);
+									temp.setChannel(channelids.get(i));
+									mPreviewDeviceItems.set(indexs.get(i), temp);
+								}
+								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+							}
 							data.putExtras(bundle);
-							setResult(11, data);
+							setResult(REQUESTCODE, data);
 							DeviceEditableActivity.this.finish();
-						}else {
+						} else {
 							String text = getString(R.string.defaultchannel_channelNumber_small);
-							Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
-							toast.show();
+							Toast.makeText(DeviceEditableActivity.this,text,Toast.LENGTH_SHORT).show();
 						}
-					}else if(isPort && !isIp){
+					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
-						toast.show();
-					}else if(!isPort && isIp){
+						Toast.makeText(DeviceEditableActivity.this,text,Toast.LENGTH_SHORT).show();
+					} else if (!isPort && isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
-						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
-						toast.show();
-					}else {
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
+					} else {
 						String text = getString(R.string.device_manager_deviceeditable_ip_port_wrong);
-						Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
-						toast.show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					}
-				}else {
+				} else {
 					String text = getString(R.string.device_manager_edit_notnull);
-					Toast toast = Toast.makeText(DeviceEditableActivity.this, text, Toast.LENGTH_SHORT);
-					toast.show();
+					Toast.makeText(DeviceEditableActivity.this,text, Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
-
 	}
 
-	protected boolean isBelongtoPreviewDeviceItem(DeviceItem clickDeviceItem2,
+	protected boolean isBelongDeviceItem(DeviceItem clickDeviceItem2,
 			List<PreviewDeviceItem> mPreviewDeviceItems2) {
 		boolean isBelong = false;
 		if (mPreviewDeviceItems2 == null) {
 			return false;
 		}
-		
-		if((mPreviewDeviceItems2 != null)&&(mPreviewDeviceItems2.size() == 0)){
+
+		if ((mPreviewDeviceItems2 != null)
+				&& (mPreviewDeviceItems2.size() == 0)) {
 			return false;
 		}
 		
+		int size = mPreviewDeviceItems2.size();
+		String clickUsername = clickDeviceItem2.getPlatformUsername();
+		for (int i = 0; i < size; i++) {
+			PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems2.get(i);
+			String userName = previewDeviceItem.getPlatformUsername();
+			if (clickUsername.equals(userName)) {
+				isBelong = true;
+				break;
+			}
+		}
+		return isBelong;
+	}
+
+	protected HashMap<String, ArrayList<Integer>> getUpdateInfo(
+			DeviceItem clickDeviceItem2,List<PreviewDeviceItem> mPreviewDeviceItems2) {
+		int size = mPreviewDeviceItems2.size();
+		String deviceName = clickDeviceItem.getDeviceName();
+		ArrayList<Integer> indexs = new ArrayList<Integer>();
+		ArrayList<Integer> channelids = new ArrayList<Integer>();
+		String clickUsername = clickDeviceItem.getPlatformUsername();
+		HashMap<String, ArrayList<Integer>> previewInfo = new HashMap<String, ArrayList<Integer>>();
+		
+		for (int i = 0; i < size; i++) {
+			PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems2.get(i);
+			String userName = previewDeviceItem.getPlatformUsername();
+			String pName = previewDeviceItem.getDeviceRecordName();
+			if (clickUsername.equals(userName) && deviceName.equals(pName)) {
+				indexs.add(i);
+				channelids.add(previewDeviceItem.getChannel());
+			}
+		}
+		previewInfo.put("indexs", indexs);
+		previewInfo.put("channelids", channelids);
+		return previewInfo;
+	}
+
+	protected boolean isBelongAndSetPreviewDeviceItem(DeviceItem clickDeviceItem2,
+			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+		boolean isBelong = false;
+		if (mPreviewDeviceItems2 == null) {
+			return false;
+		}
+
+		if ((mPreviewDeviceItems2 != null) && (mPreviewDeviceItems2.size() == 0)) {
+			return false;
+		}
+
 		String clickUsername = clickDeviceItem2.getPlatformUsername();
 		int size = mPreviewDeviceItems2.size();
 		for (int i = 0; i < size; i++) {
@@ -154,25 +202,23 @@ public class DeviceEditableActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {
-		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
-		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-		String tileName = getString(R.string.common_drawer_device_management);
-		super.setTitleViewText(tileName);
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
-		saveButton = super.getRightButton();
+		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
+		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
+		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 		
+		saveButton = super.getRightButton();
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
+		port_et = (EditText) findViewById(R.id.et_device_add_port);
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);
-		port_et = (EditText) findViewById(R.id.et_device_add_port);
-		username_et = (EditText) findViewById(R.id.et_device_add_username);
-
 		password_et = (EditText) findViewById(R.id.et_device_add_password);
-		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+		username_et = (EditText) findViewById(R.id.et_device_add_username);
 		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
-
+		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+		
 		Intent intent = getIntent();
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
@@ -180,36 +226,29 @@ public class DeviceEditableActivity extends BaseActivity {
 				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
 			}
 		}
-
-		String deviceName = clickDeviceItem.getDeviceName();
-		String loginPass = clickDeviceItem.getLoginPass();
-		String loginUser = clickDeviceItem.getLoginUser();
-		String channelSum = clickDeviceItem.getChannelSum();
-		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
-
+		
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
-		
-		String word1 = getString(R.string.device_manager_offline_en);
-		String word2 = getString(R.string.device_manager_offline_cn);
-		String word3 = getString(R.string.device_manager_online_cn);
+		String loginPass = clickDeviceItem.getLoginPass();
+		String loginUser = clickDeviceItem.getLoginUser();
+		String deviceName = clickDeviceItem.getDeviceName();
+		String channelSum = clickDeviceItem.getChannelSum();
 		String word4 = getString(R.string.device_manager_online_en);
-		
+		String word1 = getString(R.string.device_manager_offline_en);
 		String wordLen = getString(R.string.device_manager_off_on_line_length);
+		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
+
 		int len = Integer.valueOf(wordLen);
-		
-		if (deviceName.length() > (len-1)) {
+		if (deviceName.length() > (len - 1)) {
 			String dName = deviceName.substring(0, len);
-			if ((dName.contains(word1) || dName.contains(word2)|| dName.contains(word3)|| dName.contains(word4))) {
+			if ((dName.contains(word1) || dName.contains(word4))) {
 				deviceName = deviceName.substring(len);
 			}
-		}		
-		
-//		oriChannelNum = Integer.valueOf(channelSum);//获取通道数量...
-		
-		record_et.setText(deviceName);
+		}
+
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);
+		record_et.setText(deviceName);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
 		defaultChannel_et.setText(defaultChannel);
