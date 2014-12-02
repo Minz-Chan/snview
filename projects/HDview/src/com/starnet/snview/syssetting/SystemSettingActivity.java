@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
@@ -20,7 +19,6 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
 public class SystemSettingActivity extends BaseActivity {
-	private static final String TAG = "SystemSettingActivity";
 
 	private CornerListView firstCornerListView = null; 
 	private CornerListView secondCornerListView = null; 
@@ -109,12 +107,12 @@ public class SystemSettingActivity extends BaseActivity {
         logoutBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				showTips();
+//				showTips();
 			}
 		});
 	}
 
-	private void showTips(){
+	protected void showTips(){
 		Builder builder = new Builder(SystemSettingActivity.this);
 		builder.setTitle(getString(R.string.system_setting_logout_ok));
 		builder.setPositiveButton(getString(R.string.system_setting_logout_ok), new DialogInterface.OnClickListener(){

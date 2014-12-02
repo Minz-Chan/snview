@@ -24,16 +24,17 @@
                 <LinearLayout
                     android:id="@+id/device_add_recorder"
                     android:layout_width="75dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/device_manager_add_scan_edit_layout_record_name"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <EditText
@@ -57,17 +58,18 @@
                 <LinearLayout
                     android:id="@+id/server_name"
                     android:layout_width="75dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
                         android:text="@string/device_manager_add_scan_edit_layout_server_name"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <EditText
@@ -94,16 +96,17 @@
                 <LinearLayout
                     android:id="@+id/txt_device_add_port"
                     android:layout_width="75dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/system_setting_cloudaccount_port"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <EditText
@@ -130,16 +133,17 @@
                 <LinearLayout
                     android:id="@+id/txt_device_add_username"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="75dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/system_setting_cloudaccount_username"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:gravity="center|left" />
                 </LinearLayout>
 
                 <EditText
@@ -166,16 +170,17 @@
                 <LinearLayout
                     android:id="@+id/txt_device_add_password"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="75dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/system_setting_cloudaccount_password"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:gravity="center|left" />
                 </LinearLayout>
 
                 <EditText
@@ -203,16 +208,17 @@
                 <LinearLayout
                     android:id="@+id/txt_device_add_defaultchannel"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="75dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/device_manager_add_scan_edit_layout_default_channel"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:gravity="center|left"  />
                 </LinearLayout>
 
                 <EditText
@@ -239,16 +245,17 @@
                 <LinearLayout
                     android:id="@+id/txt_device_add_channelnumber"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true" >
 
                     <TextView
                         android:layout_width="75dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:text="@string/device_manager_add_scan_edit_layout_channel_number"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" />
+                        android:textSize="18sp" 
+                        android:gravity="center|left" />
                 </LinearLayout>
 
                 <EditText
