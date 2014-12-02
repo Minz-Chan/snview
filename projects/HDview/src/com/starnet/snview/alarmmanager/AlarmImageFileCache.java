@@ -1,13 +1,15 @@
 package com.starnet.snview.alarmmanager;
 
 import java.io.File;
-
 import com.starnet.snview.util.SDCardUtils;
-
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+@SuppressLint("SdCardPath")
 public class AlarmImageFileCache {
+	
+	private final static String imagePath = "/data/data/com.starnet.snview/alarmImg";
 
 	/** 从缓存中获取图片 **/
 	public static Bitmap getImage(String url) {
@@ -26,7 +28,8 @@ public class AlarmImageFileCache {
 	public static boolean isExistImageFile(String imgUrl){
 		boolean isExist = false;
 		String []urls = imgUrl.split("/");
-		String path = SDCardUtils.getSDCardPath()+ urls[urls.length-1];
+//		String path = SDCardUtils.getSDCardPath()+ urls[urls.length-1];
+		String path = imagePath + "/"+ urls[urls.length-1];
 		File file = new File(path);
 		if (file.exists()) {
 			isExist = true;

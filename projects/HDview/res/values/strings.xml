@@ -180,5 +180,6 @@
     <string name="alarm_content_contents">报警内容</string>
     <string name="alarm_content_pushdomain">推送域名</string>
     <string name="alarm_content_pushusername">推送用户</string>
+    <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
     
 </resources>

@@ -1,14 +1,14 @@
 package com.starnet.snview.alarmmanager;
 
 import java.util.List;
-
 import com.starnet.snview.R;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.NetWorkUtils;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+@SuppressLint("HandlerLeak")
 @SuppressWarnings("deprecation")
 public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
@@ -28,6 +29,16 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	private List<AlarmShowItem> alarmInfoList;
 	private AlarmImageDownLoadTask imgLoadTask;
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
+	
+	private Handler mHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Toast.makeText(context, R.string.alarm_img_load_timeout, Toast.LENGTH_LONG).show();
+		}
+	};
+			
 	
 	public AlarmDeviceAdapter(List<AlarmShowItem> alarmInfoList, Context context, Handler handler) {
 		this.context = context;
@@ -155,7 +166,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	protected void getImageFromUrl(String imgUrl){
 		boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
 		if (!isExist) {
-			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context);
+			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context,mHandler);
 			imgLoadTask.setTitle(deviceName);
 			imgLoadTask.start();
 		} else {
