@@ -108,6 +108,50 @@ public class ReadWriteXmlUtils {
 		}
 		return result;
 	}
+	
+	/*** 从文档中移除指定位置的的AlarmDevice ***/
+	public static void removeSpecifyAlarm(int index) {
+		File file = new File(ALARMS_PERSISTANCE_PATH);
+		if (!file.exists()) {
+			return;
+		}
+		FileWriter fileWriter = null;
+		XMLWriter xmlWriter = null;
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {// 判空处理
+				if (index == i) {
+					subElements.get(i).detach();
+					break;
+				}
+			}
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			fileWriter = new FileWriter(ALARMS_PERSISTANCE_PATH);
+			xmlWriter = new XMLWriter(fileWriter, opf);
+			xmlWriter.write(document);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (xmlWriter != null) {
+				try {
+					xmlWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (fileWriter != null) {
+				try {
+					fileWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	// 从文档中移除指定的AlarmDevice
 	public static void removeAlarm(AlarmDevice alarmDevice) {
@@ -122,14 +166,16 @@ public class ReadWriteXmlUtils {
 			Document document = saxReader.read(file);
 			Element root = document.getRootElement();
 			List<Element> subElements = root.elements();
-
+			String pswd = alarmDevice.getPassword();
+			String user = alarmDevice.getUserName();
+			String name = alarmDevice.getDeviceName();
 			int size = subElements.size();
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) {//判空处理
 				Element subElement = subElements.get(i);
-//				String deviceName = subElement.attributeValue("deviceName");alarmDevice.getDeviceName().equals(deviceName)
-				String password = subElement.attributeValue("password");
-				String userName = subElement.attributeValue("userName");
-				if ((alarmDevice.getPassword().equals(password))&& (alarmDevice.getUserName().equals(userName))) {//
+				String xname = subElement.attributeValue("deviceName");
+				String xpswd = subElement.attributeValue("password");
+				String xuser = subElement.attributeValue("userName");
+				if ((xpswd==pswd)&& (xname==name)&& (xuser==user)) {//
 					subElement.detach();
 				}
 			}

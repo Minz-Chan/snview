@@ -20,11 +20,14 @@ public class AlarmImageActivity extends Activity {
 		setContentView(R.layout.alarm_imge);
 		showImageView = (ImageView) findViewById(R.id.img_net);
 		Intent intent = getIntent();
+//		setTitle(title);
 		if (!intent.getBooleanExtra("cancel", false)) {
 			if (intent.getBooleanExtra("isExist", false)) {
 				String url = intent.getStringExtra("imageUrl");
 				Bitmap bitmap = AlarmImageFileCache.getImage(url);
+				String title = getIntent().getStringExtra("title");
 				showImageView.setImageBitmap(bitmap);
+				setTitle(title);
 			}else {
 				String title = getIntent().getStringExtra("title");
 				byte[] imgData = getIntent().getByteArrayExtra("image");

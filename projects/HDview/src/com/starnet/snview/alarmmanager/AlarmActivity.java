@@ -49,6 +49,30 @@ public class AlarmActivity extends BaseActivity {
 		setContentView(R.layout.alarm_manager_layout);
 		initView();
 		initListener();
+		
+//		testAlarmInfo();
+	}
+	
+	protected void testAlarmInfo(){
+		
+		String imageUrl = "http://photocdn.sohu.com/20111123/Img326603573.jpg";
+		for (int j = 0; j < 4; j++) {
+			if (j==1) {
+				imageUrl = "http://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Hukou_Waterfall.jpg/800px-Hukou_Waterfall.jpg";
+			}
+			AlarmDevice alarmDevice = new AlarmDevice();
+			alarmDevice.setAlarmContent("AlarmContent");
+			alarmDevice.setAlarmTime("2014-12-03");
+			alarmDevice.setAlarmType("烟雾报警");
+			alarmDevice.setChannel(1);
+			alarmDevice.setDeviceName("deviceName"+j);
+			alarmDevice.setImageUrl(imageUrl);
+			alarmDevice.setIp("114.123.212.45");
+			alarmDevice.setPort(8080);
+			alarmDevice.setUserName("user"+j);
+			ReadWriteXmlUtils.writeAlarm(alarmDevice);
+		}
+		
 	}
 	
 	private boolean isStartFromNotificationBar() {
@@ -111,7 +135,8 @@ public class AlarmActivity extends BaseActivity {
 				builder.setPositiveButton(getString(R.string.alarm_dialog_OK), new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								ReadWriteXmlUtils.removeAlarm(alarmInfoList.get(pos).getAlarm());
+//								ReadWriteXmlUtils.removeAlarm(alarmInfoList.get(pos).getAlarm());
+								ReadWriteXmlUtils.removeSpecifyAlarm(pos);
 								alarmInfoList.remove(pos);
 								listviewAdapter.notifyDataSetChanged();
 							}

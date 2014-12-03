@@ -164,6 +164,13 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
 	/*** 获得一张图片,从是从文件中获取，如果没有,则从网络获取 ***/
 	protected void getImageFromUrl(String imgUrl){
+		if (imgUrl==null||imgUrl.trim().length() == 0) {
+			getAlarmActivity().dismissDialog(IMAGE_LOAD_DIALOG);
+			String noturl = context.getString(R.string.alarm_img_load_noturl);
+			Toast.makeText(context, noturl,Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
 		if (!isExist) {
 			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context,mHandler);
@@ -174,6 +181,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			Intent intent = new Intent();
 			intent.putExtra("isExist", true);
 			intent.putExtra("imageUrl", imgUrl);
+			intent.putExtra("title", deviceName);
 			intent.setClass(context, AlarmImageActivity.class);
 			((AlarmActivity)context).startActivityForResult(intent, REQUESTCODE);
 		}

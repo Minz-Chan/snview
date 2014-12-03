@@ -25,11 +25,12 @@ public class AlarmImageDownLoadTask {
 	private boolean timeoutover;
 	private Thread timeoutThread;
 	private Thread imgeLoadThread;
-	private final int TIMEOUT = 8;
+	private final int TIMEOUT = 18;
 	private boolean isDownloadSuc = true;
 	private final int REQUESTCODE = 0x0023;
 	protected final String TAG = "AlarmImageDownLoadTask";
-	private final String imagePath = "/data/data/com.starnet.snview/alarmImg";
+//	private final String imagePath = "/data/data/com.starnet.snview/alarmImg";
+	private final String imagePath = "/mnt/sdcard/SNview/alarmImg";
 
 	public AlarmImageDownLoadTask(String imageUrl, Context context,Handler handler) {
 		
