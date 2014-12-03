@@ -43,7 +43,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  * 当您遇到以上返回错误时，如果解释不了您的问题，请用同一请求的返回值requestId和errorCode联系我们追查问题。
  * 
  */
-@SuppressLint({ "SdCardPath", "SimpleDateFormat" })
+@SuppressLint({ "SdCardPath"})
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
     /** TAG to Log */
     public static final String TAG = AlarmReceiver.class.getSimpleName();
@@ -97,8 +97,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 + "\" customContentString=" + customContentString;
         Log.d(TAG, messageString);
 
-        if (!TextUtils.isEmpty(customContentString)) {
-            JSONObject customContentJsonObj = null;
+        if (!TextUtils.isEmpty(message)) {
             try {
             	String deviceName = null;
             	String alarmTime = null;
@@ -107,35 +106,43 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 String imageUrl = null;
                 String videoUrl = null;
                 String pushUserUrl = null;
-                customContentJsonObj = new JSONObject(customContentString);
+                JSONObject messageJsonObj = new JSONObject(message);
+                JSONObject customContentJsonObj = null;
                 
-                if (!customContentJsonObj.isNull("DeviceName")) {
+                if (messageJsonObj.isNull("custom_content") 
+                		|| TextUtils.isEmpty(messageJsonObj.getString("custom_content"))) {
+                	return;
+                } else {
+                	customContentJsonObj = new JSONObject(messageJsonObj.getString("custom_content"));
+                }
+                
+                if (!customContentJsonObj.isNull("device_name")) {
                 	deviceName = Base64Util.decode(customContentJsonObj
-							.getString("DeviceName")); // 需先BASE64解密
+							.getString("device_name")); // 需先BASE64解密
 				}
-                if (!customContentJsonObj.isNull("AlarmTime")) {
+                if (!customContentJsonObj.isNull("alarm_time")) {
                 	alarmTime = Base64Util.decode(customContentJsonObj
-							.getString("AlarmTime"));
+							.getString("alarm_time"));
 				}
-                if (!customContentJsonObj.isNull("AlarmType")) {
+                if (!customContentJsonObj.isNull("alarm_type")) {
                 	alarmType = Base64Util.decode(customContentJsonObj
-							.getString("AlarmType"));
+							.getString("alarm_type"));
 				}
-				if (!customContentJsonObj.isNull("AlarmContent")) {
+				if (!customContentJsonObj.isNull("alarm_content")) {
 					alarmContent = Base64Util.decode(customContentJsonObj
-							.getString("AlarmContent")); 
+							.getString("alarm_content")); 
 				}
-				if (!customContentJsonObj.isNull("PushUser")) {
+				if (!customContentJsonObj.isNull("push_user")) {
 					pushUserUrl = Base64Util.decode(customContentJsonObj
-							.getString("PushUser"));
+							.getString("push_user"));
 				}
-				if (!customContentJsonObj.isNull("ImageUrl")) {
+				if (!customContentJsonObj.isNull("image_path")) {
 					imageUrl = Base64Util.decode(customContentJsonObj
-							.getString("ImageUrl"));
+							.getString("image_path"));
 				}
-				if (!customContentJsonObj.isNull("VideoUrl")) {
+				if (!customContentJsonObj.isNull("video_url")) {
 					videoUrl = Base64Util.decode(customContentJsonObj
-							.getString("VideoUrl"));
+							.getString("video_url"));
 				}
 
                 AlarmDevice ad = new AlarmDevice();
@@ -404,25 +411,5 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
         if (errorCode == 0) {
             Utils.setBind(context, false);
         };
-    }
-    
-    protected void updateAlarmContent(Context context, String content) {
-        Log.d(TAG, "updateContent");
-        String logText = "" + Utils.logStringCache;
-
-        if (!logText.equals("")) {
-            logText += "\n";
-        }
-
-        SimpleDateFormat sDateFormat = new SimpleDateFormat("HH-mm-ss");
-        logText += sDateFormat.format(new Date()) + ": ";
-        logText += content;
-
-        Utils.logStringCache = logText;
-
-        Intent intent = new Intent();
-        intent.setClass(context.getApplicationContext(), AlarmActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.getApplicationContext().startActivity(intent);
     }
 }
