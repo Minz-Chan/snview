@@ -1,2 +1,3 @@
-/bin/
-/gen/
+/bin
+/.settings
+/*/android-support-v4.jar.properties
