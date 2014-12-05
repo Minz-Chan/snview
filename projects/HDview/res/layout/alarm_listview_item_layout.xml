@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    
     android:orientation="vertical" >
 
     <LinearLayout
@@ -35,14 +34,12 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/device_list_item_spacing_10dp"
                 android:layout_marginRight="@dimen/device_list_item_spacing_10dp"
                 android:layout_marginTop="3dp"
-                android:paddingLeft="10sp"
                 android:singleLine="true"
                 android:text="@string/device_manager_name"
                 android:textColor="@color/md__defaultBackground"
-                android:textSize="@dimen/common_textsize_small_16sp" />
+                android:textSize="@dimen/common_textsize_small_16sp" /><!-- android:layout_marginLeft="@dimen/device_list_item_spacing_10dp" -->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1.0"
-                    android:gravity="center"
+                    android:gravity="center|left"
                     android:text="2014-11-03 19:00" />
 
                 <TextView
@@ -74,8 +71,8 @@
             android:layout_marginLeft="@dimen/device_list_item_spacing_5dp"
             android:layout_marginRight="@dimen/device_list_item_spacing_5dp"
             android:background="@drawable/device_list_item_arrow_btn_selector"
-            android:focusable="false"
-            android:contentDescription="@string/nothing" />
+            android:contentDescription="@string/nothing"
+            android:focusable="false" />
     </LinearLayout>
 
 </LinearLayout>
