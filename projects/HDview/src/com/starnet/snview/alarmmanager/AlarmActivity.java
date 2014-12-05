@@ -3,7 +3,6 @@ package com.starnet.snview.alarmmanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;

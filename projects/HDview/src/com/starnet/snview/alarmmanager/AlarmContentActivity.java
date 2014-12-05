@@ -59,15 +59,17 @@ public class AlarmContentActivity extends BaseActivity {
 
 		AlarmDevice device = getIntent().getParcelableExtra("alarmDevice");
 
-		alarm_content_ip.setText(device.getImageUrl());
-		alarm_content_pushdomain.setText(device.getIp());
-		alarm_content_time.setText(device.getAlarmTime());
+		String time = device.getAlarmTime().replaceAll(",", " ").replaceAll("，", " ");
+		
+		alarm_content_time.setText(time);
+		alarm_content_ip.setText(device.getIp());
 		alarm_content_type.setText(device.getAlarmType());
 		alarm_content_iport.setText("" + device.getPort());
 		alarm_content_device.setText(device.getDeviceName());
 		alarm_content_channel.setText("" + device.getChannel());
 		alarm_content_contents.setText(device.getAlarmContent());
-		alarm_content_pushusername.setText(device.getUserName());
+		alarm_content_pushdomain.setText(device.getPusherDomain());
+		alarm_content_pushusername.setText(device.getPusherUserName());
 
 	}
 

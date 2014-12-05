@@ -1,9 +1,11 @@
 package com.starnet.snview.alarmmanager;
 
 import java.util.List;
+
 import com.starnet.snview.R;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.NetWorkUtils;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -35,8 +37,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			Toast.makeText(context, R.string.alarm_img_load_timeout,
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(context, R.string.alarm_img_load_timeout,Toast.LENGTH_LONG).show();
 		}
 	};
 
@@ -94,42 +95,24 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(
-					R.layout.alarm_listview_item_layout, null);
+			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_item_layout, null);
 		}
-		TextView deviceTxt = (TextView) convertView
-				.findViewById(R.id.device_item_name);
-		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm()
-				.getDeviceName());
+		TextView deviceTxt = (TextView) convertView.findViewById(R.id.device_item_name);
+		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm().getDeviceName());
 
-		TextView alarm_time = (TextView) convertView
-				.findViewById(R.id.alarm_time);
-		TextView alarm_type = (TextView) convertView
-				.findViewById(R.id.alarm_type);
-		String time = alarmInfoList.get(groupPosition).getAlarm().getAlarmTime().replace(",", " ");
-		time = time.replace(",", " ");
+		TextView alarm_time = (TextView) convertView.findViewById(R.id.alarm_time);
+		TextView alarm_type = (TextView) convertView.findViewById(R.id.alarm_type);
+		String time = alarmInfoList.get(groupPosition).getAlarm().getAlarmTime().replaceAll(",", " ");
+		time = time.replaceAll(",", " ");
 		alarm_time.setText(time);
-		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm()
-				.getAlarmType());
+		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm().getAlarmType());
 		ImageView arrowImg = (ImageView) convertView
 				.findViewById(R.id.alarm_arrow_img);
 		if (isExpanded) {
 			arrowImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 		} else {
 			arrowImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
-		}
-//		if (indexes!=null && indexes.size()>0) {
-//			for (int i = 0; i < indexes.size(); i++) {
-//				if (groupPosition == indexes.get(i)) {
-////					arrowImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
-////					onGroupExpanded(i);
-//					
-//				}else {
-////					arrowImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
-////					onGroupCollapsed(i);
-//				}
-//			}
-//		}	
+		}	
 		convertView.setTag(R.id.alarm_arrow_img, groupPosition);//为父元素设置标签
 		return convertView;
 	}
@@ -139,15 +122,11 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(
-					R.layout.alarm_listview_subitem_layout, null);
+			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_subitem_layout, null);
 		}
-		Button imgLoadBtn = (Button) convertView
-				.findViewById(R.id.image_load_btn);
-		Button vdoLoadBtn = (Button) convertView
-				.findViewById(R.id.video_load_btn);
-		Button contentBtn = (Button) convertView
-				.findViewById(R.id.alarm_content_btn);
+		Button imgLoadBtn = (Button) convertView.findViewById(R.id.image_load_btn);
+		Button vdoLoadBtn = (Button) convertView.findViewById(R.id.video_load_btn);
+		Button contentBtn = (Button) convertView.findViewById(R.id.alarm_content_btn);
 		final int pos = groupPosition;
 
 		imgLoadBtn.setOnClickListener(new OnClickListener() {
@@ -155,16 +134,12 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(context)) {
 					getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
-					deviceName = alarmInfoList.get(pos).getAlarm()
-							.getDeviceName();
-					String imgUrl = alarmInfoList.get(pos).getAlarm()
-							.getImageUrl();
+					deviceName = alarmInfoList.get(pos).getAlarm().getDeviceName();
+					String imgUrl = alarmInfoList.get(pos).getAlarm().getImageUrl();
 					getImageFromUrl(imgUrl);
 				} else {
-					String netNotOpenContent = context
-							.getString(R.string.alarm_net_notopen);
-					Toast.makeText(context, netNotOpenContent,
-							Toast.LENGTH_SHORT).show();
+					String netNotOpenContent = context.getString(R.string.alarm_net_notopen);
+					Toast.makeText(context, netNotOpenContent,Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -179,10 +154,8 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 					context.startActivity(intent);
 					((AlarmActivity) context).finish();
 				} else {
-					String netNotOpenContent = context
-							.getString(R.string.alarm_net_notopen);
-					Toast.makeText(context, netNotOpenContent,
-							Toast.LENGTH_SHORT).show();
+					String netNotOpenContent = context.getString(R.string.alarm_net_notopen);
+					Toast.makeText(context, netNotOpenContent,Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
@@ -190,8 +163,8 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		contentBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlarmDevice device = alarmInfoList.get(pos).getAlarm();
 				Intent intent = new Intent(context, AlarmContentActivity.class);
+				AlarmDevice device = alarmInfoList.get(pos).getAlarm();
 				intent.putExtra("alarmDevice", device);
 				context.startActivity(intent);
 			}

@@ -69,17 +69,20 @@ public class ReadWriteXmlUtils {
 
 			Element root = doc.getRootElement();
 			Element item = root.addElement("AlarmDevice");
-			item.addAttribute("content", alarm.getAlarmContent());
+			
+			item.addAttribute("imgIp", alarm.getIp());
 			item.addAttribute("time", alarm.getAlarmTime());
 			item.addAttribute("type", alarm.getAlarmType());
-			item.addAttribute("deviceName", alarm.getDeviceName());
-			item.addAttribute("imageUrl", alarm.getImageUrl());
-			item.addAttribute("imgIp", alarm.getIp());
 			item.addAttribute("password", alarm.getPassword());
 			item.addAttribute("userName", alarm.getUserName());
-			item.addAttribute("channel", String.valueOf(alarm.getChannel()));
+			item.addAttribute("imageUrl", alarm.getImageUrl());
+			item.addAttribute("content", alarm.getAlarmContent());
+			item.addAttribute("deviceName", alarm.getDeviceName());
 			item.addAttribute("port", String.valueOf(alarm.getPort()));
-
+			item.addAttribute("pusherDomain", alarm.getPusherDomain());
+			item.addAttribute("pusherUserName", alarm.getPusherUserName());
+			item.addAttribute("pusherPassword", alarm.getPusherPassword());
+			item.addAttribute("channel", String.valueOf(alarm.getChannel()));
 			fw = new FileWriter(ALARMS_PERSISTANCE_PATH, false); // false to
 																	// overwrite
 																	// file
@@ -223,28 +226,32 @@ public class ReadWriteXmlUtils {
 			List<Element> elements = root.elements();
 			for (Element item : elements) {
 				AlarmDevice alarmDevice = new AlarmDevice();
-
-				String content = item.attributeValue("content");
-				String time = item.attributeValue("time");
-				String type = item.attributeValue("type");
+				String pUserName = item.attributeValue("pusherUserName");
+				String pPassword = item.attributeValue("pusherPassword");
 				String deviceName = item.attributeValue("deviceName");
+				String pDomain = item.attributeValue("pusherDomain");
 				String imageUrl = item.attributeValue("imageUrl");
-
-				alarmDevice.setAlarmContent(content);
-				alarmDevice.setAlarmTime(time);
-				alarmDevice.setAlarmType(type);
-				alarmDevice.setDeviceName(deviceName);
-				alarmDevice.setImageUrl(imageUrl);
-
-				String ip = item.attributeValue("imgIp");
 				String password = item.attributeValue("password");
 				String userName = item.attributeValue("userName");
+				String content = item.attributeValue("content");
 				String channel = item.attributeValue("channel");
+				String time = item.attributeValue("time");
+				String type = item.attributeValue("type");
 				String port = item.attributeValue("port");
-				alarmDevice.setIp(ip);
+				String ip = item.attributeValue("imgIp");
+				
+				alarmDevice.setPusherUserName(pUserName);
+				alarmDevice.setPusherPassword(pPassword);
+				alarmDevice.setDeviceName(deviceName);
+				alarmDevice.setAlarmContent(content);
+				alarmDevice.setPusherDomain(pDomain);
+				alarmDevice.setImageUrl(imageUrl);
 				alarmDevice.setPassword(password);
 				alarmDevice.setUserName(userName);
-
+				alarmDevice.setAlarmTime(time);
+				alarmDevice.setAlarmType(type);
+				alarmDevice.setIp(ip);
+				
 				if (port != null) {
 					alarmDevice.setPort(Integer.valueOf(port));
 				} else {
