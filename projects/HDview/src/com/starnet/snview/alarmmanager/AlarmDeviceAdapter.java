@@ -106,8 +106,9 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 				.findViewById(R.id.alarm_time);
 		TextView alarm_type = (TextView) convertView
 				.findViewById(R.id.alarm_type);
-		alarm_time.setText(alarmInfoList.get(groupPosition).getAlarm()
-				.getAlarmTime());
+		String time = alarmInfoList.get(groupPosition).getAlarm().getAlarmTime().replace(",", " ");
+		time = time.replace(",", " ");
+		alarm_time.setText(time);
 		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm()
 				.getAlarmType());
 		ImageView arrowImg = (ImageView) convertView

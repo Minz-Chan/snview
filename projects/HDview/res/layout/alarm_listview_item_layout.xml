@@ -39,7 +39,7 @@
                 android:singleLine="true"
                 android:text="@string/device_manager_name"
                 android:textColor="@color/md__defaultBackground"
-                android:textSize="@dimen/common_textsize_small_16sp" /><!-- android:layout_marginLeft="@dimen/device_list_item_spacing_10dp" -->
+                android:textSize="@dimen/common_textsize_small_16sp" /> <!-- android:layout_marginLeft="@dimen/device_list_item_spacing_10dp" -->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,15 +52,17 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1.0"
                     android:gravity="center|left"
-                    android:text="2014-11-03 19:00" />
+                    android:singleLine="true"
+                    android:text="@string/alarm_content_time" />
 
                 <TextView
                     android:id="@+id/alarm_type"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100px"
                     android:layout_height="match_parent"
                     android:layout_weight="1.0"
-                    android:gravity="center"
-                    android:text="烟雾报警" />
+                    android:gravity="center|left"
+                    android:singleLine="true"
+                    android:text="@string/alarm_content_type" />
             </LinearLayout>
         </LinearLayout>
 

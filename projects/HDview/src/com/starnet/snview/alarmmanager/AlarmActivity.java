@@ -53,7 +53,7 @@ public class AlarmActivity extends BaseActivity {
 		setContentView(R.layout.alarm_manager_layout);
 		initView();
 		initListener();
-		testAlarmInfo();
+//		testAlarmInfo();
 	}
 
 	protected void testAlarmInfo() {
@@ -65,7 +65,7 @@ public class AlarmActivity extends BaseActivity {
 			}
 			AlarmDevice alarmDevice = new AlarmDevice();
 			alarmDevice.setAlarmContent("AlarmContent");
-			alarmDevice.setAlarmTime("2014-12-03");
+			alarmDevice.setAlarmTime("2014-12-03,14:25:20");
 			alarmDevice.setAlarmType("烟雾报警");
 			alarmDevice.setChannel(1);
 			alarmDevice.setDeviceName("deviceName" + j);
