@@ -97,17 +97,17 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		if (convertView == null) {
 			convertView = LayoutInflater.from(context).inflate(R.layout.alarm_listview_item_layout, null);
 		}
+		String time = alarmInfoList.get(groupPosition).getAlarm().getAlarmTime().replaceAll(",", " ");
 		TextView deviceTxt = (TextView) convertView.findViewById(R.id.device_item_name);
 		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm().getDeviceName());
 
 		TextView alarm_time = (TextView) convertView.findViewById(R.id.alarm_time);
 		TextView alarm_type = (TextView) convertView.findViewById(R.id.alarm_type);
-		String time = alarmInfoList.get(groupPosition).getAlarm().getAlarmTime().replaceAll(",", " ");
+		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm().getAlarmType());
 		time = time.replaceAll(",", " ");
 		alarm_time.setText(time);
-		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm().getAlarmType());
-		ImageView arrowImg = (ImageView) convertView
-				.findViewById(R.id.alarm_arrow_img);
+		
+		ImageView arrowImg = (ImageView) convertView.findViewById(R.id.alarm_arrow_img);
 		if (isExpanded) {
 			arrowImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 		} else {
