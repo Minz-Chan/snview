@@ -284,6 +284,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
     	return ad;
     }
     
+    public static final int NOTIFICATION_ID = 0x00001234;
+    
     @SuppressWarnings("deprecation")
 	private void showNotification(Context context, String title,
 			String contentTitle, String contentText) {
@@ -296,7 +298,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 				contentIntent);
 		NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.notify(1, notification);
+		notificationManager.notify(NOTIFICATION_ID, notification);
 
 	}
 

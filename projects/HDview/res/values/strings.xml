@@ -67,7 +67,7 @@
     <string name="system_setting_cloudaccount_server">域名服务器</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
-    <string name="system_setting_about_build_time">(Build 20141120)</string>
+    <string name="system_setting_about_build_time">(Build 20141205)</string>
     <string name="system_setting_corp_rights_txt">All Rights Reserved</string>
     <string name="system_setting_cloudaccount_layout_serveName">服务器</string>
     <string name="system_setting_cloudaccount_useable">平台账户验证通过</string>
