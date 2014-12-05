@@ -24,13 +24,21 @@ public class AlarmReceiverTester extends AndroidTestCase {
 	}
 
 	public void testMessageParse() throws Exception{
-		String message = "{'title':'','description':'alarmlog','open_type':2,'custom_content':" 
-				+ "{'alarm_content':'57qi5rKz6Zm255O36YCa6YGTM+WumuaXtuaKk+aLjQ==','image_path':"
-				+ "'d2h5OjFAaHR0cDovL3h5LnN0YXItbmV0c2VjdXJpdHkuY29tOjgwODAvcC9samc4ODgvMjAxNC0w" 
-				+ "NC0yMS8xMzk4MDcwNTc2Nzc3OTAzLmpwZw==','video_url':'d2h5OjFAb3dzcDovLzEyMy41NS"
-				+ "4yNi4xOTg6OTUwNS9jaG40','push_user':'d2h5OjFAeHkuc3Rhci1uZXRzZWN1cml0eS5jb20=" 
-				+ "','device_name':'U042MTA0LTA4RjM=','alarm_time':'MjAxNC0xMi0wMywxNzoyMDo0MQ==" 
-				+ "','alarm_type':'6KeG6aKR5Lii5aSx5oql6K2m'}}";
+//		String message = "{'title':'','description':'alarmlog','open_type':2,'custom_content':" 
+//				+ "{'alarm_content':'57qi5rKz6Zm255O36YCa6YGTM+WumuaXtuaKk+aLjQ==','image_path':"
+//				+ "'d2h5OjFAaHR0cDovL3h5LnN0YXItbmV0c2VjdXJpdHkuY29tOjgwODAvcC9samc4ODgvMjAxNC0w" 
+//				+ "NC0yMS8xMzk4MDcwNTc2Nzc3OTAzLmpwZw==','video_url':'d2h5OjFAb3dzcDovLzEyMy41NS"
+//				+ "4yNi4xOTg6OTUwNS9jaG40','push_user':'d2h5OjFAeHkuc3Rhci1uZXRzZWN1cml0eS5jb20=" 
+//				+ "','device_name':'U042MTA0LTA4RjM=','alarm_time':'MjAxNC0xMi0wMywxNzoyMDo0MQ==" 
+//				+ "','alarm_type':'6KeG6aKR5Lii5aSx5oql6K2m'}}";
+//		String message = "{'title':'','description':'alarmlog','open_type':2,'custom_content':" 
+//				+ "{'alarm_content':'57qi5rKz6Zm255O36YCa6YGTM-WumuaXtuaKk-aLjQ..','image_path':"
+//				+ "'d2h5OjFAaHR0cDovL3h5LnN0YXItbmV0c2VjdXJpdHkuY29tOjgwODAvcC9samc4ODgvMjAxNC0w" 
+//				+ "NC0yMS8xMzk4MDcwNTc2Nzc3OTAzLmpwZw..','video_url':'d2h5OjFAb3dzcDovLzEyMy41NS"
+//				+ "4yNi4xOTg6OTUwNS9jaG40','push_user':'d2h5OjFAeHkuc3Rhci1uZXRzZWN1cml0eS5jb20." 
+//				+ "','device_name':'U042MTA0LTA4RjM.','alarm_time':'MjAxNC0xMi0wMywxNzoyMDo0MQ.." 
+//				+ "','alarm_type':'6KeG6aKR5Lii5aSx5oql6K2m'}}";
+		String message = "{'title':'','description':'alarmlog','custom_content':{'alarm_content':'57qi5rKz6Zm255O36YCa6YGTM-WumuaXtuaKk-aLjQ..','image_path':'d2h5OjFAaHR0cDovL3h5LnN0YXItbmV0c2VjdXJpdHkuY29tOjgwODAvcC9samc4ODgvMjAxNC0wNC0yMS8xMzk4MDcwNTc2Nzc3OTAzLmpwZw..','video_url':'d2h5OjFAb3dzcDovLzEyMy41NS4yNi4xOTg6OTUwNS9jaG40','push_user':'d2h5OjFAeHkuc3Rhci1uZXRzZWN1cml0eS5jb20.','device_name':'U042MTA0LTA4RjM.','alarm_time':'MjAxNC0xMi0wNCwyMDoyNTo0MQ..','alarm_type':'6KeG6aKR5Lii5aSx5oql6K2m'}}";
 		ar.onMessage(getContext(), message, null);
 	}
 	

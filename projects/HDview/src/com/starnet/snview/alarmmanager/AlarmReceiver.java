@@ -115,31 +115,31 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
                 }
                 
                 if (!customContentJsonObj.isNull("device_name")) {
-                	deviceName = Base64Util.decode(customContentJsonObj
+                	deviceName = Base64Util.snDecode(customContentJsonObj
 							.getString("device_name")); // 需先BASE64解密
 				}
                 if (!customContentJsonObj.isNull("alarm_time")) {
-                	alarmTime = Base64Util.decode(customContentJsonObj
+                	alarmTime = Base64Util.snDecode(customContentJsonObj
 							.getString("alarm_time"));
 				}
                 if (!customContentJsonObj.isNull("alarm_type")) {
-                	alarmType = Base64Util.decode(customContentJsonObj
+                	alarmType = Base64Util.snDecode(customContentJsonObj
 							.getString("alarm_type"));
 				}
 				if (!customContentJsonObj.isNull("alarm_content")) {
-					alarmContent = Base64Util.decode(customContentJsonObj
+					alarmContent = Base64Util.snDecode(customContentJsonObj
 							.getString("alarm_content")); 
 				}
 				if (!customContentJsonObj.isNull("push_user")) {
-					pushUserUrl = Base64Util.decode(customContentJsonObj
+					pushUserUrl = Base64Util.snDecode(customContentJsonObj
 							.getString("push_user"));
 				}
 				if (!customContentJsonObj.isNull("image_path")) {
-					imageUrl = Base64Util.decode(customContentJsonObj
+					imageUrl = Base64Util.snDecode(customContentJsonObj
 							.getString("image_path"));
 				}
 				if (!customContentJsonObj.isNull("video_url")) {
-					videoUrl = Base64Util.decode(customContentJsonObj
+					videoUrl = Base64Util.snDecode(customContentJsonObj
 							.getString("video_url"));
 				}
 

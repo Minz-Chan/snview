@@ -29,4 +29,8 @@ public class Base64Util {
         
         return decoded;
     }  
+    
+    public static String snDecode(String s) {
+    	return decode(s.replace("-", "+").replace("_", "/").replace(".", "="));
+    }
 }
