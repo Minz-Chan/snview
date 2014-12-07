@@ -31,6 +31,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
@@ -300,7 +301,7 @@ public class CloudAccountAddingActivity extends BaseActivity {
 									setResult(3, intent);
 									//百度云推送的标签设置
 									List<String>tags = new ArrayList<String>();
-									tags.add(save_CloudAccount.getUsername()+""+save_CloudAccount.getPassword());
+									tags.add(save_CloudAccount.getUsername()+""+MD5Utils.createMD5(save_CloudAccount.getPassword()));
 									PushManager.setTags(CloudAccountAddingActivity.this, tags);
 									//百度云推送的标签设置
 									CloudAccountAddingActivity.this.finish();
