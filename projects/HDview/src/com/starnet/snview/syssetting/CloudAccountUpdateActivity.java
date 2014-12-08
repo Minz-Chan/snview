@@ -2,6 +2,7 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -25,11 +26,13 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.CloudService;
 import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.IPAndPortUtils;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
@@ -274,6 +277,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
 									intent.putExtras(bundle);
 									setResult(3, intent);
+									//百度云推送的标签设置
+									List<String>tags = new ArrayList<String>();
+									tags.add(saveCloudAccount.getUsername()+""+MD5Utils.createMD5(saveCloudAccount.getPassword()));
+									PushManager.setTags(CloudAccountUpdateActivity.this, tags);
+									//百度云推送的标签设置
 									CloudAccountUpdateActivity.this.finish();
 								}else {
 									Builder builder = new Builder(CloudAccountUpdateActivity.this);
