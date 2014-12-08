@@ -86,15 +86,15 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			}
 			dismissDialog(1);
 			// 解除挂起， 程序往下执行
-			synObj.resume();
+//			synObj.resume();
 			String errMsg = "";
-			Context context = CloudAccountUpdateActivity.this;
+			context = CloudAccountUpdateActivity.this;
 			switch (msg.what) {
 			case DDNS_RESP_SUCC://只验证，不保存				
 				identifier_flag = true;
 				identifier_flag_after = true;
 				showToast(getString(R.string.system_setting_cloudaccount_useable));
-				dismissDialog(1);
+//				dismissDialog(1);
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
@@ -175,15 +175,14 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			}	
 		});
 		
-		// 直接返回...
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				CloudAccountUpdateActivity.this.finish();
-			}// 如果信息无改变，则不刷新ListView
+			}
 		});
 
-		saveBtn.setOnClickListener(new OnClickListener() {// 单击保存时，需要验证用户的有效性...
+		saveBtn.setOnClickListener(new OnClickListener() {// 单击保存时，需要验证用户的有效性
 			@Override
 			public void onClick(View v) {
 
@@ -205,8 +204,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					saveCloudAccount.setRotate(false);
 					saveCloudAccount.setExpanded(false);
 					
-					identifier_flag = isEqualCloudAccounts(saveCloudAccount,
-							identifyCloudAccount);
+					identifier_flag = isEqualCloudAccounts(saveCloudAccount,identifyCloudAccount);
 					
 					if (isenablYseRadioBtn.isChecked() && (identifier_flag)&& (identifier_flag_after)) {
 						saveCloudAccount.setEnabled(true);
@@ -253,11 +251,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 								if (isSame) {
 									if(identifier_flag_after){
 										saveCloudAccount.setEnabled(true);
-										//百度云推送的标签设置
+//										//百度云推送的标签设置
 										List<String>tags = new ArrayList<String>();
 										tags.add(saveCloudAccount.getUsername()+""+MD5Utils.createMD5(saveCloudAccount.getPassword()));
 										PushManager.setTags(CloudAccountUpdateActivity.this, tags);
-										//百度云推送的标签设置
+//										//百度云推送的标签设置
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}
@@ -424,8 +422,6 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 				String cADomain = cA.getDomain();
 				String cAPort = cA.getPort();
 				String cAUsername = cA.getUsername();
-				/*String cAPassword = cA.getPassword();*/
-				/* boolean isEnabled = cA.isEnabled(); */
 				if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
 					&& cloudAccount.getPort().equals(cAPort)) {
 					result = true;

@@ -22,6 +22,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -197,24 +198,26 @@ public class CloudAccountViewActivity extends BaseActivity {
 							changeNoUseState(); 											//通知预览通道禁用
 						}
 					}
-					
-					//针对编译的用户进行tag的注册和删除
-					boolean isOpen = NetWorkUtils.checkNetConnection(CloudAccountViewActivity.this);
-					if(isOpen){
-						if(beforeEditCA.isEnabled()){//之前的用户是可用的
-							if(afterEditCA.isEnabled()){//编辑之后的用户是可用的，则删除以前的，添加当前的
-								List<String>del_tags = new ArrayList<String>();
-								List<String>reg_tags = new ArrayList<String>();
-								del_tags.add(beforeEditCA.getUsername()+"_"+beforeEditCA.getPassword());
-								reg_tags.add(afterEditCA.getUsername()+"_"+afterEditCA.getPassword());
-								PushManager.delTags(CloudAccountViewActivity.this, del_tags);
-								PushManager.setTags(CloudAccountViewActivity.this, reg_tags);
-							}else{//编辑之后的用户是不可用的，则删除以前的
-								List<String>del_tags = new ArrayList<String>();
-								del_tags.add(beforeEditCA.getUsername()+"_"+beforeEditCA.getPassword());
-								PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+					try {
+						boolean isOpen = NetWorkUtils.checkNetConnection(CloudAccountViewActivity.this);
+						if(isOpen){//针对编译的用户进行tag的注册和删除
+							if(beforeEditCA.isEnabled()){//之前的用户是可用的
+								if(afterEditCA.isEnabled()){//编辑之后的用户是可用的，则删除以前的，添加当前的
+									List<String>del_tags = new ArrayList<String>();
+									List<String>reg_tags = new ArrayList<String>();
+									del_tags.add(beforeEditCA.getUsername()+MD5Utils.createMD5(beforeEditCA.getPassword()));
+									reg_tags.add(afterEditCA.getUsername()+MD5Utils.createMD5(afterEditCA.getPassword()));
+									PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+									PushManager.setTags(CloudAccountViewActivity.this, reg_tags);
+								}else{//编辑之后的用户是不可用的，则删除以前的
+									List<String>del_tags = new ArrayList<String>();
+									del_tags.add(beforeEditCA.getUsername()+MD5Utils.createMD5(beforeEditCA.getPassword()));
+									PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+								}
 							}
 						}
+					} catch (Exception e) {
+						//MD5加密异常的处理
 					}					
 				}
 			}
