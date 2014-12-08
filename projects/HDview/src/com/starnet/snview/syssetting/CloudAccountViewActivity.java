@@ -98,13 +98,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 						for (int i = 0; i < delSize; i++) {
 							previewDeviceItems.remove(delPreviewDeviceItems.get(i));
 						}
-						
-						if (delSize > 0 ) {
-//							if (previewDeviceItems.size() > 0) {
-								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-//							}
+						if (delSize > 0) {
+							GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 						}
-						
 						ReadWriteXmlUtils.removeCloudAccoutFromXML(filePath, deleteCA);
 						cloudAccountList.remove(deleteCA);
 						caAdapter.notifyDataSetChanged();

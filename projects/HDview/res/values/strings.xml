@@ -94,28 +94,41 @@
     <string name="device_manager_save_failed">保存失败</string>
     <string name="device_manager_off_on_line_length">4</string>
     <string name="device_manager_save_success">保存成功</string>
+    <string name="device_manager_conn_identify">连接验证</string>
     <string name="device_manager_deviceview_cancel">取消</string>
     <string name="device_manager_collect_device">收藏设备</string>
     <string name="device_manager_devicecollect_cancel">取消</string>
     <string name="device_manager_devicecollect_ensure">确定</string>
+    <string name="device_manager_connection_identify_ok">确定</string>
     <string name="device_manager_onealladd">一键全部加入设备列表</string>
+    <string name="device_manager_please_identify">请进行连接验证</string>
+    <string name="device_manager_connection_identify_cancel">取消</string>
     <string name="device_manager_scan_layout_start_scan">开始预览</string>
     <string name="device_manager_port_wrong">端口号错误，请重新输入</string>
     <string name="device_manager_deviceview_delete_device">删除设备</string>
     <string name="device_listview_item_securityprotection">安全防护</string>
+    <string name="device_manager_conn_identify_channel_btn">连接验证</string>
     <string name="device_manager_collect_ip_wrong">IP错误，请重新输入</string>
+    <string name="device_manager_conn_iden_timout">连接验证超时&#8230;</string>
+    <string name="device_manager_conn_iden_sucess">连接验证成功&#8230;</string>
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
     <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
     <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
+    <string name="device_manager_conn_iden_svrip_notnull">服务器不可以为空</string>
     <string name="device_manager_add_scan_edit_layout_record_name">记录名</string>
     <string name="device_manager_add_scan_edit_layout_server_name">服务器</string>
+    <string name="device_manager_conn_iden_svrport_notnull">端口不可以为空</string>
+    <string name="device_manager_conn_iden">正在进行连接验证，请等待&#8230;</string>
+    <string name="device_manager_conn_iden_username_notnull">用户名不可以为空</string>
     <string name="device_manager_add_scan_edit_layout_channel_number">通道数</string>
     <string name="device_manager_devicecollect_cover">已存在该设备，是否覆盖？</string>
     <string name="device_manager_deviceeditable_ip_wrong">服务器IP有错，请检查</string>
     <string name="device_manager_deviceeditable_port_wrong">端口号有错，请检查</string>
     <string name="device_manager_add_scan_edit_layout_default_channel">默认通道</string>
     <string name="device_manager_collect_null_wrong">包含有尚未填写的部分,请检查</string>
+    <string name="device_manager_conn_iden_devicename_notnull">设备名称不可以为空</string>
+    <string name="device_manager_conn_iden_wrong">连接验证失败，请检查用户名和密码</string>
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
     <string name="device_manager_deviceeditable_ip_port_wrong">端口号和服务器IP都有错，请检查</string>
     <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>
@@ -177,11 +190,10 @@
     <string name="alarm_manageradapter_content">报警信息</string>
     <string name="alarm_manageradapter_imageload">图片下载</string>
     <string name="alarm_manageradapter_videopreview">视频预览</string>
-    <string name="alarm_img_load_noturl">网络地址错误，无法解析</string>    
+    <string name="alarm_img_load_noturl">网络地址错误，无法解析</string>
     <string name="alarm_net_notopen">网络未开启，请打开网络再下载</string>
     <string name="alarm_iamgeload_wait">图片正在下载,请等待&#8230;</string>
     <string name="alarm_videoload_wait">视频正在下载,请等待&#8230;</string>
     <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
-    
 
 </resources>

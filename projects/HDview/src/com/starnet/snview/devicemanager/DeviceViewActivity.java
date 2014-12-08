@@ -131,23 +131,12 @@ public class DeviceViewActivity extends BaseActivity {
 	}
 	private boolean checkPreviewDeviceIsInDevicesCollect(PreviewDeviceItem previewDeviceItem,DeviceItem delDeviceItem) {
 		boolean isContain = false;
-		/*String prevwSvrIP = previewDeviceItem.getSvrIp();
-		String preSvrPort = previewDeviceItem.getSvrPort();
-		String preLogPass = previewDeviceItem.getLoginPass();
-		String preLogUser = previewDeviceItem.getLoginUser();*/
 		String prePlatFormUserName = previewDeviceItem.getPlatformUsername();
 		String deviceName = previewDeviceItem.getDeviceRecordName();
-		
-		/*String devvwSvrIP = delDeviceItem.getSvrIp();
-		String devSvrPort = delDeviceItem.getSvrPort();
-		String devLogPass = delDeviceItem.getLoginPass();
-		String devLogUser = delDeviceItem.getLoginUser();*/
 		String devPlatFormUserName = delDeviceItem.getPlatformUsername();
 		String ddeviceName = delDeviceItem.getDeviceName();
 		
-		if (ddeviceName.equals(deviceName)&&(prePlatFormUserName.equals(devPlatFormUserName))) {//prevwSvrIP.equals(devvwSvrIP) && preSvrPort.equals(devSvrPort)
-			//&& preLogPass.equals(devLogPass)
-			//&& preLogUser.equals(devLogUser)
+		if (ddeviceName.equals(deviceName)&&(prePlatFormUserName.equals(devPlatFormUserName))) {
 			isContain = true;
 		}
 		return isContain;

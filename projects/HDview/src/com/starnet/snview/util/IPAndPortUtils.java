@@ -15,7 +15,7 @@ public class IPAndPortUtils {
 	 *            ：判断内容
 	 * @return ：是IP地址，返回true，如果不是，则返回FALSE；
 	 */
-	public boolean isIPAddress(String addr) {
+	public static boolean isIPAddress(String addr) {
 		boolean isIP = false;
 		if (addr.length() < 7 || addr.length() > 15 || addr.equals("")) {
 			isIP = false;
@@ -31,7 +31,7 @@ public class IPAndPortUtils {
 		return isIP;
 	}
 
-	private String subSpace(String IP) {// 去掉IP字符串前后所有的空格
+	private static String subSpace(String IP) {// 去掉IP字符串前后所有的空格
 		while (IP.startsWith(" ")) {
 			IP = IP.substring(1, IP.length()).trim();
 		}
@@ -41,9 +41,9 @@ public class IPAndPortUtils {
 		return IP;
 	}
 
-	public boolean isIp(String IP) {// 判断是否是一个IP
+	public static boolean isIp(String IP) {// 判断是否是一个IP
 		boolean b = false;
-		IP = this.subSpace(IP);
+		IP = subSpace(IP);
 		if (IP.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
 			String s[] = IP.split("\\.");
 			if (Integer.parseInt(s[0]) < 255)
@@ -63,7 +63,7 @@ public class IPAndPortUtils {
 	 *            ：判断内容
 	 * @return ：是网络端口号，返回true，如果不是，则返回FALSE；
 	 */
-	public boolean isNetPort(String portString) {
+	public static boolean isNetPort(String portString) {
 		boolean isNetPort = false;
 		int len = portString.length();
 		if ((len > 5) || (len == 0)) {

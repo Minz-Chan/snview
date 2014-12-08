@@ -159,6 +159,7 @@ public class ChannelListActivity extends BaseActivity {
 						searchList = getSearchListFromCloudAccounts(input_content);
 						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, searchList, titleView);
 						mExpandableListView.setAdapter(chExpandableListAdapter);
+						
 					}else{
 						setOriginCloudAccountsEnable();
 						chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);

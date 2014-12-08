@@ -7,6 +7,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ButtonState;
+import com.starnet.snview.channelmanager.xml.ConnectionIdentifyTask;
 import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
@@ -15,7 +16,9 @@ import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,29 +37,27 @@ import android.widget.TextView;
  * @ClassName ChannelExpandableListviewAdapter.java
  * @Description 显示扩展列表下的内容，组元素，子元素等；在每次进行界面的动态加载时，都是从文档中进行信息读取；
  */
+@SuppressLint("SdCardPath")
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter {
 	
 	private final String TAG = "ChannelExpandableListviewAdapter";
-	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
-	
-	private List<CloudAccount> groupAccountList;// 用于显示星云账号
+	private ButtonState bs;	
+	private boolean isOpen;
 	private Context context;
+	private TextView titleView;
+	private Button state_button;
+	public int notify_number = 1;
+	private Button button_channel_list;
+	private List<DeviceItem> deviceList;
 	private LayoutInflater layoutInflater;
 	private CloudAccount clickCloudAccount;
-	
-	private Button button_channel_list;
-	private Button state_button;
-	private ButtonState bs;	
-	private List<DeviceItem> deviceList;
-	private boolean isOpen;
-	
-	public int notify_number = 1;
-	
-	private TextView titleView;//显示用户选择的通道数量
 	private ImageView channel_listview_select;
-	
-	
+	private List<CloudAccount> groupAccountList;// 用于显示星云账号
+	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 	private List<Integer> colorPosList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
+	
+	private Handler handler;
+	private ConnectionIdentifyTask connectionIdentifyTask;
 		
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList,TextView titleView) {
 		super();
@@ -276,10 +277,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	
 	private void setCloudAccountChannelChoose(PreviewDeviceItem previewDeviceItem, CloudAccount cloudAccount) {
 		
-		String logPass = previewDeviceItem.getLoginPass();
 		String logUser = previewDeviceItem.getDeviceRecordName();
-		String logSvrIp = previewDeviceItem.getSvrIp();
-		String logSvrPot = previewDeviceItem.getSvrPort();
 		String on = context.getString(R.string.device_manager_online_en);
 		String off = context.getString(R.string.device_manager_offline_en);
 		//定位到cloudAccount的设备
@@ -288,12 +286,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			int size = deviceItems.size();
 			for (int i =0 ;i<size;i++) {
 				DeviceItem deviceItem = deviceItems.get(i);
-				String dSvrIp = deviceItem.getSvrIp();
-				String dSvrPort = deviceItem.getSvrPort();
 				String dUser = deviceItem.getDeviceName();
-				String dPass = deviceItem.getLoginPass();
 				if (dUser != null) {
-					
 					if (dUser.contains(on)||dUser.contains(off)) {
 						dUser = dUser.substring(4);
 					}
@@ -355,32 +349,48 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
 		ButtonOnclickListener bol = new ButtonOnclickListener(context,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
-		button_channel_list.setOnClickListener(bol);
+		button_channel_list.setOnClickListener(bol);//暂时注册，测试使用
+//		final int pos = childPosition;
+//		button_channel_list.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				testConnectionIdentifyTask(deviceList.get(pos));
+//			}
+//		});
 		
 		return convertView;
 	}
 	
-		public String getChannelSelectNum(DeviceItem deviceItem) {
-			String state = "";
-			int channelNum = 0 ;
-			int channelSelectNum = 0;
-			List<Channel> channels =deviceItem.getChannelList();
-			int channelSize = channels.size();
-			for (int k = 0; k < channelSize; k++) {		
-				channelNum++;	
-				if (channels.get(k).isSelected()) {
-					channelSelectNum++;
-				}
-			}	
-			if (channelNum == channelSelectNum) {
-				state = "all";
-			}else if ((channelSelectNum > 0)) {
-				state = "half";
-			}else {
-				state = "empty";
+	private void testConnectionIdentifyTask(DeviceItem deviceItem){
+		connectionIdentifyTask = new ConnectionIdentifyTask(handler, deviceItem);
+		connectionIdentifyTask.start();
+	}
+	
+	public void setHandler(Handler handler){
+		this.handler = handler;
+	}
+	
+	public String getChannelSelectNum(DeviceItem deviceItem) {
+		String state = "";
+		int channelNum = 0;
+		int channelSelectNum = 0;
+		List<Channel> channels = deviceItem.getChannelList();
+		int channelSize = channels.size();
+		for (int k = 0; k < channelSize; k++) {
+			channelNum++;
+			if (channels.get(k).isSelected()) {
+				channelSelectNum++;
 			}
-			return state;
 		}
+		if (channelNum == channelSelectNum) {
+			state = "all";
+		} else if ((channelSelectNum > 0)) {
+			state = "half";
+		} else {
+			state = "empty";
+		}
+		return state;
+	}
 	
 	protected boolean checkPreviewDeviceItemFromCA(PreviewDeviceItem previewDeviceItem,CloudAccount cloudAccount){
 		

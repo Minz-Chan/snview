@@ -302,6 +302,73 @@
                 android:singleLine="true"
                 android:textSize="18sp" />
         </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+            android:layout_marginTop="3.0dp"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="2"
+                android:orientation="horizontal"
+                android:text="@string/device_manager_conn_identify"
+                android:textColor="@color/md__defaultBackground"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/cloudaccount_setting_isenable_radioGroup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:contentDescription="@string/system_setting_cloudaccount_isenable_choice"
+                android:gravity="right"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    android:id="@+id/device_manager_isenable_yes_radioBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/system_setting_cloudaccount_isenable_yes"
+                    android:textColor="@color/system_setting_listview_selected"
+                    android:textSize="14sp" />
+
+                <RadioButton
+                    android:id="@+id/device_manager_isenable_no_radioBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:checked="true"
+                    android:text="@string/system_setting_cloudaccount_isenable_no"
+                    android:textColor="@color/system_setting_listview_selected"
+                    android:textSize="14sp" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+            android:layout_marginTop="5dp" >
+
+            <Button
+                android:id="@+id/conn_identify_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:gravity="center"
+                android:text="@string/device_manager_conn_identify_channel_btn"
+                android:textColor="@color/md__defaultBackground"
+                android:textSize="16sp" />
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView> <!-- </LinearLayout> -->

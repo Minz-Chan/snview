@@ -22,7 +22,8 @@ public class DeviceItem implements Serializable {
 	private boolean isExpanded = false; // 是否展开
 	private List<Channel> channelList;  // 通道列表，包含通道相关信息
 	
-	private String platformUsername;	// 所属的星云账户用户名  xinzeng
+	private String platformUsername;	// 所属的星云账户用户名
+	private boolean isIdentify;//是否进行验证
 	
 	public List<Channel> getChannelList() {
 		return channelList;
@@ -95,6 +96,12 @@ public class DeviceItem implements Serializable {
 	}
 	public void setPlatformUsername(String platformUsername) {
 		this.platformUsername = platformUsername;
+	}
+	public boolean isIdentify() {
+		return isIdentify;
+	}
+	public void setIdentify(boolean isIdentify) {
+		this.isIdentify = isIdentify;
 	}
 	
 	
