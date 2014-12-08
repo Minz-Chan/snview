@@ -251,11 +251,6 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 								if (isSame) {
 									if(identifier_flag_after){
 										saveCloudAccount.setEnabled(true);
-//										//百度云推送的标签设置
-										List<String>tags = new ArrayList<String>();
-										tags.add(saveCloudAccount.getUsername()+""+MD5Utils.createMD5(saveCloudAccount.getPassword()));
-										PushManager.setTags(CloudAccountUpdateActivity.this, tags);
-//										//百度云推送的标签设置
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}
