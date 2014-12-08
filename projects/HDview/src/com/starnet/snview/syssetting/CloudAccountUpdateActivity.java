@@ -93,28 +93,26 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			case DDNS_RESP_SUCC://只验证，不保存				
 				identifier_flag = true;
 				identifier_flag_after = true;
-				String printSentence = getString(R.string.system_setting_cloudaccount_useable);
-				Toast toast1 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-				toast1.show();
+				showToast(getString(R.string.system_setting_cloudaccount_useable));
 				dismissDialog(1);
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
 				identifier_flag_after = false;
 				errMsg = msg.getData().getString("ERR_MSG");
-				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				showToast(errMsg);
 				break;
 			case DDNS_SYS_FAILURE:
 				identifier_flag = false;
 				identifier_flag_after = false;
 				errMsg = getString(R.string.common_connection_wrong_check_port_domain);
-				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				showToast(errMsg);
 				break;
 			case DDNS_REQ_TIMEOUT:
 				identifier_flag = false;
 				identifier_flag_after = false;
 				errMsg = getString(R.string.common_request_outtime_check_port_server);
-				Toast.makeText(CloudAccountUpdateActivity.this, errMsg,Toast.LENGTH_LONG).show();
+				showToast(errMsg);
 				break;
 			}
 		}
@@ -166,19 +164,13 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 							requset4DeviceList();
 							synObj.suspend();// 挂起等待请求结果
 						}else {
-							String printSentence = getString(R.string.device_manager_editact_port_wrong);
-							Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-							toast3.show();
+							showToast(getString(R.string.device_manager_editact_port_wrong));
 						}						
 					} else {
-						String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-						Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-						toast3.show();
+						showToast(getString(R.string.system_setting_cloudaccountsetedit_null_content));
 					}
 				}else {
-					String printSentence = getString(R.string.network_not_conn);
-					Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-					toast3.show();
+					showToast(getString(R.string.network_not_conn));
 				}
 			}	
 		});
@@ -226,17 +218,13 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 						List<CloudAccount> cloudAcountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
 						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);		// 检测是否已经存在账户
 						
-						if (result) {																			// 如果包含，弹出对话框，询问是否覆盖？
-							String printSentence = getString(R.string.device_manager_setting_setedit_contain_no_need);
-							Toast toast = Toast.makeText(context,printSentence, Toast.LENGTH_SHORT);
-							toast.show();
+						if (result) {
+							showToast(getString(R.string.device_manager_setting_setedit_contain_no_need));
 						} else {
 							if (isenablNoRadioBtn.isChecked()) {
 								saveCloudAccount.setEnabled(false);
 								ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
-								String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
-								Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-								toast3.show();
+								showToast(getString(R.string.system_setting_cloudaccountupdate_edit_right));
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
 								bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
@@ -265,23 +253,21 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 								if (isSame) {
 									if(identifier_flag_after){
 										saveCloudAccount.setEnabled(true);
+										//百度云推送的标签设置
+										List<String>tags = new ArrayList<String>();
+										tags.add(saveCloudAccount.getUsername()+""+MD5Utils.createMD5(saveCloudAccount.getPassword()));
+										PushManager.setTags(CloudAccountUpdateActivity.this, tags);
+										//百度云推送的标签设置
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}
 									ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
-									String printSentence = getString(R.string.system_setting_cloudaccountupdate_edit_right);
-									Toast toast3 = Toast.makeText(context,printSentence, Toast.LENGTH_LONG);
-									toast3.show();
+									showToast(getString(R.string.system_setting_cloudaccountupdate_edit_right));
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
 									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
 									intent.putExtras(bundle);
 									setResult(3, intent);
-									//百度云推送的标签设置
-									List<String>tags = new ArrayList<String>();
-									tags.add(saveCloudAccount.getUsername()+""+MD5Utils.createMD5(saveCloudAccount.getPassword()));
-									PushManager.setTags(CloudAccountUpdateActivity.this, tags);
-									//百度云推送的标签设置
 									CloudAccountUpdateActivity.this.finish();
 								}else {
 									Builder builder = new Builder(CloudAccountUpdateActivity.this);
@@ -295,9 +281,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 						System.out.println(e1.toString());
 					}
 				} else {
-					String printSentence = getString(R.string.system_setting_cloudaccountsetedit_null_content);
-					Toast toast3 = Toast.makeText(context, printSentence,Toast.LENGTH_LONG);
-					toast3.show();
+					showToast(getString(R.string.system_setting_cloudaccountsetedit_null_content));
 				}
 			}
 		});
@@ -361,6 +345,9 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 		default:
 			return null;
 		}
+	}
+	private void showToast(String content){
+		Toast.makeText(context, content,Toast.LENGTH_LONG).show();
 	}
 
 	@SuppressWarnings("deprecation")

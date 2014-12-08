@@ -147,6 +147,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		imgLoadBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				AlarmImageFileCache.context = context;
 				String imgUrl = alarmInfoList.get(pos).getAlarm().getImageUrl();
 				boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
 				if (isExist) {

@@ -213,6 +213,7 @@ public class ConnectionIdentifyTask {
 			channel.setChannelName(chanelName+""+(i+1));
 			channel.setChannelNo((i+1));
 			channel.setSelected(false);
+			channelList.add(channel);
 		}
 		mDeviceItem.setChannelList(channelList);
 	}

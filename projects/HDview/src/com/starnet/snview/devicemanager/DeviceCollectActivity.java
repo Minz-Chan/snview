@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.text.Editable;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -60,7 +59,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private boolean isConnPass = false;// 验证是否通过
 	private boolean isIdentify = false;// 是否进行了验证
 	private RadioButton yesRadioButton;
-	private DeviceItem identifyDeviceItem;// 验证后的设备
+	private DeviceItem validatedDeviceItem;// 验证后的设备
 	private ConnectionIdentifyTask conIdenTask;
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
@@ -116,16 +115,19 @@ public class DeviceCollectActivity extends BaseActivity {
 				isConnPass = false;
 				saveDeviceItem.setIdentify(true);
 				dismissDialog(CONNIDENTIFYDIALOG);
-				identifyDeviceItem = getIdentifyDeviceItem(msg);
+				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_wrong));
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				isIdentify = true;
 				isConnPass = true;
+				auto_flag = 2;
 				msg.getData();
 				saveDeviceItem.setIdentify(true);
 				dismissDialog(CONNIDENTIFYDIALOG);
-				identifyDeviceItem = getIdentifyDeviceItem(msg);
+				validatedDeviceItem = getIdentifyDeviceItem(msg);
+				saveDeviceItem.setChannelList(validatedDeviceItem.getChannelList());
+				saveDeviceItem.setChannelSum(validatedDeviceItem.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
@@ -133,7 +135,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				isConnPass = false;
 				saveDeviceItem.setIdentify(true);
 				dismissDialog(CONNIDENTIFYDIALOG);
-				identifyDeviceItem = getIdentifyDeviceItem(msg);
+				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_timout));
 				break;
 			default:
@@ -157,7 +159,10 @@ public class DeviceCollectActivity extends BaseActivity {
 
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
-		return (DeviceItem) msg.getData().getSerializable("identifyDeviceItem");
+		Bundle data = msg.getData();
+		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
+		return dItem;
+				
 	}
 
 	/*** 获取需要验证的设备 ***/
@@ -294,7 +299,7 @@ public class DeviceCollectActivity extends BaseActivity {
 								if (saveDeviceItem.isIdentify()) {// 用户进行了连接验证
 									if (isConnPass) {// 验证通过
 										boolean isSame = checkSaveAndIdentifyDeviceIsSame(
-												saveDeviceItem,identifyDeviceItem);
+												saveDeviceItem,validatedDeviceItem);
 										if (isSame) {
 											saveIdentifyDeviceItemToXML(true);// 验证通过后保存用户信息
 										} else {
@@ -394,8 +399,7 @@ public class DeviceCollectActivity extends BaseActivity {
 								showToast(saveResult);
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
-								bundle.putSerializable("saveDeviceItem",
-										saveDeviceItem);
+								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(11, intent);
 								DeviceCollectActivity.this.finish();
@@ -433,20 +437,24 @@ public class DeviceCollectActivity extends BaseActivity {
 		String iSvPt = item.getSvrPort();
 		String iUser = item.getLoginUser();
 		String ipswd = item.getLoginPass();
-//		String iName = item.getDeviceName();
 
 		String jSvIp = jItem.getSvrIp();
 		String jSvPt = jItem.getSvrPort();
 		String jUser = jItem.getLoginUser();
 		String jpswd = jItem.getLoginPass();
-//		String jName = jItem.getDeviceName();
-		if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt)) && (iUser.equals(jUser))
-				&& (ipswd.equals(jpswd)) ) {//&& (iName == jName)
-			Log.v(TAG, "dfad"+true);
-			System.out.println("dfad"+true);
-			 isSame = true;
+		if (ipswd==null||ipswd.equals("")) {
+			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt)) && (iUser.equals(jUser))) {
+				 isSame = true;
+			}else {
+				 isSame = false;
+			}
 		}else {
-			 isSame = false;
+			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt)) && (iUser.equals(jUser))
+					&& (ipswd.equals(jpswd)) ) {
+				 isSame = true;
+			}else {
+				 isSame = false;
+			}
 		}
 		return isSame;
 	}
@@ -665,8 +673,32 @@ public class DeviceCollectActivity extends BaseActivity {
 //					Log.v(TAG, "DeviceCollectActivity == username:" + username);
 					String usernmae = getString(R.string.device_manager_collect_device);
 					saveDeviceItem.setPlatformUsername(usernmae);
+					saveDeviceItem.setLoginPass(lgPas);
+					saveDeviceItem.setLoginUser(lgUsr);
+					saveDeviceItem.setSvrIp(svrIp);
+					saveDeviceItem.setSvrPort(svrPt);
+					saveDeviceItem.setDeviceName(dName);
+					saveDeviceItem.setDefaultChannel(defltChl);
+					setIdentifyDeviceItem(saveDeviceItem);
 				}
 			}
 		}
+	}
+	
+	private void setIdentifyDeviceItem(DeviceItem deviceItem){
+		validatedDeviceItem = new DeviceItem();
+		validatedDeviceItem.setChannelList(deviceItem.getChannelList());
+		validatedDeviceItem.setChannelSum(deviceItem.getChannelSum());
+		validatedDeviceItem.setDefaultChannel(deviceItem.getDefaultChannel());
+		validatedDeviceItem.setDeviceName(deviceItem.getDeviceName());
+		validatedDeviceItem.setDeviceType(deviceItem.getDeviceType());
+		validatedDeviceItem.setExpanded(deviceItem.isExpanded());
+		validatedDeviceItem.setIdentify(deviceItem.isIdentify());
+		validatedDeviceItem.setLoginPass(deviceItem.getLoginPass());
+		validatedDeviceItem.setLoginUser(deviceItem.getLoginUser());
+		validatedDeviceItem.setPlatformUsername(deviceItem.getPlatformUsername());
+		validatedDeviceItem.setSecurityProtectionOpen(deviceItem.isSecurityProtectionOpen());
+		validatedDeviceItem.setSvrIp(deviceItem.getSvrIp());
+		validatedDeviceItem.setSvrPort(deviceItem.getSvrPort());
 	}
 }
