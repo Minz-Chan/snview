@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BufferSendManager;
@@ -17,13 +18,17 @@ import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
+import com.starnet.snview.syssetting.CloudAccount;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
 public class ConnectionIdentifyTask {
-//	private final String TAG = "ConnectionIdentifyTask";
+	// private final String TAG = "ConnectionIdentifyTask";
+	private int childPos;
+	private int parentPos;
 	private Socket client;
 	private Context context;
 	private Handler mHandler;
@@ -33,19 +38,22 @@ public class ConnectionIdentifyTask {
 	private DeviceItem mDeviceItem;
 	private Thread connectionThread;
 	private BufferSendManager sender;
+	private CloudAccount clickCloudAccount;
 	private final int defaultChannelNum = 1;
 	private boolean shouldTimeOutOver = false;
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
-
+	
 	public ConnectionIdentifyTask(Handler handler, DeviceItem deviceItem) {
-
 		isCanceled = false;
 		this.mHandler = handler;
 		shouldTimeOutOver = false;
 		this.mDeviceItem = deviceItem;
-		
+		initialThread();
+	}
+	
+	private void initialThread(){
 		timeOutThread = new Thread() {
 			@Override
 			public void run() {
@@ -83,6 +91,17 @@ public class ConnectionIdentifyTask {
 		};
 	}
 
+	public ConnectionIdentifyTask(Handler handler,
+			CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
+			int childPos) {
+		this.mHandler = handler;
+		this.mDeviceItem = dItem;
+		this.childPos = childPos;
+		this.parentPos = parentPos;
+		this.clickCloudAccount = clickCloudAccount;
+		initialThread();
+	}
+
 	/*** 网络链接不成功的处理操作 ***/
 	private void onConnectionWrong() {
 		if (!shouldTimeOutOver) {
@@ -106,7 +125,7 @@ public class ConnectionIdentifyTask {
 			if (!isCanceled) {
 				onWorkdUnknwnHost();
 			}
-			
+
 		} catch (IOException e) {
 			isConnected = false;
 			if (!isCanceled) {
@@ -118,7 +137,7 @@ public class ConnectionIdentifyTask {
 
 	/*** 端口错误的操作 ***/
 	protected void onWorkdUnknwnHost() {
-		if (!shouldTimeOutOver&&!isCanceled) {
+		if (!shouldTimeOutOver && !isCanceled) {
 			shouldTimeOutOver = true;
 			Message msg = new Message();
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
@@ -128,7 +147,7 @@ public class ConnectionIdentifyTask {
 
 	/*** ??错误的操作 ***/
 	protected void onWorkdIOErr() {
-		if (!shouldTimeOutOver&&!isCanceled) {
+		if (!shouldTimeOutOver && !isCanceled) {
 			shouldTimeOutOver = true;
 			Message msg = new Message();
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
@@ -161,7 +180,7 @@ public class ConnectionIdentifyTask {
 	 **/
 	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
-		
+
 		Bundle data = new Bundle();
 		Message msg = new Message();
 		InputStream in = client.getInputStream();
@@ -179,6 +198,11 @@ public class ConnectionIdentifyTask {
 				int channelNumber = recvData[80];
 				setDevicetItem(channelNumber);
 				data.putSerializable("identifyDeviceItem", mDeviceItem);
+				//针对连接验证部分发送的数据
+				data.putInt("childPos", childPos);
+				data.putInt("parentPos", parentPos);
+				data.putString("deviceName", mDeviceItem.getDeviceName());
+				data.putSerializable("clickCloudAccount", clickCloudAccount);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
@@ -202,20 +226,21 @@ public class ConnectionIdentifyTask {
 			}
 		}
 	}
-	
-	/**设置验证后的设备***/
-	private void setDevicetItem(int channelNumber){
+
+	/** 设置验证后的设备 ***/
+	private void setDevicetItem(int channelNumber) {
 		String chanelName = context.getString(R.string.device_manager_channel);
-		List<Channel>channelList = new ArrayList<Channel>();
+		List<Channel> channelList = new ArrayList<Channel>();
 		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
 		for (int i = 0; i < channelNumber; i++) {
 			Channel channel = new Channel();
-			channel.setChannelName(chanelName+""+(i+1));
-			channel.setChannelNo((i+1));
+			channel.setChannelName(chanelName + "" + (i + 1));
+			channel.setChannelNo((i + 1));
 			channel.setSelected(false);
 			channelList.add(channel);
 		}
 		mDeviceItem.setChannelList(channelList);
+		mDeviceItem.setIdentify(true);
 	}
 
 	/** 发送网络连接验证请求 **/
@@ -264,12 +289,12 @@ public class ConnectionIdentifyTask {
 			mHandler.sendMessage(msg);
 		}
 	}
-	
-	public void setContext(Context context){
+
+	public void setContext(Context context) {
 		this.context = context;
 	}
-	
-	public void setCanceled(boolean isCanceled){
+
+	public void setCanceled(boolean isCanceled) {
 		this.isCanceled = isCanceled;
 	}
 }

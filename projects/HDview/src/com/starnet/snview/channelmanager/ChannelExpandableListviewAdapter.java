@@ -51,7 +51,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private List<DeviceItem> deviceList;
 	private LayoutInflater layoutInflater;
 	private CloudAccount clickCloudAccount;
-	private ImageView channel_listview_select;
+	private ImageView channelStateFrame;
 	private List<CloudAccount> groupAccountList;// 用于显示星云账号
 	private List<PreviewDeviceItem> mPreviewDeviceItems;//从RealplayActivity中获取预览通道
 	private List<Integer> colorPosList = new ArrayList<Integer>();//用于记录需要显示不同颜色的位置
@@ -174,10 +174,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					}
 				}
 			}
-		}else {
-			Log.v(TAG, "&&&&notify_number:&&&"+notify_number);
 		}
-//		CloudAccount cloudAccount = (CloudAccount) getGroup(groupPosition);
 		String tileName = cloudAccount.getUsername();
 		title.setText(tileName);
 		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);
@@ -200,32 +197,29 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 		
 		final int pos = groupPosition;
-		channel_listview_select = (ImageView) convertView.findViewById(R.id.channel_listview_select);
-		
+		channelStateFrame = (ImageView) convertView.findViewById(R.id.channel_listview_select);
 		String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));
 		if(state.equals("all")){
-			channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+			channelStateFrame.setBackgroundResource(R.drawable.channellist_select_alled);
 		}else if(state.equals("half")){
-			channel_listview_select.setBackgroundResource(R.drawable.channel_selected_half);
+			channelStateFrame.setBackgroundResource(R.drawable.channel_selected_half);
 		}else{
-			channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+			channelStateFrame.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
-//		List<DeviceItem> deviceItems = groupAccountList.get(pos).getDeviceList();
-//		if(groupAccountList.get(pos).isEnabled()&&(deviceItems!=null&&deviceItems.size()>0)){
-			channel_listview_select.setOnClickListener(new OnClickListener(){//考虑点击全选状态按钮时，考虑为空的情况
+		channelStateFrame.setOnClickListener(new OnClickListener(){//考虑点击全选状态按钮时，考虑为空的情况
 				@Override
 				public void onClick(View v) {
 					
 					String state = ExpandableListViewUtils.getStateForCloudAccount(groupAccountList.get(pos));//判断当前的选择状态(全选、半选和未选)
 					if(state.equals("all")){
-						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_empty);
+						channelStateFrame.setBackgroundResource(R.drawable.channellist_select_empty);
 						
 						ExpandableListViewUtils.setStateForCloudAccount("empty",groupAccountList.get(pos));//改变通道列表的选择状态
 					}else if(state.equals("half")){
-						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+						channelStateFrame.setBackgroundResource(R.drawable.channellist_select_alled);
 						ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
 					}else{
-						channel_listview_select.setBackgroundResource(R.drawable.channellist_select_alled);
+						channelStateFrame.setBackgroundResource(R.drawable.channellist_select_alled);
 						ExpandableListViewUtils.setStateForCloudAccount("all",groupAccountList.get(pos));
 					}
 					int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
@@ -240,10 +234,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					
 					List<PreviewDeviceItem> devices = ExpandableListViewUtils.getPreviewChannelList(groupAccountList);
 					GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(devices);
-					
-					//保存数据
 					if(groupAccountList.get(pos).getUsername().equals(context.getString(R.string.device_manager_collect_device))){
-//						final CloudAccountXML csxml = new CloudAccountXML();
 						final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 						final List<DeviceItem> deviceList = groupAccountList.get(pos).getDeviceList();
 						final int size = deviceList.size();
@@ -264,7 +255,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					}
 				}
 			});
-//		}
 		
 		int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);//显示数据选择情形
 		if(number == 0){
@@ -340,30 +330,21 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		changeStateButton(state_button,state);
 		bs = new ButtonState();
 		bs.setState(state);
-//		if(click_time % 2 == 0){
-			ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
-			state_button.setOnTouchListener(bolc);//原来的情形
-//		}
+		ButtonOnTouchListener bolc = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this,titleView,groupPosition, childPosition,state_button,groupAccountList);
+		state_button.setOnTouchListener(bolc);//原来的情形
 		
 		// 发现“通道列表按钮”并为之添加单击事件
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
-		ButtonOnclickListener bol = new ButtonOnclickListener(context,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；groupAccountList.get(groupPosition).getDeviceList().get(childPosition);//定位到
-		button_channel_list.setOnClickListener(bol);//暂时注册，测试使用
-//		final int pos = childPosition;
-//		button_channel_list.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				testConnectionIdentifyTask(deviceList.get(pos));
-//			}
-//		});
 		
+		if (!clickCloudAccount.getDeviceList().get(childPosition).isIdentify()) {
+			button_channel_list.setVisibility(View.GONE);
+		}else {
+			//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；
+			ButtonOnclickListener bol = new ButtonOnclickListener(context,handler,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);
+			button_channel_list.setOnClickListener(bol);
+		}
 		return convertView;
-	}
-	
-	private void testConnectionIdentifyTask(DeviceItem deviceItem){
-		connectionIdentifyTask = new ConnectionIdentifyTask(handler, deviceItem);
-		connectionIdentifyTask.start();
 	}
 	
 	public void setHandler(Handler handler){
@@ -470,7 +451,5 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	private int getColor(int resid) {
 		return context.getResources().getColor(resid);
 	}
-	
-	
 	
 }

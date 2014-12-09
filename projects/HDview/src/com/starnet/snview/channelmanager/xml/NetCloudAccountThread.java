@@ -30,12 +30,11 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 public class NetCloudAccountThread extends Thread {
 	
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
-	
-	private CloudAccount cAccount;//包含访问网络的信息
-	private CloudService cloudService;//用于用户访问网络的接口
-	
-	private Handler netHandler;//主线程的handler
-	private int postition;//代表组的号码
+	private int postition;
+	private Handler netHandler;
+	private CloudAccount cAccount;
+	private CloudService cloudService;
+	private final int STARCLOUNDDOWNLOADSUC = 10;
 	
 	@Override
 	public void run() {//线程的执行方法
@@ -59,6 +58,7 @@ public class NetCloudAccountThread extends Thread {
 				data = encopeNetCloudAccountSuccess(data,netCloudAccount);//封装数据:将网络访问获取得到的数据打包
 				data.putSerializable("netCloudAccount", netCloudAccount);
 				msg.setData(data);//置为1，表示获取成功
+				msg.what = STARCLOUNDDOWNLOADSUC;
 				netHandler.sendMessage(msg);
 			}else {//网络访问失败
 				Bundle data = new Bundle();
@@ -66,6 +66,7 @@ public class NetCloudAccountThread extends Thread {
 				data.putSerializable("netCloudAccount", cAccount);
 				data.putString("visit_flag", "nosuc");
 				msg.setData(data);
+				msg.what = STARCLOUNDDOWNLOADSUC;
 				netHandler.sendMessage(msg);
                }
            } catch (Exception e) {
@@ -95,23 +96,20 @@ public class NetCloudAccountThread extends Thread {
 		cloudAccount.setPort(port);
 		cloudAccount.setUsername(username);
 		cloudAccount.setPassword(password);
-		
 		cloudAccount.setExpanded(false);//暂时设置
-//		cloudAccount.setEnabled(true);//暂时设置
-		
 		int dvrDeviceSize = dvrDevices.size();
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		for (int i = 0; i < dvrDeviceSize; i++) {
 			DeviceItem deviceItem = new DeviceItem();
 					
 			DVRDevice dvrDevice =	dvrDevices.get(i);
-			int deviceType=5;//====？？？？？？？？？对应着哪一个	
+			int deviceType=5;
 			
 			String deviceName = dvrDevice.getDeviceName();
-			String svrIp = dvrDevice.getLoginIP();// 服务器IP
-			String svrPort = dvrDevice.getMobliePhonePort();// 服务器端口
-			String loginUser = dvrDevice.getLoginUsername();// 登录用户名
-			String loginPass = dvrDevice.getLoginPassword();// 登录密码
+			String svrIp = dvrDevice.getLoginIP();
+			String svrPort = dvrDevice.getMobliePhonePort();
+			String loginUser = dvrDevice.getLoginUsername();
+			String loginPass = dvrDevice.getLoginPassword();
 			String defaultChannel = dvrDevice.getStarChannel();			
 			//设置设备信息
 			deviceItem.setDefaultChannel(Integer.valueOf(defaultChannel));

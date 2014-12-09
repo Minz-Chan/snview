@@ -6,100 +6,85 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.ChannelListViewActivity;
+import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.NetWorkUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * 
- * @author zhaohongxu
- * @Date Jul 12, 2014
- * @ClassName ButtonOnclickListener.java
- * @Description 封装了按钮的单击操作
- * @Modifier zhaohongxu
- * @Modify date Jul 12, 2014
- * @Modify description TODO
- */
 public class ButtonOnclickListener implements OnClickListener {
-	
+
 	@SuppressLint("SdCardPath")
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	
-	private Context context;//上下文环境
-	private int parentPos;//父元素的位置
-	private int childPos;//子元素的位置
-	
-	Button state_button;
+
+	private Context context;// 上下文环境
+	private int parentPos;// 父元素的位置
+	private int childPos;// 子元素的位置
+
 	ButtonState bs;
-	
 	TextView titleView;
-	
-	List<CloudAccount> cloudAccountList;//星云账号信息
-	private CloudAccount clickCloudAccount;//星云账号信息
+	Button state_button;
+	List<CloudAccount> cloudAccountList;// 星云账号信息
+	private CloudAccount clickCloudAccount;// 星云账号信息
 	ChannelExpandableListviewAdapter cela;
 	List<CloudAccount> groupAccountList;
-	
+
 	List<PreviewDeviceItem> previewChannelList;
 	CloudAccount selectCloudAccount;
-	
-	public ButtonOnclickListener(int parentPos, int childPos,Button state_button, ButtonState bs,List<CloudAccount> cloudAccountList,TextView titleView) {
-		super();
-		this.parentPos = parentPos;
-		this.childPos = childPos;
-		this.state_button = state_button;
-		this.bs = bs;
-		this.cloudAccountList = cloudAccountList;
-		this.titleView = titleView;
-	}
 
-	public ButtonOnclickListener(Button state_button,ButtonState bs,int parentPos, int childPos) {
-		super();
-		this.parentPos = parentPos;
-		this.childPos = childPos;
-		this.state_button = state_button;
-		this.bs = bs;
-	}
+	private Handler handler;
+	private ConnectionIdentifyTask connTask;// 连接验证线程
 
-	public ButtonOnclickListener(Context context,int parentPos,int childPos) {
-		super();
-		this.context = context;
-		this.parentPos = parentPos;
-		this.childPos = childPos;
-	}
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.button_channel_list:
-			Intent intent = new Intent(context,ChannelListViewActivity.class);	
-			Bundle bundle = new Bundle();
-			bundle.putString("groupPosition", String.valueOf(parentPos));
-			bundle.putString("childPosition", String.valueOf(childPos));
-			String deviceName = clickCloudAccount.getDeviceList().get(childPos).getDeviceName();
-			bundle.putString("deviceName", deviceName);
-			intent.putExtra("clickCloudA", clickCloudAccount);
-			bundle.putSerializable("clickCloudAccount", clickCloudAccount);
-			intent.putExtras(bundle);
-			((ChannelListActivity) context).startActivityForResult(intent, 31);
+			DeviceItem dItem = clickCloudAccount.getDeviceList().get(childPos);
+			if (!dItem.isIdentify()) {// 如果用户没有经过验证，则进行验证
+				if (NetWorkUtils.checkNetConnection(context)) {
+					showToast(context.getString(R.string.device_manager_conn_iden_notopen));
+				}else {
+					connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem,parentPos,childPos);
+					connTask.setContext(context);
+					connTask.start();
+				}
+			} else {// 验证过后的直接弹出对话框
+				Intent data = new Intent(context, ChannelListViewActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString("groupPosition", String.valueOf(parentPos));
+				bundle.putString("childPosition", String.valueOf(childPos));
+				String deviceName = dItem.getDeviceName();
+				bundle.putString("deviceName", deviceName);
+				data.putExtra("clickCloudA", clickCloudAccount);
+				bundle.putSerializable("clickCloudAccount", clickCloudAccount);
+				data.putExtras(bundle);
+				((ChannelListActivity) context).startActivityForResult(data, 31);
+			}
 			break;
 		default:
 			break;
 		}
 	}
-
-	public ButtonOnclickListener(Context context) {
-		super();
-		this.context = context;
+	
+	private void showToast(String content){
+		Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
 	}
 
-	public ButtonOnclickListener(Context context2,ChannelExpandableListviewAdapter cela,CloudAccount clickCloudAccount,List<CloudAccount> groupAccountList, int groupPosition, int childPosition,Button staButton,TextView titleView) {
+	public ButtonOnclickListener(Context context2, Handler handler,
+			ChannelExpandableListviewAdapter cela,
+			CloudAccount clickCloudAccount,
+			List<CloudAccount> groupAccountList, int groupPosition,
+			int childPosition, Button staButton, TextView titleView) {
 		this.context = context2;
 		this.clickCloudAccount = clickCloudAccount;
 		this.parentPos = groupPosition;
@@ -108,5 +93,6 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.titleView = titleView;
 		this.cela = cela;
 		this.groupAccountList = groupAccountList;
-		}
+		this.handler = handler;
+	}
 }

@@ -63,7 +63,6 @@ public class ChannelListViewActivity extends Activity {// 被观察的对象
 		parentPos = Integer.valueOf(parentPosition);
 		String titleName = bundle.getString("deviceName");
 		
-//		CloudAccount clickCloudAccount2 = (CloudAccount) intent.getSerializableExtra("clickCloudA");
 		CloudAccount clickCloudAccount = (CloudAccount) bundle.getSerializable("clickCloudAccount");//获取用户单击的星云账号...
 		writeCloudAccount = clickCloudAccount;	
 		//判断点击的设备通道列表图标所对应的文档的用户

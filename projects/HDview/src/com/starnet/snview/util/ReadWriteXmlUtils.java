@@ -279,7 +279,7 @@ public class ReadWriteXmlUtils {
 	 * @param cloudAccountes
 	 *            :替换成的用户
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	public static void replaceSpecifyCloudAccount(String filePath,
 			CloudAccount cloudAccounted, CloudAccount cloudAccountes)
 			throws Exception {
@@ -328,6 +328,58 @@ public class ReadWriteXmlUtils {
 		xmlWriter.write(document);
 		fileWriter.close();
 	}
+	
+	/***替换特定位置的元素***/
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public static void replaceSpecifyDeviceItem(String filePath,int index,DeviceItem item)
+			throws Exception {
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		int size = subElements.size();
+		for (int i = 0; i < size; i++) {
+			if (i == index) {
+				Element subElement = subElements.get(i);
+				subElement.setAttributeValue("deviceName", item.getDeviceName());
+				subElement.setAttributeValue("channelNumber", item.getChannelSum());
+				subElement.setAttributeValue("loginUser", item.getLoginUser());
+				subElement.setAttributeValue("loginPass", item.getLoginPass());
+				subElement.setAttributeValue("defaultChannel",String.valueOf(item.getDefaultChannel()));
+				subElement.setAttributeValue("serverIP",item.getSvrIp());
+				subElement.setAttributeValue("serverPort",item.getSvrPort());
+				subElement.setAttributeValue("deviceType",String.valueOf(item.getDeviceType()));
+				subElement.setAttributeValue("isSecurityProtectionOpen",String.valueOf(item.isSecurityProtectionOpen()));
+				subElement.setAttributeValue("isExpanded",String.valueOf(item.isExpanded()));
+				subElement.setAttributeValue("isIdentify",String.valueOf(item.isIdentify()));
+				List<Element> elList = subElement.elements();
+				for (int j = 0; j < elList.size(); j++) {
+					elList.get(j).detach();
+				}
+				List<Channel> channelList = item.getChannelList();
+				if (channelList != null) {
+					int channelSize = channelList.size();
+					for (int k = 0; k < channelSize; k++) {
+						Channel channel = channelList.get(k);
+						Element chnnelElement = subElement.addElement("channel");
+						chnnelElement.addAttribute("channelName",channel.getChannelName());
+						chnnelElement.addAttribute("channelNo",String.valueOf(channel.getChannelNo()));
+						chnnelElement.addAttribute("isSelected",String.valueOf(channel.isSelected()));
+					}
+				}
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
 
 	// 一键添加"设备列表"到指定的文档中
 	public static void addDeviceItemListToXML(List<DeviceItem> deviceItemList,
@@ -347,8 +399,7 @@ public class ReadWriteXmlUtils {
 			DeviceItem deviceItem = deviceItemList.get(i);
 			Element subElement = root.addElement("deviceItem");
 			subElement.addAttribute("deviceName", deviceItem.getDeviceName());
-			subElement
-					.addAttribute("channelNumber", deviceItem.getChannelSum());
+			subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
 			subElement.addAttribute("loginUser", deviceItem.getLoginUser());
 			subElement.addAttribute("loginPass", deviceItem.getLoginPass());
 
@@ -362,6 +413,8 @@ public class ReadWriteXmlUtils {
 					String.valueOf(deviceItem.isSecurityProtectionOpen()));
 			subElement.addAttribute("isExpanded",
 					String.valueOf(deviceItem.isExpanded()));
+			subElement.addAttribute("isIdentify",
+					String.valueOf(deviceItem.isIdentify()));
 			List<Channel> channelList = deviceItem.getChannelList();
 			if (channelList != null) {
 				int channelSize = channelList.size();
@@ -487,22 +540,25 @@ public class ReadWriteXmlUtils {
 			String loginUser = subElement.attributeValue("loginUser");
 			String loginPass = subElement.attributeValue("loginPass");
 			String defaultChannel = subElement.attributeValue("defaultChannel");
-			String platformusername = subElement
-					.attributeValue("platformusername");
+			String platformusername = subElement.attributeValue("platformusername");
 
 			String svrIp = subElement.attributeValue("serverIP");
 			String svrPort = subElement.attributeValue("serverPort");
 			String deviceType = subElement.attributeValue("deviceType");
-			String isSecurityProtectionOpen = subElement
-					.attributeValue("isSecurityProtectionOpen");
+			String isSecurityProtectionOpen = subElement.attributeValue("isSecurityProtectionOpen");
 			String isExpanded = subElement.attributeValue("isExpanded");
 
+			String isIdentify = subElement.attributeValue("isIdentify");
 			if ((isSecurityProtectionOpen == null)
 					|| (isSecurityProtectionOpen.equals(null))) {
 				isSecurityProtectionOpen = "false";
 			}
 			if ((isExpanded == null) || (isExpanded.equals(null))) {
 				isExpanded = "false";
+			}
+			
+			if ((isIdentify == null) || (isIdentify.equals(null))) {
+				isIdentify = "false";
 			}
 			deviceItem.setChannelSum(channelSum);
 			deviceItem.setDeviceName(deviceName);
@@ -516,7 +572,8 @@ public class ReadWriteXmlUtils {
 			deviceItem.setExpanded(Boolean.valueOf(isExpanded));
 			deviceItem.setDeviceType(Integer.valueOf(deviceType));
 			deviceItem.setPlatformUsername(platformusername);
-
+			deviceItem.setIdentify(Boolean.valueOf(isIdentify));
+			
 			List<Channel> channelList = new ArrayList<Channel>();
 
 			List<Element> channelElements = subElement.elements();
@@ -592,6 +649,7 @@ public class ReadWriteXmlUtils {
 		subElement.addAttribute("deviceType",String.valueOf(deviceItem.getDeviceType()));
 		subElement.addAttribute("isSecurityProtectionOpen",String.valueOf(deviceItem.isSecurityProtectionOpen()));
 		subElement.addAttribute("isExpanded",String.valueOf(deviceItem.isExpanded()));
+		subElement.addAttribute("isIdentify", String.valueOf(deviceItem.isIdentify()));
 		List<Channel> channelList = deviceItem.getChannelList();
 		if (channelList != null) {
 			int channelSize = channelList.size();
@@ -620,28 +678,13 @@ public class ReadWriteXmlUtils {
 			List<Element> subElements, DeviceItem deviceItem) {
 		boolean result = false;
 		int subElementSize = subElements.size();
-		for (int i = 0; i < subElementSize; i++) {// 检查是否包含相同的元素，如果包含的话，则删除；
+		for (int i = 0; i < subElementSize; i++) {
 			Element subElement = subElements.get(i);
 			String deviceName = subElement.attributeValue("deviceName");
-			String channelNumber = subElement.attributeValue("channelNumber");
-			String loginUser = subElement.attributeValue("loginUser");
-			String loginPass = subElement.attributeValue("loginPass");
-
-			String defaultChannel = subElement.attributeValue("defaultChannel");
-			String serverIP = subElement.attributeValue("serverIP");
-			String serverPort = subElement.attributeValue("serverPort");
-
-			if (deviceName.equals(deviceItem.getDeviceName())
-					&& channelNumber.equals(deviceItem.getChannelSum())
-					&& loginUser.equals(deviceItem.getLoginUser())
-					&& loginPass.equals(deviceItem.getLoginPass())
-					&& serverIP.equals(deviceItem.getSvrIp())
-					&& serverPort.equals(deviceItem.getSvrPort())
-					&& defaultChannel.equals(String.valueOf(deviceItem
-							.getDefaultChannel()))) {
+			if (deviceName.equals(deviceItem.getDeviceName())) {
 				subElement.detach();// 删除节点
 				result = true;
-				break;// 表示删除第一个，如果，不使用break，则表示删除所有的...
+				break;
 			}
 		}
 		return result;

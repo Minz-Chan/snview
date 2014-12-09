@@ -153,7 +153,7 @@ public class DeviceChooseActivity extends BaseActivity {
 					}
 					clickDeviceItem.setDeviceName(dName);
 				}
-				
+				clickDeviceItem.setIdentify(true);
 				//返回到DeviceCollectActivity.java界面
 				Intent data = new Intent();
 				Bundle extras = new Bundle();
@@ -256,16 +256,7 @@ public class DeviceChooseActivity extends BaseActivity {
 			DeviceItem oldDeviceItem = oldDeviceList.get(i);
 			String oldDeviceName = oldDeviceItem.getDeviceName();
 			String deviceName = deviceItem.getDeviceName();
-//			String oldDevicePasd = oldDeviceItem.getLoginPass();
-//			String devicePasd = deviceItem.getLoginPass();
-//			String oldDeviceUsrName = oldDeviceItem.getLoginUser();
-//			String deviceUsrName = deviceItem.getLoginUser();
-//			String oldDevicePort = oldDeviceItem.getSvrPort();
-			
 			if ((oldDeviceName.equals(deviceName) || (oldDeviceName == deviceName))){
-//				&&(oldDevicePasd.equals(devicePasd) || (oldDevicePasd == devicePasd))
-//				&&(oldDeviceUsrName.equals(deviceUsrName) || (oldDeviceUsrName == deviceUsrName))
-//				&&(oldDeviceUsrName.equals(deviceUsrName) || (oldDeviceUsrName == deviceUsrName))) 
 				contain = true;
 				break;
 			}
@@ -313,6 +304,9 @@ public class DeviceChooseActivity extends BaseActivity {
 		Context context = DeviceChooseActivity.this;
 		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(context,dvrDeviceList);
 		deviceItemList = cloudAccount.getDeviceList();
+		for (int i = 0; i < deviceItemList.size(); i++) {
+			deviceItemList.get(i).setIdentify(true);
+		}
 		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this,deviceItemList);
 		deviceListView.setAdapter(deviceChooseAdapter);
 		

@@ -97,8 +97,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				dismissDialog(LOADNETDATADIALOG);
 				synObject.resume();// 解除线程挂起,向下继续执行...
 				if (dvrDeviceList.size() > 0) {
-					Collections
-							.sort(dvrDeviceList, new PinyinComparatorUtils());
+					Collections.sort(dvrDeviceList, new PinyinComparatorUtils());
 				}
 				dismissDialog(LOADNETDATADIALOG);
 				Intent intent = new Intent();
@@ -228,12 +227,17 @@ public class DeviceCollectActivity extends BaseActivity {
 			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(View v) {
-				DeviceItem deviceItem = getDeviceItem();
-				if (deviceItem != null) {
-					showDialog(CONNIDENTIFYDIALOG);
-					conIdenTask = new ConnectionIdentifyTask(mHandler,deviceItem);
-					conIdenTask.setContext(DeviceCollectActivity.this);
-					conIdenTask.start();
+				
+				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
+					showToast(getString(R.string.device_manager_conn_iden_notopen));
+				}else {
+					DeviceItem deviceItem = getDeviceItem();
+					if (deviceItem != null) {
+						showDialog(CONNIDENTIFYDIALOG);
+						conIdenTask = new ConnectionIdentifyTask(mHandler,deviceItem);
+						conIdenTask.setContext(DeviceCollectActivity.this);
+						conIdenTask.start();
+					}
 				}
 			}
 		});
