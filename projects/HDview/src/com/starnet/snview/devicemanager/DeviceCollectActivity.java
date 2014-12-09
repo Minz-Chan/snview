@@ -433,8 +433,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			DeviceCollectActivity.this.finish();// 添加成功后，关闭页面
 		} // 添加成功后，关闭页面
 	}
-
-	/*** 判断验证设备的信息与要保存的设备信息是否一致，一致返回true，否则，返回false ***/
+	/**判断验证设备的信息与要保存的设备信息是否一致，一致返回true，否则，返回false**/
 	private boolean checkSaveAndIdentifyDeviceIsSame(DeviceItem item,
 			DeviceItem jItem) {
 

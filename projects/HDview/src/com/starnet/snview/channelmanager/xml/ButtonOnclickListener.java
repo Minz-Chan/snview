@@ -50,15 +50,15 @@ public class ButtonOnclickListener implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.button_channel_list:
 			DeviceItem dItem = clickCloudAccount.getDeviceList().get(childPos);
-			if (!dItem.isIdentify()) {// 如果用户没有经过验证，则进行验证
-				if (NetWorkUtils.checkNetConnection(context)) {
-					showToast(context.getString(R.string.device_manager_conn_iden_notopen));
-				}else {
-					connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem,parentPos,childPos);
-					connTask.setContext(context);
-					connTask.start();
-				}
-			} else {// 验证过后的直接弹出对话框
+//			if (!dItem.isIdentify()) {// 如果用户没有经过验证，则进行验证
+//				if (NetWorkUtils.checkNetConnection(context)) {
+//					showToast(context.getString(R.string.device_manager_conn_iden_notopen));
+//				}else {
+//					connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem,parentPos,childPos);
+//					connTask.setContext(context);
+//					connTask.start();
+//				}
+//			} else {// 验证过后的直接弹出对话框
 				Intent data = new Intent(context, ChannelListViewActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putString("groupPosition", String.valueOf(parentPos));
@@ -69,7 +69,7 @@ public class ButtonOnclickListener implements OnClickListener {
 				bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 				data.putExtras(bundle);
 				((ChannelListActivity) context).startActivityForResult(data, 31);
-			}
+//			}
 			break;
 		default:
 			break;
