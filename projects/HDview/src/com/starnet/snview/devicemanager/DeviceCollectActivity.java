@@ -112,7 +112,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_WRONG:
 				isIdentify = true;
 				isConnPass = false;
-				saveDeviceItem.setIdentify(true);
+				saveDeviceItem.setIdentify(false);
 				dismissDialog(CONNIDENTIFYDIALOG);
 				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_wrong));
@@ -132,7 +132,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				isIdentify = true;
 				isConnPass = false;
-				saveDeviceItem.setIdentify(true);
+				saveDeviceItem.setIdentify(false);
 				dismissDialog(CONNIDENTIFYDIALOG);
 				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_timout));
@@ -377,10 +377,18 @@ public class DeviceCollectActivity extends BaseActivity {
 	/*** 保存收藏设备到xml文档中 ***/
 	private void saveIdentifyDeviceItemToXML(boolean identify) throws Exception {
 		
-		if (auto_flag != 1) {
-			saveDeviceItem.setIdentify(true);
-		}else{
-			saveDeviceItem.setIdentify(identify);
+		saveDeviceItem.setIdentify(identify);
+		
+		if (!identify) {
+			saveDeviceItem.setChannelSum("1");
+			List<Channel> channelList = new ArrayList<Channel>();
+			Channel channel = new Channel();
+			String text = getString(R.string.device_manager_channel);
+			channel.setChannelName(text + "1");
+			channel.setChannelNo(1);
+			channel.setSelected(false);
+			channelList.add(channel);
+			saveDeviceItem.setChannelList(channelList);
 		}
 		List<DeviceItem> collectList = ReadWriteXmlUtils
 				.getCollectDeviceListFromXML(filePath);
