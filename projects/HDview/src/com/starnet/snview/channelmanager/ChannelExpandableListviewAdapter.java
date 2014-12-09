@@ -337,11 +337,12 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
 		
-		if (!clickCloudAccount.getDeviceList().get(childPosition).isIdentify()&&(groupPosition==0)) {
+		if ((groupPosition==0)&&!clickCloudAccount.getDeviceList().get(childPosition).isIdentify()) {//
 			button_channel_list.setVisibility(View.GONE);
 		}else {
 			//获取了所在的位置//通过第一个位置，可以获取用户的登陆用户名；通过第二个位置，可以获得是哪一个设备；
 			ButtonOnclickListener bol = new ButtonOnclickListener(context,handler,ChannelExpandableListviewAdapter.this,clickCloudAccount,groupAccountList,groupPosition,childPosition,state_button,titleView);
+			button_channel_list.setVisibility(View.VISIBLE);
 			button_channel_list.setOnClickListener(bol);
 		}
 		return convertView;

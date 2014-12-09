@@ -491,8 +491,7 @@ public class ChannelListActivity extends BaseActivity {
 				}
 				if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
 					CloudService cloudService = new CloudServiceImpl(conn_name);
-					netThread = new NetCloudAccountThread(cAccount,
-							cloudService, netHandler, i);
+					netThread = new NetCloudAccountThread(cAccount,cloudService, netHandler, i);
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
