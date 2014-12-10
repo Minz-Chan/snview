@@ -94,8 +94,13 @@ public class ConnectionIdentifyTask {
 					boolean isConnected = initialClientSocket();
 					if (isConnected) {
 						startConnectionIdentify();
-					} else {
-						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver) {
+					} else {// 连接不正常的处理，有时候比较耗时
+						isOnWorkdUnknwnHost = true;
+						shouldTimeOutOver = true;
+						isConnectedOver = true;
+						isOnWorkdIOErr = true;
+						if (!isCanceled && !shouldTimeOutOver
+								&& !isConnectedOver && !isOnConnectionWrong) {
 							onConnectionWrong();
 						}
 					}
@@ -326,7 +331,10 @@ public class ConnectionIdentifyTask {
 	}
 
 	private void onTimeOut() {
+		isOnWorkdIOErr = true;
 		isConnectedOver = true;
+		isOnConnectionWrong = true;
+		isOnWorkdUnknwnHost = true;
 		if (client != null) {
 			client = null;
 		}
@@ -339,8 +347,6 @@ public class ConnectionIdentifyTask {
 			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
-				isOnWorkdIOErr = true;
-				isOnWorkdUnknwnHost = true;
 				mHandler.sendMessage(msg);
 			}
 		}

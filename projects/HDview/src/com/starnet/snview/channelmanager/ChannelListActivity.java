@@ -114,22 +114,27 @@ public class ChannelListActivity extends BaseActivity {
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				showToast("连接验证成功");
-				dismissDialog(CONNIDENTIFYDIALOG);
-				gotoChannelListViewActivity(msg);
-				chExpandableListAdapter.notifyDataSetChanged();
+				if (!isCanceled) {
+					dismissDialog(CONNIDENTIFYDIALOG);
+					gotoChannelListViewActivity(msg);
+					chExpandableListAdapter.notifyDataSetChanged();
+				}
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
-				dismissDialog(CONNIDENTIFYDIALOG);
-				showToast("连接验证错误，请检查信息");
-				gotoChannelListViewActivity(msg);
-				
-				chExpandableListAdapter.notifyDataSetChanged();
+				if (!isCanceled) {
+					dismissDialog(CONNIDENTIFYDIALOG);
+					showToast("连接验证错误，请检查信息");
+					gotoChannelListViewActivity(msg);
+					chExpandableListAdapter.notifyDataSetChanged();
+				}
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				dismissDialog(CONNIDENTIFYDIALOG);
-				showToast("连接验证超时");
-				gotoChannelListViewActivity(msg);
-				chExpandableListAdapter.notifyDataSetChanged();
+				if (!isCanceled) {
+					dismissDialog(CONNIDENTIFYDIALOG);
+					showToast("连接验证超时");
+					gotoChannelListViewActivity(msg);
+					chExpandableListAdapter.notifyDataSetChanged();
+				}
 				break;
 			default:
 				break;
@@ -787,13 +792,15 @@ public class ChannelListActivity extends BaseActivity {
 	private boolean isCanceled = false;
 	private boolean isClickCancel = false;
 
+	ProgressDialog prg;
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case CONNIDENTIFYDIALOG:
-			ProgressDialog progress2 = ProgressDialog.show(this, "",
+			prg = ProgressDialog.show(this, "",
 					getString(R.string.device_manager_conn_iden), true, true);
-			progress2.setOnCancelListener(new OnCancelListener() {
+			prg.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override
 				public void onCancel(DialogInterface dialog) {
@@ -803,7 +810,7 @@ public class ChannelListActivity extends BaseActivity {
 					chExpandableListAdapter.setCancel(true);// 不进行验证
 				}
 			});
-			return progress2;
+			return prg;
 		default:
 			return null;
 		}
