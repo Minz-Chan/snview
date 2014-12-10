@@ -10,13 +10,13 @@ public class DeviceItem implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 28304239979711868L;
-	private String deviceName;     // 记录名
-	private String svrIp;          // 服务器IP
-	private String svrPort;        // 服务器端口
-	private String loginUser;      // 登录用户名
-	private String loginPass;      // 登录密码
-	private int defaultChannel; // 默认通道
-	private String channelSum;     // 通道总数	
+	private String deviceName;     	// 记录名
+	private String svrIp;          	// 服务器IP
+	private String svrPort;        	// 服务器端口
+	private String loginUser;      	// 登录用户名
+	private String loginPass;      	// 登录密码
+	private int defaultChannel;		// 默认通道
+	private String channelSum;     	// 通道总数	
 	private int deviceType;
 	private boolean isSecurityProtectionOpen = false;
 	private boolean isExpanded = false; // 是否展开
@@ -24,6 +24,7 @@ public class DeviceItem implements Serializable {
 	
 	private String platformUsername;	// 所属的星云账户用户名
 	private boolean isIdentify;//是否进行验证
+	private boolean isConnPass;//验证是否通过的情形
 	
 	public List<Channel> getChannelList() {
 		return channelList;
@@ -102,6 +103,12 @@ public class DeviceItem implements Serializable {
 	}
 	public void setIdentify(boolean isIdentify) {
 		this.isIdentify = isIdentify;
+	}
+	public boolean isConnPass() {
+		return isConnPass;
+	}
+	public void setConnPass(boolean isConnPass) {
+		this.isConnPass = isConnPass;
 	}
 	
 	

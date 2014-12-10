@@ -14,7 +14,7 @@ import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CollectDeviceParams;
-//import com.starnet.snview.util.ReadWriteXmlUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
  * 
@@ -54,7 +54,7 @@ public class NetCloudAccountThread extends Thread {
 				List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取到设备
 				CloudAccount netCloudAccount = getCloudAccountFromDVRDevice(dvrDevices);//将获取的内容封装成CloudAccount
 				//写操作的同步,是否有必要向文档中写入保存呢
-//				ReadWriteXmlUtils.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
+				ReadWriteXmlUtils.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
 				Bundle data = new Bundle();
 				data = encopeNetCloudAccountSuccess(data,netCloudAccount);//封装数据:将网络访问获取得到的数据打包
 				data.putSerializable("netCloudAccount", netCloudAccount);

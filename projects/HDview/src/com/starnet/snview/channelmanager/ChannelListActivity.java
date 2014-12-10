@@ -6,8 +6,12 @@ import java.util.Collections;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -60,8 +64,9 @@ public class ChannelListActivity extends BaseActivity {
 	private boolean isFirstSearch = false;
 	private NetCloudAccountThread netThread;
 	private CloudAccount collectCloudAccount;
+	private final int CONNIDENTIFYDIALOG = 5;
 	private final int STARCLOUNDDOWNLOAD = 10;
-	
+
 	private ExpandableListView mExpandableListView;
 	private List<CloudAccount> cloudAccounts_enable;// 保存原来用户的Enable的值
 	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
@@ -109,29 +114,42 @@ public class ChannelListActivity extends BaseActivity {
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				showToast("连接验证成功");
-				Intent intent = new Intent();
-				Bundle data2 = msg.getData();
-				intent.setClass(curContext, ChannelListViewActivity.class);
-				data2.putString("deviceName", data2.getString("deviceName"));
-				data2.putString("childPosition", String.valueOf(data2.getInt("childPos")));
-				data2.putString("groupPosition", String.valueOf(data2.getInt("parentPos")));
-				DeviceItem dItem = (DeviceItem) data2.getSerializable("identifyDeviceItem");
-				data2.putSerializable("clickCloudAccount", data2.getSerializable("clickCloudAccount"));
-				data2.putSerializable("dItem", dItem);
-				intent.putExtras(data2);
-				startActivityForResult(intent, 31);
+				gotoChannelListViewActivity(msg);
+				dismissDialog(CONNIDENTIFYDIALOG);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				showToast("连接验证错误，请检查信息");
+				gotoChannelListViewActivity(msg);
+				dismissDialog(CONNIDENTIFYDIALOG);
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
+				dismissDialog(CONNIDENTIFYDIALOG);
 				showToast("连接验证超时");
+				gotoChannelListViewActivity(msg);
 				break;
 			default:
 				break;
 			}
 		}
 	};
+
+	private void gotoChannelListViewActivity(Message msg) {
+		Intent intent = new Intent();
+		Bundle data2 = msg.getData();
+		intent.setClass(curContext, ChannelListViewActivity.class);
+		data2.putString("deviceName", data2.getString("deviceName"));
+		data2.putString("childPosition",
+				String.valueOf(data2.getInt("childPos")));
+		data2.putString("groupPosition",
+				String.valueOf(data2.getInt("parentPos")));
+		DeviceItem dItem = (DeviceItem) data2
+				.getSerializable("identifyDeviceItem");
+		data2.putSerializable("clickCloudAccount",
+				data2.getSerializable("clickCloudAccount"));
+		data2.putSerializable("dItem", dItem);
+		intent.putExtras(data2);
+		startActivityForResult(intent, 31);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -322,14 +340,18 @@ public class ChannelListActivity extends BaseActivity {
 									String wordLen = getString(R.string.device_manager_off_on_line_length);
 									int wordLength = Integer.valueOf(wordLen);
 									if (len >= wordLength) {
-										String showName = deviceName.substring(0, wordLength);
+										String showName = deviceName.substring(
+												0, wordLength);
 										String w3 = getString(R.string.device_manager_online_en);
 										String w4 = getString(R.string.device_manager_offline_en);
-										if (showName.contains(w3)|| showName.contains(w4)) {
-											deviceName = deviceName.substring(wordLength);
+										if (showName.contains(w3)
+												|| showName.contains(w4)) {
+											deviceName = deviceName
+													.substring(wordLength);
 										}
 									}
-									previewDeviceItem.setDeviceRecordName(deviceName);
+									previewDeviceItem
+											.setDeviceRecordName(deviceName);
 									previewList.add(previewDeviceItem);
 								}
 							}
@@ -433,8 +455,10 @@ public class ChannelListActivity extends BaseActivity {
 	private boolean isLikePreviewItem(PreviewDeviceItem preview1,
 			PreviewDeviceItem preview2) {
 		boolean isLike = false;
-		if (preview1.getPlatformUsername().equals(preview2.getPlatformUsername())
-				&& preview1.getDeviceRecordName().equals(preview2.getDeviceRecordName())) {
+		if (preview1.getPlatformUsername().equals(
+				preview2.getPlatformUsername())
+				&& preview1.getDeviceRecordName().equals(
+						preview2.getDeviceRecordName())) {
 			isLike = true;
 		}
 		return isLike;
@@ -491,7 +515,8 @@ public class ChannelListActivity extends BaseActivity {
 				}
 				if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
 					CloudService cloudService = new CloudServiceImpl(conn_name);
-					netThread = new NetCloudAccountThread(cAccount,cloudService, netHandler, i);
+					netThread = new NetCloudAccountThread(cAccount,
+							cloudService, netHandler, i);
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
@@ -507,7 +532,8 @@ public class ChannelListActivity extends BaseActivity {
 		}
 
 		curContext = ChannelListActivity.this;
-		chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);
+		chExpandableListAdapter = new ChannelExpandableListviewAdapter(
+				curContext, origin_cloudAccounts, titleView);
 		chExpandableListAdapter.setHandler(netHandler);
 		mExpandableListView.setAdapter(chExpandableListAdapter);
 	}
@@ -521,9 +547,10 @@ public class ChannelListActivity extends BaseActivity {
 			cloudAccounts_enable.add(cloudAccount);
 		}
 	}
-	
-	private void showToast(String content){
-		Toast.makeText(ChannelListActivity.this, content, Toast.LENGTH_SHORT).show();
+
+	private void showToast(String content) {
+		Toast.makeText(ChannelListActivity.this, content, Toast.LENGTH_SHORT)
+				.show();
 	}
 
 	private List<PreviewDeviceItem> getPreviewChannelList(
@@ -604,7 +631,8 @@ public class ChannelListActivity extends BaseActivity {
 
 	/** 从本地获取设备的通道列表 */
 	public List<CloudAccount> getGroupListFromLocal() {// 注意，目前只有一个用户的情况下；从收藏设备中读取账户
-		List<CloudAccount> groupList = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		List<CloudAccount> groupList = ReadWriteXmlUtils
+				.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
 		return groupList;
 	}
 
@@ -626,14 +654,16 @@ public class ChannelListActivity extends BaseActivity {
 				String password = collectCloudAccount.getPassword();
 
 				for (int i = 0; i < searchList.size(); i++) {
-					if (searchList.get(i).getUsername().equals(userName) && searchList.get(i).getPassword().equals(password)) {
+					if (searchList.get(i).getUsername().equals(userName)
+							&& searchList.get(i).getPassword().equals(password)) {
 						searchList.set(i, collectCloudAccount);
 					}
 				}
 				// 查看searchList值是否有变化，考虑searchList.set(i, collectCloudAccount);
 				chExpandableListAdapter.notify_number = 22;
 				chExpandableListAdapter.notifyDataSetChanged();
-				List<DeviceItem> colDevices = collectCloudAccount.getDeviceList();
+				List<DeviceItem> colDevices = collectCloudAccount
+						.getDeviceList();
 				if (colDevices != null && colDevices.size() > 0) {
 					for (int i = 0; i < origin_cloudAccounts.size(); i++) {
 						CloudAccount origin_cloudAccount = origin_cloudAccounts
@@ -665,7 +695,8 @@ public class ChannelListActivity extends BaseActivity {
 			}
 
 			List<PreviewDeviceItem> newPreviewList = getPreviewChannelList(origin_cloudAccounts);
-			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(newPreviewList);
+			GlobalApplication.getInstance().getRealplayActivity()
+					.setPreviewDevices_copy(newPreviewList);
 
 			// 判断获取的cloudAccount3是否是属于第一个用户(即“收藏设备”)，若是，则需要保存到收藏设备中，便于程序下一次启动时，读取结果
 			if (collectCloudAccount.getUsername().equals(
@@ -677,12 +708,15 @@ public class ChannelListActivity extends BaseActivity {
 					@Override
 					public void run() {
 						super.run();
-						List<DeviceItem> deviceList = collectCloudAccount.getDeviceList();
+						List<DeviceItem> deviceList = collectCloudAccount
+								.getDeviceList();
 						int size = deviceList.size();
 						for (int i = 0; i < size; i++) {
 							try {
-//								ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), filePath);
-								ReadWriteXmlUtils.replaceSpecifyDeviceItem(filePath, i, deviceList.get(i));
+								// ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i),
+								// filePath);
+								ReadWriteXmlUtils.replaceSpecifyDeviceItem(
+										filePath, i, deviceList.get(i));
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -744,5 +778,30 @@ public class ChannelListActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+	}
+
+	private boolean isCanceled = false;
+	private boolean isClickCancel = false;
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case CONNIDENTIFYDIALOG:
+			ProgressDialog progress2 = ProgressDialog.show(this, "",
+					getString(R.string.device_manager_conn_iden), true, true);
+			progress2.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dismissDialog(CONNIDENTIFYDIALOG);
+					isCanceled = true;
+					isClickCancel = true;
+					chExpandableListAdapter.setCancel(true);// 不进行验证
+				}
+			});
+			return progress2;
+		default:
+			return null;
+		}
 	}
 }

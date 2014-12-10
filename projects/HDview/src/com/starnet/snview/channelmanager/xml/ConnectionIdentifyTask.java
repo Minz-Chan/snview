@@ -44,7 +44,7 @@ public class ConnectionIdentifyTask {
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
-	
+
 	public ConnectionIdentifyTask(Handler handler, DeviceItem deviceItem) {
 		isCanceled = false;
 		this.mHandler = handler;
@@ -52,8 +52,8 @@ public class ConnectionIdentifyTask {
 		this.mDeviceItem = deviceItem;
 		initialThread();
 	}
-	
-	private void initialThread(){
+
+	private void initialThread() {
 		timeOutThread = new Thread() {
 			@Override
 			public void run() {
@@ -66,7 +66,9 @@ public class ConnectionIdentifyTask {
 						timeCount++;
 						if (timeCount == timeOut) {
 							canRun = false;
-							onTimeOut();// time out thread event.
+							if (!isCanceled && !shouldTimeOutOver) {
+								onTimeOut();// time out thread event.
+							}
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -84,12 +86,18 @@ public class ConnectionIdentifyTask {
 					if (isConnected) {
 						startConnectionIdentify();
 					} else {
-						onConnectionWrong();
+						if (!isCanceled && !shouldTimeOutOver
+								&& !isConnectedOver) {
+							onConnectionWrong();
+						}
+						shouldTimeOutOver = true;
 					}
 				}
 			}
 		};
 	}
+
+	private boolean isConnectedOver = false;
 
 	public ConnectionIdentifyTask(Handler handler,
 			CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
@@ -125,7 +133,6 @@ public class ConnectionIdentifyTask {
 			if (!isCanceled) {
 				onWorkdUnknwnHost();
 			}
-
 		} catch (IOException e) {
 			isConnected = false;
 			if (!isCanceled) {
@@ -139,9 +146,10 @@ public class ConnectionIdentifyTask {
 	protected void onWorkdUnknwnHost() {
 		if (!shouldTimeOutOver && !isCanceled) {
 			shouldTimeOutOver = true;
-			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
-			mHandler.sendMessage(msg);
+			isConnectedOver = true;
+			// Message msg = new Message();
+			// msg.what = CONNECTIFYIDENTIFY_WRONG;
+			// mHandler.sendMessage(msg);
 		}
 	}
 
@@ -149,9 +157,16 @@ public class ConnectionIdentifyTask {
 	protected void onWorkdIOErr() {
 		if (!shouldTimeOutOver && !isCanceled) {
 			shouldTimeOutOver = true;
-			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
-			mHandler.sendMessage(msg);
+			isConnectedOver = true;
+			// Message msg = new Message();
+			// Bundle data = new Bundle();
+			//
+			// setWrongDevicetItem(1);
+			// setBundleData(data);
+			// msg.setData(data);
+			//
+			// msg.what = CONNECTIFYIDENTIFY_WRONG;
+			// mHandler.sendMessage(msg);
 		}
 	}
 
@@ -173,11 +188,7 @@ public class ConnectionIdentifyTask {
 		}
 	}
 
-	/**
-	 * 获取网络连接验证的信息
-	 * 
-	 * @throws IOException
-	 **/
+	/** 获取网络连接验证的信息 */
 	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
 
@@ -197,12 +208,7 @@ public class ConnectionIdentifyTask {
 				in.read(recvData);
 				int channelNumber = recvData[80];
 				setDevicetItem(channelNumber);
-				data.putSerializable("identifyDeviceItem", mDeviceItem);
-				//针对连接验证部分发送的数据
-				data.putInt("childPos", childPos);
-				data.putInt("parentPos", parentPos);
-				data.putString("deviceName", mDeviceItem.getDeviceName());
-				data.putSerializable("clickCloudAccount", clickCloudAccount);
+				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
@@ -211,7 +217,7 @@ public class ConnectionIdentifyTask {
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_WRONG;
 				setDevicetItem(defaultChannelNum);
-				data.putSerializable("identifyDeviceItem", mDeviceItem);
+				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
@@ -220,11 +226,28 @@ public class ConnectionIdentifyTask {
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_WRONG;
 				setDevicetItem(defaultChannelNum);
-				data.putSerializable("identifyDeviceItem", mDeviceItem);
+				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
 		}
+	}
+
+	/** 设置验证后的设备 ***/
+	private void setWrongDevicetItem(int channelNumber) {
+		String chanelName = context.getString(R.string.device_manager_channel);
+		List<Channel> channelList = new ArrayList<Channel>();
+		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
+		for (int i = 0; i < channelNumber; i++) {
+			Channel channel = new Channel();
+			channel.setChannelName(chanelName + "" + (i + 1));
+			channel.setChannelNo((i + 1));
+			channel.setSelected(false);
+			channelList.add(channel);
+		}
+		mDeviceItem.setChannelList(channelList);
+		mDeviceItem.setIdentify(true);
+		mDeviceItem.setConnPass(false);
 	}
 
 	/** 设置验证后的设备 ***/
@@ -241,6 +264,7 @@ public class ConnectionIdentifyTask {
 		}
 		mDeviceItem.setChannelList(channelList);
 		mDeviceItem.setIdentify(true);
+		mDeviceItem.setConnPass(true);
 	}
 
 	/** 发送网络连接验证请求 **/
@@ -257,8 +281,8 @@ public class ConnectionIdentifyTask {
 		p.setEquipmentOS("Android");
 
 		LoginRequest l = new LoginRequest();
-		l.setUserName(mDeviceItem.getLoginUser());// "admin"
-		l.setPassword(mDeviceItem.getLoginPass());// "25676166"
+		l.setUserName(mDeviceItem.getLoginUser());
+		l.setPassword(mDeviceItem.getLoginPass());
 		l.setDeviceId(1);
 		l.setFlag(1);
 		l.setChannel(1);
@@ -280,14 +304,30 @@ public class ConnectionIdentifyTask {
 
 	private void onTimeOut() {
 		shouldTimeOutOver = true;
+		isConnectedOver = true;
 		if (client != null) {
 			client = null;
 		}
 		if (!isCanceled) {
 			Message msg = new Message();
+			Bundle data = new Bundle();
+			mDeviceItem.setIdentify(true);
+			mDeviceItem.setConnPass(false);
+			setBundleData(data);
+			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
-			mHandler.sendMessage(msg);
+			if (!isCanceled&&!shouldTimeOutOver) {
+				mHandler.sendMessage(msg);
+			}
 		}
+	}
+
+	private void setBundleData(Bundle data) {
+		data.putSerializable("identifyDeviceItem", mDeviceItem);
+		data.putInt("childPos", childPos);
+		data.putInt("parentPos", parentPos);
+		data.putString("deviceName", mDeviceItem.getDeviceName());
+		data.putSerializable("clickCloudAccount", clickCloudAccount);
 	}
 
 	public void setContext(Context context) {
@@ -296,5 +336,7 @@ public class ConnectionIdentifyTask {
 
 	public void setCanceled(boolean isCanceled) {
 		this.isCanceled = isCanceled;
+		shouldTimeOutOver = true;
+		isConnectedOver = true;
 	}
 }

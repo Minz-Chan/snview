@@ -101,7 +101,6 @@
     <string name="device_manager_devicecollect_ensure">确定</string>
     <string name="device_manager_connection_identify_ok">确定</string>
     <string name="device_manager_onealladd">一键全部加入设备列表</string>
-    <string name="device_manager_please_identify">请进行连接验证</string>
     <string name="device_manager_connection_identify_cancel">取消</string>
     <string name="device_manager_scan_layout_start_scan">开始预览</string>
     <string name="device_manager_port_wrong">端口号错误，请重新输入</string>
@@ -130,6 +129,7 @@
     <string name="device_manager_collect_null_wrong">包含有尚未填写的部分,请检查</string>
     <string name="device_manager_conn_iden_devicename_notnull">设备名称不可以为空</string>
     <string name="device_manager_conn_iden_wrong">连接验证失败，请检查用户名和密码</string>
+    <string name="device_manager_please_identify">请进行连接验证,或选择"否"之后保存</string>
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
     <string name="device_manager_deviceeditable_ip_port_wrong">端口号和服务器IP都有错，请检查</string>
     <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>

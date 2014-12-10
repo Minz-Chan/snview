@@ -75,12 +75,12 @@ public class DeviceCollectActivity extends BaseActivity {
 	// private EditText et_device_add_channelnumber;
 	private EditText et_device_add_defaultchannel;
 
-	private DeviceItem saveDeviceItem = new DeviceItem();
-	private final int CONNIDENTIFYDIALOG = 5;// 从网络下载数据
-	private final int LOADNETDATADIALOG = 1;// 从网络下载数据
 	private final int LOAD_SUCCESS = 2;
 	private final int LOAD_WRONG = 100;
+	private final int LOADNETDATADIALOG = 1;
+	private final int CONNIDENTIFYDIALOG = 5;
 	private SynObject synObject = new SynObject();
+	private DeviceItem saveDeviceItem = new DeviceItem();
 	private List<DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();// 保存全部数据
 
 	@SuppressLint("HandlerLeak")
@@ -105,15 +105,15 @@ public class DeviceCollectActivity extends BaseActivity {
 				bundle.putParcelableArrayList("dvrDeviceList",
 						(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this,
-						DeviceChooseActivity.class);
+				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
 				startActivityForResult(intent, REQUESTCODE);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				isIdentify = true;
 				isConnPass = false;
-				saveDeviceItem.setIdentify(false);
 				dismissDialog(CONNIDENTIFYDIALOG);
+				saveDeviceItem.setIdentify(isIdentify);
+				saveDeviceItem.setConnPass(isConnPass);
 				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_wrong));
 				break;
@@ -121,19 +121,22 @@ public class DeviceCollectActivity extends BaseActivity {
 				isIdentify = true;
 				isConnPass = true;
 				auto_flag = 2;
-				msg.getData();
-				saveDeviceItem.setIdentify(true);
 				dismissDialog(CONNIDENTIFYDIALOG);
+				saveDeviceItem.setIdentify(isIdentify);
+				saveDeviceItem.setConnPass(isConnPass);
 				validatedDeviceItem = getIdentifyDeviceItem(msg);
-				saveDeviceItem.setChannelList(validatedDeviceItem.getChannelList());
-				saveDeviceItem.setChannelSum(validatedDeviceItem.getChannelSum());
+				saveDeviceItem.setChannelList(validatedDeviceItem
+						.getChannelList());
+				saveDeviceItem.setChannelSum(validatedDeviceItem
+						.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				isIdentify = true;
 				isConnPass = false;
-				saveDeviceItem.setIdentify(false);
 				dismissDialog(CONNIDENTIFYDIALOG);
+				saveDeviceItem.setIdentify(isIdentify);
+				saveDeviceItem.setConnPass(isConnPass);
 				validatedDeviceItem = getIdentifyDeviceItem(msg);
 				showToast(getString(R.string.device_manager_conn_iden_timout));
 				break;
@@ -159,9 +162,10 @@ public class DeviceCollectActivity extends BaseActivity {
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
 		Bundle data = msg.getData();
-		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
+		DeviceItem dItem = (DeviceItem) data
+				.getSerializable("identifyDeviceItem");
 		return dItem;
-				
+
 	}
 
 	/*** 获取需要验证的设备 ***/
@@ -227,14 +231,16 @@ public class DeviceCollectActivity extends BaseActivity {
 			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(View v) {
-				
-				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
+
+				if (!NetWorkUtils
+						.checkNetConnection(DeviceCollectActivity.this)) {
 					showToast(getString(R.string.device_manager_conn_iden_notopen));
-				}else {
+				} else {
 					DeviceItem deviceItem = getDeviceItem();
 					if (deviceItem != null) {
 						showDialog(CONNIDENTIFYDIALOG);
-						conIdenTask = new ConnectionIdentifyTask(mHandler,deviceItem);
+						conIdenTask = new ConnectionIdentifyTask(mHandler,
+								deviceItem);
 						conIdenTask.setContext(DeviceCollectActivity.this);
 						conIdenTask.start();
 					}
@@ -303,20 +309,24 @@ public class DeviceCollectActivity extends BaseActivity {
 								if (saveDeviceItem.isIdentify()) {// 用户进行了连接验证
 									if (isConnPass) {// 验证通过
 										boolean isSame = checkSaveAndIdentifyDeviceIsSame(
-												saveDeviceItem,validatedDeviceItem);
+												saveDeviceItem,
+												validatedDeviceItem);
 										if (isSame) {
-											saveIdentifyDeviceItemToXML(true);// 验证通过后保存用户信息
+											saveIdentifyDeviceItemToXML(true,
+													true);// 验证通过后保存用户信息
 										} else {
 											popupDialogAskIdentify();
 										}
 									} else {
-										saveIdentifyDeviceItemToXML(false);// 验证通过后保存用户信息
+										popupDialogAskIdentify();
+										// saveIdentifyDeviceItemToXML(true,false);//
+										// 验证通过后保存用户信息
 									}
 								} else {// 尚未进行过验证,弹出提示框
 									popupDialogAskIdentify();
 								}
 							} else {
-								saveIdentifyDeviceItemToXML(false);// 用户选择不验证，直接保存
+								saveIdentifyDeviceItemToXML(false, false);// 用户选择不验证，直接保存
 							}
 						} catch (Exception e) {
 							showToast(getString(R.string.device_manager_save_failed));
@@ -339,7 +349,8 @@ public class DeviceCollectActivity extends BaseActivity {
 				boolean isConn = NetWorkUtils.checkNetConnection(context);
 				if (isConn) {
 					try {
-						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(fileName);
+						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils
+								.getCloudAccountList(fileName);
 						int size = cloudAccountList.size();
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
@@ -364,9 +375,9 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		});
 	}
-	
-	/***弹出对话框，询问用户是否进行验证***/
-	private void popupDialogAskIdentify(){
+
+	/*** 弹出对话框，询问用户是否进行验证 ***/
+	private void popupDialogAskIdentify() {
 		String ok = getString(R.string.device_manager_connection_identify_ok);
 		Builder builder = new Builder(DeviceCollectActivity.this);
 		builder.setTitle(R.string.device_manager_please_identify);
@@ -374,21 +385,28 @@ public class DeviceCollectActivity extends BaseActivity {
 		builder.show();
 	}
 
+	private void setSaveDeviceItem() {
+		saveDeviceItem.setChannelSum("1");
+		List<Channel> channelList = new ArrayList<Channel>();
+		Channel channel = new Channel();
+		String text = getString(R.string.device_manager_channel);
+		channel.setChannelName(text + "1");
+		channel.setChannelNo(1);
+		channel.setSelected(false);
+		channelList.add(channel);
+		saveDeviceItem.setChannelList(channelList);
+	}
+
 	/*** 保存收藏设备到xml文档中 ***/
-	private void saveIdentifyDeviceItemToXML(boolean identify) throws Exception {
-		
+	private void saveIdentifyDeviceItemToXML(boolean identify, boolean isConn)
+			throws Exception {
+
 		saveDeviceItem.setIdentify(identify);
-		
+		saveDeviceItem.setConnPass(isConn);
 		if (!identify) {
-			saveDeviceItem.setChannelSum("1");
-			List<Channel> channelList = new ArrayList<Channel>();
-			Channel channel = new Channel();
-			String text = getString(R.string.device_manager_channel);
-			channel.setChannelName(text + "1");
-			channel.setChannelNo(1);
-			channel.setSelected(false);
-			channelList.add(channel);
-			saveDeviceItem.setChannelList(channelList);
+			setSaveDeviceItem();
+		} else if (identify && !isConn) {
+			setSaveDeviceItem();
 		}
 		List<DeviceItem> collectList = ReadWriteXmlUtils
 				.getCollectDeviceListFromXML(filePath);
@@ -406,12 +424,14 @@ public class DeviceCollectActivity extends BaseActivity {
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								auto_flag = 1;
-								String saveResult = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(
+								String saveResult = ReadWriteXmlUtils
+										.addNewDeviceItemToCollectEquipmentXML(
 												saveDeviceItem, filePath);// 保存
 								showToast(saveResult);
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
-								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+								bundle.putSerializable("saveDeviceItem",
+										saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(11, intent);
 								DeviceCollectActivity.this.finish();
@@ -422,7 +442,8 @@ public class DeviceCollectActivity extends BaseActivity {
 					});
 			builder.show();
 		} else {// 如果不存在设备，则直接添加...
-			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);// 保存
+			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(
+					saveDeviceItem, filePath);// 保存
 			String saveResult = getString(R.string.device_manager_save_success);
 			showToast(saveResult);
 			Intent intent = new Intent();
@@ -433,15 +454,16 @@ public class DeviceCollectActivity extends BaseActivity {
 			DeviceCollectActivity.this.finish();// 添加成功后，关闭页面
 		} // 添加成功后，关闭页面
 	}
-	/**判断验证设备的信息与要保存的设备信息是否一致，一致返回true，否则，返回false**/
+
+	/** 判断验证设备的信息与要保存的设备信息是否一致，一致返回true，否则，返回false **/
 	private boolean checkSaveAndIdentifyDeviceIsSame(DeviceItem item,
 			DeviceItem jItem) {
 
 		boolean isSame = false;
-		if (item.isIdentify()&&jItem == null) {
+		if (item.isIdentify() && jItem == null) {
 			return true;
 		}
-		if (!item.isIdentify()&&jItem == null) {
+		if (!item.isIdentify() && jItem == null) {
 			return false;
 		}
 		String iSvIp = item.getSvrIp();
@@ -453,18 +475,19 @@ public class DeviceCollectActivity extends BaseActivity {
 		String jSvPt = jItem.getSvrPort();
 		String jUser = jItem.getLoginUser();
 		String jpswd = jItem.getLoginPass();
-		if (ipswd==null||ipswd.equals("")) {
-			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt)) && (iUser.equals(jUser))) {
-				 isSame = true;
-			}else {
-				 isSame = false;
+		if (ipswd == null || ipswd.equals("")) {
+			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt))
+					&& (iUser.equals(jUser))) {
+				isSame = true;
+			} else {
+				isSame = false;
 			}
-		}else {
-			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt)) && (iUser.equals(jUser))
-					&& (ipswd.equals(jpswd)) ) {
-				 isSame = true;
-			}else {
-				 isSame = false;
+		} else {
+			if ((iSvIp.equals(jSvIp)) && (iSvPt.equals(jSvPt))
+					&& (iUser.equals(jUser)) && (ipswd.equals(jpswd))) {
+				isSame = true;
+			} else {
+				isSame = false;
 			}
 		}
 		return isSame;
@@ -477,7 +500,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		int size = collectList.size();
 		for (int i = 0; i < size; i++) {
 			DeviceItem deviceItem = collectList.get(i);
-			if (deviceItem.getDeviceName().equals(savDeviceItem.getDeviceName())) {
+			if (deviceItem.getDeviceName()
+					.equals(savDeviceItem.getDeviceName())) {
 				isExist = true;
 				break;
 			}
@@ -584,7 +608,8 @@ public class DeviceCollectActivity extends BaseActivity {
 			Message msg = new Message();
 			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 			try {
-				cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(fileName);
+				cloudAccountList = ReadWriteXmlUtils
+						.getCloudAccountList(fileName);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -680,8 +705,9 @@ public class DeviceCollectActivity extends BaseActivity {
 					et_device_add_password.setText(lgPas);
 					et_device_add_defaultchannel.setText(dChnl);
 					et_device_choose.setKeyListener(null);
-//					String username = chooseDeviceItem.getPlatformUsername();
-//					Log.v(TAG, "DeviceCollectActivity == username:" + username);
+					// String username = chooseDeviceItem.getPlatformUsername();
+					// Log.v(TAG, "DeviceCollectActivity == username:" +
+					// username);
 					String usernmae = getString(R.string.device_manager_collect_device);
 					saveDeviceItem.setPlatformUsername(usernmae);
 					saveDeviceItem.setLoginPass(lgPas);
@@ -695,8 +721,8 @@ public class DeviceCollectActivity extends BaseActivity {
 			}
 		}
 	}
-	
-	private void setIdentifyDeviceItem(DeviceItem deviceItem){
+
+	private void setIdentifyDeviceItem(DeviceItem deviceItem) {
 		validatedDeviceItem = new DeviceItem();
 		validatedDeviceItem.setChannelList(deviceItem.getChannelList());
 		validatedDeviceItem.setChannelSum(deviceItem.getChannelSum());
@@ -707,8 +733,10 @@ public class DeviceCollectActivity extends BaseActivity {
 		validatedDeviceItem.setIdentify(deviceItem.isIdentify());
 		validatedDeviceItem.setLoginPass(deviceItem.getLoginPass());
 		validatedDeviceItem.setLoginUser(deviceItem.getLoginUser());
-		validatedDeviceItem.setPlatformUsername(deviceItem.getPlatformUsername());
-		validatedDeviceItem.setSecurityProtectionOpen(deviceItem.isSecurityProtectionOpen());
+		validatedDeviceItem.setPlatformUsername(deviceItem
+				.getPlatformUsername());
+		validatedDeviceItem.setSecurityProtectionOpen(deviceItem
+				.isSecurityProtectionOpen());
 		validatedDeviceItem.setSvrIp(deviceItem.getSvrIp());
 		validatedDeviceItem.setSvrPort(deviceItem.getSvrPort());
 	}

@@ -69,7 +69,7 @@ public class ReadWriteXmlUtils {
 
 			Element root = doc.getRootElement();
 			Element item = root.addElement("AlarmDevice");
-			
+
 			item.addAttribute("imgIp", alarm.getIp());
 			item.addAttribute("time", alarm.getAlarmTime());
 			item.addAttribute("type", alarm.getAlarmType());
@@ -83,9 +83,7 @@ public class ReadWriteXmlUtils {
 			item.addAttribute("pusherUserName", alarm.getPusherUserName());
 			item.addAttribute("pusherPassword", alarm.getPusherPassword());
 			item.addAttribute("channel", String.valueOf(alarm.getChannel()));
-			fw = new FileWriter(ALARMS_PERSISTANCE_PATH, false); // false to
-																	// overwrite
-																	// file
+			fw = new FileWriter(ALARMS_PERSISTANCE_PATH, false); 
 			format = new OutputFormat(INDENT, true, CHARSET);
 			xmlOuter = new XMLWriter(fw, format);
 
@@ -111,8 +109,9 @@ public class ReadWriteXmlUtils {
 		}
 		return result;
 	}
-	
+
 	/*** 从文档中移除指定位置的的AlarmDevice ***/
+	@SuppressWarnings("unchecked")
 	public static void removeSpecifyAlarm(int index) {
 		File file = new File(ALARMS_PERSISTANCE_PATH);
 		if (!file.exists()) {
@@ -157,6 +156,7 @@ public class ReadWriteXmlUtils {
 	}
 
 	// 从文档中移除指定的AlarmDevice
+	@SuppressWarnings("unchecked")
 	public static void removeAlarm(AlarmDevice alarmDevice) {
 		File file = new File(ALARMS_PERSISTANCE_PATH);
 		if (!file.exists()) {
@@ -173,12 +173,12 @@ public class ReadWriteXmlUtils {
 			String user = alarmDevice.getUserName();
 			String name = alarmDevice.getDeviceName();
 			int size = subElements.size();
-			for (int i = 0; i < size; i++) {//判空处理
+			for (int i = 0; i < size; i++) {// 判空处理
 				Element subElement = subElements.get(i);
 				String xname = subElement.attributeValue("deviceName");
 				String xpswd = subElement.attributeValue("password");
 				String xuser = subElement.attributeValue("userName");
-				if ((xpswd==pswd)&& (xname==name)&& (xuser==user)) {//
+				if ((xpswd == pswd) && (xname == name) && (xuser == user)) {//
 					subElement.detach();
 				}
 			}
@@ -214,6 +214,7 @@ public class ReadWriteXmlUtils {
 	 * 
 	 * @return 报警信息的信息列表
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<AlarmDevice> readAlarms() {
 		List<AlarmDevice> alarmList = new ArrayList<AlarmDevice>();
 		File file = new File(ALARMS_PERSISTANCE_PATH);
@@ -239,7 +240,7 @@ public class ReadWriteXmlUtils {
 				String type = item.attributeValue("type");
 				String port = item.attributeValue("port");
 				String ip = item.attributeValue("imgIp");
-				
+
 				alarmDevice.setPusherUserName(pUserName);
 				alarmDevice.setPusherPassword(pPassword);
 				alarmDevice.setDeviceName(deviceName);
@@ -251,7 +252,7 @@ public class ReadWriteXmlUtils {
 				alarmDevice.setAlarmTime(time);
 				alarmDevice.setAlarmType(type);
 				alarmDevice.setIp(ip);
-				
+
 				if (port != null) {
 					alarmDevice.setPort(Integer.valueOf(port));
 				} else {
@@ -304,21 +305,20 @@ public class ReadWriteXmlUtils {
 		String usPortes = cloudAccountes.getPort();
 
 		for (int i = 0; i < size; i++) {
-			Element subElement = subElements.get(i);
-			String domain = subElement.attributeValue("domain");
-			String port = subElement.attributeValue("port");
-			String username = subElement.attributeValue("username");
-			String password = subElement.attributeValue("password");
+			Element sE = subElements.get(i);
+			String domain = sE.attributeValue("domain");
+			String port = sE.attributeValue("port");
+			String username = sE.attributeValue("username");
+			String password = sE.attributeValue("password");
 
 			if (domain.equals(domained) && password.equals(passwded)
 					&& username.equals(usNameed) && port.equals(usPorted)) {
-				subElement.setAttributeValue("domain", domaines);
-				subElement.setAttributeValue("port", usPortes);
-				subElement.setAttributeValue("username", usNamees);
-				subElement.setAttributeValue("password", passwdes);
+				sE.setAttributeValue("domain", domaines);
+				sE.setAttributeValue("port", usPortes);
+				sE.setAttributeValue("username", usNamees);
+				sE.setAttributeValue("password", passwdes);
 				boolean isEnabled = cloudAccountes.isEnabled();
-				subElement.setAttributeValue("isEnabled",
-						String.valueOf(isEnabled));
+				sE.setAttributeValue("isEnabled", String.valueOf(isEnabled));
 				break;
 			}
 		}
@@ -328,11 +328,11 @@ public class ReadWriteXmlUtils {
 		xmlWriter.write(document);
 		fileWriter.close();
 	}
-	
-	/***替换特定位置的元素***/
+
+	/*** 替换特定位置的元素 ***/
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	public static void replaceSpecifyDeviceItem(String filePath,int index,DeviceItem item)
-			throws Exception {
+	public static void replaceSpecifyDeviceItem(String filePath, int index,
+			DeviceItem item) throws Exception {
 		File file = new File(filePath);
 		if (!file.exists()) {
 			return;
@@ -344,19 +344,26 @@ public class ReadWriteXmlUtils {
 		int size = subElements.size();
 		for (int i = 0; i < size; i++) {
 			if (i == index) {
-				Element subElement = subElements.get(i);
-				subElement.setAttributeValue("deviceName", item.getDeviceName());
-				subElement.setAttributeValue("channelNumber", item.getChannelSum());
-				subElement.setAttributeValue("loginUser", item.getLoginUser());
-				subElement.setAttributeValue("loginPass", item.getLoginPass());
-				subElement.setAttributeValue("defaultChannel",String.valueOf(item.getDefaultChannel()));
-				subElement.setAttributeValue("serverIP",item.getSvrIp());
-				subElement.setAttributeValue("serverPort",item.getSvrPort());
-				subElement.setAttributeValue("deviceType",String.valueOf(item.getDeviceType()));
-				subElement.setAttributeValue("isSecurityProtectionOpen",String.valueOf(item.isSecurityProtectionOpen()));
-				subElement.setAttributeValue("isExpanded",String.valueOf(item.isExpanded()));
-				subElement.setAttributeValue("isIdentify",String.valueOf(item.isIdentify()));
-				List<Element> elList = subElement.elements();
+				Element sEl = subElements.get(i);
+				sEl.setAttributeValue("deviceName", item.getDeviceName());
+				sEl.setAttributeValue("channelNumber", item.getChannelSum());
+				sEl.setAttributeValue("loginUser", item.getLoginUser());
+				sEl.setAttributeValue("loginPass", item.getLoginPass());
+				sEl.setAttributeValue("defaultChannel",
+						String.valueOf(item.getDefaultChannel()));
+				sEl.setAttributeValue("serverIP", item.getSvrIp());
+				sEl.setAttributeValue("serverPort", item.getSvrPort());
+				sEl.setAttributeValue("deviceType",
+						String.valueOf(item.getDeviceType()));
+				sEl.setAttributeValue("isSecurityProtectionOpen",
+						String.valueOf(item.isSecurityProtectionOpen()));
+				sEl.setAttributeValue("isExpanded",
+						String.valueOf(item.isExpanded()));
+				sEl.setAttributeValue("isIdentify",
+						String.valueOf(item.isIdentify()));
+				sEl.setAttributeValue("isConnPass",
+						String.valueOf(item.isConnPass()));
+				List<Element> elList = sEl.elements();
 				for (int j = 0; j < elList.size(); j++) {
 					elList.get(j).detach();
 				}
@@ -364,11 +371,13 @@ public class ReadWriteXmlUtils {
 				if (channelList != null) {
 					int channelSize = channelList.size();
 					for (int k = 0; k < channelSize; k++) {
-						Channel channel = channelList.get(k);
-						Element chnnelElement = subElement.addElement("channel");
-						chnnelElement.addAttribute("channelName",channel.getChannelName());
-						chnnelElement.addAttribute("channelNo",String.valueOf(channel.getChannelNo()));
-						chnnelElement.addAttribute("isSelected",String.valueOf(channel.isSelected()));
+						Channel h = channelList.get(k);
+						Element cl = sEl.addElement("channel");
+						cl.addAttribute("channelName", h.getChannelName());
+						cl.addAttribute("channelNo",
+								String.valueOf(h.getChannelNo()));
+						cl.addAttribute("isSelected",
+								String.valueOf(h.isSelected()));
 					}
 				}
 				break;
@@ -396,36 +405,34 @@ public class ReadWriteXmlUtils {
 		Element root = document.addElement("deviceItems");// 增加了一个根...
 		int size = deviceItemList.size();
 		for (int i = 0; i < size; i++) {
-			DeviceItem deviceItem = deviceItemList.get(i);
-			Element subElement = root.addElement("deviceItem");
-			subElement.addAttribute("deviceName", deviceItem.getDeviceName());
-			subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
-			subElement.addAttribute("loginUser", deviceItem.getLoginUser());
-			subElement.addAttribute("loginPass", deviceItem.getLoginPass());
+			DeviceItem dItem = deviceItemList.get(i);
+			Element sEl = root.addElement("deviceItem");
+			sEl.addAttribute("deviceName", dItem.getDeviceName());
+			sEl.addAttribute("channelNumber", dItem.getChannelSum());
+			sEl.addAttribute("loginUser", dItem.getLoginUser());
+			sEl.addAttribute("loginPass", dItem.getLoginPass());
 
-			subElement.addAttribute("defaultChannel",
-					String.valueOf(deviceItem.getDefaultChannel()));
-			subElement.addAttribute("serverIP", deviceItem.getSvrIp());
-			subElement.addAttribute("serverPort", deviceItem.getSvrPort());
-			subElement.addAttribute("deviceType",
-					String.valueOf(deviceItem.getDeviceType()));
-			subElement.addAttribute("isSecurityProtectionOpen",
-					String.valueOf(deviceItem.isSecurityProtectionOpen()));
-			subElement.addAttribute("isExpanded",
-					String.valueOf(deviceItem.isExpanded()));
-			subElement.addAttribute("isIdentify",
-					String.valueOf(deviceItem.isIdentify()));
-			List<Channel> channelList = deviceItem.getChannelList();
+			sEl.addAttribute("defaultChannel",
+					String.valueOf(dItem.getDefaultChannel()));
+			sEl.addAttribute("serverIP", dItem.getSvrIp());
+			sEl.addAttribute("serverPort", dItem.getSvrPort());
+			sEl.addAttribute("deviceType",
+					String.valueOf(dItem.getDeviceType()));
+			sEl.addAttribute("isSecurityProtectionOpen",
+					String.valueOf(dItem.isSecurityProtectionOpen()));
+			sEl.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
+			sEl.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
+			sEl.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
+			List<Channel> channelList = dItem.getChannelList();
 			if (channelList != null) {
 				int channelSize = channelList.size();
 				for (int k = 0; k < channelSize; k++) {
 					Channel channel = channelList.get(k);
-					Element chnnelElement = subElement.addElement("channel");
-					chnnelElement.addAttribute("channelName",
-							channel.getChannelName());
-					chnnelElement.addAttribute("channelNo",
+					Element chEl = sEl.addElement("channel");
+					chEl.addAttribute("channelName", channel.getChannelName());
+					chEl.addAttribute("channelNo",
 							String.valueOf(channel.getChannelNo()));
-					chnnelElement.addAttribute("isSelected",
+					chEl.addAttribute("isSelected",
 							String.valueOf(channel.isSelected()));
 				}
 			}
@@ -438,6 +445,7 @@ public class ReadWriteXmlUtils {
 	}
 
 	// 从收藏设备文档中删除指定的设备...
+	@SuppressWarnings("unchecked")
 	public static void removeDeviceItemToCollectEquipmentXML(
 			DeviceItem deviceItem, String filePath) throws DocumentException,
 			IOException {
@@ -498,19 +506,19 @@ public class ReadWriteXmlUtils {
 		for (Element subElement : subElements) {
 			CloudAccount cloudAccount = new CloudAccount();
 
+			String isEnabled = subElement.attributeValue("isEnabled");
 			String username = subElement.attributeValue("username");
 			String password = subElement.attributeValue("password");
 			String domain = subElement.attributeValue("domain");
 			String port = subElement.attributeValue("port");
-			String isEnabled = subElement.attributeValue("isEnabled");
 
-			cloudAccount.setDeviceList(null);
-			cloudAccount.setRotate(false);
 			cloudAccount.setEnabled(Boolean.valueOf(isEnabled));
-			cloudAccount.setDomain(domain);
-			cloudAccount.setPort(port);
 			cloudAccount.setUsername(username);
 			cloudAccount.setPassword(password);
+			cloudAccount.setDeviceList(null);
+			cloudAccount.setRotate(false);
+			cloudAccount.setDomain(domain);
+			cloudAccount.setPort(port);
 
 			cloudAccountList.add(cloudAccount);
 		}
@@ -532,7 +540,7 @@ public class ReadWriteXmlUtils {
 		List<Element> subElements = root.elements();// 子目录
 		int size = subElements.size();
 		for (int i = 0; i < size; i++) {
-			DeviceItem deviceItem = new DeviceItem();// 构造收藏设备
+			DeviceItem dItem = new DeviceItem();// 构造收藏设备
 			Element subElement = subElements.get(i);
 
 			String deviceName = subElement.attributeValue("deviceName");
@@ -540,40 +548,42 @@ public class ReadWriteXmlUtils {
 			String loginUser = subElement.attributeValue("loginUser");
 			String loginPass = subElement.attributeValue("loginPass");
 			String defaultChannel = subElement.attributeValue("defaultChannel");
-			String platformusername = subElement.attributeValue("platformusername");
+			String platusername = subElement.attributeValue("platformusername");
 
 			String svrIp = subElement.attributeValue("serverIP");
 			String svrPort = subElement.attributeValue("serverPort");
 			String deviceType = subElement.attributeValue("deviceType");
-			String isSecurityProtectionOpen = subElement.attributeValue("isSecurityProtectionOpen");
+			String iso = subElement.attributeValue("isSecurityProtectionOpen");
 			String isExpanded = subElement.attributeValue("isExpanded");
-
+			String isConnPass = subElement.attributeValue("isConnPass");
 			String isIdentify = subElement.attributeValue("isIdentify");
-			if ((isSecurityProtectionOpen == null)
-					|| (isSecurityProtectionOpen.equals(null))) {
-				isSecurityProtectionOpen = "false";
+			if ((iso == null) || (iso.equals(null))) {
+				iso = "false";
 			}
 			if ((isExpanded == null) || (isExpanded.equals(null))) {
 				isExpanded = "false";
 			}
-			
+
 			if ((isIdentify == null) || (isIdentify.equals(null))) {
 				isIdentify = "false";
 			}
-			deviceItem.setChannelSum(channelSum);
-			deviceItem.setDeviceName(deviceName);
-			deviceItem.setLoginUser(loginUser);
-			deviceItem.setLoginPass(loginPass);
-			deviceItem.setDefaultChannel(Integer.valueOf(defaultChannel));
-			deviceItem.setSvrIp(svrIp);
-			deviceItem.setSvrPort(svrPort);
-			deviceItem.setSecurityProtectionOpen(Boolean
-					.valueOf(isSecurityProtectionOpen));
-			deviceItem.setExpanded(Boolean.valueOf(isExpanded));
-			deviceItem.setDeviceType(Integer.valueOf(deviceType));
-			deviceItem.setPlatformUsername(platformusername);
-			deviceItem.setIdentify(Boolean.valueOf(isIdentify));
-			
+
+			if ((isConnPass == null) || (isConnPass.equals(null))) {
+				isConnPass = "false";
+			}
+			dItem.setChannelSum(channelSum);
+			dItem.setDeviceName(deviceName);
+			dItem.setLoginUser(loginUser);
+			dItem.setLoginPass(loginPass);
+			dItem.setDefaultChannel(Integer.valueOf(defaultChannel));
+			dItem.setSvrIp(svrIp);
+			dItem.setSvrPort(svrPort);
+			dItem.setSecurityProtectionOpen(Boolean.valueOf(iso));
+			dItem.setExpanded(Boolean.valueOf(isExpanded));
+			dItem.setDeviceType(Integer.valueOf(deviceType));
+			dItem.setPlatformUsername(platusername);
+			dItem.setIdentify(Boolean.valueOf(isIdentify));
+			dItem.setConnPass(Boolean.valueOf(isConnPass));
 			List<Channel> channelList = new ArrayList<Channel>();
 
 			List<Element> channelElements = subElement.elements();
@@ -581,23 +591,18 @@ public class ReadWriteXmlUtils {
 				int channelSize = channelElements.size();
 				for (int j = 0; j < channelSize; j++) {
 					Channel channel = new Channel();
-
-					Element channelElement = channelElements.get(j);
-					String channelName = channelElement
-							.attributeValue("channelName");
-					String channelNo = channelElement
-							.attributeValue("channelNo");
-					String isSelected = channelElement
-							.attributeValue("isSelected");
+					Element chEl = channelElements.get(j);
+					String channelName = chEl.attributeValue("channelName");
+					String channelNo = chEl.attributeValue("channelNo");
+					String isSelected = chEl.attributeValue("isSelected");
 					channel.setChannelName(channelName);
 					channel.setChannelNo(Integer.valueOf(channelNo));
 					channel.setSelected(Boolean.valueOf(isSelected));
-
 					channelList.add(channel);
 				}
 			}
-			deviceItem.setChannelList(channelList);
-			deviceList.add(deviceItem);
+			dItem.setChannelList(channelList);
+			deviceList.add(dItem);
 		}
 		return deviceList;
 	}
@@ -611,7 +616,7 @@ public class ReadWriteXmlUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static String addNewDeviceItemToCollectEquipmentXML(
-			DeviceItem deviceItem, String filePath) throws Exception {
+			DeviceItem dItem, String filePath) throws Exception {
 
 		String saveResult = "";
 		// 创建一个文档，并检查文档是否存在，若存在则不创建；否则，则创建；
@@ -634,34 +639,34 @@ public class ReadWriteXmlUtils {
 		Element root = document.getRootElement();
 
 		List<Element> subElements = root.elements();
-		judgeSubElementsContainsDeviceItem(subElements, deviceItem);
+		judgeSubElementsContainsDeviceItem(subElements, dItem);
 		// 检查是否包含相同的元素，如果包含的话，则先删除，后添加；如果不包含，则添加；
-		Element subElement = root.addElement("deviceItem");
-		subElement.addAttribute("deviceName", deviceItem.getDeviceName());
-		subElement.addAttribute("channelNumber", deviceItem.getChannelSum());
-		subElement.addAttribute("loginUser", deviceItem.getLoginUser());
-		subElement.addAttribute("loginPass", deviceItem.getLoginPass());
-		subElement.addAttribute("platformusername",deviceItem.getPlatformUsername());
+		Element sEle = root.addElement("deviceItem");
+		sEle.addAttribute("deviceName", dItem.getDeviceName());
+		sEle.addAttribute("channelNumber", dItem.getChannelSum());
+		sEle.addAttribute("loginUser", dItem.getLoginUser());
+		sEle.addAttribute("loginPass", dItem.getLoginPass());
+		sEle.addAttribute("platformusername", dItem.getPlatformUsername());
 
-		subElement.addAttribute("defaultChannel",String.valueOf(deviceItem.getDefaultChannel()));
-		subElement.addAttribute("serverIP", deviceItem.getSvrIp());
-		subElement.addAttribute("serverPort", deviceItem.getSvrPort());
-		subElement.addAttribute("deviceType",String.valueOf(deviceItem.getDeviceType()));
-		subElement.addAttribute("isSecurityProtectionOpen",String.valueOf(deviceItem.isSecurityProtectionOpen()));
-		subElement.addAttribute("isExpanded",String.valueOf(deviceItem.isExpanded()));
-		subElement.addAttribute("isIdentify", String.valueOf(deviceItem.isIdentify()));
-		List<Channel> channelList = deviceItem.getChannelList();
+		sEle.addAttribute("defaultChannel",
+				String.valueOf(dItem.getDefaultChannel()));
+		sEle.addAttribute("serverIP", dItem.getSvrIp());
+		sEle.addAttribute("serverPort", dItem.getSvrPort());
+		sEle.addAttribute("deviceType", String.valueOf(dItem.getDeviceType()));
+		sEle.addAttribute("isSecurityProtectionOpen",
+				String.valueOf(dItem.isSecurityProtectionOpen()));
+		sEle.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
+		sEle.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
+		sEle.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
+		List<Channel> channelList = dItem.getChannelList();
 		if (channelList != null) {
 			int channelSize = channelList.size();
 			for (int k = 0; k < channelSize; k++) {
-				Channel channel = channelList.get(k);
-				Element chnnelElement = subElement.addElement("channel");
-				chnnelElement.addAttribute("channelName",
-						channel.getChannelName());
-				chnnelElement.addAttribute("channelNo",
-						String.valueOf(channel.getChannelNo()));
-				chnnelElement.addAttribute("isSelected",
-						String.valueOf(channel.isSelected()));
+				Channel ch = channelList.get(k);
+				Element chE = sEle.addElement("channel");
+				chE.addAttribute("channelName", ch.getChannelName());
+				chE.addAttribute("channelNo", String.valueOf(ch.getChannelNo()));
+				chE.addAttribute("isSelected", String.valueOf(ch.isSelected()));
 			}
 		}
 
@@ -706,8 +711,7 @@ public class ReadWriteXmlUtils {
 			Document document = saxReader.read(file);
 			Element root = document.getRootElement();
 			List<Element> subElements = root.elements();
-			int size = subElements.size();
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < subElements.size(); i++) {
 				Element subElement = subElements.get(i);
 				String domain = subElement.attributeValue("domain");
 				String port = subElement.attributeValue("port");
@@ -720,11 +724,10 @@ public class ReadWriteXmlUtils {
 					subElement.detach();
 				}
 			}
-			OutputFormat opf = new OutputFormat("", true, "UTF-8");
-			XMLWriter writer = new XMLWriter(new FileOutputStream(fileName),
-					opf);
-			writer.write(document);
-			writer.close();
+			OutputFormat op = new OutputFormat("", true, "UTF-8");
+			XMLWriter wrt = new XMLWriter(new FileOutputStream(fileName), op);
+			wrt.write(document);
+			wrt.close();
 			result = true;
 			System.out.println("remove Success!!!");
 		} catch (Exception e) {
@@ -754,14 +757,12 @@ public class ReadWriteXmlUtils {
 			SAXReader saxReader = new SAXReader();
 			if (!file.exists()) {// 如果文件不存在，则创建文件，并打开文件进行读写操作
 				file.createNewFile();
-				// 创建根
 				Document doc = DocumentHelper.createDocument();
 				doc.addElement("cloundAccounts");
-				OutputFormat opf = new OutputFormat("", true, "UTF-8");
-				XMLWriter writer = new XMLWriter(
-						new FileOutputStream(fileName), opf);
-				writer.write(doc);
-				writer.close();
+				OutputFormat op = new OutputFormat("", true, "UTF-8");
+				XMLWriter wr = new XMLWriter(new FileOutputStream(fileName), op);
+				wr.write(doc);
+				wr.close();
 			}
 			Document document = saxReader.read(file);
 			Element rootElement = document.getRootElement();
@@ -787,24 +788,20 @@ public class ReadWriteXmlUtils {
 				}
 			}
 			// 开始写入
-			Element cloudAccountElement = rootElement
-					.addElement("cloudAccount");
-			cloudAccountElement.addAttribute("username", caUsername);
-			cloudAccountElement.addAttribute("password", caPassword);
-			cloudAccountElement.addAttribute("domain", caDomain);
-			cloudAccountElement.addAttribute("port", caPort);
+			Element clAElement = rootElement.addElement("cloudAccount");
+			clAElement.addAttribute("username", caUsername);
+			clAElement.addAttribute("password", caPassword);
+			clAElement.addAttribute("domain", caDomain);
+			clAElement.addAttribute("port", caPort);
 			boolean isEnabled = cloudAccount.isEnabled();
-			cloudAccountElement.addAttribute("isEnabled",
-					String.valueOf(isEnabled));
+			clAElement.addAttribute("isEnabled", String.valueOf(isEnabled));
 
 			OutputFormat opf = new OutputFormat("", true, "UTF-8");
-			XMLWriter writer = new XMLWriter(new FileOutputStream(fileName),
-					opf);
-			writer.write(document);
-			writer.close();
+			XMLWriter wrt = new XMLWriter(new FileOutputStream(fileName), opf);
+			wrt.write(document);
+			wrt.close();
 			result = true;
 		} catch (Exception e) {
-			System.out.println("Wrong!");
 			result = false;
 		}
 		return result;
@@ -820,7 +817,7 @@ public class ReadWriteXmlUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public synchronized static void writeNewCloudAccountToXML(
-			CloudAccount cloudAccount, String fileName) {
+			CloudAccount clAcc, String fileName) {
 
 		File file = new File(fileName);
 		try {
@@ -838,7 +835,7 @@ public class ReadWriteXmlUtils {
 			SAXReader saxReader = new SAXReader();
 			Document document = saxReader.read(file);
 			Element root = document.getRootElement();
-			if (cloudAccount != null) {
+			if (clAcc != null) {
 				// 判断文件是否存在，如果存在，则删除
 				List<Element> subElements = root.elements();
 				if (subElements != null) {
@@ -850,72 +847,62 @@ public class ReadWriteXmlUtils {
 						String password = subElement.attributeValue("password");
 						String username = subElement.attributeValue("username");
 
-						if (domain.equals(cloudAccount.getDomain())
-								&& port.equals(cloudAccount.getPort())
-								&& password.equals(cloudAccount.getPassword())
-								&& username.equals(cloudAccount.getUsername())) {
+						if (domain.equals(clAcc.getDomain())
+								&& port.equals(clAcc.getPort())
+								&& password.equals(clAcc.getPassword())
+								&& username.equals(clAcc.getUsername())) {
 							subElement.detach();
 						}
 					}
 				}
 				// 开始书写用户信息；首先指定用户属性
-				Element cloudAccountElement = root.addElement("cloudAccount");
-				cloudAccountElement.addAttribute("domain",
-						cloudAccount.getDomain());
-				cloudAccountElement
-						.addAttribute("port", cloudAccount.getPort());
-				cloudAccountElement.addAttribute("username",
-						cloudAccount.getUsername());
-				cloudAccountElement.addAttribute("password",
-						cloudAccount.getPassword());
-				cloudAccountElement.addAttribute("enabled",
-						String.valueOf(cloudAccount.isEnabled()));
-				cloudAccountElement.addAttribute("isExpanded",
-						String.valueOf(cloudAccount.isEnabled()));
-				cloudAccountElement.addAttribute("isRotate",
-						String.valueOf(true));
+				Element clAElement = root.addElement("cloudAccount");
+				clAElement.addAttribute("domain", clAcc.getDomain());
+				clAElement.addAttribute("port", clAcc.getPort());
+				clAElement.addAttribute("username", clAcc.getUsername());
+				clAElement.addAttribute("password", clAcc.getPassword());
+				clAElement.addAttribute("enabled",
+						String.valueOf(clAcc.isEnabled()));
+				clAElement.addAttribute("isExpanded",
+						String.valueOf(clAcc.isEnabled()));
+				clAElement.addAttribute("isRotate", String.valueOf(true));
 				// 添加用户的设备列表
-				List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
+				List<DeviceItem> deviceItems = clAcc.getDeviceList();
 				if (deviceItems != null) {
 					int deviceSize = deviceItems.size();
 					for (int j = 0; j < deviceSize; j++) {
-						DeviceItem deviceItem = deviceItems.get(j);
-						Element deviceElement = cloudAccountElement
-								.addElement("device");
-						deviceElement.addAttribute("deviceName",
-								deviceItem.getDeviceName());
-						deviceElement.addAttribute("svrIp",
-								deviceItem.getSvrIp());
-						deviceElement.addAttribute("svrPort",
-								deviceItem.getSvrPort());
-						deviceElement.addAttribute("loginUser",
-								deviceItem.getLoginUser());
-						deviceElement.addAttribute("loginPass",
-								deviceItem.getLoginPass());
-						deviceElement.addAttribute("defaultChannel",
-								String.valueOf(deviceItem.getDefaultChannel()));
-						deviceElement.addAttribute("channelSum",
-								deviceItem.getChannelSum());
-						deviceElement.addAttribute("deviceType",
-								String.valueOf(deviceItem.getDeviceType()));
-						deviceElement.addAttribute("isSecurityProtectionOpen",
-								String.valueOf(deviceItem
-										.isSecurityProtectionOpen()));
-						deviceElement.addAttribute("isExpanded",
-								String.valueOf(deviceItem.isExpanded()));
-						List<Channel> channelList = deviceItem.getChannelList();
-						if (channelList != null) {
-							int channelSize = channelList.size();
+						DeviceItem dItem = deviceItems.get(j);
+						Element dEle = clAElement.addElement("device");
+						dEle.addAttribute("deviceName", dItem.getDeviceName());
+						dEle.addAttribute("svrIp", dItem.getSvrIp());
+						dEle.addAttribute("svrPort", dItem.getSvrPort());
+						dEle.addAttribute("loginUser", dItem.getLoginUser());
+						dEle.addAttribute("loginPass", dItem.getLoginPass());
+						dEle.addAttribute("defaultChannel",
+								String.valueOf(dItem.getDefaultChannel()));
+						dEle.addAttribute("channelSum", dItem.getChannelSum());
+						dEle.addAttribute("deviceType",
+								String.valueOf(dItem.getDeviceType()));
+						dEle.addAttribute("isSecurityProtectionOpen", String
+								.valueOf(dItem.isSecurityProtectionOpen()));
+						dEle.addAttribute("isExpanded",
+								String.valueOf(dItem.isExpanded()));
+						dEle.addAttribute("isIdentify",
+								String.valueOf(dItem.isIdentify()));
+						dEle.addAttribute("isConnPass",
+								String.valueOf(dItem.isConnPass()));
+						List<Channel> chList = dItem.getChannelList();
+						if (chList != null) {
+							int channelSize = chList.size();
 							for (int k = 0; k < channelSize; k++) {
-								Channel channel = channelList.get(k);
-								Element chnnelElement = deviceElement
-										.addElement("channel");
-								chnnelElement.addAttribute("channelName",
-										channel.getChannelName());
-								chnnelElement.addAttribute("channelNo",
-										String.valueOf(channel.getChannelNo()));
-								chnnelElement.addAttribute("isSelected",
-										String.valueOf(channel.isSelected()));
+								Channel chl = chList.get(k);
+								Element cEle = dEle.addElement("channel");
+								cEle.addAttribute("channelName",
+										chl.getChannelName());
+								cEle.addAttribute("channelNo",
+										String.valueOf(chl.getChannelNo()));
+								cEle.addAttribute("isSelected",
+										String.valueOf(chl.isSelected()));
 							}
 						}
 					}
@@ -927,13 +914,12 @@ public class ReadWriteXmlUtils {
 			XMLWriter writer = new XMLWriter(fw, format);
 			writer.write(document);
 			fw.close();
-			System.out.println("Generate Over!");
 		} catch (Exception e) {
-			System.out.println("Wrong!");
 			e.printStackTrace();
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<CloudAccount> readCloudAccountFromXML(String fileName) {
 		List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 		SAXReader saxReader = new SAXReader();
@@ -945,87 +931,71 @@ public class ReadWriteXmlUtils {
 			// 得到了个数
 			for (int i = 0; i < cloudAccountSize; i++) {
 				CloudAccount cloudAccount = new CloudAccount();
-				Element cloudAccountElement = cloudElements.get(i);
+				Element cAElement = cloudElements.get(i);
 				// 获取cloudAccountElement的属性值
-				String domain = cloudAccountElement.attributeValue("domain");
-				String password = cloudAccountElement
-						.attributeValue("password");
-				String port = cloudAccountElement.attributeValue("port");
-				String username = cloudAccountElement
-						.attributeValue("username");
-				String isEnabled = cloudAccountElement
-						.attributeValue("enabled");
-				String isExpanded = cloudAccountElement
-						.attributeValue("isExpanded");
-				String isRotate = cloudAccountElement
-						.attributeValue("isRotate");
-
-				cloudAccount.setDomain(domain);
-				cloudAccount.setEnabled(Boolean.valueOf(isEnabled));
-				cloudAccount.setExpanded(Boolean.valueOf(isExpanded));
-				cloudAccount.setPassword(password);
+				String port = cAElement.attributeValue("port");
+				String domain = cAElement.attributeValue("domain");
+				String password = cAElement.attributeValue("password");
+				String username = cAElement.attributeValue("username");
+				String isEnabled = cAElement.attributeValue("enabled");
+				String isRotate = cAElement.attributeValue("isRotate");
+				String isExpanded = cAElement.attributeValue("isExpanded");
 				cloudAccount.setPort(port);
+				cloudAccount.setDomain(domain);
+				cloudAccount.setPassword(password);
 				cloudAccount.setUsername(username);
 				cloudAccount.setRotate(Boolean.valueOf(isRotate));
+				cloudAccount.setEnabled(Boolean.valueOf(isEnabled));
+				cloudAccount.setExpanded(Boolean.valueOf(isExpanded));
 
 				// 获取设备列表
 				List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
-				List<Element> deviceListElement = cloudAccountElement
-						.elements();
-				int deviceSize = deviceListElement.size();
-				for (int j = 0; j < deviceSize; j++) {
-					DeviceItem deviceItem = new DeviceItem();
-					Element deviceElement = deviceListElement.get(j);
-					String deviceName = deviceElement
-							.attributeValue("deviceName");
-					String svrIp = deviceElement.attributeValue("svrIp");
-					String svrPort = deviceElement.attributeValue("svrPort");
-					String loginUser = deviceElement
-							.attributeValue("loginUser");
-					String loginPass = deviceElement
-							.attributeValue("loginPass");
-					String defaultChannel = deviceElement
-							.attributeValue("defaultChannel");
-					String channelSum = deviceElement
-							.attributeValue("channelSum");
-					String deviceType = deviceElement
-							.attributeValue("deviceType");
-					String iSPO = deviceElement
+				List<Element> dElev = cAElement.elements();
+				for (int j = 0; j < dElev.size(); j++) {
+					DeviceItem dItem = new DeviceItem();
+					Element dEle = dElev.get(j);
+					String svrIp = dEle.attributeValue("svrIp");
+					String svrPort = dEle.attributeValue("svrPort");
+					String isExd = dEle.attributeValue("isExpanded");
+					String isIde = dEle.attributeValue("isIdentify");
+					String isCon = dEle.attributeValue("isConnPass");
+					String loginUser = dEle.attributeValue("loginUser");
+					String loginPass = dEle.attributeValue("loginPass");
+					String deviceName = dEle.attributeValue("deviceName");
+					String channelSum = dEle.attributeValue("channelSum");
+					String deviceType = dEle.attributeValue("deviceType");
+					String deChannel = dEle.attributeValue("defaultChannel");
+					String iso = dEle
 							.attributeValue("isSecurityProtectionOpen");
-					String isExpanded2 = deviceElement
-							.attributeValue("isExpanded");
 
-					deviceItem.setChannelSum(channelSum);
-					deviceItem.setDefaultChannel(Integer
-							.valueOf(defaultChannel));
-					deviceItem.setDeviceName(deviceName);
-					deviceItem.setDeviceType(Integer.valueOf(deviceType));
-					deviceItem.setExpanded(Boolean.valueOf(isExpanded2));
-					deviceItem.setSecurityProtectionOpen(Boolean.valueOf(iSPO));
-					deviceItem.setLoginPass(loginPass);
-					deviceItem.setLoginUser(loginUser);
-					deviceItem.setSvrIp(svrIp);
-					deviceItem.setSvrPort(svrPort);
-
-					List<Element> channelElement = deviceElement.elements();
+					dItem.setSvrIp(svrIp);
+					dItem.setSvrPort(svrPort);
+					dItem.setLoginPass(loginPass);
+					dItem.setLoginUser(loginUser);
+					dItem.setChannelSum(channelSum);
+					dItem.setDeviceName(deviceName);
+					dItem.setExpanded(Boolean.valueOf(isExd));
+					dItem.setExpanded(Boolean.valueOf(isIde));
+					dItem.setExpanded(Boolean.valueOf(isCon));
+					dItem.setDeviceType(Integer.valueOf(deviceType));
+					dItem.setDefaultChannel(Integer.valueOf(deChannel));
+					dItem.setSecurityProtectionOpen(Boolean.valueOf(iso));
 					List<Channel> channelList = new ArrayList<Channel>();
-					int channelSize = channelElement.size();
-					for (int k = 0; k < channelSize; k++) {
+					List<Element> chElement = dEle.elements();
+
+					for (int k = 0; k < chElement.size(); k++) {
 						Channel channel = new Channel();
-						Element chElement = channelElement.get(k);
-						String channelName = chElement
-								.attributeValue("channelName");
-						String channelNo = chElement
-								.attributeValue("channelNo");
-						String isSelected = chElement
-								.attributeValue("isSelected");
-						channel.setChannelName(channelName);
+						Element chEle = chElement.get(k);
+						String chName = chEle.attributeValue("channelName");
+						String channelNo = chEle.attributeValue("channelNo");
+						String isSelected = chEle.attributeValue("isSelected");
+						channel.setChannelName(chName);
 						channel.setChannelNo(Integer.valueOf(channelNo));
 						channel.setSelected(Boolean.valueOf(isSelected));
 						channelList.add(channel);
 					}
-					deviceItem.setChannelList(channelList);
-					deviceList.add(deviceItem);
+					dItem.setChannelList(channelList);
+					deviceList.add(dItem);
 				}
 				cloudAccount.setDeviceList(deviceList);
 				cloudAccountList.add(cloudAccount);
@@ -1034,5 +1004,5 @@ public class ReadWriteXmlUtils {
 			e.printStackTrace();
 		}
 		return cloudAccountList;
-	}	
+	}
 }
