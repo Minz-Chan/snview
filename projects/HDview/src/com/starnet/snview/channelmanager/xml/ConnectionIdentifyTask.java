@@ -38,8 +38,10 @@ public class ConnectionIdentifyTask {
 	private DeviceItem mDeviceItem;
 	private Thread connectionThread;
 	private BufferSendManager sender;
+	private boolean isOnConnectionWrong;
 	private CloudAccount clickCloudAccount;
 	private final int defaultChannelNum = 1;
+	private boolean isConnectedOver = false;
 	private boolean shouldTimeOutOver = false;
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
@@ -54,6 +56,13 @@ public class ConnectionIdentifyTask {
 	}
 
 	private void initialThread() {
+
+		isOnWorkdIOErr = false;
+		isConnectedOver = false;
+		shouldTimeOutOver = false;
+		isOnWorkdUnknwnHost = false;
+		isOnConnectionWrong = false;
+
 		timeOutThread = new Thread() {
 			@Override
 			public void run() {
@@ -66,8 +75,8 @@ public class ConnectionIdentifyTask {
 						timeCount++;
 						if (timeCount == timeOut) {
 							canRun = false;
-							if (!isCanceled && !shouldTimeOutOver) {
-								onTimeOut();// time out thread event.
+							if (!isCanceled) {// && !shouldTimeOutOver
+								onTimeOut();
 							}
 						}
 					} catch (InterruptedException e) {
@@ -86,18 +95,14 @@ public class ConnectionIdentifyTask {
 					if (isConnected) {
 						startConnectionIdentify();
 					} else {
-						if (!isCanceled && !shouldTimeOutOver
-								&& !isConnectedOver) {
+						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver) {
 							onConnectionWrong();
 						}
-						shouldTimeOutOver = true;
 					}
 				}
 			}
 		};
 	}
-
-	private boolean isConnectedOver = false;
 
 	public ConnectionIdentifyTask(Handler handler,
 			CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
@@ -112,11 +117,20 @@ public class ConnectionIdentifyTask {
 
 	/*** 网络链接不成功的处理操作 ***/
 	private void onConnectionWrong() {
-		if (!shouldTimeOutOver) {
+		if (!shouldTimeOutOver && !isCanceled && !isOnConnectionWrong) {
+			isOnWorkdUnknwnHost = true;
 			shouldTimeOutOver = true;
+			isConnectedOver = true;
+			isOnWorkdIOErr = true;
 			Message msg = new Message();
+			Bundle data = new Bundle();
+			setWrongDevicetItem(1);
+			setBundleData(data);
+			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
-			mHandler.sendMessage(msg);
+			if (!isCanceled && !isOnConnectionWrong && shouldTimeOutOver) {
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
@@ -142,31 +156,40 @@ public class ConnectionIdentifyTask {
 		return isConnected;
 	}
 
-	/*** 端口错误的操作 ***/
+	/** 端口错误的操作 ***/
 	protected void onWorkdUnknwnHost() {
-		if (!shouldTimeOutOver && !isCanceled) {
+		if (!shouldTimeOutOver && !isCanceled && !isOnWorkdUnknwnHost) {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
-			// Message msg = new Message();
-			// msg.what = CONNECTIFYIDENTIFY_WRONG;
-			// mHandler.sendMessage(msg);
+			Message msg = new Message();
+			Bundle data = new Bundle();
+			setWrongDevicetItem(1);
+			setBundleData(data);
+			msg.setData(data);
+			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			if (!isCanceled && !isOnWorkdUnknwnHost) {
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
-	/*** ??错误的操作 ***/
+	private boolean isOnWorkdIOErr;
+	private boolean isOnWorkdUnknwnHost;
+
+	/** ??错误的操作 ***/
 	protected void onWorkdIOErr() {
-		if (!shouldTimeOutOver && !isCanceled) {
+		if (!shouldTimeOutOver && !isCanceled && !isOnWorkdIOErr) {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
-			// Message msg = new Message();
-			// Bundle data = new Bundle();
-			//
-			// setWrongDevicetItem(1);
-			// setBundleData(data);
-			// msg.setData(data);
-			//
-			// msg.what = CONNECTIFYIDENTIFY_WRONG;
-			// mHandler.sendMessage(msg);
+			Message msg = new Message();
+			Bundle data = new Bundle();
+			setWrongDevicetItem(1);
+			setBundleData(data);
+			msg.setData(data);
+			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			if (!isCanceled && !isOnWorkdIOErr) {
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
@@ -303,12 +326,11 @@ public class ConnectionIdentifyTask {
 	}
 
 	private void onTimeOut() {
-		shouldTimeOutOver = true;
 		isConnectedOver = true;
 		if (client != null) {
 			client = null;
 		}
-		if (!isCanceled) {
+		if (!isCanceled && !shouldTimeOutOver) {
 			Message msg = new Message();
 			Bundle data = new Bundle();
 			mDeviceItem.setIdentify(true);
@@ -316,10 +338,13 @@ public class ConnectionIdentifyTask {
 			setBundleData(data);
 			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
-			if (!isCanceled&&!shouldTimeOutOver) {
+			if (!shouldTimeOutOver) {
+				isOnWorkdIOErr = true;
+				isOnWorkdUnknwnHost = true;
 				mHandler.sendMessage(msg);
 			}
 		}
+		shouldTimeOutOver = true;
 	}
 
 	private void setBundleData(Bundle data) {
@@ -336,7 +361,9 @@ public class ConnectionIdentifyTask {
 
 	public void setCanceled(boolean isCanceled) {
 		this.isCanceled = isCanceled;
+		isOnWorkdUnknwnHost = true;
 		shouldTimeOutOver = true;
 		isConnectedOver = true;
+		isOnWorkdIOErr = true;
 	}
 }

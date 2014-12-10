@@ -114,18 +114,22 @@ public class ChannelListActivity extends BaseActivity {
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				showToast("连接验证成功");
-				gotoChannelListViewActivity(msg);
 				dismissDialog(CONNIDENTIFYDIALOG);
+				gotoChannelListViewActivity(msg);
+				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
+				dismissDialog(CONNIDENTIFYDIALOG);
 				showToast("连接验证错误，请检查信息");
 				gotoChannelListViewActivity(msg);
-				dismissDialog(CONNIDENTIFYDIALOG);
+				
+				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				dismissDialog(CONNIDENTIFYDIALOG);
 				showToast("连接验证超时");
 				gotoChannelListViewActivity(msg);
+				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			default:
 				break;

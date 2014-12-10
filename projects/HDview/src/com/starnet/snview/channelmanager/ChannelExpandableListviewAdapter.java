@@ -490,15 +490,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 	}
 
-	/**
-	 * 
-	 * @author zhaohongxu
-	 * @Date Jul 11, 2014
-	 * @Description 获取通道列表的选择的多少
-	 * @param groupPos
-	 * @param childPos
-	 * @return
-	 */
+	/**获取通道列表的选择的多少*/
 	private String getChannelSelectNum(int groupPos, int childPos) {
 		String state = "";
 		int channelNum = 0;

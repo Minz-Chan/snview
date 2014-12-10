@@ -96,7 +96,6 @@ public class ButtonOnclickListener implements OnClickListener {
 		this.cela = cela;
 		this.groupAccountList = groupAccountList;
 		this.handler = handler;
-		this.connTask = connTask;
 	}
 	
 	public ButtonOnclickListener(Context context2, Handler handler,
