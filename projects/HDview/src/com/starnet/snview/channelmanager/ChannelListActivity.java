@@ -114,14 +114,14 @@ public class ChannelListActivity extends BaseActivity {
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				showToast("连接验证成功");
-				if (!isCanceled) {
+				if (prg.isShowing()) {
 					dismissDialog(CONNIDENTIFYDIALOG);
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
 				}
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
-				if (!isCanceled) {
+				if (prg.isShowing()) {
 					dismissDialog(CONNIDENTIFYDIALOG);
 					showToast("连接验证错误，请检查信息");
 					gotoChannelListViewActivity(msg);
@@ -129,7 +129,7 @@ public class ChannelListActivity extends BaseActivity {
 				}
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				if (!isCanceled) {
+				if (prg.isShowing()) {
 					dismissDialog(CONNIDENTIFYDIALOG);
 					showToast("连接验证超时");
 					gotoChannelListViewActivity(msg);
