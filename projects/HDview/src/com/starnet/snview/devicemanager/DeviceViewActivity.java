@@ -184,6 +184,9 @@ public class DeviceViewActivity extends BaseActivity {
 						boolean result = checkContainDeviceItem(svDevItem,deviceItemList);	//检测列表中是否包含该DeviceItem
 						if(!result){
 							deviceItemList.add(svDevItem);
+						}else {
+							int index = bundle.getInt("index");
+							deviceItemList.set(index, svDevItem);
 						}
 						dLAdapter.notifyDataSetChanged();
 					}

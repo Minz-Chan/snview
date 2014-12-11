@@ -97,7 +97,8 @@ public class DeviceCollectActivity extends BaseActivity {
 				dismissDialog(LOADNETDATADIALOG);
 				synObject.resume();// 解除线程挂起,向下继续执行...
 				if (dvrDeviceList.size() > 0) {
-					Collections.sort(dvrDeviceList, new PinyinComparatorUtils());
+					Collections
+							.sort(dvrDeviceList, new PinyinComparatorUtils());
 				}
 				dismissDialog(LOADNETDATADIALOG);
 				Intent intent = new Intent();
@@ -105,7 +106,8 @@ public class DeviceCollectActivity extends BaseActivity {
 				bundle.putParcelableArrayList("dvrDeviceList",
 						(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
+				intent.setClass(DeviceCollectActivity.this,
+						DeviceChooseActivity.class);
 				startActivityForResult(intent, REQUESTCODE);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
@@ -258,38 +260,32 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				// 判断用户设置为空的时候
-				String recdName = getEditTextString(et_device_add_record)
-						.trim();
-				String serverIP = getEditTextString(et_device_add_server)
-						.trim();// IP地址
-				String serverPort = getEditTextString(et_device_add_port)
-						.trim();// 端口号
-				String userName = getEditTextString(et_device_add_username)
-						.trim();
-				String password = getEditTextString(et_device_add_password)
-						.trim();
+				String rName = getEditTextString(et_device_add_record).trim();
+				String svIP = getEditTextString(et_device_add_server).trim();// IP地址
+				String sPort = getEditTextString(et_device_add_port).trim();// 端口号
+				String uName = getEditTextString(et_device_add_username).trim();
+				String pswd = getEditTextString(et_device_add_password).trim();
 
 				// 当所有的内容都不为空的时候，则保存到指定的文档中
-				if (!recdName.equals("") && !serverIP.equals("")
-						&& !serverPort.equals("") && !userName.equals("")) {
-					boolean isIP = IPAndPortUtils.isIp(serverIP);
-					boolean isPort = IPAndPortUtils.isNetPort(serverPort);
+				if (!rName.equals("") && !svIP.equals("") && !sPort.equals("")
+						&& !uName.equals("")) {
+					boolean isIP = IPAndPortUtils.isIp(svIP);
+					boolean isPort = IPAndPortUtils.isNetPort(sPort);
 					if (isPort && isIP) {
-						String defaultChannel = getEditTextString(
+						String dChl = getEditTextString(
 								et_device_add_defaultchannel).trim();
 						int dChannel = 1;
-						if (defaultChannel != null
-								&& !defaultChannel.equals("")) {
-							dChannel = Integer.valueOf(defaultChannel);
+						if (dChl != null && !dChl.equals("")) {
+							dChannel = Integer.valueOf(dChl);
 						}
 						// int channelNum = Integer.valueOf(channelNumber);
-						saveDeviceItem.setDeviceName(recdName);
+						saveDeviceItem.setDeviceName(rName);
 						// saveDeviceItem.setChannelSum(channelNumber);
-						saveDeviceItem.setLoginUser(userName);
-						saveDeviceItem.setLoginPass(password);
+						saveDeviceItem.setLoginUser(uName);
+						saveDeviceItem.setLoginPass(pswd);
 						saveDeviceItem.setDefaultChannel(dChannel);
-						saveDeviceItem.setSvrIp(serverIP);
-						saveDeviceItem.setSvrPort(serverPort);
+						saveDeviceItem.setSvrIp(svIP);
+						saveDeviceItem.setSvrPort(sPort);
 						saveDeviceItem.setSecurityProtectionOpen(true);
 						String platformUsername = getString(R.string.device_manager_collect_device);
 						saveDeviceItem.setPlatformUsername(platformUsername);
@@ -397,7 +393,18 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setChannelList(channelList);
 	}
 
-	/*** 保存收藏设备到xml文档中 ***/
+	private int getIndexFromList(List<DeviceItem>dItemList){
+		int index = 0 ;
+		for (int i = 0; i < dItemList.size(); i++) {
+			String dName = dItemList.get(i).getDeviceName();
+			if (dName.equals(saveDeviceItem.getDeviceName())) {
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+	/**保存收藏设备到xml文档中 ***/
 	private void saveIdentifyDeviceItemToXML(boolean identify, boolean isConn)
 			throws Exception {
 
@@ -411,6 +418,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		List<DeviceItem> collectList = ReadWriteXmlUtils
 				.getCollectDeviceListFromXML(filePath);
 		boolean isExist = checkDeviceItemListExist(saveDeviceItem, collectList);// 检查列表中是否存在该用户
+		final int index = getIndexFromList(collectList);
 		if (isExist) {// 弹出对话框,用户选择确定时，则添加覆盖；
 			Builder builder = new Builder(DeviceCollectActivity.this);
 			builder.setTitle(getString(R.string.device_manager_devicecollect_cover));
@@ -424,14 +432,19 @@ public class DeviceCollectActivity extends BaseActivity {
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								auto_flag = 1;
-								String saveResult = ReadWriteXmlUtils
-										.addNewDeviceItemToCollectEquipmentXML(
-												saveDeviceItem, filePath);// 保存
-								showToast(saveResult);
+//								String saveResult = ReadWriteXmlUtils
+//										.addNewDeviceItemToCollectEquipmentXML(
+//												saveDeviceItem, filePath);// 保存
+								
+								ReadWriteXmlUtils.replaceSpecifyDeviceItem(filePath, index, saveDeviceItem);
+								
+								
+								
+//								showToast(saveResult);
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
-								bundle.putSerializable("saveDeviceItem",
-										saveDeviceItem);
+								bundle.putInt("index", index);
+								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(11, intent);
 								DeviceCollectActivity.this.finish();
