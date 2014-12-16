@@ -479,12 +479,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 	}
 
 	/**
-	 * 预览多个设备
-	 * 
-	 * @param startIndex
-	 *            设备索引，从1开始，不能大于设备总数
-	 * @param count
-	 *            设备数量，取值[1,4]间的整数
+	 * 预览连续的多个设备
+	 * @param startIndex 设备索引，从1开始，不能大于设备总数
+	 * @param count 设备数量，取值[1,4]间的整数
 	 */
 	public void preview(int startIndex, int count) {
 		if ((devicesCount - startIndex + 1 < count)
@@ -504,29 +501,21 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
 		Log.i(TAG, "####$$$$live view count: " + liveviews.size());
-		int lvCount = liveviews.size();
-		for (n = 0; n < lvCount; n++) {
+		int size = liveviews.size();
+		for (n = 0; n < size; n++) {
 			liveviews.get(n).resetView();
-
 			if (n >= count) {
 				liveviews.get(n).getSurfaceView().setValid(false);
 			}
-
 		}
 
 		connections.clear();
-
 		for (n = 1; n <= count; n++) {
 			connections.add(new Connection());
 		}
 
 		for (n = 1; n <= count; n++) {
 			final Connection conn = connections.get(n - 1);
-
-			// if (conn.isConnected()) {
-			// conn.disconnect();
-			// }
-
 			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
 
 			// 注册连接状态监听器
@@ -535,39 +524,33 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			}
 
 			conn.reInit();
-
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));
 			conn.setUsername(p.getLoginUser());
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
-
 			liveviews.get(n - 1).setIsManualStop(false);
 			liveviews.get(n - 1).setIsResponseError(false);
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
-
 			conn.bindLiveViewItem(liveviews.get(n - 1));
 			liveviews.get(n - 1).setCurrentConnection(conn);
 
 			new Thread(new Runnable() {
-
 				@Override
 				public void run() {
 					conn.connect();
 				}
-
 			}).start();
-			// executor.execute(new Runnable() {
-			// @Override
-			// public void run() {
-			// conn.connect();
-			// }
-			// });
-
 		}
 	}
 
+	/**
+	 * 预览连续的多个设备，不包括索引为exceptIndex的设备
+	 * @param startIndex 设备开始索引，从1开始，不能大于设备总数
+	 * @param count 设备数量，取值[1,4]间的整数
+	 * @param exceptIndex 被排除的设备索引，从1开始，不能大于设备总数
+	 */
 	public void preview(int startIndex, int count, int exceptIndex) {
 		if (exceptIndex != -1
 				&& (exceptIndex < startIndex || exceptIndex > startIndex
@@ -595,19 +578,17 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 		// 依据设备数量控制显示视频区域的底景（黑色，有效视频区域；灰色，无效视频区域）
 		Log.i(TAG, "####$$$$live view count: " + liveviews.size());
-		int lvCount = liveviews.size();
 		int n;
-		for (n = 0; n < lvCount; n++) {
+		int size = liveviews.size();		
+		for (n = 0; n < size; n++) {
 			if (n == exceptPos - 1) {
 				continue;
 			}
 
 			liveviews.get(n).resetView();
-
 			if (n >= count) {
 				liveviews.get(n).getSurfaceView().setValid(false);
 			}
-
 		}
 
 		if (exceptPos != -1) {
@@ -616,12 +597,12 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			closeAllConnection(false);
 		}
 
+		
+		size = (exceptPos == -1 ? count : count - 1); // exceptPos无效时，重新创建的连接数保持为count；反之，则为count-1
 		connections.clear();
-		int connSize = (exceptPos == -1 ? count : count - 1); // exceptPos无效时，重新创建的连接数保持为count；反之，则为count-1
-		for (n = 1; n <= connSize; n++) {
+		for (n = 1; n <= size; n++) {
 			connections.add(new Connection());
 		}
-
 		transferVideoWithoutDisconnect(1, exceptPos);
 
 		for (n = 1; n <= count; n++) {
@@ -630,37 +611,30 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			}
 
 			final Connection conn = connections.get(n - 1);
-
 			PreviewDeviceItem p = devices.get(startIndex + (n - 1) - 1);
 
-			// 注册连接状态监听器
 			if (connectionStatusListener != null) {
 				conn.SetConnectionListener(connectionStatusListener);
 			}
 
 			conn.reInit();
-
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));
 			conn.setUsername(p.getLoginUser());
 			conn.setPassword(p.getLoginPass());
 			conn.setChannel(p.getChannel());
-
 			liveviews.get(n - 1).setIsManualStop(false);
 			liveviews.get(n - 1).setIsResponseError(false);
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
-
 			conn.bindLiveViewItem(liveviews.get(n - 1));
 			liveviews.get(n - 1).setCurrentConnection(conn);
 
 			new Thread(new Runnable() {
-
 				@Override
 				public void run() {
 					conn.connect();
 				}
-
 			}).start();
 		}
 	}

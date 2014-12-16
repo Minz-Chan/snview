@@ -2,115 +2,115 @@ package com.starnet.snview.realplay;
 
 import android.util.Log;
 
-import com.starnet.snview.component.liveview.LiveViewManager;
+import com.starnet.snview.component.liveview.LiveViewGroup;
 import com.starnet.snview.protocol.message.Constants;
 
 public class PTZRequestSender {
 	private static final String TAG = "PTZRequestSender";
 	
-	private LiveViewManager lvManager;
+	private LiveViewGroup mLiveViewGroup;
 	
-	public PTZRequestSender(LiveViewManager liveViewmanager) {
-		if (liveViewmanager == null) {
-			throw new IllegalArgumentException("LiveViewManager can not be null");
+	public PTZRequestSender(LiveViewGroup liveViewGroup) {
+		if (liveViewGroup == null) {
+			throw new IllegalArgumentException("LiveViewGroup can not be null");
 		}
 		
-		this.lvManager = liveViewmanager;
+		this.mLiveViewGroup = liveViewGroup;
 	}
 	
 	public void autoScan() {
 		Log.i(TAG, "auto scan");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_AUTO_CRUISE);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_AUTO_CRUISE);
 	}
 	
 	public void moveUp() {
 		Log.i(TAG, "moveUp");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_UP);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_UP);
 	}
 	
 	public void moveDown() {
 		Log.i(TAG, "moveDown");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_DOWN);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_DOWN);
 	}
 	
 	public void moveLeft() {
 		Log.i(TAG, "moveLeft");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_LEFT);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_LEFT);
 	}
 	
 	public void moveRight() {
 		Log.i(TAG, "moveRight");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_RIGHT);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_RIGHT);
 	}
 	
 	public void moveLeftUp() {
 		Log.i(TAG, "moveLeftUp");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTUP);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTUP);
 	}
 	
 	public void moveLeftDown() {
 		Log.i(TAG, "moveLeftDown");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTDOWN);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_LEFTDOWN);
 	}
 	
 	public void moveRightUp() {
 		Log.i(TAG, "moveRightUp");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTUP);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTUP);
 	}
 	
 	public void moveRightDown() {
 		Log.i(TAG, "moveRightDown");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTDOWN);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MV_RIGHTDOWN);
 	}
 	
 	public void stopMove() {
 		Log.i(TAG, "stopMove");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_STOP);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_MD_STOP);
 	}
 	
 	public void focalLengthIncrease() {
 		Log.i(TAG, "focalLengthIncrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCAL_LENGTH_INC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCAL_LENGTH_INC);
 	}
 	
 	public void focalLengthDecrease() {
 		Log.i(TAG, "focalLengthDecrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCAL_LENGTH_DEC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCAL_LENGTH_DEC);
 	}
 	
 	public void focusIncrease() {
 		Log.i(TAG, "focusIncrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCUS_INC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCUS_INC);
 	}
 	
 	public void focusDecrease() {
 		Log.i(TAG, "focusDecrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCUS_DEC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_FOCUS_DEC);
 	}
 	
 	public void apertureIncrease() {
 		Log.i(TAG, "apertureIncrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
 	}
 	
 	public void apertureDecrease() {
 		Log.i(TAG, "apertureDecrease");
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_APERTURE_INC);
 	}
 	
 	public void gotoPresetPoint(int num) {
 		Log.i(TAG, "gotoPresetPoint, num:" + num);
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_GOTO_PRESET_POSITION, new int[] { num });
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_GOTO_PRESET_POSITION, new int[] { num });
 	}
 	
 	public void setPresetPoint(int num) {
 		Log.i(TAG, "setPresetPoint, num:" + num);
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_SET_PRESET_POSITION, new int[] { num });
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_SET_PRESET_POSITION, new int[] { num });
 	}
 	
 	public void clearPresetPoint(int num) {
 		Log.i(TAG, "clearPresetPoint, num:" + num);
-		lvManager.sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_CLEAR_PRESET_POSITION, new int[] { num });
+		mLiveViewGroup.getSelectedLiveview().sendControlRequest(Constants.OWSP_ACTION_CODE.OWSP_ACTION_CLEAR_PRESET_POSITION, new int[] { num });
 	}
 
 }

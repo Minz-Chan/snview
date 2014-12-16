@@ -57,8 +57,8 @@ public class WindowLinearLayout extends LinearLayout {
 
 	}
 
-	public void setWindowSelected(boolean paramBoolean) {
-		this.mIsSelected = paramBoolean;
+	public void setWindowSelected(boolean selected) {
+		this.mIsSelected = selected;
 		invalidate();
 	}
 }

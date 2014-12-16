@@ -70,7 +70,7 @@ public class VideoRegion extends FrameLayout {
 		mPager = getRP().getPager();
 		mPtzControl = getRP().getPtzControl();
 		mLiveControl = getRP().getLiveControl();
-		mLiveViewManager = getRP().getLiveviewManager();
+//		mLiveViewManager = getRP().getLiveviewManager();
 		mHandler = getRP().getHandler();
 		
 		mGestureDetector =  new GestureDetector(mContext, new GestureListener(onGestureListener));

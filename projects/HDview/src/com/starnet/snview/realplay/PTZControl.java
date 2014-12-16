@@ -2,7 +2,7 @@ package com.starnet.snview.realplay;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.LandscapeToolbar;
-import com.starnet.snview.component.liveview.LiveViewManager;
+import com.starnet.snview.component.liveview.LiveViewGroup;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.RealplayActivity.TOOLBAR_EXTEND_MENU;
 import com.starnet.snview.util.ActivityUtility;
@@ -24,7 +24,8 @@ public class PTZControl {
 	private static final String TAG = "PTZControl";
 	
 	private RealplayActivity mLiveActivity;
-	private LiveViewManager mLiveviewManager;
+//	private LiveViewManager mLiveviewManager;
+	private LiveViewGroup mLiveViewGroup;
 	
 	private boolean mIsPTZModeOn = false;
 	private boolean mIsPTZInMoving = false;
@@ -62,7 +63,8 @@ public class PTZControl {
 	
 	public PTZControl(RealplayActivity activity) {
 		this.mLiveActivity = activity;
-		this.mLiveviewManager = activity.getLiveviewManager();
+//		this.mLiveviewManager = activity.getLiveviewManager();
+		this.mLiveViewGroup = activity.getLiveViewGroup();
 		
 		init();
 	}
@@ -119,7 +121,7 @@ public class PTZControl {
 		
 		mLandscapeToolbar = (LandscapeToolbar) findViewById(R.id.landscape_liveview_control_frame);
 		
-		mPtzReqSender = new PTZRequestSender(mLiveviewManager);
+		mPtzReqSender = new PTZRequestSender(mLiveViewGroup);
 		
 		showPTZBar(false);
 	}
@@ -419,7 +421,8 @@ public class PTZControl {
 	public void openPTZ() {
 		mIsPTZModeOn = true;
 		
-		mLiveActivity.getVideoPager().setPTZMode(true);
+//		mLiveActivity.getVideoPager().setPTZMode(true);
+		mLiveViewGroup.setPTZMode(true);
 		
 		if (!GlobalApplication.getInstance().isIsFullMode()) {
 			showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.MENU_PTZ);
@@ -427,38 +430,42 @@ public class PTZControl {
 			mLandscapeToolbar.showPTZControlbar();
 		}
 		
-		
 		if (mIsEnterPTZInSingleMode) {
 			return;  // 若开启前PTZ模式时已是单通道模式，则仅显示PTZ菜单
-		}	
-		
-		int index = mLiveviewManager.getSelectedLiveViewIndex();
-		
-		if (index > mLiveviewManager.getLiveViewTotalCount()) {  
-			return;  // 非有效通道，不作处理 
 		}
 		
-		if (mLiveviewManager.isMultiMode()) { // 切换到单通道模式
-			mLiveviewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
-			
-			int pos = ((index % 4) == 0) ? 4 : (index % 4);
-			
-			//mLiveviewManager.closeAllConnection(false);  // 关闭正在预览的设备
-			mLiveviewManager.prestoreConnectionByPosition(pos);
-			
-			mLiveviewManager.setMultiMode(false);							
-			//mLiveviewManager.preview(index);
-			mLiveviewManager.transferVideoWithoutDisconnect(pos);
+		if (mLiveViewGroup.isMultiScreenMode()) {
+			mLiveViewGroup.switchMode();
 		}
 		
-		mLiveviewManager.selectLiveView(index);
+//		int index = mLiveviewManager.getSelectedLiveViewIndex();
+//		
+//		if (index > mLiveviewManager.getLiveViewTotalCount()) {  
+//			return;  // 非有效通道，不作处理 
+//		}
+//		
+//		if (mLiveviewManager.isMultiMode()) { // 切换到单通道模式
+//			mLiveviewManager.setCurrenSelectedLiveViewtIndex(index);  // 变更当前选择索引
+//			
+//			int pos = ((index % 4) == 0) ? 4 : (index % 4);
+//			
+//			//mLiveviewManager.closeAllConnection(false);  // 关闭正在预览的设备
+//			mLiveviewManager.prestoreConnectionByPosition(pos);
+//			
+//			mLiveviewManager.setMultiMode(false);							
+//			//mLiveviewManager.preview(index);
+//			mLiveviewManager.transferVideoWithoutDisconnect(pos);
+//		}
+//		
+//		mLiveviewManager.selectLiveView(index);
 	}
 
 	
 	public void closePTZ() {
 		mIsPTZModeOn = false;
 		
-		mLiveActivity.getVideoPager().setPTZMode(false);
+//		mLiveActivity.getVideoPager().setPTZMode(false);
+		mLiveViewGroup.setPTZMode(false);
 		
 		if (!GlobalApplication.getInstance().isIsFullMode()) {
 			showPTZBar(false);
@@ -473,22 +480,26 @@ public class PTZControl {
 			return;  // 若进入前PTZ模式时已是单通道模式，则仅隐藏PTZ菜单
 		}		
 		
-		int index = mLiveviewManager.getSelectedLiveViewIndex();
-		
-		if (index > mLiveviewManager.getLiveViewTotalCount()) {  
-			return;  // 非有效通道，不作处理 
+		if (!mLiveViewGroup.isMultiScreenMode()) {
+			mLiveViewGroup.switchMode();
 		}
 		
-		//mLiveviewManager.closeAllConnection(false);
-		mLiveviewManager.prestoreConnectionByPosition(mLiveviewManager.getPositionOfIndex(index));
-		
-		mLiveviewManager.setMultiMode(true);
-		
-		int currPageStart = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + 1;
-		int currPageEnd = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + mLiveviewManager.getCurrentPageCount();
-		
-		mLiveviewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
-		mLiveviewManager.selectLiveView(index);
+//		int index = mLiveviewManager.getSelectedLiveViewIndex();
+//		
+//		if (index > mLiveviewManager.getLiveViewTotalCount()) {  
+//			return;  // 非有效通道，不作处理 
+//		}
+//		
+//		//mLiveviewManager.closeAllConnection(false);
+//		mLiveviewManager.prestoreConnectionByPosition(mLiveviewManager.getPositionOfIndex(index));
+//		
+//		mLiveviewManager.setMultiMode(true);
+//		
+//		int currPageStart = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + 1;
+//		int currPageEnd = (mLiveviewManager.getCurrentPageNumber() - 1) * 4 + mLiveviewManager.getCurrentPageCount();
+//		
+//		mLiveviewManager.preview(currPageStart, currPageEnd - currPageStart + 1, index);
+//		mLiveviewManager.selectLiveView(index);
 	}
 	
 	private void initPTZPopFramePos(boolean isPreset) {

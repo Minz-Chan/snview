@@ -146,10 +146,10 @@ public class SurfaceViewMultiLayout extends LinearLayout {
 		mLiveview4 = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem4);
 		
 		// 视频控件子控件引用初始化
-		mLiveview1.findSubViews();
-		mLiveview2.findSubViews();
-		mLiveview3.findSubViews();
-		mLiveview4.findSubViews();
+//		mLiveview1.findSubViews();
+//		mLiveview2.findSubViews();
+//		mLiveview3.findSubViews();
+//		mLiveview4.findSubViews();
 		
 		// 视频控件初始化
 		mLiveview1.init();

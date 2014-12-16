@@ -52,6 +52,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	private Paint mPaint = new Paint();
 	
+	private int mOldWidthMeasureSpec;
+	private int mOldHeightMeasureSpec;
+	
+	
 	public LiveView(Context context) {
 		super(context);
 		init(width, height);
@@ -96,6 +100,9 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		mScale = null;
 		mScale = new Matrix();
 		mScale.setScale(1.0F * getWidth() / mVideoBit.getWidth() , 1.0F * getHeight() / mVideoBit.getHeight());
+		
+		mOldWidthMeasureSpec = -1;
+		mOldHeightMeasureSpec = -1;
 	}
 	
 	
@@ -155,15 +162,15 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 			onDisplayContentReset();
 		}
 		//Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
-		if (mScale != null && mVideoBit != null) {
-			mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
-		}    	
+//		if (mScale != null && mVideoBit != null) {
+//			mScale.setScale(1.0F * width / mVideoBit.getWidth() , 1.0F * height / mVideoBit.getHeight());
+//		}    	
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		setBackgroundColor(Color.TRANSPARENT);
-		onDisplayContentReset();
+		//onDisplayContentReset();
 	}
 
 	@Override
@@ -173,17 +180,33 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		int height = MeasureSpec.getSize(heightMeasureSpec);
+		Log.d(TAG, "onMeasure(), measuredWidth:" + width + ", measuredHeight:" + height);
+		
+		if (mOldWidthMeasureSpec != widthMeasureSpec ||
+				mOldHeightMeasureSpec != heightMeasureSpec) {
+			mOldWidthMeasureSpec = widthMeasureSpec;
+			mOldHeightMeasureSpec = heightMeasureSpec;
+		}		 
+		
+		setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
 	}
 	
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
+		if (mScale != null && mVideoBit != null) {
+			mScale.setScale(1.0F * (right-left) / mVideoBit.getWidth(), 
+					1.0F * (bottom-top) / mVideoBit.getHeight());
+		}
+		
 		Connection conn = findVideoContainerByView(this).getCurrentConnection();
 		if (isValid && (conn != null && conn.isConnected())) {
-			//Log.i(TAG, "Liveview onLayout, refreshDisplay() ");
 			refreshDisplay();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
 		}
+		
+		 
 		
 		super.onLayout(changed, left, top, right, bottom);
 	}
@@ -369,7 +392,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	@Override
 	public void onDisplayContentReset() {	
 		Canvas canvas = mHolder.lockCanvas();
-		
 		if (canvas != null) {
 			if (isValid) {
 				canvas.drawColor(Color.BLACK);
@@ -381,26 +403,18 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 					c.setWindowInfoContent(null);
 				}
 			}
-			
-			
 			mHolder.unlockCanvasAndPost(canvas); 
 		}
-		
-		
-		
 	}
 	
 	private LiveViewItemContainer findVideoContainerByView(View v) {
 		View curr = v;
-		
 		while (curr != null) {
 			if (curr instanceof LiveViewItemContainer) {
 				break;
 			}
-			
 			curr = (View) curr.getParent();
 		}
-		
 		return (LiveViewItemContainer) curr;
 	}
 	

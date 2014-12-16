@@ -16,7 +16,8 @@
 <!-- 		    <com.starnet.snview.component.SurfaceViewMultiLayout android:id="@id/video_multi_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone" />  -->
 <!-- 		</FrameLayout> -->
 		
-		<com.starnet.snview.realplay.VideoPager android:id="@+id/video_pager" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_marginTop="50.0dip" />
+<!-- 		<com.starnet.snview.realplay.VideoPager android:id="@+id/video_pager" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_marginTop="50.0dip" /> -->
+		<FrameLayout android:id="@+id/video_region" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" />
 		
 		<LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">
 		<!-- 焦距、聚焦、光圈、预置点四个功能点击后弹窗 -->

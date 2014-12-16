@@ -17,8 +17,10 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
+import com.starnet.snview.component.liveview.LiveViewGroup;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.LiveViewManager;
+import com.starnet.snview.component.liveview.QuarteredViewGroup.MODE;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection;
@@ -65,10 +67,12 @@ public class RealplayActivity extends BaseActivity {
 	private Toolbar mToolbar;
 	private FrameLayout mControlbar;
 	private LinearLayout mQualityControlbarMenu;
-	private com.starnet.snview.realplay.VideoPager mVideoPager; 	
+//	private com.starnet.snview.realplay.VideoPager mVideoPager; 	
 	private com.starnet.snview.component.VideoPager mPager;
 	
-	private LiveViewManager liveViewManager;
+	private LiveViewGroup mLiveviewGroup;
+	
+	//private LiveViewManager liveViewManager;
 	private LiveControl liveControl;
 	private PTZControl ptzControl;
 	
@@ -89,11 +93,15 @@ public class RealplayActivity extends BaseActivity {
 		setContentView(R.layout.realplay_activity);
 		
 		setBackPressedExitEventValid(true);
-		GlobalApplication.getInstance().init(this);		
-		GlobalApplication.getInstance().setHandler(mHandler);
+		getApp().init(this);		
+		getApp().setHandler(mHandler);
 		initView();
 		initListener();
 		initVideoData();
+	}
+	
+	private GlobalApplication getApp() {
+		return GlobalApplication.getInstance();
 	}
 	
 	private void initVideoData() {
@@ -120,8 +128,8 @@ public class RealplayActivity extends BaseActivity {
 		List<PreviewDeviceItem> devices = getAlarmDevices();
 		
 		setPreviewDevices(devices);
-		initVideoPagerAdapter(mode, devices);
-		mVideoPager.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
+//		initVideoPagerAdapter(mode, devices);
+		mLiveviewGroup.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
 			@Override
 			public void run() {
 				restoreVideoRegionLayout(mode, page, pageCount);
@@ -148,7 +156,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void executePreviewCurrentPage() {
-		mVideoPager.post(new Runnable() {
+		mLiveviewGroup.post(new Runnable() {
 			@Override
 			public void run() {
 				playAndPause();
@@ -163,14 +171,14 @@ public class RealplayActivity extends BaseActivity {
 	private void restoreLastPreviewVideo() {
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		final int mode = sharedPreferences.getInt("PREVIEW_MODE", -1);
-		final int page = sharedPreferences.getInt("PAGE", -1);
+		final int page = sharedPreferences.getInt("PAGE", -1);  // start from 1
 		final int pageCount = sharedPreferences.getInt("PAGE_COUNT", -1);
 		
 		List<PreviewDeviceItem> devices = getPreservedDevices();
 		if (devices.size() > 0) {
 			setPreviewDevices(devices);
-			initVideoPagerAdapter(mode, devices);
-			mVideoPager.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
+//			initVideoPagerAdapter(mode, devices);
+			mLiveviewGroup.post(new Runnable() { // run会在mVideoPager重新初始化完毕后执行
 				@SuppressWarnings("deprecation")
 				@Override
 				public void run() {
@@ -191,52 +199,64 @@ public class RealplayActivity extends BaseActivity {
 				.getString(R.string.common_last_devicelist_path));
 	}
 	
-	private void initVideoPagerAdapter(int mode, List<PreviewDeviceItem> devices) {
-		VideoPagerAdapter vpAdapter = null;
-		if (mode == 1) { // 单通道
-			vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, devices);
-		} else { // 多通道
-			vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, devices);
-		}
-		mVideoPager.setAdapter(vpAdapter);
-		vpAdapter.notifyDataSetChanged();
-	}
+//	private void initVideoPagerAdapter(int mode, List<PreviewDeviceItem> devices) {
+//		VideoPagerAdapter vpAdapter = null;
+//		if (mode == 1) { // 单通道
+//			vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, devices);
+//		} else { // 多通道
+//			vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, devices);
+//		}
+//		mVideoPager.setAdapter(vpAdapter);
+//		vpAdapter.notifyDataSetChanged();
+//	}
 	
 	private void restoreVideoRegionLayout(int mode, int page, int pageCount) {
 		if (mPreviewDevices.size() != 0) {
 			Log.i(TAG, "mode: " + mode + ", page: " + page);
 			if (mode != -1 && page != -1) {				
-				liveViewManager.setMultiMode(mode == 4 ? true : false);
-				mVideoPager.setCurrentItem(page - 1);
+//				liveViewManager.setMultiMode(mode == 4 ? true : false);
+//				mVideoPager.setCurrentItem(page - 1);
+//				
+//				// 重新装载LiveViews
+//				liveViewManager.clearLiveView();
+//				if (mode == 4) {
+//					List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
+//					for (int i = 0; i < l.size(); i++) {
+//						liveViewManager.addLiveView(l.get(i));
+//					}
+//				} else {
+//					liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
+//				}
+//				
+//				if (mode == 1) {
+//					ptzControl.setIsEnterPTZInSingleMode(true);
+//				}
+//				
+//				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
+//				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
+//				liveViewManager.selectLiveView(newCurrPos);
+//				liveViewManager.resetLiveView(pageCount);				
+//				mPager.setAmount(mPreviewDevices.size());
+//				mPager.setNum(newCurrPos);
+				mLiveviewGroup.setDevices(mPreviewDevices);
+				mLiveviewGroup.regenerateLayout(
+						mode == 4 ? MODE.MULTIPLE : MODE.SINGLE, // mode
+						mPreviewDevices.size(),     // capacity
+						mode == 4 ? (page-1)*4 : page-1);  // initial index
 				
-				// 重新装载LiveViews
-				liveViewManager.clearLiveView();
-				if (mode == 4) {
-					List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
-					for (int i = 0; i < l.size(); i++) {
-						liveViewManager.addLiveView(l.get(i));
-					}
-				} else {
-					liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
-				}
-				
-				if (mode == 1) {
+				if (!isMultiMode()) {
 					ptzControl.setIsEnterPTZInSingleMode(true);
 				}
-				
-				int newCurrPos = (page - 1) * liveViewManager.getPageCapacity() + 1;
-				liveViewManager.setCurrenSelectedLiveViewtIndex(newCurrPos); 
-				liveViewManager.selectLiveView(newCurrPos);
-				liveViewManager.resetLiveView(pageCount);				
-				mPager.setAmount(mPreviewDevices.size());
-				mPager.setNum(newCurrPos);
+							
+				mPager.setAmount(mLiveviewGroup.getScreenLimit());
+				mPager.setNum(mLiveviewGroup.getScreenIndex()+1);	
 			}
 			
 			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 		} else { // 首次进入
-			liveViewManager.setDeviceList(null);
-			liveViewManager.setMultiMode(null);
-			getVR().showSingleOrMultiMode(null);
+//			liveViewManager.setDeviceList(null);
+//			liveViewManager.setMultiMode(null);
+//			getVR().showSingleOrMultiMode(null);
 			mPager.setAmount(0);
 			mPager.setNum(0);
 			
@@ -245,6 +265,10 @@ public class RealplayActivity extends BaseActivity {
 			
 			mOldOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 		}
+	}
+	
+	private boolean isMultiMode() {
+		return mLiveviewGroup.isMultiScreenMode();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -267,7 +291,8 @@ public class RealplayActivity extends BaseActivity {
 								getString(R.string.realplay_update_previewdevicelist_succ));
 						}
 						Log.i(TAG, "更新列表成功!");
-						playAndPause();
+						//playAndPause();
+						mLiveviewGroup.schedulePreview();
 					}
 				});
 			}
@@ -284,7 +309,8 @@ public class RealplayActivity extends BaseActivity {
 					ToastUtils.show(RealplayActivity.this,
 						getString(R.string.realplay_update_previewdevicelist_timeout));
 					Log.i(TAG, "更新列表超时!");
-					playAndPause();
+					//playAndPause();
+					mLiveviewGroup.schedulePreview();
 				}
 			});
 		}
@@ -299,7 +325,8 @@ public class RealplayActivity extends BaseActivity {
 					ToastUtils.show(RealplayActivity.this,
 						getString(R.string.realplay_update_previewdevicelist_failed));
 					Log.i(TAG, "更新列表失败!");
-					playAndPause();
+					//playAndPause();
+					mLiveviewGroup.schedulePreview();
 				}
 			});
 		}
@@ -349,18 +376,21 @@ public class RealplayActivity extends BaseActivity {
 	
 	private void previewCurrentPage() {
 		if (mPager.getAmount() > 0) {
-			int currPageStart = (liveViewManager.getCurrentPageNumber() - 1)
-					* liveViewManager.getPageCapacity() + 1;
-			int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1)
-					* liveViewManager.getPageCapacity()
-					+ liveViewManager.getCurrentPageCount();
-			liveViewManager.preview(currPageStart, currPageEnd - currPageStart
-					+ 1);
+//			int currPageStart = (liveViewManager.getCurrentPageNumber() - 1)
+//					* liveViewManager.getPageCapacity() + 1;
+//			int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1)
+//					* liveViewManager.getPageCapacity()
+//					+ liveViewManager.getCurrentPageCount();
+//			liveViewManager.preview(currPageStart, currPageEnd - currPageStart
+//					+ 1);
+//			
+//			mPager.setNum(currPageStart);
+//			mPager.setAmount(liveViewManager.getPager().getTotalCount());
+//			
+//			liveViewManager.selectLiveView(currPageStart);
 			
-			mPager.setNum(currPageStart);
-			mPager.setAmount(liveViewManager.getPager().getTotalCount());
-			
-			liveViewManager.selectLiveView(currPageStart);
+			mLiveviewGroup.previewCurrentScreen();
+			mLiveviewGroup.updatePageInfo();
 			
 			updateUIElementsStatus();
 		}
@@ -375,9 +405,10 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onStop() {
-		if (liveViewManager != null) {
-			liveViewManager.closeAllConnection(true);
-		}
+//		if (liveViewManager != null) {
+//			liveViewManager.closeAllConnection(true);
+//		}
+		mLiveviewGroup.stopPreviewCurrentScreen();		
 		super.onStop();
 	}
 
@@ -389,7 +420,8 @@ public class RealplayActivity extends BaseActivity {
 			Log.i(TAG, "Alarm preview request");
 			mNeedAutoStart = false;
 			bIsPlaying = false;
-			liveViewManager.closeAllConnection(false);
+//			liveViewManager.closeAllConnection(false);
+			mLiveviewGroup.stopPreviewCurrentScreen();
 			prepareAlarmPreview();
 			executePreviewCurrentPage();
 		}
@@ -407,10 +439,8 @@ public class RealplayActivity extends BaseActivity {
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.i(TAG, "ConfigurationChanged");
 
-		GlobalApplication.getInstance().setScreenWidth(
-				ActivityUtility.getScreenSize(this).x);
-		GlobalApplication.getInstance().setScreenHeight(
-				ActivityUtility.getScreenSize(this).y);
+		getApp().setScreenWidth(ActivityUtility.getScreenSize(this).x);
+		getApp().setScreenHeight(ActivityUtility.getScreenSize(this).y);
 
 		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -424,7 +454,7 @@ public class RealplayActivity extends BaseActivity {
 			super.getToolbarContainer().setVisibility(View.GONE);
 			mControlbar.setVisibility(View.GONE);
 
-			GlobalApplication.getInstance().setFullscreenMode(true);
+			getApp().setFullscreenMode(true);
 			this.getWindow().setFlags(
 					WindowManager.LayoutParams.FLAG_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -433,7 +463,7 @@ public class RealplayActivity extends BaseActivity {
 					ActivityUtility.getScreenSize(this).x,
 					ActivityUtility.getScreenSize(this).y);
 			// mVideoRegion.setLayoutParams(param);
-			mVideoPager.setLayoutParams(param);
+//			mVideoPager.setLayoutParams(param);
 
 			liveControl.showLandscapeToolbarFrame();
 
@@ -448,7 +478,7 @@ public class RealplayActivity extends BaseActivity {
 			super.getToolbarContainer().setVisibility(View.VISIBLE);
 			mControlbar.setVisibility(View.VISIBLE);
 
-			GlobalApplication.getInstance().setFullscreenMode(false);
+			getApp().setFullscreenMode(false);
 			this.getWindow().setFlags(
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -457,7 +487,7 @@ public class RealplayActivity extends BaseActivity {
 					ActivityUtility.getScreenSize(this).x,
 					ActivityUtility.getScreenSize(this).x);
 			// mVideoRegion.setLayoutParams(param);
-			mVideoPager.setLayoutParams(param);
+//			mVideoPager.setLayoutParams(param);
 
 			liveControl.hideLandscapeToolbarFrame();
 		}
@@ -489,7 +519,7 @@ public class RealplayActivity extends BaseActivity {
 					}	
 				}).start();
 				
-				liveViewManager.getSelectedLiveView().startAnimation(mShotPictureAnim);
+				mLiveviewGroup.getSelectedLiveview().startAnimation(mShotPictureAnim);
 				
 				// 显示提示
 				// ToastUtils.show(RealplayActivity.this, "Image Path: " + imgPath, Toast.LENGTH_LONG);
@@ -502,6 +532,10 @@ public class RealplayActivity extends BaseActivity {
 				t.setView(txt);
 				t.show();
 				
+				break;
+			case Constants.SCREEN_CHANGE:
+				bVideoRecordPressed = false;
+				updateUIElementsStatus(false);				
 				break;
 			default:
 				break;
@@ -516,75 +550,65 @@ public class RealplayActivity extends BaseActivity {
 	
 	
 	private void initListener() {
-		Log.i(TAG, "In function test()");
-
-
-		// 初始化视频区域布局大小
-		final int screenWidth = GlobalApplication.getInstance().getScreenWidth();
-		RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, screenWidth);
-		
-		mVideoPager = (com.starnet.snview.realplay.VideoPager) findViewById(R.id.video_pager);
-		mVideoPager.setLayoutParams(param);
-		mVideoPager.setVideoPagerChangedCallback(mVideoPagerChangedCallback);
 		
 		
 		// 单通道/多通道模式切换 事件
-		LiveViewManager.OnVideoModeChangedListener onVideoModeChangedListener
-			= new LiveViewManager.OnVideoModeChangedListener() {
-
-				@Override
-				public void OnVideoModeChanged(boolean isMultiMode) {
-					//mVideoRegion.removeAllViews();
-					liveViewManager.clearLiveView();
-					
-					//Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
-					
-					List<PreviewDeviceItem> devices = liveViewManager.getDeviceList();
-					if (devices == null || devices.size() == 0) {
-						return;
-					}
-					
-					Log.i(TAG, "OnVideoModeChanged, current item:" + (liveViewManager.getCurrentPageNumber() - 1));
-					if (isMultiMode) { // 多通道模式
-						((VideoPagerAdapter) mVideoPager.getAdapter()).setPageMode(PageMode.MULTIPLE);
-						mVideoPager.getAdapter().notifyDataSetChanged();
-						
-						//getVR().showSingleOrMultiMode(false);
-						for (int i = 0; i < mVideoPager.getChildCount(); i++) {
-							((VideoRegion) mVideoPager.getChildAt(i)).showSingleOrMultiMode(false);
-						}
-						
-						
-						int oldPage = liveViewManager.getCurrentPageNumber();
-						int newPage = oldPage % 4 == 0 ? oldPage / 4 : (oldPage / 4 + 1);
-						
-						mVideoPager.setCurrentItem(newPage - 1);
-						
-						List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
-						for (int i = 0; i < l.size(); i++) {
-							liveViewManager.addLiveView(l.get(i));
-						}
-					} else { // 单通道模式
-						((VideoPagerAdapter) mVideoPager.getAdapter()).setPageMode(PageMode.SINGLE);
-						mVideoPager.getAdapter().notifyDataSetChanged();
-						
-						//getVR().showSingleOrMultiMode(true);
-						for (int i = 0; i < mVideoPager.getChildCount(); i++) {
-							((VideoRegion) mVideoPager.getChildAt(i)).showSingleOrMultiMode(true);
-						}
-						
-						mVideoPager.setCurrentItem(liveViewManager.getSelectedLiveViewIndex() - 1);
-						
-						liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
-					}
-					
-					onContentChanged();
-					
-				}
-			
-		};
+//		LiveViewManager.OnVideoModeChangedListener onVideoModeChangedListener
+//			= new LiveViewManager.OnVideoModeChangedListener() {
+//
+//				@Override
+//				public void OnVideoModeChanged(boolean isMultiMode) {
+//					//mVideoRegion.removeAllViews();
+//					liveViewManager.clearLiveView();
+//					
+//					//Log.i(TAG, "VideoRegion, width: " + mVideoRegion.getWidth() + ", height: " + mVideoRegion.getHeight());
+//					
+//					List<PreviewDeviceItem> devices = liveViewManager.getDeviceList();
+//					if (devices == null || devices.size() == 0) {
+//						return;
+//					}
+//					
+//					Log.i(TAG, "OnVideoModeChanged, current item:" + (liveViewManager.getCurrentPageNumber() - 1));
+//					if (isMultiMode) { // 多通道模式
+//						((VideoPagerAdapter) mVideoPager.getAdapter()).setPageMode(PageMode.MULTIPLE);
+//						mVideoPager.getAdapter().notifyDataSetChanged();
+//						
+//						//getVR().showSingleOrMultiMode(false);
+//						for (int i = 0; i < mVideoPager.getChildCount(); i++) {
+//							((VideoRegion) mVideoPager.getChildAt(i)).showSingleOrMultiMode(false);
+//						}
+//						
+//						
+//						int oldPage = liveViewManager.getCurrentPageNumber();
+//						int newPage = oldPage % 4 == 0 ? oldPage / 4 : (oldPage / 4 + 1);
+//						
+//						mVideoPager.setCurrentItem(newPage - 1);
+//						
+//						List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
+//						for (int i = 0; i < l.size(); i++) {
+//							liveViewManager.addLiveView(l.get(i));
+//						}
+//					} else { // 单通道模式
+//						((VideoPagerAdapter) mVideoPager.getAdapter()).setPageMode(PageMode.SINGLE);
+//						mVideoPager.getAdapter().notifyDataSetChanged();
+//						
+//						//getVR().showSingleOrMultiMode(true);
+//						for (int i = 0; i < mVideoPager.getChildCount(); i++) {
+//							((VideoRegion) mVideoPager.getChildAt(i)).showSingleOrMultiMode(true);
+//						}
+//						
+//						mVideoPager.setCurrentItem(liveViewManager.getSelectedLiveViewIndex() - 1);
+//						
+//						liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
+//					}
+//					
+//					onContentChanged();
+//					
+//				}
+//			
+//		};
 		
-		liveViewManager.setOnVideoModeChangedListener(onVideoModeChangedListener);
+//		liveViewManager.setOnVideoModeChangedListener(onVideoModeChangedListener);
 
 		final StatusListener connectionStatusListener = new StatusListener() {
 
@@ -635,12 +659,12 @@ public class RealplayActivity extends BaseActivity {
 				});
 				
 				boolean isAllVideoClosed = true;
-				List<LiveViewItemContainer> liveviews = liveViewManager.getListviews();
-				for (int i = 0; i < liveviews.size(); i++)	{
-					LiveViewItemContainer lv = liveviews.get(i);
-					
-					if (lv.getCurrentConnection() != null && (lv.getCurrentConnection().isConnected() 
-							|| lv.getCurrentConnection().isConnecting())) {
+				List<LiveViewItemContainer> liveviews = 
+						mLiveviewGroup.getLiveviewsInCurrentScreen();
+				int size = liveviews.size();
+				for (int i = 0; i < size; i++)	{
+					LiveViewItemContainer c1 = liveviews.get(i);
+					if (c1.isConnected() || c1.isConnecting()) {
 						isAllVideoClosed = false;
 					}
 				}
@@ -653,9 +677,7 @@ public class RealplayActivity extends BaseActivity {
 							updatePlayStatus(false);
 						}
 					});
-					
 				}
-				
 			}
 
 			@Override
@@ -690,10 +712,10 @@ public class RealplayActivity extends BaseActivity {
 			@Override
 			public void OnConnectionClosed(View v) {
 				final LiveViewItemContainer c = (LiveViewItemContainer) v;
-				int currPageCount = liveViewManager.getCurrentPageCount();
-				int index = liveViewManager.getIndexOfLiveView(c);
-				
-				if (index > currPageCount || c.isManualStop()) {
+//				int currPageCount = liveViewManager.getCurrentPageCount();
+//				int index = liveViewManager.getIndexOfLiveView(c);
+			
+				if (/*index > currPageCount ||*/ c.isManualStop()) {
 					return;
 				}
 				
@@ -705,7 +727,6 @@ public class RealplayActivity extends BaseActivity {
 						if (c != null) {
 							c.getProgressBar().setVisibility(View.INVISIBLE);
 							c.getRefreshImageView().setVisibility(View.VISIBLE);
-							
 						}
 					}
 				});
@@ -714,8 +735,8 @@ public class RealplayActivity extends BaseActivity {
 
 		};
 		
-		liveViewManager.setConnectionStatusListener(connectionStatusListener);
-		
+//		liveViewManager.setConnectionStatusListener(connectionStatusListener);
+		mLiveviewGroup.setConnectionStatusListener(connectionStatusListener);
 		
 	}
 	
@@ -735,21 +756,31 @@ public class RealplayActivity extends BaseActivity {
 				bIsPlaying = false;
 				updatePlayStatus(bIsPlaying);
 				
-				if (liveViewManager != null) {
-					liveViewManager.stopPreview();
-				}
+				mLiveviewGroup.stopPreviewCurrentScreen();
+//				if (liveViewManager != null) {
+//					liveViewManager.stopPreview();
+//				}
 			}
 		});
-
+		
 		mShotPictureAnim = AnimationUtils.loadAnimation(RealplayActivity.this, R.anim.shot_picture);
-		liveViewManager = new LiveViewManager(this);
+//		liveViewManager = new LiveViewManager(this);
 		mPreviewDevices = new ArrayList<PreviewDeviceItem>();
 		
 		initToolbar();
 		initLandScapeToolbar();
+		initToolbarExtendMenu();
+		
+		final int screenWidth = getApp().getScreenWidth();		
+		mLiveviewGroup = new LiveViewGroup(this, 16, MODE.MULTIPLE);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth, screenWidth);
+		FrameLayout videoRegion = (FrameLayout) findViewById(R.id.video_region);
+		videoRegion.addView(mLiveviewGroup, lp);
+		mLiveviewGroup.setVisibility(View.GONE);
 		
 		ptzControl = new PTZControl(this);
-		initToolbarExtendMenu();
+		
+		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 	}
 	
 	
@@ -757,9 +788,10 @@ public class RealplayActivity extends BaseActivity {
 		return mPager;
 	}
 	
-	public com.starnet.snview.realplay.VideoPager getVideoPager() {
-		return mVideoPager;
-	}
+//	public com.starnet.snview.realplay.VideoPager getVideoPager() {
+////		return mVideoPager;
+//		return  null;
+//	}
 	
 	public PTZControl getPtzControl() {
 		return ptzControl;
@@ -769,8 +801,12 @@ public class RealplayActivity extends BaseActivity {
 		return liveControl;
 	}
 	
-	public LiveViewManager getLiveViewManager() {
-		return liveViewManager;
+//	public LiveViewManager getLiveViewManager() {
+//		return liveViewManager;
+//	}
+	
+	public LiveViewGroup getLiveViewGroup() {
+		return mLiveviewGroup;
 	}
 	
 	public Handler getHandler() {
@@ -786,49 +822,52 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	public VideoRegion getVR() {
-		Log.i(TAG, "###current item: " + mVideoPager.getCurrentItem());
-		return ((VideoRegion) mVideoPager.findViewWithTag(mVideoPager.getCurrentItem()));
+//		Log.i(TAG, "###current item: " + mVideoPager.getCurrentItem());
+//		return ((VideoRegion) mVideoPager.findViewWithTag(mVideoPager.getCurrentItem()));
+		return null;
 	}
 
 	private VideoPager.OnActionClickListener mPagerOnActionClickListener = new VideoPager.OnActionClickListener() {
 		@Override
 		public void OnActionClick(View v, ACTION action) {
-			if (liveViewManager.getPager() == null) {
+			if (mPreviewDevices.size() == 0) {
 				return;
 			}
 
-			int item = mVideoPager.getCurrentItem();
-			int count = mVideoPager.getAdapter().getCount();
+//			int item = mVideoPager.getCurrentItem();
+//			int count = mVideoPager.getAdapter().getCount();
 			
 			switch (action) {
 			case PREVIOUS:
-				if (item > 0) {
-					mVideoPager.setCurrentItem(item - 1, true);
-				} else {
-					return;
-				}
+				mLiveviewGroup.previous();
+//				if (item > 0) {
+//					mVideoPager.setCurrentItem(item - 1, true);
+//				} else {
+//					return;
+//				}
 				break;
 			case NEXT:
-				if (item < count - 1) {
-					mVideoPager.setCurrentItem(item + 1, true);
-				} else {
-					return;
-				}
+				mLiveviewGroup.next();
+//				if (item < count - 1) {
+//					mVideoPager.setCurrentItem(item + 1, true);
+//				} else {
+//					return;
+//				}
 				break;
 			default:
 				break;
 			}
 			
-			refillLiveviews();
-			
-			if (action == ACTION.PREVIOUS) {
-				liveViewManager.previousPage();
-			} else if (action == ACTION.NEXT) {
-				liveViewManager.nextPage();
-			}
-
-			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+//			refillLiveviews();
+//			
+//			if (action == ACTION.PREVIOUS) {
+//				liveViewManager.previousPage();
+//			} else if (action == ACTION.NEXT) {
+//				liveViewManager.nextPage();
+//			}
+//
+//			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+//			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
 		}
 	};
 
@@ -914,10 +953,10 @@ public class RealplayActivity extends BaseActivity {
 		boolean result = false;
 		
 		if (mPreviewDevices == null
-				|| (mPreviewDevices != null && mPreviewDevices.size() == 0)
-				|| liveViewManager.getPager() == null
-				|| (liveViewManager.getPager() != null && liveViewManager
-						.getPager().getTotalCount() == 0)) {
+				|| (mPreviewDevices != null && mPreviewDevices.size() == 0)) {
+//				|| liveViewManager.getPager() == null
+//				|| (liveViewManager.getPager() != null && liveViewManager
+//						.getPager().getTotalCount() == 0)) {
 			result = true;
 		}
 		
@@ -932,16 +971,17 @@ public class RealplayActivity extends BaseActivity {
 		
 		if (!bIsPlaying) { // 播放
 			Log.i(TAG, "play video");
-			
-			int count = liveViewManager.getCurrentPageCount();
-
-			for (int i = 0; i < count; i++) {
-				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
-			}
+			mLiveviewGroup.previewCurrentScreen();
+//			int count = liveViewManager.getCurrentPageCount();
+//
+//			for (int i = 0; i < count; i++) {
+//				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
+//			}
 		} else { // 暂停
 			Log.i(TAG, "stop video");
-			liveViewManager.stopPreview();
-			
+			mLiveviewGroup.stopPreviewCurrentScreen();
+//			liveViewManager.stopPreview();
+	
 			if (ptzControl.isPTZModeOn()) {
 				ptzControl.setIsEnterPTZInSingleMode(true);
 				ptzControl.closePTZ();
@@ -957,10 +997,9 @@ public class RealplayActivity extends BaseActivity {
 			return;
 		}
 		
-		LiveViewItemContainer c = liveViewManager.getSelectedLiveView();
-		
-		if (c.getCurrentConnection() != null && c.getCurrentConnection().isConnected()) {
-			liveViewManager.getSelectedLiveView().getSurfaceView().setTakePicture(true);
+		LiveViewItemContainer c = mLiveviewGroup.getSelectedLiveview();
+		if (c.isConnected()) {
+			c.getSurfaceView().setTakePicture(true);
 		}
 	}
 	
@@ -993,11 +1032,11 @@ public class RealplayActivity extends BaseActivity {
 		if (bVideoRecordPressed) { // 开启录像
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
-			liveViewManager.getSelectedLiveView().startMP4Record();
+			mLiveviewGroup.getSelectedLiveview().startMP4Record();
 		} else { // 关闭录像
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
-			liveViewManager.getSelectedLiveView().stopMP4Record();
+			mLiveviewGroup.getSelectedLiveview().stopMP4Record();
 		}
 	}
 	
@@ -1011,10 +1050,10 @@ public class RealplayActivity extends BaseActivity {
 	public void updateUIElementsStatus(boolean autoUpdate) {		
 		// 更新录像按钮状态
 		if (autoUpdate) {
-			bVideoRecordPressed = liveViewManager.getSelectedLiveView().getSurfaceView().isStartRecord();
+			bVideoRecordPressed = mLiveviewGroup.getSelectedLiveview().getSurfaceView().isStartRecord();
 		}
 		
-		if (!GlobalApplication.getInstance().isIsFullMode()) {
+		if (!getApp().isIsFullMode()) {
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, bVideoRecordPressed);
 		} else {
@@ -1081,9 +1120,9 @@ public class RealplayActivity extends BaseActivity {
 	 * @return true, 已连接；false, 未连接
 	 */
 	public boolean checkIsPTZDeviceConnected() {
-		Connection conn = liveViewManager.getSelectedLiveView().getCurrentConnection();
+		Connection conn = mLiveviewGroup.getSelectedLiveview().getCurrentConnection();
 		
-		if (conn != null && conn.isConnected()) {
+		if (conn.isConnected()) {
 			return true;
 		}
 		
@@ -1120,8 +1159,7 @@ public class RealplayActivity extends BaseActivity {
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.ALARM,
 				R.drawable.toolbar_alarm_selector));
 
-		mToolbar.createToolbar(itemList, GlobalApplication.getInstance()
-				.getScreenWidth(),
+		mToolbar.createToolbar(itemList, getApp().getScreenWidth(),
 				getResources().getDimensionPixelSize(R.dimen.toolbar_height));
 
 		this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
@@ -1201,8 +1239,6 @@ public class RealplayActivity extends BaseActivity {
 		mQualityMenuStandard.setOnClickListener(mOnQualityMenuClickListener);
 		mQualityMenuHigh.setOnClickListener(mOnQualityMenuClickListener);
 		mQualityMenuCustom.setOnClickListener(mOnQualityMenuClickListener);
-
-		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 	}
 
 	public void showToolbarExtendMenu(TOOLBAR_EXTEND_MENU menuId) {
@@ -1255,24 +1291,27 @@ public class RealplayActivity extends BaseActivity {
 			}
 			
 			setPreviewDevices(devices);
+			mLiveviewGroup.schedulePreview();
+			
+//			setPreviewDevices(devices);
 			
 			// 更新adapter
-			VideoPagerAdapter vpAdapter = null;
-			if (!liveViewManager.isMultiMode()) { // 单通道
-				vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, mPreviewDevices);
-			} else { // 多通道
-				vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, mPreviewDevices);
-			}
-			
-			mVideoPager.setAdapter(vpAdapter);
-			vpAdapter.notifyDataSetChanged();
-			
-			mVideoPager.post(new Runnable() {
-				@Override
-				public void run() {
-					startPreview();
-				}
-			});
+//			VideoPagerAdapter vpAdapter = null;
+//			if (!liveViewManager.isMultiMode()) { // 单通道
+//				vpAdapter = new VideoPagerAdapter(this, PageMode.SINGLE, mPreviewDevices);
+//			} else { // 多通道
+//				vpAdapter = new VideoPagerAdapter(this, PageMode.MULTIPLE, mPreviewDevices);
+//			}
+//			
+//			mVideoPager.setAdapter(vpAdapter);
+//			vpAdapter.notifyDataSetChanged();
+//			
+//			mVideoPager.post(new Runnable() {
+//				@Override
+//				public void run() {
+//					startPreview();
+//				}
+//			});
 			
 			
 			break;
@@ -1282,46 +1321,50 @@ public class RealplayActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
-	private void startPreview() {
-		mVideoPager.setCurrentItem(0);
-		
-		refillLiveviews();
-		
-		liveViewManager.setCurrenSelectedLiveViewtIndex(1);
-		
-		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-		mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-		
-		liveViewManager.preview();
-		
-		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
-		
-		if (!liveViewManager.isMultiMode()) {
-			getVR().showSingleOrMultiMode(true);
-			ptzControl.setIsEnterPTZInSingleMode(true);
-		} else {
-			getVR().showSingleOrMultiMode(false);
-			ptzControl.setIsEnterPTZInSingleMode(false);
-		}
-	}
+//	private void startPreview() {
+////		mVideoPager.setCurrentItem(0);
+//		
+//		refillLiveviews();
+//		
+//		liveViewManager.setCurrenSelectedLiveViewtIndex(1);
+//		
+//		mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+//		mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+//		
+//		liveViewManager.preview();
+//		
+//		liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
+//		
+//		if (!liveViewManager.isMultiMode()) {
+//			getVR().showSingleOrMultiMode(true);
+//			ptzControl.setIsEnterPTZInSingleMode(true);
+//		} else {
+//			getVR().showSingleOrMultiMode(false);
+//			ptzControl.setIsEnterPTZInSingleMode(false);
+//		}
+//	}
 
 	@Override
 	protected void onDestroy() {		
-		liveViewManager.closeAllConnection(false);
-		// makeSureVideoRecordOff();
-
+//		liveViewManager.closeAllConnection(false);
+		mLiveviewGroup.stopPreviewCurrentScreen();
+		savePreviewStatus();
+		super.onDestroy();
+	}
+	
+	private void savePreviewStatus() {
 		SharedPreferences sharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();
-		boolean isMultiMode = liveViewManager.isMultiMode();
-		if (isMultiMode) {
-			editor.putInt("PREVIEW_MODE", 4); // 当前预览模式
+		boolean isMultiScreenMode = mLiveviewGroup.isMultiScreenMode();
+		if (isMultiScreenMode) {
+			editor.putInt("PREVIEW_MODE", 4);  // 多通道模式
 		} else {
-			editor.putInt("PREVIEW_MODE", 1);
+			editor.putInt("PREVIEW_MODE", 1);  // 单通道模式
 		}
-		if (liveViewManager.getPager() != null) {
-			editor.putInt("PAGE", liveViewManager.getCurrentPageNumber()); // 当前页数
-			editor.putInt("PAGE_COUNT", liveViewManager.getCurrentPageCount()); // 当前页项数
+		if (mPager != null) {
+			editor.putInt("PAGE", mLiveviewGroup.getScreenIndex()+1); 
+			editor.putInt("PAGE_COUNT", mLiveviewGroup.getScreenLimit());
 		} else {
 			editor.putInt("PAGE", 0);
 			editor.putInt("PAGE_COUNT", 0);
@@ -1334,8 +1377,6 @@ public class RealplayActivity extends BaseActivity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		super.onDestroy();
 	}
 	
 	public void setPreviewDevices(List<PreviewDeviceItem> devices) {
@@ -1349,11 +1390,13 @@ public class RealplayActivity extends BaseActivity {
 			mPreviewDevices.add(devices.get(i));
 		}
 		
-		if (mVideoPager.getAdapter() != null) {
-			mVideoPager.getAdapter().notifyDataSetChanged();
-		}
+//		if (mVideoPager.getAdapter() != null) {
+//			mVideoPager.getAdapter().notifyDataSetChanged();
+//		}
 		
-		liveViewManager.setDeviceList(mPreviewDevices);
+//		liveViewManager.setDeviceList(mPreviewDevices);
+		mLiveviewGroup.setVisibility(View.VISIBLE);
+		mLiveviewGroup.setDevices(mPreviewDevices);
 		
 		if (mIsStartedCompleted) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
@@ -1378,31 +1421,34 @@ public class RealplayActivity extends BaseActivity {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			}
 			
-			if (mVideoPager.getAdapter() != null) {
-				mVideoPager.getAdapter().notifyDataSetChanged();
-			}
+//			if (mVideoPager.getAdapter() != null) {
+//				mVideoPager.getAdapter().notifyDataSetChanged();
+//			}
 			
-			liveViewManager.setDeviceList(mPreviewDevices);
-
-			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-			
-			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
+//			liveViewManager.setDeviceList(mPreviewDevices);
+//
+//			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+//			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+//			
+//			liveViewManager.selectLiveView(liveViewManager.getSelectedLiveViewIndex());
+			mLiveviewGroup.setVisibility(View.VISIBLE);
+			mLiveviewGroup.setDevices(mPreviewDevices);
 		} else {
 			if (mIsStartedCompleted) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			
-			if (mVideoPager.getAdapter() != null) {
-				mVideoPager.getAdapter().notifyDataSetChanged();
-			}
+//			if (mVideoPager.getAdapter() != null) {
+//				mVideoPager.getAdapter().notifyDataSetChanged();
+//			}
 			
-			liveViewManager.setDeviceList(null);
-			liveViewManager.setMultiMode(null);
-			//showSingleOrMultiMode(null);
-			if (getVR() != null) {
-				getVR().showSingleOrMultiMode(null);
-			}
+//			liveViewManager.setDeviceList(null);
+//			liveViewManager.setMultiMode(null);
+//			if (getVR() != null) {
+//				getVR().showSingleOrMultiMode(null);
+//			}
+			
+			mLiveviewGroup.setVisibility(View.GONE);
 			
 			bIsPlaying = false;
 			updatePlayStatus(bIsPlaying);
@@ -1422,10 +1468,10 @@ public class RealplayActivity extends BaseActivity {
 		//makeSureVideoRecordOff();
 		bVideoRecordPressed = false;
 		
-		if (liveViewManager != null) {
-//			liveViewManager.closeAllConnection(true);
-			liveViewManager.stopPreview();
-		}
+//		if (liveViewManager != null) {
+//			liveViewManager.stopPreview();
+//		}
+		mLiveviewGroup.stopPreviewCurrentScreen();
 		
 		bIsPlaying = false;
 		updatePlayStatus(bIsPlaying);
@@ -1464,78 +1510,78 @@ public class RealplayActivity extends BaseActivity {
 		super.gotoAlarm();
 	}
 	
-	public LiveViewManager getLiveviewManager() {
-		return liveViewManager;
-	}
+//	public LiveViewManager getLiveviewManager() {
+//		return liveViewManager;
+//	}
 	
 	public RelativeLayout getNavbarContainer() {
 		return super.getNavbarContainer();
 	}
 
 	
-	private VideoPagerChangedCallback mVideoPagerChangedCallback = new VideoPagerChangedCallback() {
-		
-		@Override
-		public void getCurrentPageIndex(int index, int action) {
-			Log.i(TAG, "###第 " + index + "页, 共 " + mVideoPager.getChildCount() + " 页");
-			
-			if ((action == 0) || ptzControl.isPTZModeOn()
-					|| liveViewManager.getPager() == null) { // 不作滑动
-				return;
-			}
-			
-			Log.i(TAG, "###changeView called");
-			bVideoRecordPressed = false;
-			updateUIElementsStatus(false);
-			
-			refillLiveviews();
-			
-			if (action > 0) {
-				liveViewManager.nextPage();
-			} else {
-				liveViewManager.previousPage();
-			}
-			
-			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
-			
-			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，且分页器显示，则刷新分页器
-				if (liveControl.getLandscapeToolbar().isLandToolbarShow()) {
-					liveControl.getLandscapeToolbar().showLandscapeToolbar();
-				}
-			}
-			
-		}
-		
-		@Override
-		public void changeView(boolean left, boolean right) {}
-	};
+//	private VideoPagerChangedCallback mVideoPagerChangedCallback = new VideoPagerChangedCallback() {
+//		
+//		@Override
+//		public void getCurrentPageIndex(int index, int action) {
+////			Log.i(TAG, "###第 " + index + "页, 共 " + mVideoPager.getChildCount() + " 页");
+//			
+//			if ((action == 0) || ptzControl.isPTZModeOn()
+//					|| liveViewManager.getPager() == null) { // 不作滑动
+//				return;
+//			}
+//			
+//			Log.i(TAG, "###changeView called");
+//			bVideoRecordPressed = false;
+//			updateUIElementsStatus(false);
+//			
+//			refillLiveviews();
+//			
+//			if (action > 0) {
+//				liveViewManager.nextPage();
+//			} else {
+//				liveViewManager.previousPage();
+//			}
+//			
+//			mPager.setNum(liveViewManager.getSelectedLiveViewIndex());
+//			mPager.setAmount(liveViewManager.getLiveViewTotalCount());
+//			
+//			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，且分页器显示，则刷新分页器
+//				if (liveControl.getLandscapeToolbar().isLandToolbarShow()) {
+//					liveControl.getLandscapeToolbar().showLandscapeToolbar();
+//				}
+//			}
+//			
+//		}
+//		
+//		@Override
+//		public void changeView(boolean left, boolean right) {}
+//	};
 	
-	/**
-	 * 装载新的视频容器
-	 */
-	private void refillLiveviews() {
-		liveViewManager.closeAllConnection(false);
-		liveViewManager.resetLiveView(liveViewManager.getCurrentPageCount());
-		
-		liveViewManager.clearLiveView();
-		
-		if (liveViewManager.isMultiMode()) { // 多通道
-			Log.i(TAG, "getVR():" + getVR());
-			
-			getVR().showSingleOrMultiMode(false);
-			
-			List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
-			for (int i = 0; i < l.size(); i++) {
-				liveViewManager.addLiveView(l.get(i));
-			}
-			
-		} else {
-			getVR().showSingleOrMultiMode(true);
-			
-			liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
-		}
-	} 
+//	/**
+//	 * 装载新的视频容器
+//	 */
+//	private void refillLiveviews() {
+//		liveViewManager.closeAllConnection(false);
+//		liveViewManager.resetLiveView(liveViewManager.getCurrentPageCount());
+//		
+//		liveViewManager.clearLiveView();
+//		
+//		if (liveViewManager.isMultiMode()) { // 多通道
+//			Log.i(TAG, "getVR():" + getVR());
+//			
+//			getVR().showSingleOrMultiMode(false);
+//			
+//			List<LiveViewItemContainer> l = getVR().getSurfaceMultiLayout().getLiveviews();
+//			for (int i = 0; i < l.size(); i++) {
+//				liveViewManager.addLiveView(l.get(i));
+//			}
+//			
+//		} else {
+//			getVR().showSingleOrMultiMode(true);
+//			
+//			liveViewManager.addLiveView(getVR().getSurfaceSingleLayout().getLiveview());
+//		}
+//	} 
 
 	/**
 	 * 延迟屏幕方向起始时刻，防止以横屏方式启动程序时出现的非预期横屏情况

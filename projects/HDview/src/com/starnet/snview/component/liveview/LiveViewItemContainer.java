@@ -5,15 +5,16 @@ import java.io.File;
 import com.starnet.snview.R;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -22,11 +23,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class LiveViewItemContainer extends RelativeLayout {
-	
 	private static final String TAG = "LiveViewItemContainer";
 	
-	private String deviceRecordName;
-	private PreviewDeviceItem previewItem;
+	private Context mContext;
+	
+	private int mItemIndex;
+	private String mDeviceRecordName;
+	private PreviewDeviceItem mPreviewItem;
+	private Connection mCurrentConnection;
+	private StatusListener mConnectionStatusListener;
+	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
 	private WindowLinearLayout mWindowLayout;
 	private FrameLayout mPlaywindowFrame;
@@ -47,27 +53,25 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private String mRecordFileName;
 	private int mFramerate;	// 帧率
 	
-	private Paint paint = new Paint();
-	
-//	private OnLiveViewContainerClickListener mLvContainerClickListener;
-	private OnRefreshButtonClickListener mRefreshButtonClickListener;
-	
-	private Connection mCurrentConnection;
-	
+	private Paint mPaint = new Paint();	
 	
 	
 	public LiveViewItemContainer(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		paint.setColor(Color.RED);
+		mContext = context;
+		mPaint.setColor(Color.RED);
 	}
 	public LiveViewItemContainer(Context context) {
 		super(context);
-		paint.setColor(Color.RED);
+		mContext = context;
+		mPaint.setColor(Color.RED);
 	}
-	
-	
 
 	public void findSubViews() {
+		((LayoutInflater) (mContext
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE))).inflate(
+				R.layout.live_view_item, this, true);	
+		
 		mWindowLayout = (WindowLinearLayout) findViewById(R.id.liveview_surface_infotext_layout);
 		mPlaywindowFrame = (FrameLayout) findViewById(R.id.liveview_playwindow_frame);
 		mSurfaceView = (LiveView) findViewById(R.id.liveview_surfaceview);
@@ -97,23 +101,16 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mSubFocalLengthArray[3] = (ImageView) findViewById(R.id.arrow_sub_left_up);
 	}
 	
-	public void init() {
+	public void init() {		
 		mIsManualStop = false;
 		mIsResponseError = false;
-		
-//		if (mLvContainerClickListener != null) {
-//			this.setOnClickListener(mLvContainerClickListener);
-//		}
 		
 		if (mRefreshButtonClickListener != null) {
 			mRefresh.setOnClickListener(mRefreshButtonClickListener);
 		}
 		
 		mWindowInfoText.setText(null);
-		
 	}	
-	
-	
 
 	public void setIsResponseError(boolean isResponseError) {
 		this.mIsResponseError = isResponseError;
@@ -135,34 +132,36 @@ public class LiveViewItemContainer extends RelativeLayout {
 		this.mCurrentConnection = conn;
 	}
 	
+	public int getItemIndex() {
+		return mItemIndex;
+	}
+	public void setItemIndex(int itemIndex) {
+		this.mItemIndex = itemIndex;
+	}
 	public String getDeviceRecordName() {
-		return deviceRecordName;
+		return mDeviceRecordName;
 	}
 	
 	public void setDeviceRecordName(String deviceRecordName) {
-		this.deviceRecordName = deviceRecordName;
+		this.mDeviceRecordName = deviceRecordName;
 	}
-	
-	
-	
-//	public void setLiveViewContainerClickListener(
-//			OnLiveViewContainerClickListener lvContainerClickListener) {
-//		this.mLvContainerClickListener = lvContainerClickListener;
-//	}
-	
 	
 	public int getFramerate() {
 		return mFramerate;
 	}
+	
 	public void setFramerate(int framerate) {
 		this.mFramerate = framerate;
 	}
+	
 	public PreviewDeviceItem getPreviewItem() {
-		return previewItem;
+		return mPreviewItem;
 	}
+	
 	public void setPreviewItem(PreviewDeviceItem previewItem) {
-		this.previewItem = previewItem;
+		this.mPreviewItem = previewItem;
 	}
+	
 	public void setRefreshButtonClickListener(
 			OnRefreshButtonClickListener refreshButtonClickListener) {
 		this.mRefreshButtonClickListener = refreshButtonClickListener;
@@ -170,6 +169,10 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mRefresh.setOnClickListener(mRefreshButtonClickListener);
 	}
 	
+	public void setConnectionStatusListener(
+			StatusListener connectionStatusListener) {
+		this.mConnectionStatusListener = connectionStatusListener;
+	}
 	public WindowLinearLayout getWindowLayout() {
 		return mWindowLayout;
 	}
@@ -194,18 +197,157 @@ public class LiveViewItemContainer extends RelativeLayout {
 		return mWindowInfoText;
 	}
 	
-	
-	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		//Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
-		//		+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
+		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
+				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		
+		if (mPlaywindowFrame == null
+				|| mSurfaceView == null
+				|| mWindowInfoText == null) {
+			return;
+		}
+		
+		int windowTextHeight = (int)getResources().getDimension(
+				R.dimen.window_text_height);
+		int surfaceWidth = getMeasuredWidth();
+		int surfaceHeight = getMeasuredHeight() - windowTextHeight;
+		
+		mPlaywindowFrame.measure(
+				MeasureSpec.makeMeasureSpec(surfaceWidth, MeasureSpec.EXACTLY), 
+				MeasureSpec.makeMeasureSpec(surfaceHeight, MeasureSpec.EXACTLY));
+		mSurfaceView.measure(
+				MeasureSpec.makeMeasureSpec(surfaceWidth, MeasureSpec.EXACTLY), 
+				MeasureSpec.makeMeasureSpec(surfaceHeight, MeasureSpec.EXACTLY));
+		mWindowInfoText.setHeight(windowTextHeight);
 	}
+
+	
+	
+	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		//Log.i(TAG, "onLayout()");
 		super.onLayout(changed, l, t, r, b);
+		
+		if (mPlaywindowFrame == null
+				|| mSurfaceView == null
+				|| mWindowInfoText == null) {
+			return;
+		}
+		
+		mPlaywindowFrame.layout(0, 0, 
+				mPlaywindowFrame.getMeasuredWidth(), 
+				mPlaywindowFrame.getMeasuredHeight());
+		mSurfaceView.layout(0, 0, 
+				mSurfaceView.getMeasuredWidth(), 
+				mSurfaceView.getMeasuredHeight());	
+		mWindowInfoText.layout(0, mPlaywindowFrame.getMeasuredHeight()-2, 
+				mPlaywindowFrame.getMeasuredWidth(), getMeasuredHeight());
+	}
+
+	
+	/**
+	 * 开始预览
+	 */
+	public void preview() {
+		/*
+		 * mPreviewItem、mConnectionStatusListener需准备好
+		 */
+		final Connection conn = obtainConnection();
+		PreviewDeviceItem p = mPreviewItem;
+
+		conn.reInit();
+		conn.setHost(p.getSvrIp());
+		conn.setPort(Integer.valueOf(p.getSvrPort()));
+		conn.setUsername(p.getLoginUser());
+		conn.setPassword(p.getLoginPass());
+		conn.setChannel(p.getChannel());
+		setIsManualStop(false);
+		setIsResponseError(false);
+		setDeviceRecordName(p.getDeviceRecordName());
+		//setPreviewItem(p);
+		conn.bindLiveViewItem(this);
+		setCurrentConnection(conn);
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				conn.connect();
+			}
+		}).start();
+	}
+	
+	/**
+	 * 获取一个新的连接，为避免Connection重复创建，可用工厂类产生对象
+	 * @return 初始化好的Connection对象
+	 */
+	private Connection obtainConnection() {
+		final Connection conn = new Connection();
+		if (mConnectionStatusListener != null) {
+			conn.SetConnectionListener(mConnectionStatusListener);
+		}
+		return conn;
+	}
+	
+	/**
+	 * 停止预览
+	 * @param canUpdateViewAfterClosed 停止后连接状态是否可被更新
+	 */
+	public void stopPreview(boolean canUpdateViewAfterClosed) {
+		final Connection conn = getCurrentConnection();
+		if (conn.isConnected()) {
+			conn.disconnect();
+		} else {
+			conn.setDisposed(true); // 若为非连接状态，则可能处于连接初始化阶段，
+									// 此时将其设置为disposed状态
+		}
+
+		// 若开启了录像，则停止录像
+		if (conn.getLiveViewContainer().getSurfaceView().isStartRecord()) {
+			conn.getLiveViewContainer().stopMP4Record();
+		}
+
+		if (!canUpdateViewAfterClosed) {
+			conn.getLiveViewItemContainer().setCurrentConnection(null);
+		}
+	}
+	
+	/**
+	 * 是否已连接
+	 * @return true, 已连接; false, 未连接或无连接存在
+	 */
+	public boolean isConnected() {
+		return getCurrentConnection() != null 
+				&& getCurrentConnection().isConnected();
+	}
+	
+	/**
+	 * 是否正在连接
+	 * @return true, 正在连接; false, 未处于连接中
+	 */
+	public boolean isConnecting() {
+		return getCurrentConnection() != null 
+				&& getCurrentConnection().isConnecting();
+	}
+	
+	public void sendControlRequest(int cmdCode) {
+		final Connection conn = getCurrentConnection();
+		if (conn != null) {
+			conn.sendControlRequest(cmdCode);
+			Log.i(TAG, "Send Control Request... mItemIndex: " + mItemIndex + ", cmdcode: "
+					+ cmdCode);
+		}
+	}
+	
+	public void sendControlRequest(int cmdCode, int[] args) {
+		final Connection conn = getCurrentConnection();
+		if (conn != null) {
+			conn.sendControlRequest(cmdCode, args);
+
+			Log.i(TAG, "Send Control Request... mItemIndex: " + mItemIndex + ", cmdcode: "
+					+ cmdCode);
+		}
 	}
 	
 	public void showArrowAnimation(int showPos) {
@@ -232,7 +374,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 				((AnimationDrawable)img.getBackground()).stop();
 			}
 		}
-	}
+	}	
 	
 	public void stopArrowAnimation() {
 		int i = 0;
@@ -242,8 +384,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 			((AnimationDrawable)mPTZImageViewArray[i].getBackground()).stop();
 		}
 	}
-	
-	
 	
 	public void showFocalLengthAnimation(boolean isAddFocalLength) {
 		final ImageView[] imgArray = isAddFocalLength ? mAddFocalLengthArray : mSubFocalLengthArray;
@@ -292,11 +432,9 @@ public class LiveViewItemContainer extends RelativeLayout {
 			return; // 若返回错误，则相应提示信息已更新，不进行覆盖
 		}
 		
-		
 		final StringBuffer s;
-		
-		if (deviceRecordName != null && info != null) {
-			s = new StringBuffer(deviceRecordName);
+		if (mDeviceRecordName != null && info != null) {
+			s = new StringBuffer(mDeviceRecordName);
 			s.append("[");
 			s.append(info);
 			s.append("]");
@@ -317,7 +455,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 			return; // 若返回错误，则相应提示信息已更新，不进行覆盖
 		}
 		
-
 		mWindowInfoText.post(new Runnable() {
 			@Override
 			public void run() {
@@ -376,7 +513,5 @@ public class LiveViewItemContainer extends RelativeLayout {
 		}
 	}
 
-
-	//	public static interface OnLiveViewContainerClickListener extends View.OnClickListener {}
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}
 }

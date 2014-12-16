@@ -80,7 +80,7 @@ private static final String TAG = "SurfaceViewSingleLayout";
 		
 		mLiveview = (LiveViewItemContainer) findViewById(R.id.liveview_liveitem);
 		
-		mLiveview.findSubViews();
+//		mLiveview.findSubViews();
 		mLiveview.init();
 	}
 	
