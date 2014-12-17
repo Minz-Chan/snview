@@ -111,7 +111,7 @@ public class VideoRegion extends FrameLayout {
 	}
 	
 	public boolean checkIsPTZDeviceConnected() {
-		Connection conn = mLiveViewManager.getSelectedLiveView().getCurrentConnection();
+		Connection conn = mLiveViewManager.getSelectedLiveView().getConnection();
 		
 		if (conn != null && conn.isConnected()) {
 			return true;
@@ -302,9 +302,9 @@ public class VideoRegion extends FrameLayout {
 			for (int i = 0; i < liveviews.size(); i++) {
 				LiveViewItemContainer lv = liveviews.get(i);
 
-				if (lv.getCurrentConnection() != null
-						&& (lv.getCurrentConnection().isConnected() || lv
-								.getCurrentConnection().isConnecting())) {
+				if (lv.getConnection() != null
+						&& (lv.getConnection().isConnected() || lv
+								.getConnection().isConnecting())) {
 					isAllVideoClosed = false;
 				}
 			}

@@ -33,6 +33,8 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	protected static final int TOUCH_STATE_RESET 			= 0;
 	protected static final int TOUCH_STATE_SCROLLING 		= 1;
 	
+	private boolean AUTO_LAYOUT_ON_CREATED = true;  // Whether to initialize layout when object is created
+	
 	private Context context;
 	
 	/*
@@ -56,11 +58,14 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	private int touchState = TOUCH_STATE_RESET;
 	private float lastDownX = 0 ;
 	private float lastDownY = 0 ;
+	private float lastMotionX = 0 ;
+	private float lastMotionY = 0 ;
 	
 	private int privateFlags;
 	
 	private int oldScreenIndex;
 	private boolean isModeChanged;
+	private boolean isLayoutCompleted;  // Indicator shows whether layout has finished
 	private int oldWidthMeasureSpec;
 	private int oldHeightMeasureSpec;
 	
@@ -70,15 +75,19 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	private GestureDetector simpleGestureDetector; // process single-click, double-click and long-pressed event
 	
 	
+	/**
+	 * Create an instance without generating layout
+	 * @param context
+	 */
 	public QuarteredViewGroup(Context context) {
 		super(context);
 		this.context = context;
-		this.capacity = 4;
-		this.mode = MODE.MULTIPLE;
+		AUTO_LAYOUT_ON_CREATED = false;
+		init();
 	}
 	
 	public QuarteredViewGroup(Context context, int capacity) {
-		this(context);
+		super(context);
 		this.capacity = capacity;
 		this.mode = MODE.MULTIPLE;
 		this.screenIndex = 0;
@@ -86,7 +95,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	}
 	
 	public QuarteredViewGroup(Context context, int capacity, MODE mode) {
-		this(context);
+		super(context);
 		this.capacity = capacity;
 		this.mode = mode;
 		this.screenIndex = 0;
@@ -94,7 +103,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	}
 	
 	public QuarteredViewGroup(Context context, int capacity, MODE mode, int screenIndex) {
-		this(context);
+		super(context);
 		this.capacity = capacity;
 		this.mode = mode;
 		this.screenIndex = screenIndex;
@@ -134,6 +143,14 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	}
 	
 	/**
+	 * Returns whether layout has finished.
+	 * @return <b>true</b>, finished; <b>false</b>, unfinished.
+	 */
+	protected boolean isLayoutCompleted() {
+		return isLayoutCompleted;
+	}
+	
+	/**
 	 * Get sub view by item index. For safety, it is recommended to use
 	 * the index return from {@link #getCurrentScreenItemStartIndex()}
 	 * and {@link #getCurrentScreenItemEndIndex()}.
@@ -141,13 +158,25 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @return The view associated with the item index
 	 */
 	protected View getSubViewByItemIndex(int itemIndex) {
+		int reusedViewsIndex;
 		if (mode == MODE.SINGLE) {
-			return reusedViews.get(itemIndex - windowLeftIndex);
+			reusedViewsIndex = itemIndex - windowLeftIndex;
 		} else {
 			int currScreen = itemIndex / 4;
-			return reusedViews.get((currScreen - windowLeftIndex)*4 
-					+ (itemIndex%4)); 
+			reusedViewsIndex = (currScreen - windowLeftIndex)*4 
+					+ (itemIndex%4);
 		}
+		
+		if (reusedViewsIndex < 0 || 
+				reusedViewsIndex > AVAILABLE_VIEW_COUNT-1) {
+			throw new IllegalStateException("Invalid ReusedViewIndex:" + reusedViewsIndex
+					+ ", it should be in [0, " + (AVAILABLE_VIEW_COUNT-1) + "]. "
+					+ "ItemIndex:" + itemIndex + ", mode:" + mode + ", screenIndex:"
+					+ screenIndex + ", windowLeftIndex:" + windowLeftIndex + ", " 
+					+ "windowRightIndex:" + windowRightIndex);
+		}
+		
+		return reusedViews.get(reusedViewsIndex);
 	}
 	
 	/**
@@ -163,13 +192,59 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @return end index of items, [0,n]
 	 */
 	protected int getCurrentScreenItemEndIndex() {
-		return mode == MODE.SINGLE ? screenIndex : screenIndex * 4 + (4-1);
+		return mode == MODE.SINGLE ? screenIndex : screenIndex * 4 
+				+ (getAvailableItemCountInCurrentScreen(screenIndex)-1);
+	}
+	
+	/**
+	 * Get the first item index in "Sliding Window"
+	 * @return The first item index of "Sliding Window"
+	 */
+	protected int getWindowLeftStartItemIndex() {
+		return mode == MODE.SINGLE ? windowLeftIndex : windowLeftIndex * 4;
+	}
+	
+	/**
+	 * Get the last item index in "Sliding Window"
+	 * @return The end item index of "Sliding Window"
+	 */
+	protected int getWindowRightEndItemIndex() {
+		return mode == MODE.SINGLE ? windowRightIndex : windowRightIndex * 4 
+				+ (getAvailableItemCountInCurrentScreen(windowRightIndex)-1);
+	}
+	
+	/**
+	 * Swap the views in reused views.
+	 * @param v1 View to be swapped
+	 * @param v2 View to be swapped
+	 */
+	protected void swapView(View v1, View v2) {
+		int m = reusedViews.indexOf(v1); 
+		int n = reusedViews.indexOf(v2);
+		if (m == -1 || n == -1) {
+			throw new IllegalStateException("Can't find the position "
+					+ "in Reused Views. v1 position:" + m + ", v2 "
+					+ "position:" + n);
+		}
+		
+		// Swap the layout position
+		Rect r1 = new Rect(v1.getLeft(), v1.getTop(), v1.getRight(), 
+				v1.getBottom());
+		Rect r2 = new Rect(v2.getLeft(), v2.getTop(), v2.getRight(), 
+				v2.getBottom());
+		v1.layout(r2.left, r2.top, r2.right, r2.bottom);
+		v2.layout(r1.left, r1.top, r1.right, r1.bottom);
+		
+		// Swap the position in reusedViews array
+		reusedViews.set(m, v2);
+		reusedViews.set(n, v1);
 	}
 	
 	private void init() {
 		scroller = new Scroller(context);
 		touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 		
+		isModeChanged = false;
 		oldWidthMeasureSpec = -1;
 		oldHeightMeasureSpec = -1;
 		screenRects = new ArrayList<Rect>();
@@ -187,7 +262,9 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 				new SimpleGestureProcessor());
 		privateFlags = 0x00000000;
 		
-		firstMeasureAndLayout();
+		if (AUTO_LAYOUT_ON_CREATED) {
+			firstMeasureAndLayout();
+		}
 	}
 
 	private void firstMeasureAndLayout() {
@@ -195,14 +272,14 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		 * mode and capacity should be prepared before this
 		 */
 		//screenIndex = 0;
-		isModeChanged = true;
+		isModeChanged = false;
 		prepareScreenParams();
 		calcWindowLeftRight(screenIndex);
 		
 		privateFlags |= PFLAGS_LAYOUT_REQUIRED;
 		privateFlags |= PFLAGS_LAYOUT_NEED_UPDATE_ALL;
 		
-		requestLayout();
+		myRequestLayout();
 	}	
 	
 	/**
@@ -210,6 +287,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @param itemIndex current item index
 	 */
 	protected void switchMode(int itemIndex) {
+		isModeChanged = true;
 		if (mode == MODE.SINGLE) {
 			performRelayout(MODE.MULTIPLE, capacity, itemIndex);
 		} else {
@@ -231,7 +309,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 
 			}
 			if (!adjustSlidingWindow()) {
-				requestLayout();
+				myRequestLayout();
 			}
 			invalidate();
 		}	
@@ -250,7 +328,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 				scroller.startScroll(oldScreen*getWidth(), 0, getWidth(), 0, 250);
 			}
 			if (!adjustSlidingWindow()) {
-				requestLayout();
+				myRequestLayout();
 			}
 			invalidate();
 		}	
@@ -263,6 +341,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @param initialItemIndex initial item index
 	 */
 	protected void regenerateLayout(MODE m, int c, int initialItemIndex) {
+		AUTO_LAYOUT_ON_CREATED = true;
 		privateFlags |= PFLAGS_LAYOUT_NEED_RELAYOUT;
 		performRelayout(m, c, initialItemIndex);
 	}
@@ -274,12 +353,13 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @param initialItemIndex initial item index
 	 */
 	private void performRelayout(MODE m, int c, int initialItemIndex) {
-		isModeChanged = mode != m ? true : false;
+		//isModeChanged = mode != m ? true : false;
 		
 		mode = m;
 		capacity = c;
 		screenIndex = mode == MODE.SINGLE ? initialItemIndex 
 				:  initialItemIndex/4;
+		oldScreenIndex = screenIndex;  // Avoid triggering the page change event
 		prepareScreenParams();
 		calcWindowLeftRight(screenIndex);
 		
@@ -288,7 +368,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		privateFlags |= PFLAGS_LAYOUT_REQUIRED;
 		privateFlags |= PFLAGS_LAYOUT_NEED_UPDATE_ALL;
 		
-		requestLayout();
+		myRequestLayout();
 	}
 	
 	private void invalidateParameters() {
@@ -348,7 +428,8 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		
 		if (debug) {
 			Log.d(TAG, "Calculate \"window\" left and right index [wLeft:"
-					+ windowLeftIndex + ", wRight:" + windowRightIndex + "]");
+					+ windowLeftIndex + ", wRight:" + windowRightIndex 
+					+ ", screenIndex:" + screenIndex + "]");
 		}
 	}
 
@@ -361,20 +442,25 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			Log.i(TAG, "onMeasure, width:" + width + " height:" + height);
 		}
 
-		if (oldWidthMeasureSpec != widthMeasureSpec 
-				|| oldHeightMeasureSpec != heightMeasureSpec
-				|| (privateFlags & PFLAGS_LAYOUT_REQUIRED) == PFLAGS_LAYOUT_REQUIRED) {
+		boolean measureSpecChanged = 
+				(oldWidthMeasureSpec != widthMeasureSpec 
+				|| oldHeightMeasureSpec != heightMeasureSpec)
+				&& AUTO_LAYOUT_ON_CREATED; // Avoid requesting layout pass before the
+										   // first layout is indirectly requested by
+										   // firstMeasureAndLayout() or regernateLayout()
+		if ((privateFlags & PFLAGS_LAYOUT_NEED_UPDATE_ALL) == PFLAGS_LAYOUT_NEED_UPDATE_ALL
+				|| measureSpecChanged) {
 			generatePageRects(width, height);
 			
 			int size = getChildCount();
 			for (int i = 0; i < size; i++) {
 				View v = getChildAt(i);
 				if (mode == MODE.SINGLE) {
-					v.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
-							, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
+					v.measure(MeasureSpec.makeMeasureSpec(width - 3, MeasureSpec.EXACTLY)
+							, MeasureSpec.makeMeasureSpec(height - 3, MeasureSpec.EXACTLY));
 				} else {
-					v.measure(MeasureSpec.makeMeasureSpec(width/2, MeasureSpec.EXACTLY), 
-							MeasureSpec.makeMeasureSpec(height/2, MeasureSpec.EXACTLY));
+					v.measure(MeasureSpec.makeMeasureSpec(width/2 - 3, MeasureSpec.EXACTLY), 
+							MeasureSpec.makeMeasureSpec(height/2 - 3, MeasureSpec.EXACTLY));
 				}
 			}
 			
@@ -395,7 +481,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		int left = 0;
 		for (int i = 0; i < capacity; i++) {
 			Rect r = new Rect();
-			r.set(left, 1, left + width - 1, height - 1);
+			r.set(left, 0, left + width, height);
 			screenRects.add(r);
 			left += width;
 		}
@@ -416,6 +502,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			 */
 			if (mode == MODE.SINGLE) {
 				if ((privateFlags & PFLAGS_LAYOUT_NEED_UPDATE_ALL) == PFLAGS_LAYOUT_NEED_UPDATE_ALL) {
+					if (debug) {
+						Log.d(TAG, "scrollTo(Single), getWidth():" + getWidth() 
+								+ ", screenIndex:" + screenIndex);
+					}
 					scrollTo(getWidth()*screenIndex, 0); // Scroll to specific index
 					performViewsLayoutSingle();
 					privateFlags &= ~PFLAGS_LAYOUT_NEED_UPDATE_ALL;  // Clear flag
@@ -428,6 +518,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 					
 			} else {
 				if ((privateFlags & PFLAGS_LAYOUT_NEED_UPDATE_ALL) == PFLAGS_LAYOUT_NEED_UPDATE_ALL) {
+					if (debug) {
+						Log.d(TAG, "scrollTo(Multiple), getWidth():" + getWidth() 
+								+ ", screenIndex:" + screenIndex);
+					}
 					scrollTo(getWidth()*screenIndex, 0);
 					performViewsLayoutMultiple();
 					privateFlags &= ~PFLAGS_LAYOUT_NEED_UPDATE_ALL;  // Clear flag
@@ -444,11 +538,19 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			}
 		}
 		
+
 		boolean isRelayoutRequest = (privateFlags & 
 				PFLAGS_LAYOUT_NEED_RELAYOUT) == PFLAGS_LAYOUT_NEED_RELAYOUT;
+		
+		if (debug) {
+			Log.d(TAG, "isRelayoutRequest:" + isRelayoutRequest + ", isModeChanged:" + isModeChanged
+					+ ", isScreenChanged:" + (screenIndex != oldScreenIndex));
+		}
+		
 		if (isModeChanged || screenIndex != oldScreenIndex
 				|| isRelayoutRequest) {
-			onScreenLayoutCompleted();
+			onScreenLayoutCompleted();	
+			isLayoutCompleted = true;
 			if (!isRelayoutRequest) {
 				detectModeChanged();
 				detectPageChanged();
@@ -630,20 +732,32 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 					+ "screen must be 4.");
 		}
 		
-		int vHalfWidth = (posRect.right - posRect.left + 1) / 2;  // Half of video Width
-		int vHalfHeight = (posRect.bottom - posRect.top + 1) / 2; // Half of video Height
+		int vHalfWidth = (posRect.right - posRect.left + 1 - 5) / 2;  // Half of video Width
+		int vHalfHeight = (posRect.bottom - posRect.top + 1 - 5) / 2; // Half of video Height
 		
 		// No matter whether there has content inside every view, the
 		// view layout should be done 
-		viewsInCurrentScreen.get(0).layout(posRect.left, posRect.top,
-				posRect.left + vHalfWidth - 1, posRect.top + vHalfHeight - 1);
-		viewsInCurrentScreen.get(1).layout(posRect.left + vHalfWidth,
-				posRect.top, posRect.right, posRect.top + vHalfHeight - 1);
-		viewsInCurrentScreen.get(2).layout(posRect.left, posRect.top + vHalfHeight, 
-				posRect.left + vHalfWidth - 1, posRect.bottom);
-		viewsInCurrentScreen.get(3).layout(posRect.left + vHalfWidth,
-				posRect.top + vHalfHeight, posRect.right, posRect.bottom);
-		
+		int padding = 2;		
+		viewsInCurrentScreen.get(0).layout(
+				posRect.left + padding, 
+				posRect.top + padding,
+				posRect.left + padding + (vHalfWidth - 1), 
+				posRect.top + padding + (vHalfHeight - 1));
+		viewsInCurrentScreen.get(1).layout(
+				posRect.left + padding + (vHalfHeight - 1) + 1,
+				posRect.top + padding, 
+				posRect.right - padding, 
+				posRect.top + padding + (vHalfHeight - 1));
+		viewsInCurrentScreen.get(2).layout(
+				posRect.left + padding, 
+				posRect.top + padding + (vHalfHeight - 1) + 1, 
+				posRect.left + padding + (vHalfWidth - 1), 
+				posRect.bottom - padding);
+		viewsInCurrentScreen.get(3).layout(
+				posRect.left + padding + (vHalfHeight - 1) + 1,
+				posRect.top + padding + (vHalfHeight - 1) + 1, 
+				posRect.right - padding, 
+				posRect.bottom - padding);
 		
 		for (int i = 0; i < 4; i++) {
 			onSubViewLayoutCompleted(viewsInCurrentScreen.get(i), 
@@ -656,7 +770,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 * @param v View that was layout
 	 * @param hasContent Whether the view has content 
 	 */
-	private void onSubViewLayoutCompleted(View v, boolean hasContent) {
+	protected void onSubViewLayoutCompleted(View v, boolean hasContent) {
 		if (hasContent) {
 			v.setVisibility(View.VISIBLE);	
 		} else {
@@ -686,11 +800,11 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	}
 	
 	protected float getLastMotionX() {
-		return lastDownX;
+		return lastMotionX;
 	}
 	
 	protected float getLastMotionY() {
-		return lastDownY;
+		return lastMotionY;
 	}
 	
 	@Override
@@ -709,9 +823,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			if (debug) {
 				Log.d(TAG, "onInterceptTouchEvent down");
 			}
-			
 			lastDownX = x;
 			lastDownY = y;
+			lastMotionX = x;
+			lastMotionY = y;
 			touchState = scroller.isFinished() ? TOUCH_STATE_RESET
 					: TOUCH_STATE_SCROLLING;
 			break;
@@ -734,29 +849,31 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 				scroller.abortAnimation();
 			}
 			velocityTracker.addMovement(e);
-			lastDownX = x ;
+			lastDownX = x;
 			lastDownY = y;
+			lastMotionX = x ;
+			lastMotionY = y;
 			touchState = scroller.isFinished() ? TOUCH_STATE_RESET
 					: TOUCH_STATE_SCROLLING;
 			break ;
 		case MotionEvent.ACTION_MOVE:
-			if ((screenIndex == 0 && x - lastDownX > 0) 
-					|| (screenIndex == screenLimit-1 && x - lastDownX < 0)) {
-				if (x - lastDownX > 0) {
+			if ((screenIndex == 0 && x - lastMotionX > 0) 
+					|| (screenIndex == screenLimit-1 && x - lastMotionX < 0)) {
+				if (x - lastMotionX > 0) {
 					onScreenLeftOverflow();
 				} else {
 					onScreenRightOverflow();
 				}
 			} else {
-				scrollBy((int)(lastDownX - x ), 0);
-				if (Math.abs(lastDownX - x) > touchSlop
-						|| Math.abs(lastDownY - y) > touchSlop) {
+				scrollBy((int)(lastMotionX - x ), 0);
+				if (Math.abs(lastMotionX - x) > touchSlop
+						|| Math.abs(lastMotionY - y) > touchSlop) {
 					touchState = TOUCH_STATE_SCROLLING;
 				}
 			}
 			
-			lastDownX = x ;
-			lastDownY = y;
+			lastMotionX = x ;
+			lastMotionY = y;
 			break ;
 		case MotionEvent.ACTION_UP:
 			velocityTracker.computeCurrentVelocity(1000);
@@ -767,9 +884,15 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			} else if (velocityX > SLIDING_VELOCITY && screenIndex > 0) {
 				// slide right rapidly
 				snapToScreen(screenIndex - 1);
-			} else {
-				// slide slowly
-				snapToDestination();
+			} else {  // slide slowly
+				boolean isDeltaBiggerEnough = Math.abs(lastMotionX - lastDownX) > touchSlop
+						|| Math.abs(lastMotionY - lastDownY) > touchSlop;
+				if (isDeltaBiggerEnough) {
+					snapToDestination();
+				} else { // Process the "jitter" in some case, such as continuous 
+					 	 // single-tap or double-click
+					snapToScreen(screenIndex);
+				}
 			}
 			
 			if (velocityTracker != null) {
@@ -795,7 +918,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 */
 	private void snapToDestination(){
 		int destScreen = caclulateDestinationScreen();
-	    
+		
 	    if (debug) {
 	    	 Log.d(TAG, "Destination screen index => " + destScreen);
 	    }
@@ -859,8 +982,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		scroller.startScroll(getScrollX(), 0, offsetXToScroll, 0,
 				Math.abs(offsetXToScroll) * 2);
 		if (!adjustSlidingWindow()) {
-			requestLayout();  // Trigger a layout pass without performing
-							  // real layout or adjustment 
+			if (screenIndex != oldScreenIndex) {
+				myRequestLayout();  // Trigger a layout pass without performing
+									// real layout or adjustment
+			}
 		}
 	    invalidate();  // Invalidate to trigger scrolling animation
     }
@@ -905,7 +1030,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		if (needToAdjust) {
 			privateFlags |= PFLAGS_LAYOUT_REQUIRED;
 			privateFlags |= PFLAGS_LAYOUT_NEED_ADJUST;
-			requestLayout();
+			myRequestLayout();
 		}
 		
 		return needToAdjust;
@@ -919,6 +1044,15 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		}
 		
 		return false;
+	}
+	
+	private void myRequestLayout() {
+		if (!isLayoutCompleted) {
+			return;  // If layout has not finished, cancel the request
+		}
+
+		isLayoutCompleted = false;
+		requestLayout();
 	}
 	
 	/**

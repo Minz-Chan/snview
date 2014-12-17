@@ -27,10 +27,15 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	private Context mContext;
 	
+	/**
+	 * Whether current view is used
+	 */
+	private boolean isValid = true;
+	
 	private int mItemIndex;
 	private String mDeviceRecordName;
 	private PreviewDeviceItem mPreviewItem;
-	private Connection mCurrentConnection;
+	private Connection mConnection; // Connection associated with view
 	private StatusListener mConnectionStatusListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
@@ -79,6 +84,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mRefresh = (ImageView) findViewById(R.id.liveview_refresh_imageview);
 		mWindowInfoText = (TextView) findViewById(R.id.liveview_liveinfo_textview);
 		
+		mSurfaceView.setParent(this); // bind parent
+		
 		mPTZImageViewArray[0] = (ImageView) findViewById(R.id.arrow_left);
 		mPTZImageViewArray[1] = (ImageView) findViewById(R.id.arrow_left_down);
 		mPTZImageViewArray[2] = (ImageView) findViewById(R.id.arrow_down);
@@ -111,9 +118,26 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 		mWindowInfoText.setText(null);
 	}	
+	
+//	public void copy(LiveViewItemContainer c) {
+//		if (c.isValid) {
+//			reset();
+//		} else {
+//			abort();
+//		}
+//		
+//		setIsManualStop(c.isManualStop());
+//		setIsResponseError(c.isResponseError());
+//		setItemIndex(c.getItemIndex());		
+//		setPreviewItem(c.getPreviewItem());
+//	}
 
 	public void setIsResponseError(boolean isResponseError) {
 		this.mIsResponseError = isResponseError;
+	}
+	
+	public boolean isResponseError() {
+		return mIsResponseError;
 	}
 	
 	public boolean isManualStop() {
@@ -124,12 +148,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 		this.mIsManualStop = isManualStop;
 	}
 	
-	public Connection getCurrentConnection() {
-		return mCurrentConnection;
+	public Connection getConnection() {
+		return mConnection;
 	}
 	
-	public void setCurrentConnection(Connection conn) {
-		this.mCurrentConnection = conn;
+	public void setConnection(Connection conn) {
+		this.mConnection = conn;
 	}
 	
 	public int getItemIndex() {
@@ -199,8 +223,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
-				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
+//		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
+//				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		
 		if (mPlaywindowFrame == null
@@ -222,9 +246,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 				MeasureSpec.makeMeasureSpec(surfaceHeight, MeasureSpec.EXACTLY));
 		mWindowInfoText.setHeight(windowTextHeight);
 	}
-
-	
-	
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -245,7 +266,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mWindowInfoText.layout(0, mPlaywindowFrame.getMeasuredHeight()-2, 
 				mPlaywindowFrame.getMeasuredWidth(), getMeasuredHeight());
 	}
-
 	
 	/**
 	 * 开始预览
@@ -266,9 +286,10 @@ public class LiveViewItemContainer extends RelativeLayout {
 		setIsManualStop(false);
 		setIsResponseError(false);
 		setDeviceRecordName(p.getDeviceRecordName());
+		setWindowInfoText(getDeviceRecordName());
 		//setPreviewItem(p);
 		conn.bindLiveViewItem(this);
-		setCurrentConnection(conn);
+		setConnection(conn);
 
 		new Thread(new Runnable() {
 			@Override
@@ -295,7 +316,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	 * @param canUpdateViewAfterClosed 停止后连接状态是否可被更新
 	 */
 	public void stopPreview(boolean canUpdateViewAfterClosed) {
-		final Connection conn = getCurrentConnection();
+		final Connection conn = getConnection();
 		if (conn.isConnected()) {
 			conn.disconnect();
 		} else {
@@ -309,7 +330,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		}
 
 		if (!canUpdateViewAfterClosed) {
-			conn.getLiveViewItemContainer().setCurrentConnection(null);
+			conn.getLiveViewItemContainer().setConnection(null);
 		}
 	}
 	
@@ -318,8 +339,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 	 * @return true, 已连接; false, 未连接或无连接存在
 	 */
 	public boolean isConnected() {
-		return getCurrentConnection() != null 
-				&& getCurrentConnection().isConnected();
+		return getConnection() != null 
+				&& getConnection().isConnected();
 	}
 	
 	/**
@@ -327,12 +348,12 @@ public class LiveViewItemContainer extends RelativeLayout {
 	 * @return true, 正在连接; false, 未处于连接中
 	 */
 	public boolean isConnecting() {
-		return getCurrentConnection() != null 
-				&& getCurrentConnection().isConnecting();
+		return getConnection() != null 
+				&& getConnection().isConnecting();
 	}
 	
 	public void sendControlRequest(int cmdCode) {
-		final Connection conn = getCurrentConnection();
+		final Connection conn = getConnection();
 		if (conn != null) {
 			conn.sendControlRequest(cmdCode);
 			Log.i(TAG, "Send Control Request... mItemIndex: " + mItemIndex + ", cmdcode: "
@@ -341,7 +362,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void sendControlRequest(int cmdCode, int[] args) {
-		final Connection conn = getCurrentConnection();
+		final Connection conn = getConnection();
 		if (conn != null) {
 			conn.sendControlRequest(cmdCode, args);
 
@@ -463,14 +484,76 @@ public class LiveViewItemContainer extends RelativeLayout {
 		});
 	}
 	
-	public void resetView() {
-		mSurfaceView.setValid(true);
+	public void setValid(boolean valid) {
+		this.isValid = valid;
+	}
+	
+	public boolean isValid() {
+		return isValid;
+	}
+	
+	/**
+	 * Reset the view for future use. It is equal to call {@link 
+	 * #reset(boolean)} with <b>false</b>.
+	 */
+	public void reset() {
+		reset(false);
+	}
+	
+	/**
+	 * Reset the view for future use. If force is false and the connection 
+	 *  associated with this view is connected/connecting, then just set 
+	 *  the flag.
+	 * @param force Whether to force view to be discarded
+	 */
+	public void reset(boolean force) {
+		isValid = true;
+		if (!force && (isConnected()
+				|| isConnecting())) {
+			return;
+		}
+		
+		mWindowLayout.setWindowSelected(false);
+		mSurfaceView.onContentReset();
+		setWindowInfoContent(null);
 		mProgressBar.setVisibility(View.INVISIBLE);
 		mRefresh.setVisibility(View.GONE);
 	}
 	
+	/**
+	 * Let this view discarded. It is equal to call {@link #abort(boolean)}
+	 * with <b>false</b>.
+	 */
+	public void abort() {
+		abort(false);
+	}
+	
+	/**
+	 * Let this view discarded. If force is false and the connection
+	 * associated with this view is connected/connecting, then just 
+	 * set the flag.
+	 * @param force Whether to force view to be discarded
+	 */
+	public void abort(boolean force) {
+		isValid = false;
+		if (!force && (isConnected()
+				|| isConnecting())) {
+			return;
+		}
+		
+		mWindowLayout.setWindowSelected(false);
+		mSurfaceView.onContentReset();
+		setWindowInfoContent(null);
+		mProgressBar.setVisibility(View.INVISIBLE);
+		mRefresh.setVisibility(View.GONE);
+	}
+	
+	public void takePicture() {
+		mSurfaceView.takePicture();
+	}
+	
 	public void startMP4Record() {
-		if (mCurrentConnection != null) {
+		if (mConnection != null) {
 			String fileName = LocalFileUtils.getFormatedFileName(
 					getPreviewItem().getDeviceRecordName(), getPreviewItem()
 							.getChannel());
@@ -479,16 +562,16 @@ public class LiveViewItemContainer extends RelativeLayout {
 			mRecordFileName = fileName;
 			mSurfaceView.setStartRecord(true);
 			mSurfaceView.makeVideoSnapshot(fileName);
-			mCurrentConnection.getH264decoder().setPlayFPS(mFramerate);
-			mCurrentConnection.getH264decoder().startMP4Record(fullRecPath);
+			mConnection.getH264decoder().setPlayFPS(mFramerate);
+			mConnection.getH264decoder().startMP4Record(fullRecPath);
 			invalidate();
 		}
 	}
 	
 	public void stopMP4Record() {
-		if (mCurrentConnection != null) {
+		if (mConnection != null) {
 			mSurfaceView.setStartRecord(false);
-			mCurrentConnection.getH264decoder().stopMP4Record();
+			mConnection.getH264decoder().stopMP4Record();
 			invalidate();
 			
 			if (mRecordFileName != null) {

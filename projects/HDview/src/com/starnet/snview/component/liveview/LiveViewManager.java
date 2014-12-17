@@ -315,19 +315,19 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		liveviews.clear();
 	}
 
-	public void resetLiveView(int validCount) {
-		int lvSize = liveviews.size();
-
-		for (int i = 0; i < lvSize; i++) {
-			if (i < validCount) {
-				liveviews.get(i).getSurfaceView().setValid(true);
-				liveviews.get(i).getRefreshImageView()
-						.setVisibility(View.VISIBLE);
-			} else {
-				liveviews.get(i).getSurfaceView().setValid(false);
-			}
-		}
-	}
+//	public void resetLiveView(int validCount) {
+//		int lvSize = liveviews.size();
+//
+//		for (int i = 0; i < lvSize; i++) {
+//			if (i < validCount) {
+//				liveviews.get(i).getSurfaceView().setValid(true);
+//				liveviews.get(i).getRefreshImageView()
+//						.setVisibility(View.VISIBLE);
+//			} else {
+//				liveviews.get(i).getSurfaceView().setValid(false);
+//			}
+//		}
+//	}
 
 	public void closeAllConnection(boolean canUpdateViewAfterClosed) {
 		// int i;
@@ -373,7 +373,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 			if (!canUpdateViewAfterClosed) {
 				conn.getLiveViewItemContainer()
-						.setCurrentConnection(null);
+						.setConnection(null);
 			}
 		}
 	}
@@ -464,7 +464,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		// 1).getSurfaceView().copyPixelsFromBuffer(vSyncObj.pixels);
 
 		vSyncObj.connection.updateLiveViewItem(liveviews.get(desPos - 1));
-		liveviews.get(desPos - 1).setCurrentConnection(vSyncObj.connection);
+		liveviews.get(desPos - 1).setConnection(vSyncObj.connection);
 		liveviews.get(desPos - 1).setWindowInfoText(vSyncObj.windowTextInfo);
 
 		if (vSyncObj.connection.isConnecting()) {
@@ -503,9 +503,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		Log.i(TAG, "####$$$$live view count: " + liveviews.size());
 		int size = liveviews.size();
 		for (n = 0; n < size; n++) {
-			liveviews.get(n).resetView();
+			liveviews.get(n).reset();
 			if (n >= count) {
-				liveviews.get(n).getSurfaceView().setValid(false);
+//				liveviews.get(n).getSurfaceView().setValid(false);
 			}
 		}
 
@@ -534,7 +534,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
 			conn.bindLiveViewItem(liveviews.get(n - 1));
-			liveviews.get(n - 1).setCurrentConnection(conn);
+			liveviews.get(n - 1).setConnection(conn);
 
 			new Thread(new Runnable() {
 				@Override
@@ -585,9 +585,9 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				continue;
 			}
 
-			liveviews.get(n).resetView();
+			liveviews.get(n).reset();
 			if (n >= count) {
-				liveviews.get(n).getSurfaceView().setValid(false);
+//				liveviews.get(n).getSurfaceView().setValid(false);
 			}
 		}
 
@@ -628,7 +628,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 			liveviews.get(n - 1).setDeviceRecordName(p.getDeviceRecordName());
 			liveviews.get(n - 1).setPreviewItem(p);
 			conn.bindLiveViewItem(liveviews.get(n - 1));
-			liveviews.get(n - 1).setCurrentConnection(conn);
+			liveviews.get(n - 1).setConnection(conn);
 
 			new Thread(new Runnable() {
 				@Override
@@ -692,15 +692,15 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 		int lvSize = liveviews.size();
 
 		for (int i = 0; i < lvSize; i++) {
-			if (liveviews.get(i).getSurfaceView().isValid()) {
-				liveviews.get(i).setIsManualStop(true);
-				liveviews.get(i).getSurfaceView().onDisplayContentReset();
-				liveviews.get(i).setWindowInfoContent(
-						context.getString(R.string.connection_status_closed));
-				liveviews.get(i).getProgressBar().setVisibility(View.INVISIBLE);
-				liveviews.get(i).getRefreshImageView()
-						.setVisibility(View.VISIBLE);
-			}
+//			if (liveviews.get(i).getSurfaceView().isValid()) {
+//				liveviews.get(i).setIsManualStop(true);
+//				liveviews.get(i).getSurfaceView().onContentReset();
+//				liveviews.get(i).setWindowInfoContent(
+//						context.getString(R.string.connection_status_closed));
+//				liveviews.get(i).getProgressBar().setVisibility(View.INVISIBLE);
+//				liveviews.get(i).getRefreshImageView()
+//						.setVisibility(View.VISIBLE);
+//			}
 		}
 
 	}
@@ -753,7 +753,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				}
 
 				newConn.bindLiveViewItem(liveviews.get(i));
-				liveviews.get(i).setCurrentConnection(newConn);
+				liveviews.get(i).setConnection(newConn);
 
 				connections.add(newConn);
 			}

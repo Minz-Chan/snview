@@ -2,6 +2,7 @@ package com.starnet.snview.component.liveview;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.liveview.LiveViewItemContainer.OnRefreshButtonClickListener;
@@ -64,7 +65,12 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 * If this value is true, {@link #previewCurrentScreen()}} will be executed
 	 * next time when {@link #onScreenLayoutCompleted()} is called
 	 */
-	private boolean requestPreview;
+	private boolean requestPreview = false;
+	
+	/**
+	 * Indicator shows whether layout is finished
+	 */
+//	private static AtomicBoolean isLayoutCompleted = new AtomicBoolean(true);
 	
 	private GestureDetector directionGestureDetector;
 	private ScaleGestureDetector scaleGestureDetector;
@@ -82,25 +88,33 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private List<LiveViewItemContainer> mToBeRemovedLiveviews;
 	
 	private OnScreenListener screenChangedListener = new OnScreenListener() {
-		
 		@Override
 		public void onScreenModeChanged(MODE mode) {
 			Log.d(TAG, "onPageModeChanged, current mode:" + mode);
+			// Switch the double-clicked-item with the corresponding item 
+			// in current screen to avoid to reconnect again after mode changes
+			LiveViewItemContainer tmp = 
+					(LiveViewItemContainer) getSubViewByItemIndex(mDoubleClickedIndex);
+			swapView(tmp, mDoubleClickedLiveView);
+			
 			// The selected item do not need to reconnect
 			if (mode == MODE.SINGLE) { // from MODE.MULTIPLE to MODE.SINGLE
-				mToBeRemovedLiveviews.remove(getLiveviewsInCurrentScreen().get(0));
+				mToBeRemovedLiveviews.remove(mDoubleClickedLiveView);
+				mCurrentLiveviews.clear();
+				mCurrentLiveviews.add(0, mDoubleClickedLiveView);				
 			} else { // from MODE.SINGLE to MODE.MULTIPLE 
 				mToBeRemovedLiveviews.clear();
+				mCurrentLiveviews.set(
+						mDoubleClickedIndex%4, mDoubleClickedLiveView);
 			}
-			
 			highlightLiveviewBorder();
 			previewCurrentScreen();
 		}
-		
-		
+
 		@Override
 		public void onScreenChanged(int oldScreenIndex, int newScreenIndex) {
 			Log.d(TAG, "onPageChanged, oldScreenIndex:" + oldScreenIndex + ", screenIndex:" + newScreenIndex);	
+			highlightLiveviewBorder();
 			previewCurrentScreen();
 			updateLandToolbarPagerIndicator();
 			mHandler.sendEmptyMessage(Constants.SCREEN_CHANGE);
@@ -114,6 +128,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		
 		@Override
 		public void onSingleTap(View v) {
+			if (!isLayoutCompleted()) {
+				return;
+			}
+			
 			int clickedItemIndex = calcClickItemIndex(getLastMotionX(), getLastMotionY());
 			lastSelectedItemIndex = currentSelectedItemIndex;
 			if (clickedItemIndex < mDevices.size()) {
@@ -264,17 +282,38 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 	}
 	
+	/**
+	 * Save the clicked LiveViewItemContainer reference
+	 */
+	private LiveViewItemContainer mDoubleClickedLiveView = null;
+	/**
+	 * Save the clicked LiveViewItemContainer index
+	 */
+	private int mDoubleClickedIndex = -1;
 	private OnDoubleClickListener doubleClickListener = new OnDoubleClickListener() {
 		@Override
 		public void onDoubleClick(View v) {
-			Log.d(TAG, "on double click");
-			switchMode(calcClickItemIndex(getLastMotionX(), getLastMotionY()));
+			Log.d(TAG, "on double click, isLayoutCompleted:" + isLayoutCompleted());
+			int clickedItemIndex = calcClickItemIndex(
+					getLastMotionX(), getLastMotionY());
+			boolean outOfItemMaximumIndex = clickedItemIndex > mDevices.size()-1;
+			if (outOfItemMaximumIndex
+					|| !isLayoutCompleted()) {
+				return;  // return when item index is out of maximum index 
+						 // or the layout pass has not finished 
+			}
 			
+			mDoubleClickedIndex = clickedItemIndex;
+			mDoubleClickedLiveView = (LiveViewItemContainer) getSubViewByItemIndex(clickedItemIndex);
+			
+			switchMode(clickedItemIndex);
 			updatePageInfo();
 			if (GlobalApplication.getInstance().isIsFullMode()
 					&& mLiveControl.getLandscapeToolbar().isLandToolbarShow()) { // 更新工具栏页码
 				mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
 			}
+			
+			
 			/*
 			if (mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下双击无效
 				return;
@@ -608,10 +647,43 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 */
 	public boolean isInPreviewing() {
 		final Connection conn = ((LiveViewItemContainer) getSubViewByItemIndex(
-				currentSelectedItemIndex)).getCurrentConnection();
+				currentSelectedItemIndex)).getConnection();
 		return conn != null && conn.isConnected();
 	}
 	
+	@Override
+	protected void swapView(View v1, View v2) {
+		if (v1 == v2) {
+			return;
+		}
+		
+		super.swapView(v1, v2);
+		LiveViewItemContainer c1 = (LiveViewItemContainer) v1;
+		LiveViewItemContainer c2 = (LiveViewItemContainer) v2;
+		
+		// Swap item index
+		int t = c1.getItemIndex();
+		c1.setItemIndex(c2.getItemIndex());
+		
+		c2.setItemIndex(t);		
+		// Swap item information
+		PreviewDeviceItem p = c1.getPreviewItem();
+		c1.setPreviewItem(c2.getPreviewItem());
+		c2.setPreviewItem(p);
+		
+		// Swap valid status
+		boolean valid1 = c1.isValid();
+		boolean valid2 = c2.isValid();
+		if (!valid1) {
+			c1.setValid(true);
+			c2.abort();
+		}
+		if (!valid2) {
+			c2.setValid(true);
+			c1.abort();
+		}
+	}
+
 	/**
 	 * Calculate current item index according to current screen index and
 	 * pointer information.
@@ -706,16 +778,43 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 	}
 
+	/**
+	 * Update the devices. When this method is called and the count
+	 * of devices has no change, it will schedule a layout pass.
+	 * @param devices Devices list used for updating
+	 */
 	public void setDevices(List<PreviewDeviceItem> devices) {
+		setDevices(devices, true);
+	}	
+	
+	/**
+	 * Update the devices.
+	 * @param devices Devices list used for updating
+	 * @param relayout Whether to regenerate layout.
+	 * 		<b>true</b>, a layout pass will be scheduled if devices 
+	 * 		size changed, otherwise, just update device information.
+	 * 		<b>false</b>, just update device information
+	 */
+	public void setDevices(List<PreviewDeviceItem> devices, boolean relayout) {
 		if (devices == null || devices.size() == 0) {
 			return;
 		}
 		
-		this.mDevices = devices;
+		int oldDevicesSize = mDevices == null ? 0 : mDevices.size();
+		mDevices = devices;
 		mToBeRemovedLiveviews.clear();
-		mCurrentLiveviews.clear();
-		regenerateLayout(getScreenMode(), mDevices.size(), 0);
-	}	
+		if (relayout) {
+			if (oldDevicesSize != mDevices.size()) { 
+				regenerateLayout(getScreenMode(), mDevices.size(), 0);
+			} else { // Do not need to regenerate layout, just update
+					 // LiveItemItemContainers in current screen
+				prepareCurrentScreenLiveViews(devices);
+			}
+		} else {
+			// Update LiveItemItemContainers in current screen
+			prepareCurrentScreenLiveViews(devices);
+		}
+	}
 	
 	public void setPTZMode(boolean isPTZMode) {
 		this.isPTZMode = isPTZMode;
@@ -725,20 +824,43 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 * 计划一个预览请求，它将在下一次布局完成时触发
 	 */
 	public void schedulePreview() {
-		requestPreview = true;
+		schedulePreview(false);
 	}
 	
-	public void previewCurrentScreen() {
+	/**
+	 *  Schedule a preview request, it will be triggered
+	 *  when next layout has finished. 
+	 * @param forcePreview Whether to force the system 
+	 * 		to preview immediately.
+	 */
+	public void schedulePreview(boolean forcePreview) {
+		if (forcePreview) {
+			Log.d(TAG, "schedulePreview(), previewCurrentScreen");
+			previewCurrentScreen();
+		} else {
+			if (!isLayoutCompleted()) {
+				Log.d(TAG, "schedulePreview(), requestPreview");
+				requestPreview = true;
+			} else {
+				Log.d(TAG, "schedulePreview(), requestLayout");
+				previewCurrentScreen();
+			}	
+		}
+	}
+	
+	public synchronized void previewCurrentScreen() {
+		Log.d(TAG, "previewCurrentScreen()");
 		for (LiveViewItemContainer c1 : mCurrentLiveviews) {
-			if (!c1.isConnected()) {
+			if (!c1.isConnected() && !c1.isConnecting()) {
+				c1.reset(true);
 				c1.preview();
 			}
 		}
 		
 		for (LiveViewItemContainer c2 : mToBeRemovedLiveviews) {
-			if (c2.isConnected()) {
+			if (c2.isConnected() || c2.isConnecting()) {
 				c2.stopPreview(false);
-				c2.resetView();
+				c2.reset(true);
 			}
 		}
 	}
@@ -748,7 +870,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		for (LiveViewItemContainer c : lvs) {
 			if (c.isConnected()) {
 				c.stopPreview(false);
-				c.resetView();
+				c.reset();
 			}
 		}
 	}
@@ -774,6 +896,16 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	}
 
 	@Override
+	protected void onSubViewLayoutCompleted(View v, boolean hasContent) {
+		LiveViewItemContainer c = (LiveViewItemContainer) v;
+		if (hasContent) {
+			c.reset();	
+		} else {
+			c.abort();
+		}
+	}
+
+	@Override
 	protected void onScreenLayoutCompleted() {		
 		if (mCurrentLiveviews == null 
 				|| mToBeRemovedLiveviews == null
@@ -787,20 +919,26 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			mToBeRemovedLiveviews.add(c);
 		}
 		
-		mCurrentLiveviews.clear();
-		int startIndex = getCurrentScreenItemStartIndex();
-		int endIndex = getCurrentScreenItemEndIndex();
-		for (int i = startIndex; i <= endIndex; i++) {
-			LiveViewItemContainer c = (LiveViewItemContainer)
-					getSubViewByItemIndex(i);
-			c.setItemIndex(i);
-			c.setPreviewItem(mDevices.get(i)); // load connection info
-			mCurrentLiveviews.add(c);
-		}
+		prepareCurrentScreenLiveViews(mDevices);
 		
 		// Highlight the current selected view
 		lastSelectedItemIndex = currentSelectedItemIndex;
 		currentSelectedItemIndex = getCurrentScreenItemStartIndex();
+		if (lastSelectedItemIndex < getWindowLeftStartItemIndex()
+				|| lastSelectedItemIndex > getWindowRightEndItemIndex()) {
+			// When the LiveViewGroup is in layout first time and the 
+			// lastSelectedItemIndex(default to be 0) is not in valid
+			// range [WindowLeftStartItemIndex,WindowRightEndItemIndex].
+			// Most of this cases, it is usually not triggered by user,
+			// and we let it be equal to currentSelectedItemIndex
+			lastSelectedItemIndex = currentSelectedItemIndex;
+		}
+		
+		if (debug) {
+			Log.d(TAG, "currentSelectedItemIndex:" + currentSelectedItemIndex
+					+ ", lastSelectedItemIndex:" + lastSelectedItemIndex);
+		}
+		
 		highlightLiveviewBorder();
 		
 		// Update page information
@@ -808,8 +946,37 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		
 		// Request to preview devices
 		if (requestPreview) {
+			if (debug) {
+				Log.d(TAG, "Preview request has been accepted.");
+			}
 			requestPreview = false;
 			previewCurrentScreen();
+		}
+	}
+	
+	/**
+	 * Fill connection and index information into current screen LiveViewItemContainers
+	 * @param devices Devices list that provides connection information
+	 */
+	private void prepareCurrentScreenLiveViews(List<PreviewDeviceItem> devices) {
+		if (devices == null || devices.size() == 0) {
+			throw new IllegalArgumentException("Devices list can't be null or 0 size.");
+		}
+		mCurrentLiveviews.clear();
+		int startIndex = getCurrentScreenItemStartIndex();
+		int endIndex = getCurrentScreenItemEndIndex();
+		
+		if (debug) {
+			Log.d(TAG, "CurrentScreenItemStartIndex:" + startIndex
+					+ ", CurrentScreenItemEndIndex:" + endIndex);
+		}
+		
+		for (int i = startIndex; i <= endIndex; i++) {
+			LiveViewItemContainer c = (LiveViewItemContainer)
+					getSubViewByItemIndex(i);
+			c.setItemIndex(i);
+			c.setPreviewItem(devices.get(i)); // load connection info
+			mCurrentLiveviews.add(c);
 		}
 	}
 

@@ -75,7 +75,7 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 		// 更新视频显示
 		if (liveViewChangedListener != null && !connection.getLiveViewItemContainer().isManualStop()) {
 			//System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
-			liveViewChangedListener.onDisplayContentUpdated();
+			liveViewChangedListener.onContentUpdated();
 		}
 		
 //		File f = new File("e:/test.h264");

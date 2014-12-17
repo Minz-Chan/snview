@@ -33,6 +33,7 @@ import android.view.View;
 public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	public static final String TAG = "LiveView";
 	
+	private LiveViewItemContainer parent;
 	private SurfaceHolder mHolder = null;
 	
 	private int width = 352;
@@ -44,7 +45,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	
 	private Matrix mScale;
 	
-	private boolean isValid = true;
+//	private boolean isValid = true;
 	private boolean canTakePicture = false;
 	private boolean canStartRecord = false;
 	private boolean canTakeVideoSnapshot = false;
@@ -105,24 +106,33 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		mOldHeightMeasureSpec = -1;
 	}
 	
+	public void setParent(LiveViewItemContainer c) {
+		this.parent = c;
+	} 
 	
-	public boolean isValid() {
-		return isValid;
+	private boolean isValid() {
+		return parent == null || parent.isValid();
 	}
 	
-	public void setValid(boolean isValid) {
-		this.isValid = isValid;
-		
-		onDisplayContentReset();
-	}
+//	public boolean isValid() {
+//		return isValid;
+//	}
+//	
+//	public void setValid(boolean isValid) {
+//		this.isValid = isValid;
+//	}
 	
 	public void makeVideoSnapshot(String fileNameExpceptSuffix) {
 		canTakeVideoSnapshot = true;
 		mVideoSnapshotName = fileNameExpceptSuffix;
 	}
 	
-	public void setTakePicture(boolean canTakePicture) {
-		this.canTakePicture = canTakePicture;
+//	public void setTakePicture(boolean canTakePicture) {
+//		this.canTakePicture = canTakePicture;
+//	}
+	public void takePicture() {
+		canTakePicture = true;
+		contentUpdate();
 	}
 	
 	public boolean isStartRecord() {
@@ -158,8 +168,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		//Log.i(TAG, "surfaceChanged");
-		if (!isValid) {
-			onDisplayContentReset();
+		if (!isValid()) {
+			onContentReset();
 		}
 		//Log.i(TAG, "nW:" + width + ", nH:" + height + ", mW:" + mVideoBit.getWidth() + ", mH:" + mVideoBit.getHeight());
 //		if (mScale != null && mVideoBit != null) {
@@ -182,7 +192,7 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 		int height = MeasureSpec.getSize(heightMeasureSpec);
-		Log.d(TAG, "onMeasure(), measuredWidth:" + width + ", measuredHeight:" + height);
+//		Log.d(TAG, "onMeasure(), measuredWidth:" + width + ", measuredHeight:" + height);
 		
 		if (mOldWidthMeasureSpec != widthMeasureSpec ||
 				mOldHeightMeasureSpec != heightMeasureSpec) {
@@ -201,19 +211,16 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 					1.0F * (bottom-top) / mVideoBit.getHeight());
 		}
 		
-		Connection conn = findVideoContainerByView(this).getCurrentConnection();
-		if (isValid && (conn != null && conn.isConnected())) {
-			refreshDisplay();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
+		Connection conn = parent.getConnection();
+		if (isValid() && (conn != null && conn.isConnected())) {
+			contentUpdate();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
 		}
-		
-		 
 		
 		super.onLayout(changed, left, top, right, bottom);
 	}
 
-	private void refreshDisplay() {
+	private synchronized void contentUpdate() {
 		Canvas canvas = mHolder.lockCanvas();
-		
 		// 刷屏
 		if (mVideoBit != null && canvas != null) {
         	/* 此处rewind用意
@@ -222,7 +229,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         	 * 就要注意每次起始位置。
         	 */
         	mBuffer.rewind();	
-        	
         	if ((mVideoBit.getWidth() * mVideoBit.getHeight() * 2) 
         			!= (mBuffer.position() + mBuffer.remaining())) {
         		return;
@@ -237,14 +243,12 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         		savePictureAndThumbnail(mVideoBit);
         		canTakePicture = false;
         	}
-        	
         	if (canStartRecord) {
-        		Connection conn = findVideoContainerByView(this).getCurrentConnection();
+        		Connection conn = parent.getConnection();
         		if (conn != null && conn.getH264decoder().isInRecording()) {
         			canvas.drawCircle(20, 20, 10, mPaint);
         		}
         	}
-        	
         	if (canTakeVideoSnapshot && mVideoSnapshotName != null) {
         		saveVideoSnapshotAndThumbnail(mVideoBit, mVideoSnapshotName);
         		canTakeVideoSnapshot = false;
@@ -255,15 +259,13 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 	
 	private int THUMBNAIL_HEIGHT = 100;
-	
 	private void saveVideoSnapshotAndThumbnail(Bitmap bmp, String fileName) {
-		LiveViewItemContainer c = findVideoContainerByView(this);
+		LiveViewItemContainer c = parent;
 		if (c == null) {
 			return;
 		}
 		
 		Log.i(TAG, "Has Sdcard: " + SDCardUtils.IS_MOUNTED);
-		
 		if (SDCardUtils.IS_MOUNTED) { // SDcard可用
 			// 获取快照及其缩略图完整路径
 			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
@@ -286,12 +288,10 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 	
 	private void savePictureAndThumbnail(Bitmap bmp) {
-		
-		LiveViewItemContainer c = findVideoContainerByView(this);
+		LiveViewItemContainer c = parent;
 		if (c == null) {
 			return;
 		}
-		
 
 		boolean result = false;
 		String imgPath =  null;
@@ -329,7 +329,6 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 			
 		}
 		
-		
 		// 通知主界面
 		Handler h = GlobalApplication.getInstance().getHandler();
 		if (h != null && result) {
@@ -354,11 +353,8 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 		
 		try {
 			fout =  new FileOutputStream(f);
-			
 			b.compress(Bitmap.CompressFormat.JPEG, 100, fout);
-			
 			fout.close();
-			
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -377,46 +373,44 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
 	}
 
 	@Override
-	public void onDisplayResulotionChanged(int width, int height) {
+	public void onResulotionChanged(int width, int height) {
 		if (this.width != width || this.height != height) {
 			init(width, height);
 		}
 	}
 	
 	@Override
-	public void onDisplayContentUpdated() {
-		//this.postInvalidate();
-		refreshDisplay();
+	public void onContentUpdated() {
+		contentUpdate();
 	}
 
 	@Override
-	public void onDisplayContentReset() {	
+	public void onContentReset() {	
 		Canvas canvas = mHolder.lockCanvas();
 		if (canvas != null) {
-			if (isValid) {
+			if (isValid()) {
 				canvas.drawColor(Color.BLACK);
 			} else {
 				canvas.drawColor(getResources().getColor(R.color.liveview_bg_invalid));
-				
-				LiveViewItemContainer c = findVideoContainerByView(this);
-				if (c != null) {
-					c.setWindowInfoContent(null);
-				}
+//				LiveViewItemContainer c = findVideoContainerByView(this);
+//				if (c != null) {
+//					c.setWindowInfoContent(null);
+//				}
 			}
 			mHolder.unlockCanvasAndPost(canvas); 
 		}
 	}
 	
-	private LiveViewItemContainer findVideoContainerByView(View v) {
-		View curr = v;
-		while (curr != null) {
-			if (curr instanceof LiveViewItemContainer) {
-				break;
-			}
-			curr = (View) curr.getParent();
-		}
-		return (LiveViewItemContainer) curr;
-	}
+//	private LiveViewItemContainer findVideoContainerByView(View v) {
+//		View curr = v;
+//		while (curr != null) {
+//			if (curr instanceof LiveViewItemContainer) {
+//				break;
+//			}
+//			curr = (View) curr.getParent();
+//		}
+//		return (LiveViewItemContainer) curr;
+//	}
 	
 	
 }
