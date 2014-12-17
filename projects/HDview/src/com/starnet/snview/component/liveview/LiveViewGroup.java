@@ -2,7 +2,6 @@ package com.starnet.snview.component.liveview;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.liveview.LiveViewItemContainer.OnRefreshButtonClickListener;
@@ -27,7 +26,7 @@ import android.widget.Toast;
 
 public class LiveViewGroup extends QuarteredViewGroup {
 	private static final String TAG = "LiveViewGroup";
-	private boolean debug = true;
+	private static final boolean debug = true;
 	
 	private Context context;
 	
@@ -91,31 +90,55 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		@Override
 		public void onScreenModeChanged(MODE mode) {
 			Log.d(TAG, "onPageModeChanged, current mode:" + mode);
+			int sourceIndex;
+			LiveViewItemContainer sourceLiveView;
+			if (!isPTZMode && mDoubleClickedIndex != -1
+					&& mDoubleClickedLiveView != null) { // Triggered by double-clicked
+				sourceIndex = mDoubleClickedIndex;
+				sourceLiveView = mDoubleClickedLiveView;
+			} else { // Triggered by PTZ-on or PTZ-off
+				int sourcePos;
+				sourceIndex = currentSelectedItemIndex;
+				sourcePos = mode == MODE.SINGLE ? sourceIndex%4 : 0;
+				sourceLiveView = mToBeRemovedLiveviews.get(sourcePos);
+			}
+			
 			// Switch the double-clicked-item with the corresponding item 
 			// in current screen to avoid to reconnect again after mode changes
 			LiveViewItemContainer tmp = 
-					(LiveViewItemContainer) getSubViewByItemIndex(mDoubleClickedIndex);
-			swapView(tmp, mDoubleClickedLiveView);
+					(LiveViewItemContainer) getSubViewByItemIndex(sourceIndex);
+			swapView(tmp, sourceLiveView);
 			
 			// The selected item do not need to reconnect
 			if (mode == MODE.SINGLE) { // from MODE.MULTIPLE to MODE.SINGLE
-				mToBeRemovedLiveviews.remove(mDoubleClickedLiveView);
+				mToBeRemovedLiveviews.remove(sourceLiveView);
 				mCurrentLiveviews.clear();
-				mCurrentLiveviews.add(0, mDoubleClickedLiveView);				
+				mCurrentLiveviews.add(
+						0, 				// new position to be replaced
+						sourceLiveView);				
 			} else { // from MODE.SINGLE to MODE.MULTIPLE 
 				mToBeRemovedLiveviews.clear();
 				mCurrentLiveviews.set(
-						mDoubleClickedIndex%4, mDoubleClickedLiveView);
+						sourceIndex%4,  // new position to be replaced
+						sourceLiveView);
 			}
-			highlightLiveviewBorder();
+			
 			previewCurrentScreen();
+			
+			// Reset the variable associated with double-clicked event
+			// so we can know who trigger the mode change event
+			mDoubleClickedIndex = -1;
+			mDoubleClickedLiveView = null;			
 		}
 
 		@Override
 		public void onScreenChanged(int oldScreenIndex, int newScreenIndex) {
-			Log.d(TAG, "onPageChanged, oldScreenIndex:" + oldScreenIndex + ", screenIndex:" + newScreenIndex);	
-			highlightLiveviewBorder();
+			Log.d(TAG, "onScreenChanged, oldScreenIndex:" + oldScreenIndex + ", screenIndex:" + newScreenIndex);	
+			currentSelectedItemIndex = getCurrentScreenItemStartIndex();
+			Log.d(TAG, "onScreenChanged, currentSelectedItemIndex:" + currentSelectedItemIndex);
+			updatePageInfo();
 			previewCurrentScreen();
+			
 			updateLandToolbarPagerIndicator();
 			mHandler.sendEmptyMessage(Constants.SCREEN_CHANGE);
 		}
@@ -145,7 +168,18 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 	};
 	
+	/**
+	 * This method should be called when parent view is under 
+	 * animation transition to make skipInvalidate() which is 
+	 * in invalidate() returns false. So that invalidate() call
+	 * will be valid when dimensionality and size remains unchanged.
+	 */
 	private void highlightLiveviewBorder() {
+		if (debug) {
+			Log.d(TAG, "Highlight video border. [lastSelectedItemIndex:"
+					+ lastSelectedItemIndex + ", currentSelectedItemIndex:"
+					+ currentSelectedItemIndex + "]");
+		}
 		((LiveViewItemContainer)getSubViewByItemIndex(
 				lastSelectedItemIndex)).getWindowLayout().setWindowSelected(false);
 		((LiveViewItemContainer)getSubViewByItemIndex(
@@ -179,80 +213,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 					syncUIElementsStatus(); // 同步录像按钮状态
 				}
 			}
-			
-			
-			/*
-			Log.d(TAG, "on single click");
-			if (mLiveViewManager.getPager() == null) {
-				return;
-			}
-
-			int pos;
-
-			if (mLiveViewManager.getPageCapacity() == 1) {
-				pos = 1;
-			} else {
-				//pos = getIndexOfLiveview(e.getX(), e.getY());
-				pos = (currentSelectedItemIndex + 1)%4 == 0 ? 4 
-						: (currentSelectedItemIndex + 1)%4;
-			}
-
-			if ((mPtzControl.isPTZModeOn() && isInPreviewing())) { // PTZ模式情况下或单通道模式单击处理PTZ工具条的显示和隐藏
-				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
-					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
-						mLiveControl.getLandscapeToolbar()
-								.hideLandscapeToolbar();
-					} else {
-						mLiveControl.getLandscapeToolbar()
-								.showLandscapeToolbar();
-					}
-				}
-				return;
-			}
-
-			int index = (mLiveViewManager.getCurrentPageNumber() - 1)
-					* mLiveViewManager.getPageCapacity() + pos;
-
-			//Log.i(TAG, "single_click, getX:" + e.getX() + ", getY:" + e.getY()
-			//		+ ", pos:" + pos + ", index:" + index);
-
-			if (index > mLiveViewManager.getLiveViewTotalCount()) {
-				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
-					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
-						mLiveControl.getLandscapeToolbar()
-								.hideLandscapeToolbar();
-					} else {
-						mLiveControl.getLandscapeToolbar()
-								.showLandscapeToolbar();
-					}
-				}
-				return; // 非有效通道，不作其他处理
-			}
-
-			int oldPos = mLiveViewManager.getCurrentSelectedLiveViewPosition();
-
-			mLiveViewManager.setCurrenSelectedLiveViewtIndex(index); // 变更当前选择索引
-
-			mLiveViewManager.selectLiveView(index);
-
-			mPager.setNum(mLiveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(mLiveViewManager.getLiveViewTotalCount());
-
-			syncUIElementsStatus();
-			
-			if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
-				if (pos == oldPos) {
-					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
-						mLiveControl.getLandscapeToolbar()
-								.hideLandscapeToolbar();
-					} else {
-						mLiveControl.getLandscapeToolbar()
-								.showLandscapeToolbar();
-					}
-				} else {
-					mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
-				}
-			}*/
 		}
 	};
 	
@@ -312,98 +272,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 					&& mLiveControl.getLandscapeToolbar().isLandToolbarShow()) { // 更新工具栏页码
 				mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
 			}
-			
-			
-			/*
-			if (mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下双击无效
-				return;
-			}
-
-			Log.i(TAG, "On Double click");
-
-			if (mLiveViewManager.getPager() == null) {
-				return;
-			}
-
-			int pos;
-
-			if (mLiveViewManager.getPageCapacity() == 1) {
-				pos = 1;
-			} else {
-				//pos = getIndexOfLiveview(e.getX(), e.getY());
-				pos = (currentSelectedItemIndex + 1)%4 == 0 ? 4 
-						: (currentSelectedItemIndex + 1)%4;
-			}
-
-			int index = (mLiveViewManager.getCurrentPageNumber() - 1)
-					* mLiveViewManager.getPageCapacity() + pos;
-
-			//Log.i(TAG, "double_click, getX:" + e.getX() + ", getY:" + e.getY()
-			//		+ ", pos:" + pos + ", index:" + index);
-
-			if (index > mLiveViewManager.getLiveViewTotalCount()) {
-				return; // 非有效通道，不作处理
-			}
-
-			mLiveViewManager.setCurrenSelectedLiveViewtIndex(index); // 变更当前选择索引
-
-			if (mLiveViewManager.isMultiMode()) { // 切换到单通道模式
-				if (checkIsPTZDeviceConnected()) {
-					mLiveViewManager.prestoreConnectionByPosition(pos);
-					mLiveViewManager.setMultiMode(false);
-					switchMode(currentSelectedItemIndex);
-					mLiveViewManager.transferVideoWithoutDisconnect(pos);
-				} else {
-					mLiveViewManager.closeAllConnection(false);
-					mLiveViewManager.setMultiMode(false);
-					switchMode(currentSelectedItemIndex);
-					mLiveViewManager.preview(index);
-				}
-
-				mPtzControl.setIsEnterPTZInSingleMode(true);
-			} else { // 切换到多通道模式
-				int currPageStart;
-				int currPageEnd;
-
-				if (checkIsPTZDeviceConnected()) { // 若当前通道为连接状态，则切换时保持当前连接
-					mLiveViewManager.prestoreConnectionByPosition(pos);
-					mLiveViewManager.setMultiMode(true);
-					switchMode(currentSelectedItemIndex);
-
-					currPageStart = (mLiveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-					currPageEnd = (mLiveViewManager.getCurrentPageNumber() - 1)
-							* 4 + mLiveViewManager.getCurrentPageCount();
-					mLiveViewManager.preview(currPageStart, currPageEnd
-							- currPageStart + 1, index);
-				} else { // 若当前通道为非连接状态，则关闭所有连接
-					mLiveViewManager.closeAllConnection(false);
-					mLiveViewManager.setMultiMode(true);
-					switchMode(currentSelectedItemIndex);
-
-					currPageStart = (mLiveViewManager.getCurrentPageNumber() - 1) * 4 + 1;
-					currPageEnd = (mLiveViewManager.getCurrentPageNumber() - 1)
-							* 4 + mLiveViewManager.getCurrentPageCount();
-					mLiveViewManager.preview(currPageStart, currPageEnd
-							- currPageStart + 1);
-				}
-
-				// 若发现此时PTZ模式开启，则重围PTZ模式，即退出PTZ模式
-				if (mPtzControl.isPTZModeOn()) {
-					mPtzControl.showPTZBar(false);
-				}
-
-				mPtzControl.setIsEnterPTZInSingleMode(false);
-			}
-
-			mLiveViewManager.selectLiveView(index);
-
-			mPager.setNum(mLiveViewManager.getSelectedLiveViewIndex());
-			mPager.setAmount(mLiveViewManager.getLiveViewTotalCount());
-			
-			if (GlobalApplication.getInstance().isIsFullMode()
-					&& mLiveControl.getLandscapeToolbar().isLandToolbarShow()) { // 更新工具栏页码
-				mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
-			}*/
 		}
 	};
 	
@@ -863,6 +731,9 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				c2.reset(true);
 			}
 		}
+		
+		// Highlight border when preview starts
+		highlightLiveviewBorder();
 	}
 	
 	public void stopPreviewCurrentScreen() {
@@ -921,9 +792,15 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		
 		prepareCurrentScreenLiveViews(mDevices);
 		
-		// Highlight the current selected view
+		// Set the current selected index and last selected index.
+		// When regenerating or mode change event happen, we can
+		// use the index saved before to be current selected index.
+		// Otherwise, if onScreenLayoutCompleted() is triggered by
+		// page change event, you should set the current selected
+		// index in the callback function onScreenChanged()
 		lastSelectedItemIndex = currentSelectedItemIndex;
-		currentSelectedItemIndex = getCurrentScreenItemStartIndex();
+		currentSelectedItemIndex = 
+				getInitialItemIndexBeforeLayout(); 
 		if (lastSelectedItemIndex < getWindowLeftStartItemIndex()
 				|| lastSelectedItemIndex > getWindowRightEndItemIndex()) {
 			// When the LiveViewGroup is in layout first time and the 
@@ -939,9 +816,9 @@ public class LiveViewGroup extends QuarteredViewGroup {
 					+ ", lastSelectedItemIndex:" + lastSelectedItemIndex);
 		}
 		
-		highlightLiveviewBorder();
-		
-		// Update page information
+		// Update page information for regenerating and mode 
+		// change event. Page change event should update again 
+		// when currentSelectedItemIndex has changed.
 		updatePageInfo();
 		
 		// Request to preview devices

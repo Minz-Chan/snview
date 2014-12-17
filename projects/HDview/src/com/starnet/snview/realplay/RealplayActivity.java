@@ -394,16 +394,16 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		Log.i(TAG, "ConfigurationChanged");
+		int screenWidth = ActivityUtility.getScreenSize(this).x;
+		int screenHeight = ActivityUtility.getScreenSize(this).y;
 
-		getApp().setScreenWidth(ActivityUtility.getScreenSize(this).x);
-		getApp().setScreenHeight(ActivityUtility.getScreenSize(this).y);
+		getApp().setScreenWidth(screenWidth);
+		getApp().setScreenHeight(screenHeight);
 
 		// 根据新的宽度和高度重新计算mVideoRegion及其中的LiveView
 		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-			Log.i(TAG, "ConfigurationChanged ->LANDSCAPE, width:"
-					+ ActivityUtility.getScreenSize(this).x + ", height:"
-					+ ActivityUtility.getScreenSize(this).y);
+			Log.d(TAG, "ConfigurationChanged ->LANDSCAPE, width:" + screenWidth
+					+ ", height:" + screenHeight);
 
 			super.setMenuEnabled(false);
 			super.getNavbarContainer().setVisibility(View.GONE);
@@ -414,10 +414,13 @@ public class RealplayActivity extends BaseActivity {
 			this.getWindow().setFlags(
 					WindowManager.LayoutParams.FLAG_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			
+			mLiveviewGroup.setLayoutParams(new FrameLayout.LayoutParams(
+					screenWidth, screenHeight));
 
-			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
-					ActivityUtility.getScreenSize(this).x,
-					ActivityUtility.getScreenSize(this).y);
+//			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+//					ActivityUtility.getScreenSize(this).x,
+//					ActivityUtility.getScreenSize(this).y);
 			// mVideoRegion.setLayoutParams(param);
 //			mVideoPager.setLayoutParams(param);
 
@@ -425,9 +428,8 @@ public class RealplayActivity extends BaseActivity {
 
 		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
 
-			Log.i(TAG, "ConfigurationChanged ->PORTRAIT, width:"
-					+ ActivityUtility.getScreenSize(this).x + ", height:"
-					+ ActivityUtility.getScreenSize(this).y);
+			Log.d(TAG, "ConfigurationChanged ->PORTRAIT, width:" + screenWidth
+					+ ", height:" + screenHeight);
 
 			super.setMenuEnabled(true);
 			super.getNavbarContainer().setVisibility(View.VISIBLE);
@@ -439,9 +441,11 @@ public class RealplayActivity extends BaseActivity {
 					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
 					WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
-					ActivityUtility.getScreenSize(this).x,
-					ActivityUtility.getScreenSize(this).x);
+			mLiveviewGroup.setLayoutParams(new FrameLayout.LayoutParams(
+					screenWidth, screenWidth));
+//			RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(
+//					ActivityUtility.getScreenSize(this).x,
+//					ActivityUtility.getScreenSize(this).x);
 			// mVideoRegion.setLayoutParams(param);
 //			mVideoPager.setLayoutParams(param);
 

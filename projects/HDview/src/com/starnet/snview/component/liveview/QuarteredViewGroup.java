@@ -64,6 +64,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	private int privateFlags;
 	
 	private int oldScreenIndex;
+	private int initialItemIndexBeforeLayout;
 	private boolean isModeChanged;
 	private boolean isLayoutCompleted;  // Indicator shows whether layout has finished
 	private int oldWidthMeasureSpec;
@@ -140,6 +141,15 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	
 	protected List<View> getAllSubViews() {
 		return reusedViews;
+	}
+	
+	/**
+	 * Returns item index provided before mode change or 
+	 * regenerating event. 
+	 * @return item index saved
+	 */
+	protected int getInitialItemIndexBeforeLayout() {
+		return initialItemIndexBeforeLayout;
 	}
 	
 	/**
@@ -354,6 +364,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 	 */
 	private void performRelayout(MODE m, int c, int initialItemIndex) {
 		//isModeChanged = mode != m ? true : false;
+		initialItemIndexBeforeLayout = initialItemIndex;
 		
 		mode = m;
 		capacity = c;
@@ -538,7 +549,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 			}
 		}
 		
-
+		isLayoutCompleted = true;
 		boolean isRelayoutRequest = (privateFlags & 
 				PFLAGS_LAYOUT_NEED_RELAYOUT) == PFLAGS_LAYOUT_NEED_RELAYOUT;
 		
@@ -550,7 +561,6 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		if (isModeChanged || screenIndex != oldScreenIndex
 				|| isRelayoutRequest) {
 			onScreenLayoutCompleted();	
-			isLayoutCompleted = true;
 			if (!isRelayoutRequest) {
 				detectModeChanged();
 				detectPageChanged();
@@ -744,7 +754,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 				posRect.left + padding + (vHalfWidth - 1), 
 				posRect.top + padding + (vHalfHeight - 1));
 		viewsInCurrentScreen.get(1).layout(
-				posRect.left + padding + (vHalfHeight - 1) + 1,
+				posRect.left + padding + (vHalfWidth - 1) + 1,
 				posRect.top + padding, 
 				posRect.right - padding, 
 				posRect.top + padding + (vHalfHeight - 1));
@@ -754,7 +764,7 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 				posRect.left + padding + (vHalfWidth - 1), 
 				posRect.bottom - padding);
 		viewsInCurrentScreen.get(3).layout(
-				posRect.left + padding + (vHalfHeight - 1) + 1,
+				posRect.left + padding + (vHalfWidth - 1) + 1,
 				posRect.top + padding + (vHalfHeight - 1) + 1, 
 				posRect.right - padding, 
 				posRect.bottom - padding);
