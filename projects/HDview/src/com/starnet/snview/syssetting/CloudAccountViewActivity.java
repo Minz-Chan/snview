@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,9 +41,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 	private String titleName;
 	private CloudAccount deleteCA;
 	private CloudAccount beforeEditCA;
-	
-	private Button user_save_btn;//账号添加按钮
-	
+
+	private Button user_save_btn;// 账号添加按钮
+
 	private List<PreviewDeviceItem> previewDeviceItems;
 	private List<PreviewDeviceItem> editPreviewDeviceItems;
 	private List<PreviewDeviceItem> delPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
@@ -56,76 +57,106 @@ public class CloudAccountViewActivity extends BaseActivity {
 		initView();
 		setListeners();
 
-		mNetWorkSettingList.setOnItemClickListener(new OnItemClickListener() {//进入用户编辑界面？？？？？更改原来的信息；
+		mNetWorkSettingList.setOnItemClickListener(new OnItemClickListener() {// 进入用户编辑界面？？？？？更改原来的信息；
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				pos = position;
-				beforeEditCA = cloudAccountList.get(position);
-				Intent intent = new Intent();
-				Bundle bundle = new Bundle();
-				bundle.putString("clickPostion", ""+pos);
-				bundle.putSerializable("cloudAccount", beforeEditCA);
-				intent.putExtras(bundle);
-				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdateActivity.class);
-				startActivityForResult(intent,20);
-			}
-		});
-		
-		mNetWorkSettingList.setOnItemLongClickListener(new OnItemLongClickListener(){
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
-				//弹出删除对话框。。。
-				deleteCA = (CloudAccount) parent.getItemAtPosition(position);
-				titleName = deleteCA.getUsername();
-				Builder builder = new Builder(CloudAccountViewActivity.this);
-				builder.setTitle(getString(R.string.system_setting_cloudaccountview_delete_user)+" "+titleName+" ?");
-				builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok),new DialogInterface.OnClickListener(){
-					
 					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						
-						int previewDeviceSize = previewDeviceItems.size();
-						for (int i = 0; i < previewDeviceSize; i++) {
-							PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
-							boolean isFrom = checkPreviewDeviceItemFromDelCA(previewDeviceItem,deleteCA);
-							if (isFrom) {
-								delPreviewDeviceItems.add(previewDeviceItem);
-							}
-						}
-						
-						int delSize = delPreviewDeviceItems.size();
-						for (int i = 0; i < delSize; i++) {
-							previewDeviceItems.remove(delPreviewDeviceItems.get(i));
-						}
-						if (delSize > 0) {
-							GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-						}
-						ReadWriteXmlUtils.removeCloudAccoutFromXML(filePath, deleteCA);
-						cloudAccountList.remove(deleteCA);
-						caAdapter.notifyDataSetChanged();
-						
-						if(deleteCA.isEnabled()){//		删除tag
-							List<String>del_tags = new ArrayList<String>();
-							del_tags.add(deleteCA.getUsername()+"_"+deleteCA.getPassword());
-							PushManager.delTags(CloudAccountViewActivity.this, del_tags);
-						}
-						
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
+						pos = position;
+						beforeEditCA = cloudAccountList.get(position);
+						Intent intent = new Intent();
+						Bundle bundle = new Bundle();
+						bundle.putString("clickPostion", "" + pos);
+						bundle.putSerializable("cloudAccount", beforeEditCA);
+						intent.putExtras(bundle);
+						intent.setClass(CloudAccountViewActivity.this,
+								CloudAccountUpdateActivity.class);
+						startActivityForResult(intent, 20);
 					}
-				 });
-				 builder.setNegativeButton(getString(R.string.system_setting_cloudaccountview_cancel),null);
-				builder.show();
-				return true;
-			}
-		});
+				});
+
+		mNetWorkSettingList
+				.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+					@Override
+					public boolean onItemLongClick(AdapterView<?> parent,
+							View view, int position, long id) {
+						// 弹出删除对话框。。。
+						deleteCA = (CloudAccount) parent
+								.getItemAtPosition(position);
+						titleName = deleteCA.getUsername();
+						Builder builder = new Builder(
+								CloudAccountViewActivity.this);
+						builder.setTitle(getString(R.string.system_setting_cloudaccountview_delete_user)
+								+ " " + titleName + " ?");
+						builder.setPositiveButton(
+								getString(R.string.system_setting_cloudaccountview_ok),
+								new DialogInterface.OnClickListener() {
+
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+
+										int previewDeviceSize = previewDeviceItems
+												.size();
+										for (int i = 0; i < previewDeviceSize; i++) {
+											PreviewDeviceItem previewDeviceItem = previewDeviceItems
+													.get(i);
+											boolean isFrom = checkPreviewDeviceItemFromDelCA(
+													previewDeviceItem, deleteCA);
+											if (isFrom) {
+												delPreviewDeviceItems
+														.add(previewDeviceItem);
+											}
+										}
+
+										int delSize = delPreviewDeviceItems
+												.size();
+										for (int i = 0; i < delSize; i++) {
+											previewDeviceItems
+													.remove(delPreviewDeviceItems
+															.get(i));
+										}
+										if (delSize > 0) {
+											GlobalApplication
+													.getInstance()
+													.getRealplayActivity()
+													.notifyPreviewDevicesContentChanged();
+										}
+										ReadWriteXmlUtils
+												.removeCloudAccoutFromXML(
+														filePath, deleteCA);
+										cloudAccountList.remove(deleteCA);
+										caAdapter.notifyDataSetChanged();
+
+										if (deleteCA.isEnabled()) {// 删除tag
+											List<String> del_tags = new ArrayList<String>();
+											del_tags.add(deleteCA.getUsername()
+													+ "_"
+													+ deleteCA.getPassword());
+											PushManager
+													.delTags(
+															CloudAccountViewActivity.this,
+															del_tags);
+										}
+
+									}
+								});
+						builder.setNegativeButton(
+								getString(R.string.system_setting_cloudaccountview_cancel),
+								null);
+						builder.show();
+						return true;
+					}
+				});
 	}
-	
-	private boolean checkPreviewDeviceItemFromDelCA(PreviewDeviceItem previewDeviceItem,CloudAccount deleteCA) {
+
+	private boolean checkPreviewDeviceItemFromDelCA(
+			PreviewDeviceItem previewDeviceItem, CloudAccount deleteCA) {
 		boolean isFrom = false;
 		String platformUsername = previewDeviceItem.getPlatformUsername();
 		String userName = deleteCA.getUsername();
-		if(platformUsername!=null){
+		if (platformUsername != null) {
 			if (platformUsername.equals(userName)) {
 				isFrom = true;
 			}
@@ -142,8 +173,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 		user_save_btn = super.getRightButton();
 		mNetWorkSettingList = (ListView) findViewById(R.id.cloudaccount_listview);
-		
-		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+
+		previewDeviceItems = GlobalApplication.getInstance()
+				.getRealplayActivity().getPreviewDevices();
 
 		try {
 			cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
@@ -162,19 +194,20 @@ public class CloudAccountViewActivity extends BaseActivity {
 			}
 		});
 
-		user_save_btn.setOnClickListener(new OnClickListener() {//进入用户增加界面？？？？？增加一个账户信息；
+		user_save_btn.setOnClickListener(new OnClickListener() {// 进入用户增加界面？？？？？增加一个账户信息；
 
-			@Override
-			public void onClick(View v) {
-				gotoCloudAccountAddding();
-			}
-		});
+					@Override
+					public void onClick(View v) {
+						gotoCloudAccountAddding();
+					}
+				});
 
 	}
 
 	protected void gotoCloudAccountAddding() {
 		Intent intent = new Intent();
-		intent.setClass(CloudAccountViewActivity.this,CloudAccountAddingActivity.class);
+		intent.setClass(CloudAccountViewActivity.this,
+				CloudAccountAddingActivity.class);
 		startActivityForResult(intent, 10);
 	}
 
@@ -182,51 +215,53 @@ public class CloudAccountViewActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == 20){//从编辑界面返回
-			if(data != null){
+		if (requestCode == 20) {// 从编辑界面返回
+			if (data != null) {
 				Bundle bundle = data.getExtras();
-				if(bundle != null){
+				if (bundle != null) {
 					CloudAccount afterEditCA = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
 					cloudAccountList.set(pos, afterEditCA);
 					caAdapter.notifyDataSetChanged();
-					
-					boolean isChanged = checkCloudAccountChange(afterEditCA,beforeEditCA);	//检测用户信息是否改变
-					if (!isChanged) {
-						changeNoUseState(); 												//通知预览通道禁用
-					}else {																	//如果用户信息改变的话，检测是否是开启禁用状态
-						if (beforeEditCA.isEnabled() && !afterEditCA.isEnabled()) {
-							changeNoUseState(); 											//通知预览通道禁用
-						}
-					}
 					try {
-						boolean isOpen = NetWorkUtils.checkNetConnection(CloudAccountViewActivity.this);
-						if(isOpen){//针对编译的用户进行tag的注册和删除
-							if(beforeEditCA.isEnabled()){//之前的用户是可用的
-								if(afterEditCA.isEnabled()){//编辑之后的用户是可用的，则删除以前的，添加当前的
-									List<String>del_tags = new ArrayList<String>();
-									List<String>reg_tags = new ArrayList<String>();
-									del_tags.add(beforeEditCA.getUsername()+MD5Utils.createMD5(beforeEditCA.getPassword()));
-									reg_tags.add(afterEditCA.getUsername()+MD5Utils.createMD5(afterEditCA.getPassword()));
-									PushManager.delTags(CloudAccountViewActivity.this, del_tags);
-									PushManager.setTags(CloudAccountViewActivity.this, reg_tags);
-								}else{//编辑之后的用户是不可用的，则删除以前的
-									List<String>del_tags = new ArrayList<String>();
-									del_tags.add(beforeEditCA.getUsername()+MD5Utils.createMD5(beforeEditCA.getPassword()));
-									PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+						Context ctx = CloudAccountViewActivity.this;
+						boolean isChanged = checkCloudAccountChange(afterEditCA, beforeEditCA); // 检测用户信息是否改变
+						if (!isChanged) {// 用户信息更改
+							changeNoUseState();
+							if (beforeEditCA.isEnabled()&& !afterEditCA.isEnabled()) {
+								if (NetWorkUtils.checkNetConnection(ctx)) {
+									delTags();
+								}
+							}else if (beforeEditCA.isEnabled() && afterEditCA.isEnabled()) {
+								if (NetWorkUtils.checkNetConnection(ctx)) {
+									registerTags(afterEditCA);
+									delTags();
+								}
+							}
+						} else { // 如果用户信息未改变的话
+							if (beforeEditCA.isEnabled()&& !afterEditCA.isEnabled()) {//删除注册标签
+								changeNoUseState();
+								if (NetWorkUtils.checkNetConnection(ctx)) {
+									delTags();
+								}
+							}else if (!beforeEditCA.isEnabled()&& afterEditCA.isEnabled()) {//注册账户标签
+								if (NetWorkUtils.checkNetConnection(ctx)) {
+									registerTags(afterEditCA);
 								}
 							}
 						}
-					} catch (Exception e) {
-						//MD5加密异常的处理
-					}					
+					} catch (Exception e) {// MD5加密异常的处理
+						e.printStackTrace();
+					}
 				}
 			}
-		}else if (requestCode == 10) {
-			if(data != null){
+		} else if (requestCode == 10) {
+			if (data != null) {
 				Bundle bundle = data.getExtras();
-				if(bundle != null){
-					CloudAccount cloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
-					boolean result = judgeListContainCloudAccount(cloudAccount,cloudAccountList);
+				if (bundle != null) {
+					CloudAccount cloudAccount = (CloudAccount) bundle
+							.getSerializable("cloudAccount");
+					boolean result = judgeListContainCloudAccount(cloudAccount,
+							cloudAccountList);
 					if (!result) {
 						cloudAccountList.add(cloudAccount);
 						caAdapter.notifyDataSetChanged();
@@ -235,48 +270,70 @@ public class CloudAccountViewActivity extends BaseActivity {
 			}
 		}
 	}
+	
+	/**注册新的账户标签***/
+	private void registerTags(CloudAccount afterEditCA) throws Exception{
+		List<String> reg_tags = new ArrayList<String>();
+		reg_tags.add(afterEditCA.getUsername()+ MD5Utils.createMD5(afterEditCA.getPassword()));
+		PushManager.setTags(CloudAccountViewActivity.this,reg_tags);
+	}
+	
+	/**删除旧的账户标签***/
+	private void delTags() throws Exception{
+		List<String> del_tags = new ArrayList<String>();
+		del_tags.add(beforeEditCA.getUsername()+ MD5Utils.createMD5(beforeEditCA.getPassword()));
+		PushManager.delTags(CloudAccountViewActivity.this,del_tags);
+	}
 
+	/**通知预览通道禁用***/
 	private void changeNoUseState() {
-		editPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		editPreviewDeviceItems = GlobalApplication.getInstance()
+				.getRealplayActivity().getPreviewDevices();
 		int previewSize = editPreviewDeviceItems.size();
 		for (int i = 0; i < previewSize; i++) {
 			PreviewDeviceItem delItem = editPreviewDeviceItems.get(i);
-			boolean isFrom = checkPreviewDeviceItemFromDelCA(delItem,beforeEditCA);
+			boolean isFrom = checkPreviewDeviceItemFromDelCA(delItem,
+					beforeEditCA);
 			if (isFrom) {
 				delEditPreviewDeviceItems.add(delItem);
 			}
 		}
-		
+
 		int delEditSize = delEditPreviewDeviceItems.size();
 		for (int i = 0; i < delEditSize; i++) {
 			editPreviewDeviceItems.remove(delEditPreviewDeviceItems.get(i));
 		}
-		
+
 		if (delEditSize > 0) {
-//			if (editPreviewDeviceItems.size() > 0) {
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-//			}
+			// if (editPreviewDeviceItems.size() > 0) {
+			GlobalApplication.getInstance().getRealplayActivity()
+					.notifyPreviewDevicesContentChanged();
+			// }
 		}
 	}
 
-	private boolean checkCloudAccountChange(CloudAccount afterEditCA,CloudAccount beforeEditCA2) {
+	/** 用户信息更改时，返回的是false；否则返回的是true ***/
+	private boolean checkCloudAccountChange(CloudAccount afterEditCA,
+			CloudAccount beforeEditCA2) {
 		boolean isChanged = false;
 		String befDomain = beforeEditCA2.getDomain();
 		String beforPort = beforeEditCA2.getPort();
 		String befUsname = beforeEditCA2.getUsername();
-		
+
 		String aftDomain = afterEditCA.getDomain();
 		String afterPort = afterEditCA.getPort();
 		String aftUsname = afterEditCA.getUsername();
-		
-		if (befDomain.equals(aftDomain)&&beforPort.equals(afterPort)&&befUsname.equals(aftUsname)) {
+
+		if (befDomain.equals(aftDomain) && beforPort.equals(afterPort)
+				&& befUsname.equals(aftUsname)) {
 			isChanged = true;
 		}
-		
+
 		return isChanged;
 	}
 
-	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
+	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,
+			List<CloudAccount> cloudAccountList2) {
 		boolean result = false;
 		int size = cloudAccountList2.size();
 		for (int i = 0; i < size; i++) {
@@ -285,8 +342,10 @@ public class CloudAccountViewActivity extends BaseActivity {
 			String cAPort = cA.getPort();
 			String cAUsername = cA.getUsername();
 			String cAPassword = cA.getPassword();
-			if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-				&& cloudAccount.getPassword().equals(cAPassword)&& cloudAccount.getPort().equals(cAPort)) {
+			if (cloudAccount.getUsername().equals(cAUsername)
+					&& cloudAccount.getDomain().equals(cADomain)
+					&& cloudAccount.getPassword().equals(cAPassword)
+					&& cloudAccount.getPort().equals(cAPort)) {
 				result = true;
 				break;
 			}

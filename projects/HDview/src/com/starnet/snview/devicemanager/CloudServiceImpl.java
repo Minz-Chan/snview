@@ -200,7 +200,5 @@ public class CloudServiceImpl implements CloudService {
 			deviceList.add(dvrDevice);
 		}
 		return deviceList;
-	} 
-	
-
+	}
 }

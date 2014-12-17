@@ -168,6 +168,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginTop="@dimen/cloudaccout_setting_margintop"
                 android:text="@string/identify_cloudaccount_right" />
         </RelativeLayout>
     </LinearLayout>

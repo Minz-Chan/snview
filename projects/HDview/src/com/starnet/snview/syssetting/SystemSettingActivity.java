@@ -78,6 +78,9 @@ public class SystemSettingActivity extends BaseActivity {
         map = new HashMap<String, Object>();
         map.put("text", getResources().getString(R.string.system_setting_newfunction));
         settingList.add(map);
+        map = new HashMap<String, Object>();
+        map.put("text", getResources().getString(R.string.system_setting_alarm_pushset));
+        settingList.add(map);
         settingListAdapter = new SystemSettingAdapter(this, settingList);
         secondCornerListView = (CornerListView)findViewById(R.id.second_setting_list); 
         secondCornerListView.setAdapter(settingListAdapter);          
@@ -96,6 +99,9 @@ public class SystemSettingActivity extends BaseActivity {
 					break;
 				case 3:
 					gotoNewFunction();
+					break;
+				case 4:
+					gotoAlarmPushManager();
 					break;
 				default:
 					break;
@@ -128,6 +134,12 @@ public class SystemSettingActivity extends BaseActivity {
 		builder.setNegativeButton(getString(R.string.system_setting_logout_cancel), null);
 		
 		builder.show();
+	}
+	
+	protected void gotoAlarmPushManager(){
+		Intent intent = new Intent();
+        intent.setClass(SystemSettingActivity.this, AlarmPushManagerActivity.class); 
+        startActivity(intent);
 	}
 	
 	protected void gotoNewFunction(){

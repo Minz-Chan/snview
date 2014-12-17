@@ -83,7 +83,7 @@ public class ReadWriteXmlUtils {
 			item.addAttribute("pusherUserName", alarm.getPusherUserName());
 			item.addAttribute("pusherPassword", alarm.getPusherPassword());
 			item.addAttribute("channel", String.valueOf(alarm.getChannel()));
-			fw = new FileWriter(ALARMS_PERSISTANCE_PATH, false); 
+			fw = new FileWriter(ALARMS_PERSISTANCE_PATH, false);
 			format = new OutputFormat(INDENT, true, CHARSET);
 			xmlOuter = new XMLWriter(fw, format);
 
@@ -1004,5 +1004,184 @@ public class ReadWriteXmlUtils {
 			e.printStackTrace();
 		}
 		return cloudAccountList;
+	}
+
+	private final static String ALARMPUSHUSER_FILEPATH = "/data/data/com.starnet.snview/ALARMS_PUSHUSERS_FILE.xml";
+
+	/** 向xml文档中添加报警推送账户 **/
+	public static void addAlarmPushUserToXML(CloudAccount user) {
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		try {
+			if (!file.exists()) {// 如果文件不存在，则新建立一个文件，并添加根节点；
+				file.createNewFile();
+				Document document1 = DocumentHelper.createDocument();
+				document1.addElement("alarmPushusers");
+				OutputFormat format = new OutputFormat("", true, "UTF-8");
+				FileWriter fw = new FileWriter(ALARMPUSHUSER_FILEPATH);
+				XMLWriter writer = new XMLWriter(fw, format);
+				writer.write(document1);
+				fw.close();
+			}
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			if (user != null) {
+				Element aEle = root.addElement("alarmPushuser");
+				aEle.addAttribute("domain", user.getDomain());
+				aEle.addAttribute("port", user.getPort());
+				aEle.addAttribute("username", user.getUsername());
+				aEle.addAttribute("password", user.getPassword());
+			}
+			OutputFormat format = new OutputFormat("", true, "UTF-8");
+			FileWriter fw = new FileWriter(ALARMPUSHUSER_FILEPATH);
+			XMLWriter writer = new XMLWriter(fw, format);
+			writer.write(document);
+			fw.close();
+		} catch (Exception e) {
+
+		}
+	}
+
+	/** 从指定文档中获取一系列用户 **/
+	@SuppressWarnings("unchecked")
+	public static List<CloudAccount> getAlarmPushUsersFromXML() {
+		List<CloudAccount> users = new ArrayList<CloudAccount>();
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		if (!file.exists()) {
+			return null;
+		}
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> eles = root.elements();
+			int cSize = eles.size();
+			// 得到了个数
+			for (int i = 0; i < cSize; i++) {
+				CloudAccount cloudAccount = new CloudAccount();
+				Element cAElement = eles.get(i);
+				// 获取cloudAccountElement的属性值
+				String domain = cAElement.attributeValue("domain");
+				String port = cAElement.attributeValue("port");
+				String username = cAElement.attributeValue("username");
+				String password = cAElement.attributeValue("password");
+				cloudAccount.setDomain(domain);
+				cloudAccount.setPort(port);
+				cloudAccount.setEnabled(true);
+				cloudAccount.setUsername(username);
+				cloudAccount.setPassword(password);
+				users.add(cloudAccount);
+			}
+		} catch (Exception e) {
+			return null;
+		}
+		return users;
+	}
+	
+	/*** 从文档中移除指定位置的的AlarmDevice ***/
+	@SuppressWarnings("unchecked")
+	public static void removeSpecifyPushsetAlarm(int index) {
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		if (!file.exists()) {
+			return;
+		}
+		FileWriter fileWriter = null;
+		XMLWriter xmlWriter = null;
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {// 判空处理
+				if (index == i) {
+					subElements.get(i).detach();
+					break;
+				}
+			}
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			fileWriter = new FileWriter(ALARMPUSHUSER_FILEPATH);
+			xmlWriter = new XMLWriter(fileWriter, opf);
+			xmlWriter.write(document);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (xmlWriter != null) {
+				try {
+					xmlWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if (fileWriter != null) {
+				try {
+					fileWriter.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/** 替换指定位置的用户 **/
+	@SuppressWarnings("unchecked")
+	public static void deleteAlarmPushUserToXML(int index) {
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		if (!file.exists()) {
+			return;
+		}
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				if (i == index) {
+					subElements.get(i).detach();
+					break;
+				}
+			}
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			FileWriter fileWriter = new FileWriter(file);
+			XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+			xmlWriter.write(document);
+			fileWriter.close();
+		} catch (Exception e) {
+
+		}
+	}
+
+	/** 替换指定位置的用户 **/
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public static void replaceAlarmPushUserToXML(CloudAccount user, int index) {
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		if (!file.exists()) {
+			return;
+		}
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				if (i == index) {
+					Element sEl = subElements.get(i);
+					sEl.setAttributeValue("domain", user.getDomain());
+					sEl.setAttributeValue("port", user.getPort());
+					sEl.setAttributeValue("password", user.getPassword());
+					sEl.setAttributeValue("username", user.getUsername());
+					break;
+				}
+			}
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			FileWriter fileWriter = new FileWriter(file);
+			XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+			xmlWriter.write(document);
+			fileWriter.close();
+		} catch (Exception e) {
+
+		}
 	}
 }

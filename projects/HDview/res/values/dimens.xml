@@ -74,4 +74,7 @@
     <dimen name="cloudaccout_setting_mright">10.0dip</dimen>
     <dimen name="cloudaccout_setting_mtop">5.0dip</dimen>
     
+    <dimen name="system_setting_pushset_alarm_mtop">10.0dip</dimen>
+    <dimen name="system_setting_pushset_alarm_info_mtop">6.0dip</dimen>
+    
 </resources>

@@ -40,4 +40,22 @@ public class SnapshotSound implements MediaPlayer.OnCompletionListener {
 			e.printStackTrace();
 		}
 	}
+	
+	public void playPushSetSound() {
+		try {
+			MediaPlayer mp = new MediaPlayer();
+			mp.setOnCompletionListener(this);
+			AssetFileDescriptor afd = this.mContext.getResources()
+					.openRawResourceFd(R.raw.pushset_sound);
+			mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
+					afd.getLength());
+			afd.close();
+			mp.prepare();
+			mp.start();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

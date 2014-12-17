@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 系统震动调用 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -149,6 +149,26 @@
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name="com.starnet.snview.syssetting.AlarmPushManagerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
+        <activity
+            android:name="com.starnet.snview.syssetting.AlarmAccountsPreviewActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
+        <activity
+            android:name="com.starnet.snview.syssetting.AlarmAccountsAddActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
+        <activity
+            android:name="com.starnet.snview.syssetting.AlarmAccountsEditActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
 
         <receiver android:name="com.starnet.snview.alarmmanager.OnAlarmMessageArrivedReceiver" >
             <intent-filter>

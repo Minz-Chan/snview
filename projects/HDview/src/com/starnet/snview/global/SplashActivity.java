@@ -29,6 +29,8 @@ public class SplashActivity extends Activity {
 	private final int DELAY_START_TIME = 2000; // 延时, 单位毫秒
 	private SharedPreferences preferences;
 
+	private boolean isShake;
+	private boolean isSound;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -52,7 +54,14 @@ public class SplashActivity extends Activity {
 //		LoadDemoDataAsync loadtask = new LoadDemoDataAsync();
 //		loadtask.execute();
 		
-		startBaiduPushService();
+		SharedPreferences sp = getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+		boolean isAccept = sp.getBoolean("isAccept", true);
+		isShake = sp.getBoolean("isShake", true);
+		isSound = sp.getBoolean("isSound", true);
+		if (isAccept) {
+			startBaiduPushService();
+		}
+		
 		if (checkWhetherFirstStart()) { // 首次启动
 			Intent intent = new Intent(this, GuideActivity.class);
 			startActivity(intent);
@@ -84,7 +93,6 @@ public class SplashActivity extends Activity {
 	}
 
 	private void startBaiduPushService() {
-		initWithApiKey();
 		PushManager.startWork(getApplicationContext(),
 				PushConstants.LOGIN_TYPE_API_KEY,
 				Utils.getMetaValue(SplashActivity.this, "api_key"));
@@ -97,19 +105,19 @@ public class SplashActivity extends Activity {
                 resource.getIdentifier("notification_title", "id", pkgName),
                 resource.getIdentifier("notification_text", "id", pkgName));
         cBuilder.setNotificationFlags(Notification.FLAG_AUTO_CANCEL);
-        cBuilder.setNotificationDefaults(Notification.DEFAULT_SOUND
-                | Notification.DEFAULT_VIBRATE);
+        if(isShake&&isSound){
+        	cBuilder.setNotificationDefaults(Notification.DEFAULT_SOUND
+                    | Notification.DEFAULT_VIBRATE);
+        }else if (isSound) {
+        	cBuilder.setNotificationDefaults(Notification.DEFAULT_SOUND);
+		}else if (isShake) {
+			cBuilder.setNotificationDefaults(Notification.DEFAULT_VIBRATE);
+		}
         cBuilder.setStatusbarIcon(this.getApplicationInfo().icon);
         cBuilder.setLayoutDrawable(resource.getIdentifier(
                 "simple_notification_icon", "drawable", pkgName));
         PushManager.setNotificationBuilder(this, 1, cBuilder);
 	}
-	
-	private void initWithApiKey() {
-    	int api_key = PushConstants.LOGIN_TYPE_API_KEY;
-    	String api_keys = Utils.getMetaValue(SplashActivity.this, "api_key");
-        PushManager.startWork(getApplicationContext(),api_key,api_keys);
-    }
 	
 	class DelayStarTask extends AsyncTask<Object, Object, Object> {
 		@Override

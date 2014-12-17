@@ -2,7 +2,6 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -249,6 +248,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 								if (isSame) {
 									if(identifier_flag_after){
 										saveCloudAccount.setEnabled(true);
+										//删除以前的，注册当前的
 									}else{
 										saveCloudAccount.setEnabled(false);
 									}

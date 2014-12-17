@@ -432,13 +432,8 @@ public class DeviceCollectActivity extends BaseActivity {
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								auto_flag = 1;
-//								String saveResult = ReadWriteXmlUtils
-//										.addNewDeviceItemToCollectEquipmentXML(
-//												saveDeviceItem, filePath);// 保存
 								
 								ReadWriteXmlUtils.replaceSpecifyDeviceItem(filePath, index, saveDeviceItem);
-								
-								
 								
 //								showToast(saveResult);
 								Intent intent = new Intent();
