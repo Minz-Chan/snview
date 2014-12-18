@@ -464,25 +464,12 @@ public class Connection extends DemuxingIoHandler {
 		if (isValid()) {
 			mConnectionListener.OnConnectionClosed(mLiveViewItem);
 			Log.i(TAG, "####$$$$");
-//			mLiveViewChangedListener.onContentReset();
-			mLiveViewItem.reset();
+			//mLiveViewItem.reset();
 		}
 
 		if (mH264decoder != null) {
 			mH264decoder.uninit();
 		}
-
-//		this.mH264decoder = null;
-//		this.mLiveViewItem = null;
-//		this.mLiveViewChangedListener = null;
-//		this.mConnectionListener = null;
-//		this.connector = null;
-//		this.H264DECODER = null;
-//		this.LIVEVIEW_ITEM = null;
-//		this.LIVEVIEW_LISTENER = null;
-//		this.CONNECTION_LISTENER = null;
-//
-//		this.session = null;
 	}
 
 	@Override

@@ -322,6 +322,16 @@ public class PTZControl {
 		
 	};
 	
+	private boolean isPTZMode() {
+		return mLiveViewGroup.isPTZMode();
+	}
+	
+	private void setPTZMode(boolean isPTZMode) {
+		if (mLiveViewGroup != null) {
+			mLiveViewGroup.setPTZMode(isPTZMode);
+		}
+	}
+	
 	
 	public void ptzButtonAction() {
 		Log.i(TAG, "ptzButtonAction");
@@ -331,14 +341,14 @@ public class PTZControl {
 		}
 		
 		if (!checkIsPTZDeviceConnected()) {
-			if (mIsPTZModeOn) {
+			if (isPTZMode()) {
 				closePTZ();
 			} 
 			
 			return;
 		}
 
-		if (!mIsPTZModeOn) {
+		if (!isPTZMode()) {
 			openPTZ();
 		} else {
 			closePTZ();
@@ -373,14 +383,15 @@ public class PTZControl {
 			}
 		}
 		
-		mIsPTZModeOn = isShow;
+		setPTZMode(isShow);
+//		mIsPTZModeOn = isShow;
 	}
 	
 	/**
 	 * 横竖屏切换时，PTZ控制栏状态同步
 	 */
 	public void syncPTZStatus() {
-		if (mIsPTZModeOn) {
+		if (isPTZMode()) {
 			if (GlobalApplication.getInstance().isIsFullMode()) { // 当前为横屏状态
 				initPTZPopFramePos(mPTZMenuPreset.isSelected()); // 调整弹窗位置
 				mPTZControlbarMenu.setVisibility(View.GONE);
@@ -424,7 +435,8 @@ public class PTZControl {
 	}
 	
 	public void openPTZ() {
-		mIsPTZModeOn = true;
+//		mIsPTZModeOn = true;
+		setPTZMode(true);
 		
 //		mLiveActivity.getVideoPager().setPTZMode(true);
 		mLiveViewGroup.setPTZMode(true);
@@ -467,7 +479,8 @@ public class PTZControl {
 
 	
 	public void closePTZ() {
-		mIsPTZModeOn = false;
+//		mIsPTZModeOn = false;
+		setPTZMode(false);
 		
 //		mLiveActivity.getVideoPager().setPTZMode(false);
 		mLiveViewGroup.setPTZMode(false);

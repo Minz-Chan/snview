@@ -70,9 +70,30 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private boolean requestPreview = false;
 	
 	/**
-	 * Indicator shows whether layout is finished
+	 * Delay to send STOP command and stop animation. It can make multiple 
+	 * continuous calls in a twinkling become just a call. 
 	 */
-//	private static AtomicBoolean isLayoutCompleted = new AtomicBoolean(true);
+	private ClickEventUtils mPTZStopMoveCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			mPtzControl.sendCommand(CTL_ACTION.STOP);	
+			getSelectedLiveview().stopArrowAnimation();
+		}
+	}, 300);
+	
+	/**
+	 * Delay to preview devices. Avoid calling preview function many times
+	 * in a twinkling. For example, when calling "previous screen" or "next
+	 * screen", continuous calls within a very short time-frame will only
+	 * cause just one call.
+	 */
+	private ClickEventUtils mPreviewCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			realCallToPreviewCurrentScreen();
+		}
+	}, 50);
+	
 	
 	private GestureDetector directionGestureDetector;
 	private ScaleGestureDetector scaleGestureDetector;
@@ -286,19 +307,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			return true;
 		}
 	};
-	
-	/**
-	 * Delay to send STOP command and stop animation. It can make multiple 
-	 * continuous calls in a twinkling become just a call. 
-	 */
-	private ClickEventUtils mPTZStopMoveCallDelay = new ClickEventUtils(new OnActionListener() {
-		@Override
-		public void OnAction(int clickCount, Object... params) {
-			mPtzControl.sendCommand(CTL_ACTION.STOP);	
-			getSelectedLiveview().stopArrowAnimation();
-		}
-	}, 300);
-	
+
 	/**
 	 * The real processor for all gesture event
 	 */
@@ -439,8 +448,8 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			Log.d(TAG, "onZoomIn");
 			getSelectedLiveview().showFocalLengthAnimation(true);
 			mPtzControl.sendCommand(CTL_ACTION.FOCAL_LEGNTH_INC);
-			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(),
-					new Object());
+			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(
+					mPTZStopMoveCallDelay.hashCode(), new Object());
 		}
 
 		@Override
@@ -448,8 +457,8 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			Log.d(TAG, "onZoomOut");
 			getSelectedLiveview().showFocalLengthAnimation(false);
 			mPtzControl.sendCommand(CTL_ACTION.FOCAL_LENGTH_DEC);
-			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(),
-					new Object());
+			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(
+					mPTZStopMoveCallDelay.hashCode(), new Object());
 		}
 		
 	};
@@ -584,10 +593,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		final Connection conn = ((LiveViewItemContainer) getSubViewByItemIndex(
 				currentSelectedItemIndex)).getConnection();
 		return conn != null && conn.isConnected();
-	}
-	
-	public boolean isPTZMode() {
-		return isPTZMode;
 	}
 	
 	@Override
@@ -755,6 +760,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 	}
 	
+	public boolean isPTZMode() {
+		return isPTZMode;
+	}
+	
 	public void setPTZMode(boolean isPTZMode) {
 		this.isPTZMode = isPTZMode;
 	}
@@ -787,11 +796,17 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 	}
 	
-	public synchronized void previewCurrentScreen() {
+	public void previewCurrentScreen() {
+		realCallToPreviewCurrentScreen();
+//		mPreviewCallDelay.makeContinuousClickCalledOnce(
+//				mPreviewCallDelay.hashCode(), new Object());
+	}
+	
+	private synchronized void realCallToPreviewCurrentScreen() {
 		Log.d(TAG, "previewCurrentScreen()");
 		for (LiveViewItemContainer c1 : mCurrentLiveviews) {
 			if (!c1.isConnected() && !c1.isConnecting()) {
-				c1.reset(true);
+				//c1.reset(true);
 				c1.preview();
 			}
 		}
@@ -810,9 +825,9 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	public void stopPreviewCurrentScreen() {
 		List<LiveViewItemContainer> lvs = getLiveviewsInCurrentScreen();
 		for (LiveViewItemContainer c : lvs) {
-			if (c.isConnected()) {
+			if (c.isConnected() || c.isConnecting()) {
 				c.stopPreview(false);
-				c.reset();
+				c.reset(true);	// When called, force to reset LiveViewItemContainer  
 			}
 		}
 	}
@@ -1206,9 +1221,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector) {
-			// ...
 			// Condition whether to response scale gesture
-			// ...
 			if (!isPTZMode || !isInPreviewing()) {
 				return;
 			}

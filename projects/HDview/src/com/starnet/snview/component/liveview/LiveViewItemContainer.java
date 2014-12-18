@@ -118,19 +118,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 		mWindowInfoText.setText(null);
 	}	
-	
-//	public void copy(LiveViewItemContainer c) {
-//		if (c.isValid) {
-//			reset();
-//		} else {
-//			abort();
-//		}
-//		
-//		setIsManualStop(c.isManualStop());
-//		setIsResponseError(c.isResponseError());
-//		setItemIndex(c.getItemIndex());		
-//		setPreviewItem(c.getPreviewItem());
-//	}
 
 	public void setIsResponseError(boolean isResponseError) {
 		this.mIsResponseError = isResponseError;
@@ -223,21 +210,21 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//		Log.i(TAG, "onMeasure(), w:" + MeasureSpec.getSize(widthMeasureSpec)
-//				+ ", h:" + MeasureSpec.getSize(heightMeasureSpec));
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		int width = MeasureSpec.getSize(widthMeasureSpec);
+		int height = MeasureSpec.getSize(heightMeasureSpec);
+		setMeasuredDimension(width, height);
 		
-		if (mPlaywindowFrame == null
-				|| mSurfaceView == null
-				|| mWindowInfoText == null) {
+		if (!invalidateComponent()) {
 			return;
-		}
+		} 
 		
 		int windowTextHeight = (int)getResources().getDimension(
 				R.dimen.window_text_height);
-		int surfaceWidth = getMeasuredWidth();
-		int surfaceHeight = getMeasuredHeight() - windowTextHeight;
-		
+		int surfaceWidth = width;
+		int surfaceHeight = height - windowTextHeight;		
+		mWindowLayout.measure(
+				MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), 
+				MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
 		mPlaywindowFrame.measure(
 				MeasureSpec.makeMeasureSpec(surfaceWidth, MeasureSpec.EXACTLY), 
 				MeasureSpec.makeMeasureSpec(surfaceHeight, MeasureSpec.EXACTLY));
@@ -247,23 +234,22 @@ public class LiveViewItemContainer extends RelativeLayout {
 		mWindowInfoText.setHeight(windowTextHeight);
 		mArrowAddFrame.measure(widthMeasureSpec, heightMeasureSpec);
 		mArrowSubFrame.measure(widthMeasureSpec, heightMeasureSpec);
+		mRefresh.measure(
+				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), 
+				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 	}
 	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
-		super.onLayout(changed, l, t, r, b);
-		
-		if (mPlaywindowFrame == null
-				|| mSurfaceView == null
-				|| mWindowInfoText == null) {
+		if (!invalidateComponent()) {
 			return;
-		}
+		} 
 		
-		mPlaywindowFrame.layout(0, 0, 
-				mPlaywindowFrame.getMeasuredWidth(), 
+		mWindowLayout.layout(0, 0, mWindowLayout.getMeasuredWidth(), 
+				mWindowLayout.getMeasuredHeight());
+		mPlaywindowFrame.layout(0, 0, mPlaywindowFrame.getMeasuredWidth(), 
 				mPlaywindowFrame.getMeasuredHeight());
-		mSurfaceView.layout(0, 0, 
-				mSurfaceView.getMeasuredWidth(), 
+		mSurfaceView.layout(0, 0, mSurfaceView.getMeasuredWidth(), 
 				mSurfaceView.getMeasuredHeight());	
 		mWindowInfoText.layout(0, mPlaywindowFrame.getMeasuredHeight()-2, 
 				mPlaywindowFrame.getMeasuredWidth(), getMeasuredHeight());
@@ -271,6 +257,26 @@ public class LiveViewItemContainer extends RelativeLayout {
 				mArrowAddFrame.getMeasuredWidth());
 		mArrowSubFrame.layout(0, 0, mArrowSubFrame.getMeasuredWidth(), 
 				mArrowSubFrame.getMeasuredWidth());
+		int rLeft = (getMeasuredWidth() - mRefresh.getMeasuredWidth()) / 2;
+		int rTop = (getMeasuredHeight() - mRefresh.getMeasuredHeight()) / 2;
+		mRefresh.layout(rLeft, rTop, rLeft + mRefresh.getMeasuredWidth(), 
+				rTop +  mRefresh.getMeasuredHeight());
+	}
+	
+	/**
+	 * Invalidate all component.
+	 * @return
+	 * 		<b>true</b>, all component is usable; 
+	 * 		<b>false</b>, not all component is usable.
+	 */
+	private boolean invalidateComponent() {
+		return mWindowLayout != null
+				&& mPlaywindowFrame != null
+				&& mSurfaceView != null
+				&& mWindowInfoText != null
+				&& mArrowAddFrame != null
+				&& mArrowSubFrame != null
+				&& mRefresh != null;
 	}
 	
 	/**
@@ -323,6 +329,11 @@ public class LiveViewItemContainer extends RelativeLayout {
 	 */
 	public void stopPreview(boolean canUpdateViewAfterClosed) {
 		final Connection conn = getConnection();
+		
+		if (!canUpdateViewAfterClosed) {
+			setConnection(null);
+		}
+		
 		if (conn.isConnected()) {
 			conn.disconnect();
 		} else {
@@ -331,12 +342,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 		}
 
 		// 若开启了录像，则停止录像
-		if (conn.getLiveViewContainer().getSurfaceView().isStartRecord()) {
-			conn.getLiveViewContainer().stopMP4Record();
-		}
-
-		if (!canUpdateViewAfterClosed) {
-			conn.getLiveViewItemContainer().setConnection(null);
+		if (getSurfaceView().isStartRecord()) {
+			stopMP4Record();
 		}
 	}
 	
@@ -450,7 +457,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void setWindowInfoContent(int resid) {
-		setWindowInfoContent(getResources().getString(resid));
+		setWindowInfoContent(getString(resid));
 	}
 
 	public void setWindowInfoContent(String info) {
@@ -520,9 +527,9 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 		mWindowLayout.setWindowSelected(false);
 		mSurfaceView.onContentReset();
-		setWindowInfoContent(null);
+		setWindowInfoContent(getString(R.string.connection_status_closed));
 		mProgressBar.setVisibility(View.INVISIBLE);
-		mRefresh.setVisibility(View.GONE);
+		mRefresh.setVisibility(View.VISIBLE);
 	}
 	
 	/**
@@ -599,6 +606,10 @@ public class LiveViewItemContainer extends RelativeLayout {
 				}
 			}
 		}
+	}
+	
+	private String getString(int resId) {
+		return getResources().getString(resId);
 	}
 
 	public static interface OnRefreshButtonClickListener extends View.OnClickListener {}

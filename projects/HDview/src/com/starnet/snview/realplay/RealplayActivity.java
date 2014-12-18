@@ -518,7 +518,7 @@ public class RealplayActivity extends BaseActivity {
 				c.setWindowInfoContent(getString(R.string.connection_status_connecting));
 				
 				//updateProgressbarStatus(c.getProgressBar(), true);
-				mHandler.post( new Runnable() {
+				runOnUiThread( new Runnable() {
 					@Override
 					public void run() {
 						if (c != null) {
@@ -581,9 +581,8 @@ public class RealplayActivity extends BaseActivity {
 
 			@Override
 			public void OnConnectionEstablished(View v) {
-				final LiveViewItemContainer c = (LiveViewItemContainer) v;
-				
-				c.setWindowInfoContent(getString(R.string.connection_status_established));				
+				((LiveViewItemContainer) v).setWindowInfoContent(
+						getString(R.string.connection_status_established));				
 			}
 			
 			@Override
@@ -596,7 +595,7 @@ public class RealplayActivity extends BaseActivity {
 				}
 				
 				//updateProgressbarStatus(c.getProgressBar(), false);
-				mHandler.post( new Runnable() {
+				runOnUiThread( new Runnable() {
 					@Override
 					public void run() {
 						if (c != null) {
@@ -610,20 +609,16 @@ public class RealplayActivity extends BaseActivity {
 
 			@Override
 			public void OnConnectionClosed(View v) {
-				final LiveViewItemContainer c = (LiveViewItemContainer) v;
-//				int currPageCount = liveViewManager.getCurrentPageCount();
-//				int index = liveViewManager.getIndexOfLiveView(c);
-			
-				if (/*index > currPageCount ||*/ c.isManualStop()) {
+				final LiveViewItemContainer c = (LiveViewItemContainer) v;			
+				if (c.getConnection() == null || c.isManualStop()) {
 					return;
 				}
 				
-				c.setWindowInfoContent(getString(R.string.connection_status_closed));
-				
-				mHandler.post( new Runnable() {
+				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						if (c != null) {
+							c.reset();
 							c.getProgressBar().setVisibility(View.INVISIBLE);
 							c.getRefreshImageView().setVisibility(View.VISIBLE);
 						}
@@ -633,10 +628,8 @@ public class RealplayActivity extends BaseActivity {
 			}
 
 		};
-		
-//		liveViewManager.setConnectionStatusListener(connectionStatusListener);
+
 		mLiveviewGroup.setConnectionStatusListener(connectionStatusListener);
-		
 	}
 	
 
@@ -830,17 +823,9 @@ public class RealplayActivity extends BaseActivity {
 		if (!bIsPlaying) { // 播放
 			Log.i(TAG, "play video");
 			mLiveviewGroup.previewCurrentScreen();
-//			int count = liveViewManager.getCurrentPageCount();
-//
-//			for (int i = 0; i < count; i++) {
-//				liveViewManager.getListviews().get(i).getRefreshImageView().performClick();
-//			}
 		} else { // 暂停
 			Log.i(TAG, "stop video");
 			mLiveviewGroup.stopPreviewCurrentScreen();
-//			liveViewManager.stopPreview();
-	
-			
 			if (mLiveviewGroup.isPTZMode()) {
 				ptzControl.setIsEnterPTZInSingleMode(true);
 				ptzControl.closePTZ();
@@ -979,13 +964,9 @@ public class RealplayActivity extends BaseActivity {
 	 * @return true, 已连接；false, 未连接
 	 */
 	public boolean checkIsPTZDeviceConnected() {
-		Connection conn = mLiveviewGroup.getSelectedLiveview().getConnection();
-		
-		if (conn.isConnected()) {
-			return true;
-		}
-		
-		return false;
+		Connection conn = mLiveviewGroup
+				.getSelectedLiveview().getConnection();
+		return conn != null && conn.isConnected();
 	}
 	
 	private void initLandScapeToolbar() {
