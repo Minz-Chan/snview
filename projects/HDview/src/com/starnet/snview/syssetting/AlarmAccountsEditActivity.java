@@ -2,6 +2,7 @@ package com.starnet.snview.syssetting;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -18,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
@@ -30,7 +32,7 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 
 	private int pos;
 	private Context ctx;
-//	private Button delBtn;
+	// private Button delBtn;
 	private Button idtBtn;
 	private EditText domnEdt;
 	private EditText portEdt;
@@ -43,7 +45,7 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 	private boolean isIdentify;// 是否验证
 	private boolean isIdentifyPass;// 验证是否通过
 	private List<CloudAccount> mList;
-	private AlarmPushIdentifyTask identifyTask;
+	private AlarmPushIdentifyTask idtTask;
 	private final int IDENTIFY_DIALOG = 0x0009;
 	private final int REQUESTCODE_EDIT = 0x0004;
 	private final int IDENTIFY_SUCCESS = 0x0001;
@@ -121,7 +123,7 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 		pos = intent.getIntExtra("pos", 0);
 		originCA = (CloudAccount) intent.getSerializableExtra("cla");
 
-//		delBtn = (Button) findViewById(R.id.delete_btn);
+		// delBtn = (Button) findViewById(R.id.delete_btn);
 		idtBtn = (Button) findViewById(R.id.identify_btn);
 		portEdt = (EditText) findViewById(R.id.port_edt);
 		userEdt = (EditText) findViewById(R.id.user_edt);
@@ -168,24 +170,52 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(ctx)) {
-					showDialog(IDENTIFY_DIALOG);
 					idtCA = getIdentifyCloudAccount();
-					identifyTask = new AlarmPushIdentifyTask(mHandler, idtCA);
-					identifyTask.start();
+					List<String> cnt = new ArrayList<String>();
+					cnt.add(idtCA.getDomain());
+					cnt.add(idtCA.getPort());
+					cnt.add(idtCA.getUsername());
+					cnt.add(idtCA.getPassword());
+					int index = getNullIndex(cnt);
+					if (index == -1) {
+						showDialog(IDENTIFY_DIALOG);
+						idtTask = new AlarmPushIdentifyTask(mHandler, idtCA);
+						idtTask.start();
+					} else if (index == 0) {
+						showToast(getString(R.string.domain_info_not_null));
+					} else if (index == 1) {
+						showToast(getString(R.string.port_info_not_null));
+					} else if (index == 2) {
+						showToast(getString(R.string.username_info_not_null));
+					} else if (index == 3) {
+						showToast(getString(R.string.password_info_not_null));
+					}
 				} else {
 					showToast(getString(R.string.system_setting_alarm_pushset_netnotopen));
 				}
 			}
 		});
 
-//		delBtn.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//
-//			}
-//		});
+		// delBtn.setOnClickListener(new OnClickListener() {
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// });
 
+	}
+
+	/** 获取字段为空的索引 **/
+	private int getNullIndex(List<String> contents) {
+		int index = -1;
+		for (int i = 0; i < contents.size(); i++) {
+			if (contents.get(i) == null
+					|| (contents.get(i).trim().length() == 0)) {
+				return i;
+			}
+		}
+		return index;
 	}
 
 	private void addBaiduTags(CloudAccount addAccount) {
@@ -215,8 +245,10 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 		if (!isExist) {
 			List<String> delTags = new ArrayList<String>();
 			List<String> regTags = new ArrayList<String>();
-			delTags.add(originCA.getUsername()+ ""+ MD5Utils.createMD5(originCA.getPassword()));
-			regTags.add(addAccount.getUsername() + ""+ MD5Utils.createMD5(addAccount.getPassword()));
+			delTags.add(originCA.getUsername() + ""
+					+ MD5Utils.createMD5(originCA.getPassword()));
+			regTags.add(addAccount.getUsername() + ""
+					+ MD5Utils.createMD5(addAccount.getPassword()));
 			PushManager.delTags(ctx, delTags);
 			PushManager.setTags(ctx, regTags);
 			ReadWriteXmlUtils.replaceAlarmPushUserToXML(addAccount, pos);
@@ -335,13 +367,13 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 		String pswd = pswdEdt.getText().toString();
 		String uNam = userEdt.getText().toString();
 		String domn = domnEdt.getText().toString();
-		boolean isNull = checkExistNull(uNam, domn, port);
-		if (!isNull) {
-			idtCA.setPort(port);
-			idtCA.setDomain(domn);
-			idtCA.setPassword(pswd);
-			idtCA.setUsername(uNam);
-		}
+//		boolean isNull = checkExistNull(uNam, domn, port);
+//		if (!isNull) {
+		idtCA.setPort(port);
+		idtCA.setDomain(domn);
+		idtCA.setPassword(pswd);
+		idtCA.setUsername(uNam);
+//		}
 		return idtCA;
 	}
 
@@ -358,8 +390,8 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 					if (pro.isShowing()) {
 						dismissDialog(IDENTIFY_DIALOG);
 					}
-					if (identifyTask != null) {
-						identifyTask.setCancel(true);
+					if (idtTask != null) {
+						idtTask.setCancel(true);
 					}
 				}
 			});

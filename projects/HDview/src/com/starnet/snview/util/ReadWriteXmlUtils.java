@@ -1151,6 +1151,34 @@ public class ReadWriteXmlUtils {
 
 		}
 	}
+	
+	/** 清楚所有的报警信息,清楚成功返回true；否则返回false **/
+	@SuppressWarnings("unchecked")
+	public static boolean clearAllAlarmInfo() {
+		File file = new File(ALARMPUSHUSER_FILEPATH);
+		if (!file.exists()) {
+			return true;
+		}
+		try {
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			int size = subElements.size();
+			for (int i = 0; i < size; i++) {
+				Element sEl = subElements.get(i);
+				sEl.detach();
+			}
+			OutputFormat opf = new OutputFormat("", true, "UTF-8");
+			FileWriter fileWriter = new FileWriter(file);
+			XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+			xmlWriter.write(document);
+			fileWriter.close();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	/** 替换指定位置的用户 **/
 	@SuppressWarnings({ "deprecation", "unchecked" })

@@ -41,7 +41,7 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 	private boolean isIdentify;// 是否验证
 	private boolean isIdentifyPass;// 验证是否通过
 	private List<CloudAccount> mList;
-	private AlarmPushIdentifyTask identifyTask;
+	private AlarmPushIdentifyTask idtTask;
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int IDENTIFY_DIALOG = 0x0009;
 	private final int IDENTIFY_SUCCESS = 0x0001;
@@ -63,8 +63,8 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 					if (pro.isShowing()) {
 						dismissDialog(IDENTIFY_DIALOG);
 					}
-					if (identifyTask != null) {
-						identifyTask.setCancel(true);
+					if (idtTask != null) {
+						idtTask.setCancel(true);
 					}
 				}
 			});
@@ -142,7 +142,7 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 		userExt = (EditText) findViewById(R.id.username_edittext);
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-		super.setTitleViewText(getString(R.string.navigation_title_system_setting_cloudaccount_setting));
+		super.setTitleViewText(getString(R.string.system_setting_pushset_alarmuser));
 
 	}
 
@@ -159,10 +159,27 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (NetWorkUtils.checkNetConnection(ctx)) {
-					showDialog(IDENTIFY_DIALOG);
+
 					idtCA = getIdentifyCloudAccount();
-					identifyTask = new AlarmPushIdentifyTask(mHandler, idtCA);
-					identifyTask.start();
+					List<String> cnt = new ArrayList<String>();
+					cnt.add(idtCA.getDomain());
+					cnt.add(idtCA.getPort());
+					cnt.add(idtCA.getUsername());
+					cnt.add(idtCA.getPassword());
+					int index = getNullIndex(cnt);
+					if (index == -1) {
+						showDialog(IDENTIFY_DIALOG);
+						idtTask = new AlarmPushIdentifyTask(mHandler, idtCA);
+						idtTask.start();
+					} else if (index == 0) {
+						showToast(getString(R.string.domain_info_not_null));
+					} else if (index == 1) {
+						showToast(getString(R.string.port_info_not_null));
+					} else if (index == 2) {
+						showToast(getString(R.string.username_info_not_null));
+					} else if (index == 3) {
+						showToast(getString(R.string.password_info_not_null));
+					}
 				} else {
 					showToast(getString(R.string.system_setting_alarm_pushset_netnotopen));
 				}
@@ -184,18 +201,23 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 		});
 	}
 
+	/** 获取字段为空的索引 **/
+	private int getNullIndex(List<String> contents) {
+		int index = -1;
+		for (int i = 0; i < contents.size(); i++) {
+			if (contents.get(i) == null
+					|| (contents.get(i).trim().length() == 0)) {
+				return i;
+			}
+		}
+		return index;
+	}
+
 	private void jumpCoverDialog(CloudAccount ca) {
 		Builder builder = new Builder(ctx);
 		builder.setTitle(R.string.system_setting_alarm_pushset_exist_cover);
 		String ok = getString(R.string.system_setting_alarm_pushset_builer_identify_add_ok);
 		String cancel = getString(R.string.system_setting_alarm_pushset_builer_identify_add_cance);
-		// builder.setNegativeButton(cancel,
-		// new DialogInterface.OnClickListener() {
-		// @Override
-		// public void onClick(DialogInterface dialog, int which) {
-		// AlarmAccountsAddActivity.this.finish();
-		// }
-		// });
 		builder.setNegativeButton(cancel, null);
 		final CloudAccount cla = ca;
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
@@ -324,13 +346,13 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 		String pswd = codeExt.getText().toString();
 		String uNam = userExt.getText().toString();
 		String domn = domainExt.getText().toString();
-		boolean isNull = checkExistNull(uNam, domn, port);
-		if (!isNull) {
-			idtCA.setPort(port);
-			idtCA.setDomain(domn);
-			idtCA.setPassword(pswd);
-			idtCA.setUsername(uNam);
-		}
+		// boolean isNull = checkExistNull(uNam, domn, port);
+		// if (!isNull) {
+		idtCA.setPort(port);
+		idtCA.setDomain(domn);
+		idtCA.setPassword(pswd);
+		idtCA.setUsername(uNam);
+		// }
 		return idtCA;
 	}
 

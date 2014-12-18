@@ -99,7 +99,7 @@ public class AlarmActivity extends BaseActivity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				Builder builder = new Builder(AlarmActivity.this);
-				groupPos = (Integer) view.getTag(R.id.alarm_arrow_img);
+				groupPos = (Integer) view.getTag(R.id.arrowimg);
 				String alarm_titl = getString(R.string.alarm_dialog_title);
 				String alarm_delete_info = getString(R.string.alarm_dialog_infor);
 				String deviceName = alarmInfoList.get(groupPos).getAlarm().getDeviceName();

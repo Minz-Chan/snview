@@ -69,33 +69,40 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 					.inflate(R.layout.alarmnotifyadapter_item, null);
 		}
 
-		TextView txt = (TextView) convertView
-				.findViewById(R.id.alarm_pushset_txt);
+		TextView txt = (TextView) convertView.findViewById(R.id.alarm_txt);
 		final ImageButton imgBtn = (ImageButton) convertView
-				.findViewById(R.id.alarm_pushset_imgBtn);
+				.findViewById(R.id.imgBtn);
 
 		HashMap<String, Object> map = mData.get(position);
 		String content = map.get("text").toString();
 		txt.setText("" + content);
+
+		final TextView cnt = (TextView) convertView.findViewById(R.id.alarm_cnt);
 
 		final int pos = position;
 
 		if (pos == 0) {
 			if (isClickFlagAcc) {
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+				cnt.setText(ctx.getString(R.string.notify_accept_open));
 			} else {
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+				cnt.setText(ctx.getString(R.string.notify_accept_off));
 			}
 		} else if (pos == 1) {
 			if (isClickFlagSha) {
+				cnt.setText(ctx.getString(R.string.remind_shake_open));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 			} else {
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+				cnt.setText(ctx.getString(R.string.remind_shake_off));
 			}
 		} else if (pos == 2) {
 			if (isClickFlagSou) {
+				cnt.setText(ctx.getString(R.string.remind_sound_open));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 			} else {
+				cnt.setText(ctx.getString(R.string.remind_sound_off));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 			}
 		}
@@ -107,27 +114,33 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 				if (pos == 0) {
 					if (isClickFlagAcc) {
 						isClickFlagAcc = false;
+						cnt.setText(ctx.getString(R.string.notify_accept_off));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 					} else {
 						isClickFlagAcc = true;
+						cnt.setText(ctx.getString(R.string.notify_accept_open));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 					}
 				} else if (pos == 1) {
 					if (isClickFlagSha) {
 						isClickFlagSha = false;
+						cnt.setText(ctx.getString(R.string.remind_shake_off));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 					} else {
 						isClickFlagSha = true;
 						long[] pattern = { 50, 200, 50, 200 };
 						vibrator.vibrate(pattern, -1);
+						cnt.setText(ctx.getString(R.string.remind_shake_open));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 					}
 				} else if (pos == 2) {
 					if (isClickFlagSou) {
 						isClickFlagSou = false;
+						cnt.setText(ctx.getString(R.string.remind_sound_off));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 					} else {
 						isClickFlagSou = true;
+						cnt.setText(ctx.getString(R.string.remind_sound_open));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 						new Thread(new Runnable() {
 							@Override

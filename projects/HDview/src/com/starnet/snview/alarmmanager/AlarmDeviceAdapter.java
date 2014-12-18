@@ -25,11 +25,11 @@ import android.widget.Toast;
 @SuppressWarnings("deprecation")
 public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
-	private Context context;
-	private String deviceName;
+	private Context ctx;
+	private String dName;
 	private List<Integer> indexes;
 	private final int REQUESTCODE = 0x0023;
-	private List<AlarmShowItem> alarmInfoList;
+	private List<AlarmShowItem> almList;
 	private AlarmImageDownLoadTask imgLoadTask;
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
 
@@ -37,30 +37,30 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			showToastContent(context.getString(R.string.alarm_img_load_timeout));
+			showToast(ctx.getString(R.string.alarm_img_load_timeout));
 		}
 	};
 
 	public AlarmDeviceAdapter(List<AlarmShowItem> alarmInfoList,
 			Context context, Handler handler) {
-		this.context = context;
-		this.alarmInfoList = alarmInfoList;
+		this.ctx = context;
+		this.almList = alarmInfoList;
 	}
 
 	public AlarmDeviceAdapter(List<AlarmShowItem> alarmInfoList, Context context) {
-		this.alarmInfoList = alarmInfoList;
-		this.context = context;
+		this.almList = alarmInfoList;
+		this.ctx = context;
 	}
 
-	private void showToastContent(String content) {
-		Toast.makeText(context, content, Toast.LENGTH_LONG).show();
+	private void showToast(String content) {
+		Toast.makeText(ctx, content, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public int getGroupCount() {
 		int size = 0;
-		if (alarmInfoList != null) {
-			size = alarmInfoList.size();
+		if (almList != null) {
+			size = almList.size();
 		}
 		return size;
 	}
@@ -72,7 +72,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getGroup(int groupPosition) {
-		return alarmInfoList.get(groupPosition);
+		return almList.get(groupPosition);
 	}
 
 	@Override
@@ -99,33 +99,27 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(
+			convertView = LayoutInflater.from(ctx).inflate(
 					R.layout.alarm_listview_item_layout, null);
 		}
-		String time = alarmInfoList.get(groupPosition).getAlarm()
-				.getAlarmTime().replaceAll(",", " ");
-		TextView deviceTxt = (TextView) convertView
+		String time = almList.get(groupPosition).getAlarm().getAlarmTime();
+		TextView dTxt = (TextView) convertView
 				.findViewById(R.id.device_item_name);
-		deviceTxt.setText(alarmInfoList.get(groupPosition).getAlarm()
-				.getDeviceName());
+		dTxt.setText(almList.get(groupPosition).getAlarm().getDeviceName());
 
-		TextView alarm_time = (TextView) convertView
-				.findViewById(R.id.alarm_time);
-		TextView alarm_type = (TextView) convertView
-				.findViewById(R.id.alarm_type);
-		alarm_type.setText(alarmInfoList.get(groupPosition).getAlarm()
-				.getAlarmType());
+		TextView almTime = (TextView) convertView.findViewById(R.id.alarm_time);
+		TextView almType = (TextView) convertView.findViewById(R.id.alarm_type);
+		almType.setText(almList.get(groupPosition).getAlarm().getAlarmType());
 		time = time.replaceAll(",", " ");
-		alarm_time.setText(time);
+		almTime.setText(time);
 
-		ImageView arrowImg = (ImageView) convertView
-				.findViewById(R.id.alarm_arrow_img);
+		ImageView aImg = (ImageView) convertView.findViewById(R.id.arrowimg);
 		if (isExpanded) {
-			arrowImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
+			aImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 		} else {
-			arrowImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
+			aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
-		convertView.setTag(R.id.alarm_arrow_img, groupPosition);// 为父元素设置标签
+		convertView.setTag(R.id.arrowimg, groupPosition);// 为父元素设置标签
 		return convertView;
 	}
 
@@ -133,87 +127,113 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(
-					R.layout.alarm_listview_subitem_layout, null);
+			LayoutInflater flt = LayoutInflater.from(ctx);
+			convertView = flt.inflate(R.layout.alarm_listview_subitem_layout,
+					null);
 		}
-		Button imgLoadBtn = (Button) convertView
-				.findViewById(R.id.image_load_btn);
-		Button vdoLoadBtn = (Button) convertView
-				.findViewById(R.id.video_load_btn);
-		Button contentBtn = (Button) convertView
-				.findViewById(R.id.alarm_content_btn);
-		final int pos = groupPosition;
+		Button imgBtn = (Button) convertView.findViewById(R.id.imgbtn);
+		Button vdoBtn = (Button) convertView.findViewById(R.id.vdobtn);
+		Button cntBtn = (Button) convertView.findViewById(R.id.contentbtn);
 
-		imgLoadBtn.setOnClickListener(new OnClickListener() {
+		if (almList.get(groupPosition).getAlarm().getImageUrl().trim().length() == 0) {
+			imgBtn.setVisibility(View.GONE);
+		} else {
+			imgBtn.setVisibility(View.VISIBLE);
+		}
+
+		final int pos = groupPosition;
+		imgBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlarmImageFileCache.context = context;
-				String imgUrl = alarmInfoList.get(pos).getAlarm().getImageUrl();
+				AlarmImageFileCache.context = ctx;
+				String imgUrl = almList.get(pos).getAlarm().getImageUrl();
 				boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
 				if (isExist) {
 					getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
 					getImageFromUrl(imgUrl);
 				} else {
-					if (NetWorkUtils.checkNetConnection(context)) {
+					if (NetWorkUtils.checkNetConnection(ctx)) {
 						getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
-						deviceName = alarmInfoList.get(pos).getAlarm().getDeviceName();
+						dName = almList.get(pos).getAlarm().getDeviceName();
 						getImageFromUrl(imgUrl);
 					} else {
-						showToastContent(context.getString(R.string.alarm_net_notopen));
+						showToast(ctx.getString(R.string.alarm_net_notopen));
 					}
 				}
 			}
 		});
-		vdoLoadBtn.setOnClickListener(new OnClickListener() {
+		
+		AlarmDevice device = almList.get(pos).getAlarm();
+		boolean isNull = isExistNull(device);
+		if (isNull) {
+			vdoBtn.setVisibility(View.GONE);
+		}else {
+			vdoBtn.setVisibility(View.VISIBLE);
+		}
+		
+		vdoBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (NetWorkUtils.checkNetConnection(context)) {
-					AlarmDevice device = alarmInfoList.get(pos).getAlarm();
-					Intent intent = new Intent(context, RealplayActivity.class);
+				if (NetWorkUtils.checkNetConnection(ctx)) {
+					AlarmDevice device = almList.get(pos).getAlarm();
+					Intent intent = new Intent(ctx, RealplayActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					intent.putExtra(AlarmActivity.ALARM_DEVICE_DETAIL, device);
-					context.startActivity(intent);
-					((AlarmActivity) context).finish();
+					ctx.startActivity(intent);
+					((AlarmActivity) ctx).finish();
 				} else {
-					showToastContent(context.getString(R.string.alarm_net_notopen));
+					showToast(ctx.getString(R.string.alarm_net_notopen));
 				}
 			}
 		});
 
-		contentBtn.setOnClickListener(new OnClickListener() {
+		cntBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(context, AlarmContentActivity.class);
-				AlarmDevice device = alarmInfoList.get(pos).getAlarm();
+				Intent intent = new Intent(ctx, AlarmContentActivity.class);
+				AlarmDevice device = almList.get(pos).getAlarm();
 				intent.putExtra("alarmDevice", device);
-				context.startActivity(intent);
+				ctx.startActivity(intent);
 			}
 		});
 		return convertView;
+	}
+
+	private boolean isExistNull(AlarmDevice device) {
+		boolean isExist = false;
+		if (device.getIp()==null||device.getIp().trim().length()==0) {
+			return true;
+		}
+		if (device.getUserName()==null||device.getUserName().trim().length()==0) {
+			return true;
+		}
+		if (device.getPort()==0) {
+			return true;
+		}
+		return isExist;
 	}
 
 	/*** 获得一张图片,从是从文件中获取，如果没有,则从网络获取 ***/
 	protected void getImageFromUrl(String imgUrl) {
 		if (imgUrl == null || imgUrl.trim().length() == 0) {
 			getAlarmActivity().dismissDialog(IMAGE_LOAD_DIALOG);
-			showToastContent(context.getString(R.string.alarm_img_load_noturl));
+			showToast(ctx.getString(R.string.alarm_img_load_noturl));
 			return;
 		}
 
 		boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
 		if (!isExist) {
-			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, context, mHandler);
-			imgLoadTask.setTitle(deviceName);
+			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, ctx, mHandler);
+			imgLoadTask.setTitle(dName);
 			imgLoadTask.start();
 		} else {
 			getAlarmActivity().dismissDialog(IMAGE_LOAD_DIALOG);
 			Intent intent = new Intent();
 			intent.putExtra("isExist", true);
 			intent.putExtra("imageUrl", imgUrl);
-			intent.putExtra("title", deviceName);
-			intent.setClass(context, AlarmImageActivity.class);
-			((AlarmActivity) context).startActivityForResult(intent,
-					REQUESTCODE);
+			intent.putExtra("title", dName);
+			intent.setClass(ctx, AlarmImageActivity.class);
+			((AlarmActivity) ctx).startActivityForResult(intent, REQUESTCODE);
 		}
 	}
 
@@ -223,7 +243,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	}
 
 	private AlarmActivity getAlarmActivity() {
-		return (AlarmActivity) context;
+		return (AlarmActivity) ctx;
 	}
 
 	public void cancel(boolean isCanceld) {

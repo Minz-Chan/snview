@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="#FFFFFF" >
 
     <com.starnet.snview.syssetting.CornerListView
         android:id="@+id/alarmNotifyListView"
@@ -19,5 +20,14 @@
         android:layout_margin="20dip"
         android:background="@drawable/system_setting_listview_shape"
         android:cacheColorHint="#00000000" />
+
+    <Button
+        android:id="@+id/clearAlarmInfBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dp"
+        android:layout_margin="20dip"
+        android:background="@drawable/pushset_clear_btn_selector"
+        android:text="@string/system_setting_pushset_clear_alarminfo"
+         />
 
 </LinearLayout>

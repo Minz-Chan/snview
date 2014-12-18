@@ -8,9 +8,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/channel_listview_account_item_bg_collapsed"
-        android:gravity="center" >
+        android:paddingLeft="30.0dp"
+        android:gravity="left" >
         <Button
-            android:id="@+id/alarm_content_btn"
+            android:id="@+id/contentbtn"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
@@ -19,7 +20,7 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/image_load_btn"
+            android:id="@+id/imgbtn"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"
@@ -28,7 +29,7 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/video_load_btn"
+            android:id="@+id/vdobtn"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_gravity="center_vertical"

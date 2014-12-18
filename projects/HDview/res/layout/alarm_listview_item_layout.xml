@@ -73,7 +73,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/alarm_arrow_img"
+            android:id="@+id/arrowimg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/device_list_item_spacing_5dp"

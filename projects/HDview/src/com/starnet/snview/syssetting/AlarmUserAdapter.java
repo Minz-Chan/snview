@@ -16,13 +16,15 @@ import android.widget.TextView;
 
 public class AlarmUserAdapter extends BaseAdapter {
 
+	private Context ctx;
 	private boolean isAccept;
 	private boolean isClickFlag;
 	private LayoutInflater flater;
 	private List<HashMap<String, Object>> mData;
-	
 
-	public AlarmUserAdapter(Context ctx, List<HashMap<String, Object>> mData,boolean isAccept) {
+	public AlarmUserAdapter(Context ctx, List<HashMap<String, Object>> mData,
+			boolean isAccept) {
+		this.ctx = ctx;
 		this.mData = mData;
 		this.isAccept = isAccept;
 		this.isClickFlag = isAccept;
@@ -54,16 +56,20 @@ public class AlarmUserAdapter extends BaseAdapter {
 		if (position == 0) {
 			convertView = flater
 					.inflate(R.layout.alarmnotifyadapter_item, null);
-			TextView txt = (TextView) convertView
-					.findViewById(R.id.alarm_pushset_txt);
+			TextView txt = (TextView) convertView.findViewById(R.id.alarm_txt);
 			HashMap<String, Object> map = mData.get(position);
 			String content = map.get("text").toString();
 			txt.setText("" + content);
 			final ImageButton imgBtn = (ImageButton) convertView
-					.findViewById(R.id.alarm_pushset_imgBtn);
+					.findViewById(R.id.imgBtn);
+
+			final TextView cnt = (TextView) convertView
+					.findViewById(R.id.alarm_cnt);
 			if (isAccept) {
+				cnt.setText(ctx.getString(R.string.alarm_accept_open));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-			}else {
+			} else {
+				cnt.setText(ctx.getString(R.string.alarm_accept_off));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 			}
 			imgBtn.setOnClickListener(new OnClickListener() {
@@ -71,19 +77,20 @@ public class AlarmUserAdapter extends BaseAdapter {
 				public void onClick(View v) {
 					if (isClickFlag) {
 						isClickFlag = false;
+						cnt.setText(ctx.getString(R.string.alarm_accept_off));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 					} else {
 						isClickFlag = true;
+						cnt.setText(ctx.getString(R.string.alarm_accept_open));
 						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
 					}
 				}
 			});
 		} else if (position == 1) {
 			convertView = flater.inflate(R.layout.alarmuseradapter_item, null);
-			TextView txt = (TextView) convertView
-					.findViewById(R.id.alarm_pushsetuser_txt);
+			TextView cnt = (TextView) convertView.findViewById(R.id.pset_cnt);
 			HashMap<String, Object> map = mData.get(position);
-			txt.setText("" + map.get("text").toString());
+			cnt.setText("" + map.get("text").toString());
 		}
 		return convertView;
 	}

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -12,7 +14,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
@@ -26,14 +30,15 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	boolean isShake;
 	boolean isSound;
 	boolean isAllAcc;
-	
-
+	private Button clearAlarmInfBtn;
+	private HashMap<String, Object> map;
 	private final int REQUESTCODE = 0x0001;
-	private List<HashMap<String, Object>> list;
-	private AalarmNotifyAdapter alarmNotifyAdapter;
-	private CornerListView alarmNotifyListView;// 报警通知（接收、声音和震动的设置）
 	private CornerListView alarmUserListView;// 报警账户的listView
 	private AlarmUserAdapter alarmUserAdapter;
+	private List<HashMap<String, Object>> list;
+	private CornerListView alarmNotifyListView;// 报警通知（接收、声音和震动的设置）
+	private AalarmNotifyAdapter alarmNotifyAdapter;
+	private List<HashMap<String, Object>> settingList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,13 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				AlarmPushManagerActivity.this.finish();
+			}
+		});
+
+		clearAlarmInfBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				jumpClearDialog();
 			}
 		});
 
@@ -85,8 +97,28 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		});
 	}
 
-	private List<HashMap<String, Object>> settingList;
-	private HashMap<String, Object> map;
+	protected void jumpClearDialog() {
+		Builder builder = new Builder(ctx);
+		builder.setTitle(R.string.system_setting_pushset_clear_allalarminfo_ok);
+		String ok = getString(R.string.system_setting_alarm_pushset_builer_identify_add_ok);
+		String cancel = getString(R.string.system_setting_alarm_pushset_builer_identify_add_cance);
+		builder.setNegativeButton(cancel, null);
+		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (ReadWriteXmlUtils.clearAllAlarmInfo()) {
+					showTost(getString(R.string.system_setting_pushset_clear_alarm_suc));
+				} else {
+					showTost(getString(R.string.system_setting_pushset_clear_alarm_fai));
+				}
+			}
+		});
+		builder.show();
+	}
+
+	private void showTost(String content) {
+		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
+	}
 
 	private void intialViews() {
 		super.hideExtendButton();
@@ -96,6 +128,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.setTitleViewText(getString(R.string.system_setting_alarm_pushset));
 
 		ctx = AlarmPushManagerActivity.this;
+		clearAlarmInfBtn = (Button) findViewById(R.id.clearAlarmInfBtn);
 		alarmUserListView = (CornerListView) findViewById(R.id.alarmUserListView);
 		alarmNotifyListView = (CornerListView) findViewById(R.id.alarmNotifyListView);
 
@@ -125,8 +158,13 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			content = getString(R.string.system_setting_alarmuser_null);
 		} else if (accounts != null && accounts.size() > 0) {
 			for (int i = 0; i < accounts.size(); i++) {
-				String result = accounts.get(i).getUsername() + "/";
-				content += result;
+				if (i!=(accounts.size()-1)) {
+					String result = accounts.get(i).getUsername() + ",";
+					content += result;
+				}else {
+					String result = accounts.get(i).getUsername();
+					content += result;
+				}
 			}
 		}
 		map2.put("text", content);
@@ -164,8 +202,13 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			content = getString(R.string.system_setting_alarmuser_null);
 		} else if (accounts != null && accounts.size() > 0) {
 			for (int i = 0; i < accounts.size(); i++) {
-				String result = accounts.get(i).getUsername() + "/";
-				content += result;
+				if (i!=(accounts.size()-1)) {
+					String result = accounts.get(i).getUsername() + ",";
+					content += result;
+				}else {
+					String result = accounts.get(i).getUsername();
+					content += result;
+				}
 			}
 		}
 		map2.put("text", content);
