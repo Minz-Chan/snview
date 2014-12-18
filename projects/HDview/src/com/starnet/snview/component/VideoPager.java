@@ -77,6 +77,7 @@ public class VideoPager extends LinearLayout {
 
 		
 		text = new TextView(getContext());
+		this.setGravity(Gravity.CENTER);
 		text.setText("");
 		
 		textLinearLayout.setGravity(Gravity.CENTER);

@@ -10,11 +10,17 @@ public class PTZRequestSender {
 	
 	private LiveViewGroup mLiveViewGroup;
 	
+	public PTZRequestSender() {}
+	
 	public PTZRequestSender(LiveViewGroup liveViewGroup) {
 		if (liveViewGroup == null) {
 			throw new IllegalArgumentException("LiveViewGroup can not be null");
 		}
 		
+		this.mLiveViewGroup = liveViewGroup;
+	}
+	
+	public void setLiveViewGroup(LiveViewGroup liveViewGroup) {
 		this.mLiveViewGroup = liveViewGroup;
 	}
 	

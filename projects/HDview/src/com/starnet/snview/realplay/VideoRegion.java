@@ -414,7 +414,7 @@ public class VideoRegion extends FrameLayout {
 				mIsScaleOperator = false;
 			}*/
 			
-			Log.i(TAG, "onTouch(), mIsPTZModeOn:" + mPtzControl.isPTZModeOn() + ", mIsScaleOperator:" + mIsScaleOperator);
+//			Log.i(TAG, "onTouch(), mIsPTZModeOn:" + mPtzControl.isPTZModeOn() + ", mIsScaleOperator:" + mIsScaleOperator);
 			
 			if (mIsScaleOperator) {
 				if (action == MotionEvent.ACTION_UP) {
@@ -426,9 +426,9 @@ public class VideoRegion extends FrameLayout {
 				boolean r1 = mScaleGestureDetector.onTouchEvent(event);
 				boolean r2 = mGestureDetector.onTouchEvent(event);
 				
-				if (mPtzControl.isPTZModeOn() && !mPtzControl.isFlingAction() && action == MotionEvent.ACTION_UP) {
-					onGestureListener.onSlidingMoveUp();
-				} 
+//				if (mPtzControl.isPTZModeOn() && !mPtzControl.isFlingAction() && action == MotionEvent.ACTION_UP) {
+//					onGestureListener.onSlidingMoveUp();
+//				} 
 				
 				return r1 || r2;
 			}
@@ -453,19 +453,19 @@ public class VideoRegion extends FrameLayout {
 				pos = getIndexOfLiveview(e.getX(), e.getY());
 			}
 
-			if ((mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
-			/* || !liveViewManager.isMultiMode() */) { // PTZ模式情况下或单通道模式单击处理PTZ工具条的显示和隐藏
-				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
-					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
-						mLiveControl.getLandscapeToolbar()
-								.hideLandscapeToolbar();
-					} else {
-						mLiveControl.getLandscapeToolbar()
-								.showLandscapeToolbar();
-					}
-				}
-				return;
-			}
+//			if ((mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected())
+//			/* || !liveViewManager.isMultiMode() */) { // PTZ模式情况下或单通道模式单击处理PTZ工具条的显示和隐藏
+//				if (GlobalApplication.getInstance().isIsFullMode()) { // 若为横屏模式，则进行相应工具条显示/隐藏控制
+//					if (mLiveControl.getLandscapeToolbar().isLandToolbarShow()) {
+//						mLiveControl.getLandscapeToolbar()
+//								.hideLandscapeToolbar();
+//					} else {
+//						mLiveControl.getLandscapeToolbar()
+//								.showLandscapeToolbar();
+//					}
+//				}
+//				return;
+//			}
 
 			int index = (mLiveViewManager.getCurrentPageNumber() - 1)
 					* mLiveViewManager.getPageCapacity() + pos;
@@ -514,9 +514,9 @@ public class VideoRegion extends FrameLayout {
 
 		@Override
 		public void onDoubleClick(MotionEvent e) {
-			if (mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下双击无效
-				return;
-			}
+//			if (mPtzControl.isPTZModeOn() && checkIsPTZDeviceConnected()) { // PTZ模式情况下双击无效
+//				return;
+//			}
 
 			Log.i(TAG, "On Double click");
 
@@ -581,9 +581,9 @@ public class VideoRegion extends FrameLayout {
 				}
 
 				// 若发现此时PTZ模式开启，则重围PTZ模式，即退出PTZ模式
-				if (mPtzControl.isPTZModeOn()) {
-					mPtzControl.showPTZBar(false);
-				}
+//				if (mPtzControl.isPTZModeOn()) {
+//					mPtzControl.showPTZBar(false);
+//				}
 
 				mPtzControl.setIsEnterPTZInSingleMode(false);
 			}
@@ -619,13 +619,13 @@ public class VideoRegion extends FrameLayout {
 
 		@Override
 		public void onSlidingLeft() {
-			Log.i(TAG,
-					"onSlidingLeft(), mIsPTZModeOn:" + mPtzControl.isPTZModeOn()
-							+ " mPtzControl:" + mPtzControl.getPtzReqSender()
-							+ " mIsScaleOperator:" + mIsScaleOperator);
+//			Log.i(TAG,
+//					"onSlidingLeft(), mIsPTZModeOn:" + mPtzControl.isPTZModeOn()
+//							+ " mPtzControl:" + mPtzControl.getPtzReqSender()
+//							+ " mIsScaleOperator:" + mIsScaleOperator);
 
-			if (!mPtzControl.isPTZModeOn()) { // 向左滑屏
-				if (mLiveViewManager.getPager() != null) {
+//			if (!mPtzControl.isPTZModeOn()) { // 向左滑屏
+//				if (mLiveViewManager.getPager() != null) {
 					//mVideoRegion.startAnimation(mVideoSwitchAnim);
 
 //					mLiveViewManager.nextPage();
@@ -640,8 +640,8 @@ public class VideoRegion extends FrameLayout {
 //									.showLandscapeToolbar();
 //						}
 //					}
-				}
-			} else { // PTZ, 向左
+//				}
+//			} else { // PTZ, 向左
 				Log.i(TAG, "PTZ Action");
 				mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 						Constants.ARROW.LEFT);
@@ -650,19 +650,19 @@ public class VideoRegion extends FrameLayout {
 					Log.i(TAG, "PTZ Action -----> left");
 					mPtzControl.getPtzReqSender().moveLeft();
 				}
-			}
+//			}
 
 		}
 
 		@Override
 		public void onSlidingRight() {
-			Log.i(TAG,
-					"onSlidingRight(), mIsPTZModeOn:"
-							+ mPtzControl.isPTZModeOn() + " mPtzControl:"
-							+ mPtzControl.getPtzReqSender()
-							+ " mIsScaleOperator:" + mIsScaleOperator);
-			if (!mPtzControl.isPTZModeOn()) { // 向右滑屏
-				if (mLiveViewManager.getPager() != null) {
+//			Log.i(TAG,
+//					"onSlidingRight(), mIsPTZModeOn:"
+//							+ mPtzControl.isPTZModeOn() + " mPtzControl:"
+//							+ mPtzControl.getPtzReqSender()
+//							+ " mIsScaleOperator:" + mIsScaleOperator);
+//			if (!mPtzControl.isPTZModeOn()) { // 向右滑屏
+//				if (mLiveViewManager.getPager() != null) {
 					//mVideoRegion.startAnimation(mVideoSwitchAnim);
 
 //					mLiveViewManager.previousPage();
@@ -677,8 +677,8 @@ public class VideoRegion extends FrameLayout {
 //									.showLandscapeToolbar();
 //						}
 //					}
-				}
-			} else { // PTZ, 向右
+//				}
+//			} else { // PTZ, 向右
 				Log.i(TAG, "PTZ Action");
 				mLiveViewManager.getSelectedLiveView().showArrowAnimation(
 						Constants.ARROW.RIGHT);
@@ -687,14 +687,14 @@ public class VideoRegion extends FrameLayout {
 					Log.i(TAG, "PTZ Action -----> right");
 					mPtzControl.getPtzReqSender().moveRight();
 				}
-			}
+//			}
 
 		}
 
 		@Override
 		public void onSlidingLeftUp() {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
-					Constants.ARROW.LEFT_UP);
+					Constants.ARROW.LEFTUP);
 
 			if (mPtzControl.getPtzReqSender() != null) {
 				mPtzControl.getPtzReqSender().moveLeftUp();
@@ -704,7 +704,7 @@ public class VideoRegion extends FrameLayout {
 		@Override
 		public void onSlidingLeftDown() {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
-					Constants.ARROW.LEFT_DOWN);
+					Constants.ARROW.LEFTDOWN);
 
 			if (mPtzControl.getPtzReqSender() != null) {
 				mPtzControl.getPtzReqSender().moveLeftDown();
@@ -714,7 +714,7 @@ public class VideoRegion extends FrameLayout {
 		@Override
 		public void onSlidingRightUp() {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
-					Constants.ARROW.RIGHT_UP);
+					Constants.ARROW.RIGHTUP);
 
 			if (mPtzControl.getPtzReqSender() != null) {
 				mPtzControl.getPtzReqSender().moveRightUp();
@@ -724,7 +724,7 @@ public class VideoRegion extends FrameLayout {
 		@Override
 		public void onSlidingRightDown() {
 			mLiveViewManager.getSelectedLiveView().showArrowAnimation(
-					Constants.ARROW.RIGHT_DOWN);
+					Constants.ARROW.RIGHTDOWN);
 
 			if (mPtzControl.getPtzReqSender() != null) {
 				mPtzControl.getPtzReqSender().moveRightDown();
@@ -766,7 +766,7 @@ public class VideoRegion extends FrameLayout {
 			}
 
 			// mIsPTZInMoving = false;
-			mPtzControl.setIsPTZInMoving(false);
+//			mPtzControl.setIsPTZInMoving(false);
 
 		}
 
@@ -831,7 +831,7 @@ public class VideoRegion extends FrameLayout {
 				}
 				break;
 			}*/
-			mPtzControl.setIsFlingAction(true);
+//			mPtzControl.setIsFlingAction(true);
     		switch (h) {
     		case -1:
     			if (v == -1) {
@@ -865,7 +865,7 @@ public class VideoRegion extends FrameLayout {
 			VideoRegion.this.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					mPtzControl.setIsFlingAction(false);
+//					mPtzControl.setIsFlingAction(false);
 					onSlidingMoveUp();
 				}
 
@@ -943,65 +943,65 @@ public class VideoRegion extends FrameLayout {
         	int v = Math.abs(b1 - b0) > FLIP_DISTANCE ? (b1 - b0 > 0 ? 1 : -1) : 0;  // -1：上；0：垂直无滑动；1：下
         	float k = (b1 - b0) / (a1 - a0);
 
-        	if (!mPtzControl.isPTZModeOn()) { // 非PTZ模式， 即左右滑屏
-        		if (h == -1) {
-        			// 为flipper设置切换的的动画效果
-        			//mFlipper.setInAnimation(animations[0]);
-        			//mFlipper.setOutAnimation(animations[1]);
-        			//mFlipper.showPrevious();
-        			
-        			//ToastUtils.show(RealplayActivity.this, "向左滑动");
-        			mGestureListener.onSlidingLeft();
-        		} else if (h == 1) {
-        			// 为flipper设置切换的的动画效果
-        			//mFlipper.setInAnimation(animations[2]);
-        			//mFlipper.setOutAnimation(animations[3]);
-        			//mFlipper.showNext();
-        			
-        			//ToastUtils.show(RealplayActivity.this, "向右滑动");
-        			mGestureListener.onSlidingRight();
-        		}
-        		
-        		return true;
-        	} else {  // PTZ模式
-        		if (h != 0 || v != 0) {
-        			if (k <= -2F || k >= 2F) {
-        				if (b1 < b0) { // 上
-        					h = 0; v = -1;
-        				} else { // 下
-        					h = 0; v = 1;
-        				}
-        			}
-        			
-        			if (k >= -0.375F && k <= 0.375F) {
-        				if (a1 < a0) { // 左
-        					h = -1; v = 0;
-        				} else { // 右
-        					h = 1; v = 0;
-        				}
-        			}
-        			
-        			if (k > -2F && k < -0.375F) {
-        				if (b1 > b0) { // 左下
-        					h = -1; v = 1;
-        				} else { // 右上
-        					h = 1; v = -1;
-        				}
-        			}
-        			
-        			if (k > 0.375F && k < 2F) {
-        				if (b1 < b0) { // 左上
-        					h = -1; v = -1;
-        				} else { // 右下
-        					h = 1; v = 1;
-        				}
-        			}
-        		} else {
-        			h = 0; v = 0;
-        		}
-        		
-        		mGestureListener.onFling(h, v);    		
-        	}
+//        	if (!mPtzControl.isPTZModeOn()) { // 非PTZ模式， 即左右滑屏
+//        		if (h == -1) {
+//        			// 为flipper设置切换的的动画效果
+//        			//mFlipper.setInAnimation(animations[0]);
+//        			//mFlipper.setOutAnimation(animations[1]);
+//        			//mFlipper.showPrevious();
+//        			
+//        			//ToastUtils.show(RealplayActivity.this, "向左滑动");
+//        			mGestureListener.onSlidingLeft();
+//        		} else if (h == 1) {
+//        			// 为flipper设置切换的的动画效果
+//        			//mFlipper.setInAnimation(animations[2]);
+//        			//mFlipper.setOutAnimation(animations[3]);
+//        			//mFlipper.showNext();
+//        			
+//        			//ToastUtils.show(RealplayActivity.this, "向右滑动");
+//        			mGestureListener.onSlidingRight();
+//        		}
+//        		
+//        		return true;
+//        	} else {  // PTZ模式
+//        		if (h != 0 || v != 0) {
+//        			if (k <= -2F || k >= 2F) {
+//        				if (b1 < b0) { // 上
+//        					h = 0; v = -1;
+//        				} else { // 下
+//        					h = 0; v = 1;
+//        				}
+//        			}
+//        			
+//        			if (k >= -0.375F && k <= 0.375F) {
+//        				if (a1 < a0) { // 左
+//        					h = -1; v = 0;
+//        				} else { // 右
+//        					h = 1; v = 0;
+//        				}
+//        			}
+//        			
+//        			if (k > -2F && k < -0.375F) {
+//        				if (b1 > b0) { // 左下
+//        					h = -1; v = 1;
+//        				} else { // 右上
+//        					h = 1; v = -1;
+//        				}
+//        			}
+//        			
+//        			if (k > 0.375F && k < 2F) {
+//        				if (b1 < b0) { // 左上
+//        					h = -1; v = -1;
+//        				} else { // 右下
+//        					h = 1; v = 1;
+//        				}
+//        			}
+//        		} else {
+//        			h = 0; v = 0;
+//        		}
+//        		
+//        		mGestureListener.onFling(h, v);    		
+//        	}
     		
     		return false;  
         }  
@@ -1019,15 +1019,15 @@ public class VideoRegion extends FrameLayout {
         {  
             Log.i("TEST", "onScroll:distanceX = " + distanceX + " distanceY = " + distanceY);
             
-            Log.i(TAG, "mIsPTZInMoving: " + mPtzControl.isPTZInMoving());
+//            Log.i(TAG, "mIsPTZInMoving: " + mPtzControl.isPTZInMoving());
             
             /*
              * 目前服务端不支持连续发送 _OWSP_ACTIONCode事件，故若侦测到已发送云台移动事件
              * 则需等待 OWSP_ACTION_MD_STOP事件后方可再次发送
              */
-            if (mPtzControl.isPTZInMoving()) {
-            	return true;
-            }
+//            if (mPtzControl.isPTZInMoving()) {
+//            	return true;
+//            }
             
             float a0 = e1.getX();
         	float b0 = e1.getY();
@@ -1041,13 +1041,13 @@ public class VideoRegion extends FrameLayout {
         	
         	Log.i(TAG, "slope k=" + k);
             
-        	if (!mPtzControl.isPTZModeOn() || !checkIsPTZDeviceConnected()) { // 若设备处于未连接或断开状态，则不启用云台控制手势        			
-    			return true;
-    		}
+//        	if (!mPtzControl.isPTZModeOn() || !checkIsPTZDeviceConnected()) { // 若设备处于未连接或断开状态，则不启用云台控制手势        			
+//    			return true;
+//    		}
     		
     		Log.i(TAG, "h: " + h + ", v: " + v);
     		
-    		mPtzControl.setIsPTZInMoving(true);
+//    		mPtzControl.setIsPTZInMoving(true);
     		if (h != 0 || v != 0) {
     			if (k <= -2F || k >= 2F) {
     				if (b1 < b0) { // 上
@@ -1090,7 +1090,7 @@ public class VideoRegion extends FrameLayout {
     			}
     		} else {
     			Log.i(TAG, "move, none");
-    			mPtzControl.setIsPTZInMoving(false);
+//    			mPtzControl.setIsPTZInMoving(false);
     		}
         	
     		/*
@@ -1170,10 +1170,10 @@ public class VideoRegion extends FrameLayout {
 
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector) {
-			if ((mPtzControl.isPTZModeOn() && !checkIsPTZDeviceConnected())
-					|| !mPtzControl.isPTZModeOn()) { // 未启用PTZ模式或未连接状态均不触发
-				return;
-			}
+//			if ((mPtzControl.isPTZModeOn() && !checkIsPTZDeviceConnected())
+//					|| !mPtzControl.isPTZModeOn()) { // 未启用PTZ模式或未连接状态均不触发
+//				return;
+//			}
 			
 			float avg = scaleFactorSum / count; // 求均值确定放大还是缩小操作
 			

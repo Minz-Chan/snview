@@ -70,6 +70,7 @@ public class WindowLinearLayout extends LinearLayout {
 
 	public void setWindowSelected(boolean selected) {
 		this.mIsSelected = selected;
-		invalidate();
+		//invalidate();
+		postInvalidate();
 	}
 }

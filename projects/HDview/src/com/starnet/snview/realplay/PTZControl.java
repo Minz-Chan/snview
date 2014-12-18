@@ -64,7 +64,7 @@ public class PTZControl {
 	public PTZControl(RealplayActivity activity) {
 		this.mLiveActivity = activity;
 //		this.mLiveviewManager = activity.getLiveviewManager();
-		this.mLiveViewGroup = activity.getLiveViewGroup();
+//		this.mLiveViewGroup = activity.getLiveViewGroup();
 		
 		init();
 	}
@@ -121,9 +121,14 @@ public class PTZControl {
 		
 		mLandscapeToolbar = (LandscapeToolbar) findViewById(R.id.landscape_liveview_control_frame);
 		
-		mPtzReqSender = new PTZRequestSender(mLiveViewGroup);
+		mPtzReqSender = new PTZRequestSender();
 		
 		showPTZBar(false);
+	}
+	
+	public void bindLiveViewGroup(LiveViewGroup liveViewGroup) {
+		mLiveViewGroup = liveViewGroup;
+		mPtzReqSender.setLiveViewGroup(mLiveViewGroup);
 	}
 	
 	private View findViewById(int resid) {
@@ -703,6 +708,48 @@ public class PTZControl {
 		}
 	}
 	
+	public void sendCommand(CTL_ACTION action) {
+		if (mPtzReqSender == null) {
+			throw new IllegalStateException("PTZRequestSender is null");
+		} 
+		
+		switch (action) {
+		case LEFT:
+			mPtzReqSender.moveLeft();
+			break;
+		case RIGHT:
+			mPtzReqSender.moveRight();
+			break;
+		case UP:
+			mPtzReqSender.moveUp();
+			break;
+		case DOWN:
+			mPtzReqSender.moveDown();
+			break;
+		case LEFTUP:
+			mPtzReqSender.moveLeftUp();
+			break;
+		case RIGHTUP:
+			mPtzReqSender.moveRightUp();
+			break;
+		case LEFTDOWN:
+			mPtzReqSender.moveLeftDown();
+			break;
+		case RIGHTDOWN:
+			mPtzReqSender.moveRightDown();
+			break;
+		case STOP:
+			mPtzReqSender.stopMove();
+			break;
+		case FOCAL_LEGNTH_INC:
+			mPtzReqSender.focalLengthIncrease();
+			break;
+		case FOCAL_LENGTH_DEC:
+			mPtzReqSender.focalLengthDecrease();
+			break;
+		}
+	}
+	
 	private boolean checkIsPTZDeviceConnected() {
 		return mLiveActivity.checkIsPTZDeviceConnected();
 	}
@@ -711,29 +758,29 @@ public class PTZControl {
 		mLiveActivity.showToolbarExtendMenu(menuId);
 	}
 
-	public boolean isPTZModeOn() {
-		return mIsPTZModeOn;
-	}
-
-	public void setIsPTZModeOn(boolean isPTZModeOn) {
-		this.mIsPTZModeOn = isPTZModeOn;
-	}
-
-	public boolean isPTZInMoving() {
-		return mIsPTZInMoving;
-	}
-
-	public void setIsPTZInMoving(boolean isPTZInMoving) {
-		this.mIsPTZInMoving = isPTZInMoving;
-	}
-	
-	public boolean isFlingAction() {
-		return mIsFlingAction;
-	}
-	
-	public void setIsFlingAction(boolean isFlingAction) {
-		this.mIsFlingAction = isFlingAction;
-	}
+//	public boolean isPTZModeOn() {
+//		return mIsPTZModeOn;
+//	}
+//
+//	public void setIsPTZModeOn(boolean isPTZModeOn) {
+//		this.mIsPTZModeOn = isPTZModeOn;
+//	}
+//
+//	public boolean isPTZInMoving() {
+//		return mIsPTZInMoving;
+//	}
+//
+//	public void setIsPTZInMoving(boolean isPTZInMoving) {
+//		this.mIsPTZInMoving = isPTZInMoving;
+//	}
+//	
+//	public boolean isFlingAction() {
+//		return mIsFlingAction;
+//	}
+//	
+//	public void setIsFlingAction(boolean isFlingAction) {
+//		this.mIsFlingAction = isFlingAction;
+//	}
 	
 	public void setIsEnterPTZInSingleMode(boolean isEnterPTZInSingleMode) {
 		this.mIsEnterPTZInSingleMode = isEnterPTZInSingleMode;
@@ -743,6 +790,18 @@ public class PTZControl {
 		return mPtzReqSender;
 	}
 	
-	
+	public static enum CTL_ACTION {
+		LEFT,
+		RIGHT,
+		UP,
+		DOWN,
+		LEFTUP,
+		RIGHTUP,
+		LEFTDOWN,
+		RIGHTDOWN,
+		STOP,
+		FOCAL_LEGNTH_INC,
+		FOCAL_LENGTH_DEC
+	}
 	
 }

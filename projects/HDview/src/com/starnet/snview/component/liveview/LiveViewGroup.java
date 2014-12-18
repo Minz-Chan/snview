@@ -11,8 +11,11 @@ import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.LiveControl;
 import com.starnet.snview.realplay.PTZControl;
+import com.starnet.snview.realplay.PTZControl.CTL_ACTION;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.util.ClickEventUtils;
+import com.starnet.snview.util.ClickEventUtils.OnActionListener;
 
 import junit.framework.Assert;
 import android.content.Context;
@@ -285,6 +288,18 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	};
 	
 	/**
+	 * Delay to send STOP command and stop animation. It can make multiple 
+	 * continuous calls in a twinkling become just a call. 
+	 */
+	private ClickEventUtils mPTZStopMoveCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			mPtzControl.sendCommand(CTL_ACTION.STOP);	
+			getSelectedLiveview().stopArrowAnimation();
+		}
+	}, 300);
+	
+	/**
 	 * The real processor for all gesture event
 	 */
 	private PTZGestureListener ptzGestureListener = new PTZGestureListener() {
@@ -292,97 +307,149 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		@Override
 		public void onSlidingLeft() {
 			Log.d(TAG, "onSlidingLeft");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.LEFT);
+				mPtzControl.sendCommand(CTL_ACTION.LEFT);
+			}
 		}
 
 		@Override
 		public void onSlidingLeftUp() {
 			Log.d(TAG, "onSlidingLeftUp");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.LEFTUP);
+				mPtzControl.sendCommand(CTL_ACTION.LEFTUP);
+			}
 		}
 
 		@Override
 		public void onSlidingLeftDown() {
 			Log.d(TAG, "onSlidingLeftDown");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.LEFTDOWN);
+				mPtzControl.sendCommand(CTL_ACTION.LEFTDOWN);
+			}
 		}
 
 		@Override
 		public void onSlidingRight() {
 			Log.d(TAG, "onSlidingRight");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.RIGHT);
+				mPtzControl.sendCommand(CTL_ACTION.RIGHT);
+			}
 		}
 
 		@Override
 		public void onSlidingRightUp() {
 			Log.d(TAG, "onSlidingRightUp");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.RIGHTUP);
+				mPtzControl.sendCommand(CTL_ACTION.RIGHTUP);
+			}
 		}
 
 		@Override
 		public void onSlidingRightDown() {
 			Log.d(TAG, "onSlidingRightDown");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.RIGHTDOWN);
+				mPtzControl.sendCommand(CTL_ACTION.RIGHTDOWN);
+			}
 		}
 
 		@Override
 		public void onSlidingUp() {
 			Log.d(TAG, "onSlidingUp");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.UP);
+				mPtzControl.sendCommand(CTL_ACTION.UP);
+			}
 		}
 
 		@Override
 		public void onSlidingDown() {
 			Log.d(TAG, "onSlidingDown");
+			if (isPTZMode) {
+				getSelectedLiveview().showArrowAnimation(Constants.ARROW.DOWN);
+				mPtzControl.sendCommand(CTL_ACTION.DOWN);
+			}
 		}
 
 		@Override
 		public void onSlidingMoveUp() {
 			Log.d(TAG, "onSlidingMoveUp");
 			isPTZMoving = false;
+			
+			getSelectedLiveview().stopArrowAnimation();
+			mPtzControl.sendCommand(CTL_ACTION.STOP);
+//			mPtzControl.setIsPTZInMoving(false);
 		}
 
 		@Override
 		public void onFlingLeft() {
 			Log.d(TAG, "onFlingLeft");
+			onSlidingLeft();
 		}
 
 		@Override
 		public void onFlingLeftUp() {
 			Log.d(TAG, "onFlingLeftUp");
+			onSlidingLeftUp();
 		}
 
 		@Override
 		public void onFlingLeftDown() {
 			Log.d(TAG, "onFlingLeftDown");
+			onSlidingLeftDown();
 		}
 
 		@Override
 		public void onFlingRight() {
 			Log.d(TAG, "onFlingRight");
+			onSlidingRight();
 		}
 
 		@Override
 		public void onFlingRightUp() {
 			Log.d(TAG, "onFlingRightUp");
+			onSlidingRightUp();
 		}
 
 		@Override
 		public void onFlingRightDown() {
 			Log.d(TAG, "onFlingRightDown");
+			onSlidingRightDown();
 		}
 
 		@Override
 		public void onFlingUp() {
 			Log.d(TAG, "onFlingUp");
+			onSlidingUp();
 		}
 
 		@Override
 		public void onFlingDown() {
 			Log.d(TAG, "onFlingDown");
+			onSlidingDown();
 		}
 
 		@Override
 		public void onZoomIn() {
 			Log.d(TAG, "onZoomIn");
+			getSelectedLiveview().showFocalLengthAnimation(true);
+			mPtzControl.sendCommand(CTL_ACTION.FOCAL_LEGNTH_INC);
+			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(),
+					new Object());
 		}
 
 		@Override
 		public void onZoomOut() {
 			Log.d(TAG, "onZoomOut");
+			getSelectedLiveview().showFocalLengthAnimation(false);
+			mPtzControl.sendCommand(CTL_ACTION.FOCAL_LENGTH_DEC);
+			mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(),
+					new Object());
 		}
 		
 	};
@@ -517,6 +584,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		final Connection conn = ((LiveViewItemContainer) getSubViewByItemIndex(
 				currentSelectedItemIndex)).getConnection();
 		return conn != null && conn.isConnected();
+	}
+	
+	public boolean isPTZMode() {
+		return isPTZMode;
 	}
 	
 	@Override
@@ -1138,7 +1209,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			// ...
 			// Condition whether to response scale gesture
 			// ...
-			if (!isPTZMode) {
+			if (!isPTZMode || !isInPreviewing()) {
 				return;
 			}
 			

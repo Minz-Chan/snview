@@ -11,13 +11,13 @@ public interface Constants {
 	
 	public interface ARROW {
 		public static final int LEFT = 0;
-		public static final int LEFT_DOWN = 1;
+		public static final int LEFTDOWN = 1;
 		public static final int DOWN = 2;
-		public static final int RIGHT_DOWN = 3;
+		public static final int RIGHTDOWN = 3;
 		public static final int RIGHT = 4;
-		public static final int RIGHT_UP = 5;
+		public static final int RIGHTUP = 5;
 		public static final int UP = 6;
-		public static final int LEFT_UP = 7;
+		public static final int LEFTUP = 7;
 		
 	}
 }

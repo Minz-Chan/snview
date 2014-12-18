@@ -245,6 +245,8 @@ public class LiveViewItemContainer extends RelativeLayout {
 				MeasureSpec.makeMeasureSpec(surfaceWidth, MeasureSpec.EXACTLY), 
 				MeasureSpec.makeMeasureSpec(surfaceHeight, MeasureSpec.EXACTLY));
 		mWindowInfoText.setHeight(windowTextHeight);
+		mArrowAddFrame.measure(widthMeasureSpec, heightMeasureSpec);
+		mArrowSubFrame.measure(widthMeasureSpec, heightMeasureSpec);
 	}
 	
 	@Override
@@ -265,6 +267,10 @@ public class LiveViewItemContainer extends RelativeLayout {
 				mSurfaceView.getMeasuredHeight());	
 		mWindowInfoText.layout(0, mPlaywindowFrame.getMeasuredHeight()-2, 
 				mPlaywindowFrame.getMeasuredWidth(), getMeasuredHeight());
+		mArrowAddFrame.layout(0, 0, mArrowAddFrame.getMeasuredWidth(), 
+				mArrowAddFrame.getMeasuredWidth());
+		mArrowSubFrame.layout(0, 0, mArrowSubFrame.getMeasuredWidth(), 
+				mArrowSubFrame.getMeasuredWidth());
 	}
 	
 	/**
@@ -411,7 +417,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		final boolean _isAddFocalLength = isAddFocalLength;
 		int i = 0;
 		
-		Log.i(TAG, "imgArray.length: " + imgArray.length + "isAddFocalLength: " + isAddFocalLength);
+		Log.i(TAG, "imgArray.length: " + imgArray.length + ", isAddFocalLength: " + isAddFocalLength);
 		
 		if (_isAddFocalLength){
 			mArrowAddFrame.setVisibility(View.VISIBLE);
@@ -439,7 +445,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 					mArrowSubFrame.setVisibility(View.GONE);
 				}
 			}
-			
 		}, 500);
 		
 	}

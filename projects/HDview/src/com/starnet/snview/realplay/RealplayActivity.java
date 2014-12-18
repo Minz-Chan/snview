@@ -641,6 +641,8 @@ public class RealplayActivity extends BaseActivity {
 	
 
 	private void initView() {
+		final int screenWidth = getApp().getScreenWidth();
+		
 		super.getExtendButton().setVisibility(View.GONE);
 		
 		Button btnDeviceList = super.getRightButton();
@@ -670,14 +672,11 @@ public class RealplayActivity extends BaseActivity {
 		initLandScapeToolbar();
 		initToolbarExtendMenu();
 		
-		final int screenWidth = getApp().getScreenWidth();		
+		ptzControl = new PTZControl(this);
 		mLiveviewGroup = new LiveViewGroup(this);
 		((FrameLayout) findViewById(R.id.video_region)).addView(mLiveviewGroup, 
 				new FrameLayout.LayoutParams(screenWidth, screenWidth));
-//		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth, screenWidth);
-		//mLiveviewGroup.setVisibility(View.GONE);
-		
-		ptzControl = new PTZControl(this);
+		ptzControl.bindLiveViewGroup(mLiveviewGroup);
 		
 		showToolbarExtendMenu(TOOLBAR_EXTEND_MENU.PAGER);
 	}
@@ -841,7 +840,8 @@ public class RealplayActivity extends BaseActivity {
 			mLiveviewGroup.stopPreviewCurrentScreen();
 //			liveViewManager.stopPreview();
 	
-			if (ptzControl.isPTZModeOn()) {
+			
+			if (mLiveviewGroup.isPTZMode()) {
 				ptzControl.setIsEnterPTZInSingleMode(true);
 				ptzControl.closePTZ();
 			}
