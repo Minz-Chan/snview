@@ -92,6 +92,7 @@
     <string name="system_setting_alarminfo_remind_sound_open">开</string>
     <string name="system_setting_pushset_alarmuser">报警推送账户</string>
     <string name="system_setting_alarm_pushset_user_del_ok">确认</string>
+    <string name="system_setting_pushset_clear_alarm_suc">完成清除</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
     <string name="system_setting_about_build_time">(Build 20141205)</string>
@@ -102,7 +103,6 @@
     <string name="system_setting_alarminfo_remind_sound">报警推送声音</string>
     <string name="system_setting_alarm_pushset_user_del">确认删除账户</string>
     <string name="system_setting_pushset_clear_alarminfo">清除报警信息</string>
-    <string name="system_setting_pushset_clear_alarm_suc">成功清除报警</string>
     <string name="system_setting_pushset_clear_alarm_fai">请您稍后重试</string>
     <string name="system_setting_corp_rights_txt">All Rights Reserved</string>
     <string name="system_setting_alarm_manager_code_please">请输入密码</string>

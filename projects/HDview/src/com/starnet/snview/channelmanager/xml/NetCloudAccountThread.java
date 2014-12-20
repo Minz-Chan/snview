@@ -29,12 +29,10 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("SdCardPath")
 public class NetCloudAccountThread extends Thread {
 	
-	@SuppressWarnings("unused")
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	private int postition;
 	private Handler netHandler;
 	private CloudAccount cAccount;
-	private CloudService cloudService;
 	private final int STARCLOUNDDOWNLOADSUC = 10;
 	
 	@Override
@@ -48,10 +46,10 @@ public class NetCloudAccountThread extends Thread {
 			String username = cAccount.getUsername();
 			String password = cAccount.getPassword();
 			String deviceName = "conn1";
-			Document document = cloudService.SendURLPost(domain, port, username, password, deviceName);
-			String requestStatus = cloudService.readXmlStatus(document);
+			Document document = ReadWriteXmlUtils.SendURLPost(domain, port, username, password, deviceName);
+			String requestStatus = ReadWriteXmlUtils.readXmlStatus(document);
 			if (requestStatus == null) {//网络访问成功
-				List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取到设备
+				List<DVRDevice> dvrDevices = ReadWriteXmlUtils.readXmlDVRDevices(document);//获取到设备
 				CloudAccount netCloudAccount = getCloudAccountFromDVRDevice(dvrDevices);//将获取的内容封装成CloudAccount
 				//写操作的同步,是否有必要向文档中写入保存呢
 				ReadWriteXmlUtils.writeNewCloudAccountToXML(netCloudAccount, CLOUD_ACCOUNT_PATH);//将数据写入xml文档中,将访问成功得到的数据，写入文档中，使得ExpandableListview在进行界面加载时，可以直接从文档中读取；
@@ -144,10 +142,9 @@ public class NetCloudAccountThread extends Thread {
 		return cloudAccount;
 	}
 
-	public NetCloudAccountThread(CloudAccount cAccount,CloudService cloudService,Handler netHandler,int postition) {
+	public NetCloudAccountThread(CloudAccount cAccount,Handler netHandler,int postition) {
 		super();
 		this.cAccount = cAccount;
-		this.cloudService = cloudService;
 		this.netHandler = netHandler;
 		this.postition = postition;
 	}

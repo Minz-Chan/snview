@@ -21,10 +21,10 @@ import com.starnet.snview.devicemanager.DeviceItem;
  *封装有关获取星云平台用户信息
  */
 @SuppressLint("SdCardPath")
-public class CloudAccountInfoInXMLFile {
+public class CloudAccountInfoOpt {
 	
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//收藏设备的存放地址；获取得打的数据放在ExpandableListView的第一个位置
-	private CloudService cloudService ;
+	
 	private final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	
 	//请求星云账号中设备平台的信息
@@ -34,9 +34,8 @@ public class CloudAccountInfoInXMLFile {
 	private String password;
 	private String deviceName;
 
-	public CloudAccountInfoInXMLFile(CloudService cloudService, String domain,String port, String username, String password, String deviceName) {
+	public CloudAccountInfoOpt(String domain,String port, String username, String password, String deviceName) {
 		super();
-		this.cloudService = cloudService;
 		this.domain = domain;
 		this.port = port;
 		this.username = username;
@@ -44,15 +43,15 @@ public class CloudAccountInfoInXMLFile {
 		this.deviceName = deviceName;
 	}
 	
-	public CloudAccountInfoInXMLFile() {
+	public CloudAccountInfoOpt() {
 	}
 
 	public CloudAccount getCloudAccountFromURL() throws IOException, DocumentException{
 		CloudAccount cloudAccount = new CloudAccount();
-		Document document = cloudService.SendURLPost(domain, port, username, password, deviceName);
-		String requestState = cloudService.readXmlStatus(document);//判断是否请求成功
+		Document document = ReadWriteXmlUtils.SendURLPost(domain, port, username, password, deviceName);
+		String requestState = ReadWriteXmlUtils.readXmlStatus(document);//判断是否请求成功
 		if (requestState == null) {//请求成功
-			List<DVRDevice> dvrDevices = cloudService.readXmlDVRDevices(document);//获取得到DVRDevice的信息	
+			List<DVRDevice> dvrDevices = ReadWriteXmlUtils.readXmlDVRDevices(document);//获取得到DVRDevice的信息	
 			cloudAccount  = getCloudAccountFromDVRDevice(dvrDevices);	
 		}else{//返回给用户请求失败的信息，不能进行接下来的操作			
 			System.out.println("请求不成功！！！！");

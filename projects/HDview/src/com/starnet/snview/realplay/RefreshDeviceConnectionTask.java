@@ -11,14 +11,13 @@ import android.content.Context;
 import android.util.Log;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountInfoInXMLFile;
-import com.starnet.snview.channelmanager.xml.CloudService;
-import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
+import com.starnet.snview.channelmanager.xml.CloudAccountInfoOpt;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CloudAccountUtils;
 import com.starnet.snview.util.CollectDeviceParams;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public abstract class RefreshDeviceConnectionTask {
 	public static final int REFRESH_CLOUDACCOUT_PROCESS_DIALOG = 0x0008;
@@ -112,7 +111,7 @@ public abstract class RefreshDeviceConnectionTask {
 	 * @return 待更新星云账户列表
 	 */
 	private List<CloudAccount> getCloudAccountToBeUpdated() {
-		List<CloudAccount> allCloudAccounts = new CloudAccountInfoInXMLFile().getCloudAccountInfoFromUI();
+		List<CloudAccount> allCloudAccounts = new CloudAccountInfoOpt().getCloudAccountInfoFromUI();
 		List<CloudAccount> cloudAccountsToBeUpdated = new ArrayList<CloudAccount>();
 		List<String> cloudAccountNamesToBeUpdated = new ArrayList<String>();
 		for (PreviewDeviceItem item : updatedDevices) {
@@ -253,8 +252,6 @@ public abstract class RefreshDeviceConnectionTask {
 	protected abstract void onUpdateWorkTimeout();
 	protected abstract void onUpdateWorkFailed();
 	
-	
-	private CloudService cloudService = new CloudServiceImpl("");
 	private CloudAccountUtils cloudAccoutnUtils = new CloudAccountUtils();
 	class UpdateCloundAccountInfoSubTask extends Thread {
 		private CloudAccount cloudAccount;
@@ -274,10 +271,10 @@ public abstract class RefreshDeviceConnectionTask {
 			Document doc;
 			
 			try {
-				doc = cloudService.SendURLPost(domain, port, username, password, deviceName);
-				responseErrorText = cloudService.readXmlStatus(doc);
+				doc = ReadWriteXmlUtils.SendURLPost(domain, port, username, password, deviceName);
+				responseErrorText = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (responseErrorText == null) { // 无失败原因，即成功
-					List<DVRDevice> dvrDeviceList = cloudService.readXmlDVRDevices(doc);
+					List<DVRDevice> dvrDeviceList = ReadWriteXmlUtils.readXmlDVRDevices(doc);
 					//CloudAccount cloudAccount = cloudAccoutnUtils.getCloudAccountFromDVRDevice(context, dvrDeviceList);
 					cloudAccount.setDeviceList(cloudAccoutnUtils
 							.getCloudAccountFromDVRDevice(context,

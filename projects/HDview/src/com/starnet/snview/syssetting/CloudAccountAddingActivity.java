@@ -29,8 +29,6 @@ import android.widget.Toast;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
-import com.starnet.snview.devicemanager.CloudService;
-import com.starnet.snview.devicemanager.CloudServiceImpl;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -67,7 +65,6 @@ public class CloudAccountAddingActivity extends BaseActivity {
 	private final int DDNS_REQ_TIMEOUT_COPY = 0x1106; // 设备列表请求超时
 	private final int DDNS_SYS_FAILURE_COPY = 0x1107; // 非DDNS返回错误
 	
-	private CloudService cloudService = new CloudServiceImpl("conn1");
 	String server;
 	String port;
 	String username;
@@ -407,8 +404,8 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		public void run() {
 			Message msg = new Message();
 			try {
-				Document doc = cloudService.SendURLPost(server, port, username,password);
-				String requestResult = cloudService.readXmlStatus(doc);
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port, username,password,"conn");
+				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
 					msg.what = DDNS_RESP_SUCC_COPY;
@@ -442,8 +439,8 @@ public class CloudAccountAddingActivity extends BaseActivity {
 		public void run() {
 			Message msg = new Message();
 			try {
-				Document doc = cloudService.SendURLPost(server, port, username,password);
-				String requestResult = cloudService.readXmlStatus(doc);
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port, username,password,"conn");
+				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
 					msg.what = DDNS_RESP_SUCC;

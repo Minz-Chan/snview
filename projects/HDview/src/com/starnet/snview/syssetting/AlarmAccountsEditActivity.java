@@ -20,10 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
-import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -243,14 +241,14 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 	private void addBaiduPushTags(CloudAccount addAccount) throws Exception {
 		boolean isExist = isExistUser(addAccount);
 		if (!isExist) {
-			List<String> delTags = new ArrayList<String>();
-			List<String> regTags = new ArrayList<String>();
-			delTags.add(originCA.getUsername() + ""
-					+ MD5Utils.createMD5(originCA.getPassword()));
-			regTags.add(addAccount.getUsername() + ""
-					+ MD5Utils.createMD5(addAccount.getPassword()));
-			PushManager.delTags(ctx, delTags);
-			PushManager.setTags(ctx, regTags);
+//			List<String> delTags = new ArrayList<String>();
+//			List<String> regTags = new ArrayList<String>();
+//			delTags.add(originCA.getUsername() + ""
+//					+ MD5Utils.createMD5(originCA.getPassword()));
+//			regTags.add(addAccount.getUsername() + ""
+//					+ MD5Utils.createMD5(addAccount.getPassword()));
+//			PushManager.delTags(ctx, delTags);
+//			PushManager.setTags(ctx, regTags);
 			ReadWriteXmlUtils.replaceAlarmPushUserToXML(addAccount, pos);
 			Intent intent = new Intent();
 			intent.putExtra("position", pos);

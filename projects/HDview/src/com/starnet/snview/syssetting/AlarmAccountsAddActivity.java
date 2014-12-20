@@ -20,10 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
-import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -270,10 +268,10 @@ public class AlarmAccountsAddActivity extends BaseActivity {
 	private void addBaiduPushTags(CloudAccount addAccount) throws Exception {
 		boolean isExist = isExistUser(addAccount);
 		if (!isExist) {
-			List<String> tags = new ArrayList<String>();
-			tags.add(addAccount.getUsername() + ""
-					+ MD5Utils.createMD5(addAccount.getPassword()));
-			PushManager.setTags(ctx, tags);
+//			List<String> tags = new ArrayList<String>();
+//			tags.add(addAccount.getUsername() + ""
+//					+ MD5Utils.createMD5(addAccount.getPassword()));
+//			PushManager.setTags(ctx, tags);
 			ReadWriteXmlUtils.addAlarmPushUserToXML(addAccount);
 			showToast(getString(R.string.system_setting_alarm_pushset_user_add_sucess));
 			Intent data = new Intent();

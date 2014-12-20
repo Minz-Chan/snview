@@ -30,9 +30,7 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.CloudAccountInfoInXMLFile;
-import com.starnet.snview.channelmanager.xml.CloudService;
-import com.starnet.snview.channelmanager.xml.CloudServiceImpl;
+import com.starnet.snview.channelmanager.xml.CloudAccountInfoOpt;
 import com.starnet.snview.channelmanager.xml.NetCloudAccountThread;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
@@ -79,6 +77,7 @@ public class ChannelListActivity extends BaseActivity {
 
 	private Handler netHandler = new Handler() {// 处理线程的handler
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -514,7 +513,6 @@ public class ChannelListActivity extends BaseActivity {
 				.checkNetConnection(ChannelListActivity.this);// 查看网络是否开启
 		if (isOpen) {
 			for (int i = 1; i < netSize; i++) {// 启动线程进行网络访问，每个用户对应着一个线程
-				String conn_name = "conn1";
 				CloudAccount cAccount = origin_cloudAccounts.get(i);
 				boolean isEnable = cAccount.isEnabled();
 				if (isEnable) {
@@ -523,9 +521,7 @@ public class ChannelListActivity extends BaseActivity {
 					cAccount.setRotate(true);
 				}
 				if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
-					CloudService cloudService = new CloudServiceImpl(conn_name);
-					netThread = new NetCloudAccountThread(cAccount,
-							cloudService, netHandler, i);
+					netThread = new NetCloudAccountThread(cAccount,netHandler, i);
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
@@ -631,7 +627,7 @@ public class ChannelListActivity extends BaseActivity {
 	/** 从设置界面中获取用户信息 */
 	private List<CloudAccount> getCloudAccountInfoFromUI() {
 
-		CloudAccountInfoInXMLFile caUtil = new CloudAccountInfoInXMLFile();
+		CloudAccountInfoOpt caUtil = new CloudAccountInfoOpt();
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
 		accoutInfo = caUtil.getCloudAccountInfoFromUI();
 		return accoutInfo;
@@ -789,8 +785,8 @@ public class ChannelListActivity extends BaseActivity {
 		super.onDestroy();
 	}
 
-	private boolean isCanceled = false;
-	private boolean isClickCancel = false;
+	boolean isCanceled = false;
+	boolean isClickCancel = false;
 
 	ProgressDialog prg;
 

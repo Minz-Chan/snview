@@ -3,7 +3,7 @@ package com.starnet.snview.syssetting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
@@ -26,6 +25,7 @@ import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
+@SuppressLint("SdCardPath")
 public class AlarmPushManagerActivity extends BaseActivity {
 
 	private Context ctx;
@@ -157,7 +157,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		}
 	}
 
-	private final String filePath = "";
+	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	private List<CloudAccount> ps;
 	private List<CloudAccount> ca;
 

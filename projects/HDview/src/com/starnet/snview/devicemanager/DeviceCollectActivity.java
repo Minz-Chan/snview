@@ -43,6 +43,7 @@ import com.starnet.snview.util.SynObject;
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "DeviceCollectActivity";
 
 	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";// 用于保存收藏设备...
@@ -621,7 +622,6 @@ public class DeviceCollectActivity extends BaseActivity {
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			CloudService cloudService = new CloudServiceImpl("");
 			int size = cloudAccountList.size();
 			try {
 				for (int i = 0; i < size; i++) {
@@ -631,12 +631,10 @@ public class DeviceCollectActivity extends BaseActivity {
 						String port = cloudAccount.getPort();
 						String usnm = cloudAccount.getUsername();
 						String pasd = cloudAccount.getPassword();
-						Document document = cloudService.SendURLPost(dman,
-								port, usnm, pasd);
-						String status = cloudService.readXmlStatus(document);
+						Document document = ReadWriteXmlUtils.SendURLPost(dman,port, usnm, pasd,"conn");
+						String status = ReadWriteXmlUtils.readXmlStatus(document);
 						if (status == null) {// 加载成功...
-							List<DVRDevice> deviceList = cloudService
-									.readXmlDVRDevices(document);
+							List<DVRDevice> deviceList = ReadWriteXmlUtils.readXmlDVRDevices(document);
 							int deviceListSize = deviceList.size();
 							for (int j = 0; j < deviceListSize; j++) {
 								dvrDeviceList.add(deviceList.get(j));
