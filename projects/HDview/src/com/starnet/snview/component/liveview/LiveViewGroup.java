@@ -752,11 +752,15 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				regenerateLayout(getScreenMode(), mDevices.size(), 0);
 			} else { // Do not need to regenerate layout, just update
 					 // LiveItemItemContainers in current screen
-				prepareCurrentScreenLiveViews(devices);
+				if (getScreenMode() != null) { 
+					prepareCurrentScreenLiveViews(devices);
+				}
 			}
 		} else {
 			// Update LiveItemItemContainers in current screen
-			prepareCurrentScreenLiveViews(devices);
+			if (getScreenMode() != null) {
+				prepareCurrentScreenLiveViews(devices);
+			}
 		}
 	}
 	
