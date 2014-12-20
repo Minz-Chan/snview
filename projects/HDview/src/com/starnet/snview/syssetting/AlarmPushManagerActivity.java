@@ -18,8 +18,12 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class AlarmPushManagerActivity extends BaseActivity {
@@ -80,6 +84,28 @@ public class AlarmPushManagerActivity extends BaseActivity {
 				editor.putBoolean("isSound", isSound);
 				editor.putBoolean("isAllAccept", isAllAcc);
 				editor.commit();
+
+				if (!isAllAcc) {// 关闭状态时
+					if (PushManager.isPushEnabled(ctx.getApplicationContext())) {
+						PushManager.stopWork(ctx.getApplicationContext());
+						closeAllPushUsers();
+					}
+				} else {
+					if (!PushManager.isPushEnabled(ctx.getApplicationContext())) {
+						PushManager.startWork(getApplicationContext(),
+								PushConstants.LOGIN_TYPE_API_KEY, Utils
+										.getMetaValue(
+												ctx.getApplicationContext(),
+												"api_key"));
+						if (isAcc) {
+							openPushUser();
+						}
+					} else {
+						if (isAcc) {
+							closePushUser();
+						}
+					}
+				}
 				AlarmPushManagerActivity.this.finish();
 			}
 		});
@@ -95,6 +121,71 @@ public class AlarmPushManagerActivity extends BaseActivity {
 				}
 			}
 		});
+	}
+
+	private void closePushUser() {
+		try {
+			List<String> delTags = new ArrayList<String>();
+			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+			if (ps != null) {
+				for (int i = 0; i < ps.size(); i++) {
+					CloudAccount cA = ps.get(i);
+					String tag = cA.getUsername() + ""
+							+ MD5Utils.createMD5(cA.getPassword());
+					delTags.add(tag);
+				}
+			}
+			PushManager.delTags(ctx.getApplicationContext(), delTags);
+		} catch (Exception e) {
+		}
+	}
+
+	private void openPushUser() {
+		try {
+			List<String> regTags = new ArrayList<String>();
+			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+			if (ps != null) {
+				for (int i = 0; i < ps.size(); i++) {
+					CloudAccount cA = ps.get(i);
+					String tag = cA.getUsername() + ""
+							+ MD5Utils.createMD5(cA.getPassword());
+					regTags.add(tag);
+				}
+			}
+			PushManager.setTags(ctx.getApplicationContext(), regTags);
+		} catch (Exception e) {
+		}
+	}
+
+	private final String filePath = "";
+	private List<CloudAccount> ps;
+	private List<CloudAccount> ca;
+
+	private void closeAllPushUsers() {
+		try {
+			List<String> delTags = new ArrayList<String>();
+			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+			ca = ReadWriteXmlUtils.getCloudAccountList(filePath);
+			if (ps != null) {
+				for (int i = 0; i < ps.size(); i++) {
+					CloudAccount cA = ps.get(i);
+					String tag = cA.getUsername() + ""
+							+ MD5Utils.createMD5(cA.getPassword());
+					delTags.add(tag);
+				}
+			}
+			if (ca != null) {
+				for (int i = 0; i < ca.size(); i++) {
+					CloudAccount cA = ca.get(i);
+					String tag = cA.getUsername() + ""
+							+ MD5Utils.createMD5(cA.getPassword());
+					delTags.add(tag);
+				}
+			}
+			PushManager.delTags(ctx.getApplicationContext(), delTags);
+		} catch (Exception e) {
+		}
+
 	}
 
 	protected void jumpClearDialog() {
@@ -158,10 +249,10 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			content = getString(R.string.system_setting_alarmuser_null);
 		} else if (accounts != null && accounts.size() > 0) {
 			for (int i = 0; i < accounts.size(); i++) {
-				if (i!=(accounts.size()-1)) {
+				if (i != (accounts.size() - 1)) {
 					String result = accounts.get(i).getUsername() + ",";
 					content += result;
-				}else {
+				} else {
 					String result = accounts.get(i).getUsername();
 					content += result;
 				}
@@ -202,10 +293,10 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			content = getString(R.string.system_setting_alarmuser_null);
 		} else if (accounts != null && accounts.size() > 0) {
 			for (int i = 0; i < accounts.size(); i++) {
-				if (i!=(accounts.size()-1)) {
+				if (i != (accounts.size() - 1)) {
 					String result = accounts.get(i).getUsername() + ",";
 					content += result;
-				}else {
+				} else {
 					String result = accounts.get(i).getUsername();
 					content += result;
 				}

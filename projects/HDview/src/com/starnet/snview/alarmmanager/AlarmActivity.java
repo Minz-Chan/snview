@@ -97,57 +97,65 @@ public class AlarmActivity extends BaseActivity {
 	private void initListener() {
 		alarmListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
 				Builder builder = new Builder(AlarmActivity.this);
 				groupPos = (Integer) view.getTag(R.id.arrowimg);
 				String alarm_titl = getString(R.string.alarm_dialog_title);
 				String alarm_delete_info = getString(R.string.alarm_dialog_infor);
-				String deviceName = alarmInfoList.get(groupPos).getAlarm().getDeviceName();
-				String title = alarm_titl + " " + deviceName + " " + alarm_delete_info + " ?";
+				String deviceName = alarmInfoList.get(groupPos).getAlarm()
+						.getDeviceName();
+				String title = alarm_titl + " " + deviceName + " "
+						+ alarm_delete_info + " ?";
 				builder.setTitle(title);
 				builder.setPositiveButton(getString(R.string.alarm_dialog_OK),
 						new OnClickListener() {
 							@Override
-							public void onClick(DialogInterface dialog,int which) {
-								listviewAdapter.setExpandIndex(getListviewExpand(alarmListView,groupPos));
+							public void onClick(DialogInterface dialog,
+									int which) {
+								listviewAdapter
+										.setExpandIndex(getListviewExpand(
+												alarmListView, groupPos));
 								alarmInfoList.remove(groupPos);
 								listviewAdapter.notifyDataSetChanged();
 								restoreExpandedStatus();
-								
+
 								ReadWriteXmlUtils.removeSpecifyAlarm(groupPos);
 							}
 						});
-				builder.setNegativeButton(getString(R.string.alarm_dialog_cancel), null);
+				builder.setNegativeButton(
+						getString(R.string.alarm_dialog_cancel), null);
 				builder.show();
 				return true;
 			}
 		});
-		
+
 		alarmListView.setOnGroupExpandListener(new OnGroupExpandListener() {
 			@Override
 			public void onGroupExpand(int groupPosition) {
-//				alarmListView.expandGroup(groupPosition);
+				// alarmListView.expandGroup(groupPosition);
 			}
 		});
 		alarmListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
 			@Override
 			public void onGroupCollapse(int groupPosition) {
-//				alarmListView.collapseGroup(groupPosition);
+				// alarmListView.collapseGroup(groupPosition);
 			}
 		});
 	}
-	
+
 	/*** 获取展开列表的下标;postion：元素的个数；delPos：删除的位置 ***/
-	protected List<Integer> getListviewExpand( ExpandableListView alarmListView2,int delPos) {
+	protected List<Integer> getListviewExpand(
+			ExpandableListView alarmListView2, int delPos) {
 		List<Integer> indexs = new ArrayList<Integer>();
 		int count = alarmListView.getExpandableListAdapter().getGroupCount();
 		for (int i = 0; i < count; i++) {
 			boolean isExpand = alarmListView2.isGroupExpanded(i);
 			if (isExpand) {
-				if (i < delPos) {//删除位置在下方时
+				if (i < delPos) {// 删除位置在下方时
 					indexs.add(i);
-				} else if (i > delPos) {//删除位置在上方时
-					indexs.add(i-1);
+				} else if (i > delPos) {// 删除位置在上方时
+					indexs.add(i - 1);
 				}
 			}
 		}
@@ -165,7 +173,7 @@ public class AlarmActivity extends BaseActivity {
 		}
 		return groupPostion;
 	}
-	
+
 	private void restoreExpandedStatus() {
 		for (int j = 0; j < alarmListView.getCount(); j++) {
 			alarmListView.collapseGroup(j);
@@ -182,6 +190,12 @@ public class AlarmActivity extends BaseActivity {
 	private void setAdapterForListView() {
 		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
 		alarmListView.setAdapter(listviewAdapter);
+		alarmListView.post(new Runnable() {
+			@Override
+			public void run() {
+				alarmListView.smoothScrollToPosition(alarmListView.getCount());
+			}
+		});
 	}
 
 	@Override

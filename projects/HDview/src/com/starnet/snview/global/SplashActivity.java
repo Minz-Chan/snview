@@ -55,7 +55,7 @@ public class SplashActivity extends Activity {
 //		loadtask.execute();
 		
 		SharedPreferences sp = getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		boolean isAccept = sp.getBoolean("isAccept", true);
+		boolean isAccept = sp.getBoolean("isAllAccept", true);
 		isShake = sp.getBoolean("isShake", true);
 		isSound = sp.getBoolean("isSound", true);
 		if (isAccept) {
