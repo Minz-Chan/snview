@@ -25,7 +25,7 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.util.ActivityUtility;
-import com.starnet.snview.util.PreviewItemXMLUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.ToastUtils;
 
 import android.annotation.SuppressLint;
@@ -181,7 +181,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private List<PreviewDeviceItem> getPreservedDevices() {
-		return PreviewItemXMLUtils.getPreviewItemListInfoFromXML(this
+		return ReadWriteXmlUtils.getPreviewItemListInfoFromXML(this
 				.getString(R.string.common_last_devicelist_path));
 	}
 	
@@ -1166,7 +1166,7 @@ public class RealplayActivity extends BaseActivity {
 		editor.commit();
 
 		try {
-			PreviewItemXMLUtils.writePreviewItemListInfoToXML(mPreviewDevices,
+			ReadWriteXmlUtils.writePreviewItemListInfoToXML(mPreviewDevices,
 					getString(R.string.common_last_devicelist_path));
 		} catch (IOException e) {
 			e.printStackTrace();

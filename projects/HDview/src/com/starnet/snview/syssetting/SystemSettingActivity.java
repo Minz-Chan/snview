@@ -148,15 +148,15 @@ public class SystemSettingActivity extends BaseActivity {
         startActivity(intent);
 	}
 	
-	protected void gotoUpdate(){//zk。进入 更新界面。。。
-		Intent intent = new Intent();
+	protected void gotoUpdate(){
+//		Intent intent = new Intent();
 		//。。。。
 //        intent.setClass(SystemSettingActivity.this, AboutActivity.class); 
 //        startActivity(intent);
 	}
 	
-	protected void gotoHelp() {//zk。进入 帮助界面。。。
-		Intent intent = new Intent();
+	protected void gotoHelp() {
+//		Intent intent = new Intent();
 		//。。。。。
 		
 //		Toast.makeText(SystemSettingActivity.this, "第二个页面", Toast.LENGTH_SHORT).show();

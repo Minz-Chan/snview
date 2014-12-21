@@ -31,8 +31,8 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 public class AlarmActivity extends BaseActivity {
 
 	protected static final String TAG = "AlarmActivity";
-	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 	public static final String ALARM_DEVICE_DETAIL = "alarm_device_detail";
+	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 	private int groupPos;
 	private Context mContext;
 	private Button navBackBtn;
@@ -44,6 +44,7 @@ public class AlarmActivity extends BaseActivity {
 	private AlarmDeviceAdapter listviewAdapter;
 
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
+	private final int ALARM_CONTEN_DIALOG = 0x0003;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -193,6 +194,8 @@ public class AlarmActivity extends BaseActivity {
 		alarmListView.post(new Runnable() {
 			@Override
 			public void run() {
+				// alarmListView.smoothScrollToPositionFromTop(alarmListView.getCount()*2,
+				// 0, 5000);
 				alarmListView.smoothScrollToPosition(alarmListView.getCount());
 			}
 		});
@@ -252,12 +255,17 @@ public class AlarmActivity extends BaseActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (data != null) {
-			boolean alarmCancel = data.getBooleanExtra("alarmCancel", false);
-			if (imgprogress != null) {
-				imgprogress.dismiss();
+		if (requestCode == IMAGE_LOAD_DIALOG) {
+			if (data != null) {
+				boolean alarmCancel = data
+						.getBooleanExtra("alarmCancel", false);
+				if (imgprogress.isShowing()) {
+					imgprogress.dismiss();
+				}
+				listviewAdapter.cancel(alarmCancel);
 			}
-			listviewAdapter.cancel(alarmCancel);
+		} else if (requestCode == ALARM_CONTEN_DIALOG) {
+			
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}

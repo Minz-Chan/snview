@@ -11,9 +11,11 @@ import android.view.SurfaceView;
 
 public class VideoPlayerUtils implements OnPreparedListener,OnCompletionListener {
 
+	@SuppressWarnings("unused")
 	private SurfaceView mSurfaceView;
 	private SurfaceHolder mSurfaceHolder;
 	private MediaPlayer mMediaPlayer;
+	@SuppressWarnings("unused")
 	private String videoPath;//视频路径
 	private Activity mActivity;
 
@@ -21,6 +23,7 @@ public class VideoPlayerUtils implements OnPreparedListener,OnCompletionListener
 		this.mSurfaceView = mSurfaceView;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public VideoPlayerUtils(MediaPlayer mMediaPlayer,SurfaceView mSurfaceView,String videoPath) {
 		this.mSurfaceView = mSurfaceView;
 		this.videoPath = videoPath;

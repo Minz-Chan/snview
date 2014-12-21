@@ -14,8 +14,6 @@ import android.graphics.BitmapFactory;
 @SuppressLint("SdCardPath")
 public class AlarmImageFileCache {
 
-	private final static String imagePath = "SNview/alarmImg/";
-
 	public static Context context;
 
 	/** 从缓存中获取图片 **/

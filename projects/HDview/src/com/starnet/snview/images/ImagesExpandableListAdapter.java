@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
-import com.starnet.snview.images.Image.ImageType;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +14,10 @@ import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ImagesExpandableListAdapter extends BaseExpandableListAdapter {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "ImagesExpandableListAdapter";
 	private List<ImagesGroup> mGroupList;
 	private ImagesManagerActivity mImagesActivity;

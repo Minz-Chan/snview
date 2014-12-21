@@ -7,7 +7,6 @@ import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.app.Activity;
-import android.app.Application;
 import android.os.Handler;
 
 //public class GlobalApplication extends Application {

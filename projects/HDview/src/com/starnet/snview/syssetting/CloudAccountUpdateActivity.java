@@ -140,8 +140,8 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					if (!server.equals("") && !port.equals("")
 							&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
 												
-						IPAndPortUtils ipAndPort = new IPAndPortUtils();
-						boolean isPort = ipAndPort.isNetPort(port);//检测是否是网络端口号
+//						IPAndPortUtils ipAndPort = new IPAndPortUtils();
+						boolean isPort = IPAndPortUtils.isNetPort(port);//检测是否是网络端口号
 						if (isPort) {
 							identifyCloudAccount = new CloudAccount();	
 							if (isenablYseRadioBtn.isChecked()) {

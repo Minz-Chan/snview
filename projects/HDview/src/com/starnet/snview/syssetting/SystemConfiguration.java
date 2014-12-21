@@ -1,6 +1,5 @@
 package com.starnet.snview.syssetting;
 
-import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.Constants.PREVIEW_MODE;
 
 public class SystemConfiguration {

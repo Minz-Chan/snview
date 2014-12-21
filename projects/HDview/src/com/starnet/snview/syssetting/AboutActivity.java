@@ -3,7 +3,6 @@ package com.starnet.snview.syssetting;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.view.TextureView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -13,13 +12,14 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
+	@SuppressWarnings("unused")
 	private static final String TAG = "AboutActivity";
 	
 	private String version ;
 	private TextView about_version_txt;
-	private ImageView about_version_img;
+	ImageView about_version_img;
 	
-	private String mIntroductionContent;
+	String mIntroductionContent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

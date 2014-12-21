@@ -32,6 +32,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	private List<AlarmShowItem> almList;
 	private AlarmImageDownLoadTask imgLoadTask;
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
+	private final int ALARM_CONTEN_DIALOG = 0x0003;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -193,7 +194,8 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 				Intent intent = new Intent(ctx, AlarmContentActivity.class);
 				AlarmDevice device = almList.get(pos).getAlarm();
 				intent.putExtra("alarmDevice", device);
-				ctx.startActivity(intent);
+				intent.putExtra("position", pos);
+				((AlarmActivity)ctx).startActivityForResult(intent, ALARM_CONTEN_DIALOG);
 			}
 		});
 		return convertView;

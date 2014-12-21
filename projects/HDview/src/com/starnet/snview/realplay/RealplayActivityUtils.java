@@ -11,7 +11,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.PreviewItemXMLUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class RealplayActivityUtils {
 	
@@ -19,7 +19,7 @@ public class RealplayActivityUtils {
 
 	// 负责启动时预览通道信息的修改
 	public static List<PreviewDeviceItem> updatePreviewItemInfo(Context context,List<CloudAccount>cloudAccounts) throws DocumentException {
-		List<PreviewDeviceItem> oldDevices = PreviewItemXMLUtils.getPreviewItemListInfoFromXML(context.getString(R.string.common_last_devicelist_path));
+		List<PreviewDeviceItem> oldDevices = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(context.getString(R.string.common_last_devicelist_path));
 		if(oldDevices==null){
 			return oldDevices;
 		}
