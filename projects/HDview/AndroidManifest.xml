@@ -50,7 +50,7 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.NewFunctionActivity"
+            android:name="com.starnet.snview.syssetting.SystemNewFuncActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
@@ -72,7 +72,7 @@
             android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.alarmmanager.AlarmActivity"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity

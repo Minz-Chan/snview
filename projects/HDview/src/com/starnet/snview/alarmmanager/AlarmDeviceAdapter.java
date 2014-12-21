@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -121,9 +122,13 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
 		convertView.setTag(R.id.arrowimg, groupPosition);// 为父元素设置标签
+		if (groupPosition == expandPos) {
+			((ExpandableListView)parent).expandGroup(expandPos);
+		}
 		return convertView;
 	}
 
+	private static int groupPos = -1;
 	@Override
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
@@ -191,11 +196,14 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		cntBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				groupPos = pos;
+				expandPos = pos;
 				Intent intent = new Intent(ctx, AlarmContentActivity.class);
 				AlarmDevice device = almList.get(pos).getAlarm();
 				intent.putExtra("alarmDevice", device);
 				intent.putExtra("position", pos);
 				((AlarmActivity)ctx).startActivityForResult(intent, ALARM_CONTEN_DIALOG);
+//				ctx.startActivity(intent);
 			}
 		});
 		return convertView;
@@ -260,5 +268,18 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
 	public List<Integer> getExpandedIndexes() {
 		return indexes;
+	}
+
+	public static int getGroupPos() {
+		return groupPos;
+	}
+	
+	private int expandPos = -1 ;
+	public void setExpandPos(int expandPos){
+		this.expandPos = -1 ;
+	}
+
+	public static void setGroupPos(int groupPos) {
+		AlarmDeviceAdapter.groupPos = groupPos;
 	}
 }

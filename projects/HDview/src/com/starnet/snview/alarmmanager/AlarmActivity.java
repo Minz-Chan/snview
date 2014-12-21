@@ -13,12 +13,14 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+//import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListView.OnGroupCollapseListener;
 import android.widget.ExpandableListView.OnGroupExpandListener;
 import android.widget.TextView;
@@ -71,6 +73,10 @@ public class AlarmActivity extends BaseActivity {
 
 	@Override
 	protected void onNewIntent(Intent intent) {
+		if (intent != null) {
+			int pos = intent.getIntExtra("position", 0);
+			Log.v(TAG, "pos:" + pos);
+		}
 		setIntent(intent);
 		setNewAlarmDevices();
 		super.onNewIntent(intent);
@@ -143,6 +149,16 @@ public class AlarmActivity extends BaseActivity {
 				// alarmListView.collapseGroup(groupPosition);
 			}
 		});
+
+		// alarmListView.setOnGroupClickListener(new OnGroupClickListener(){
+		//
+		// @Override
+		// public boolean onGroupClick(ExpandableListView parent, View v,
+		// int groupPosition, long id) {
+		// AlarmDeviceAdapter.setGroupPos(-1);
+		// return true;
+		// }
+		// });
 	}
 
 	/*** 获取展开列表的下标;postion：元素的个数；delPos：删除的位置 ***/
@@ -250,11 +266,16 @@ public class AlarmActivity extends BaseActivity {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		setNewAlarmDevices();
+		if (!isContentBack) {
+			setNewAlarmDevices();
+		}
 	}
+
+	private boolean isContentBack = false;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == IMAGE_LOAD_DIALOG) {
 			if (data != null) {
 				boolean alarmCancel = data
@@ -265,9 +286,10 @@ public class AlarmActivity extends BaseActivity {
 				listviewAdapter.cancel(alarmCancel);
 			}
 		} else if (requestCode == ALARM_CONTEN_DIALOG) {
-			
+			if (data != null) {
+				isContentBack = data.getBooleanExtra("isContentBack", true);
+			}
 		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override

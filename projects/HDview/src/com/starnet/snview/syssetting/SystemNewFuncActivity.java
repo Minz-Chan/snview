@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-public class NewFunctionActivity extends Activity {
+public class SystemNewFuncActivity extends Activity {
 	
 	private ViewPager viewPager;
 	private int[] imgIdArray;
@@ -39,7 +39,7 @@ public class NewFunctionActivity extends Activity {
 
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {// 载入图片
-			ImageView imageView = new ImageView(NewFunctionActivity.this);
+			ImageView imageView = new ImageView(SystemNewFuncActivity.this);
 			imageView.setImageResource(imgIdArray[position]);
 			container.addView(imageView);
 			return imageView;

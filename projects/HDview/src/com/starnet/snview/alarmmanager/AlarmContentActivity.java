@@ -3,12 +3,16 @@ package com.starnet.snview.alarmmanager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 
 public class AlarmContentActivity extends BaseActivity {
+	
+	private int pos;
 
 	private EditText alarm_content_ip;
 	private EditText alarm_content_time;
@@ -19,6 +23,7 @@ public class AlarmContentActivity extends BaseActivity {
 	private EditText alarm_content_contents;
 	private EditText alarm_content_pushdomain;
 	private EditText alarm_content_pushusername;
+	private final int ALARM_CONTEN_DIALOG = 0x0003;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,7 @@ public class AlarmContentActivity extends BaseActivity {
 		alarm_content_pushdomain.setKeyListener(null);
 		alarm_content_pushusername.setKeyListener(null);
 
+		pos = getIntent().getIntExtra("position", 0);
 		AlarmDevice device = getIntent().getParcelableExtra("alarmDevice");
 
 		String time = device.getAlarmTime().replaceAll(",", " ").replaceAll("，", " ");
@@ -77,8 +83,25 @@ public class AlarmContentActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlarmContentActivity.this.finish();
+				backAndLeftCope();
 			}
 		});
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			backAndLeftCope();
+		}
+		return true;
+	}
+	
+	private void backAndLeftCope(){
+		Intent data = new Intent();
+		data.putExtra("position", pos);
+		data.putExtra("isContentBack", true);
+		setResult(ALARM_CONTEN_DIALOG, data);
+		AlarmContentActivity.this.finish();
 	}
 }

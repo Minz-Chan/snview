@@ -144,7 +144,7 @@ public class SystemSettingActivity extends BaseActivity {
 	
 	protected void gotoNewFunction(){
 		Intent intent = new Intent();
-        intent.setClass(SystemSettingActivity.this, NewFunctionActivity.class); 
+        intent.setClass(SystemSettingActivity.this, SystemNewFuncActivity.class); 
         startActivity(intent);
 	}
 	
