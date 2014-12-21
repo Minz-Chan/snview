@@ -175,7 +175,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		
 		@Override
 		public void onSingleTap(View v) {
-			if (!isLayoutCompleted()) {
+			if (!isViewInitialized() || !isLayoutCompleted()) {
 				return;
 			}
 			
@@ -191,6 +191,14 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			updatePageInfo();
 		}
 	};
+	
+	/**
+	 * Whether view has been initialized.
+	 * @return <b>true</b>initialized; <b>false</b>non-initialized.
+	 */
+	private boolean isViewInitialized() {
+		return mDevices != null && mDevices.size() != 0;
+	}
 	
 	/**
 	 * This method should be called when parent view is under 
@@ -218,6 +226,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private OnClickListener singleClickListener = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			if (!isViewInitialized()) {
+				return;
+			}
+			
 			// PTZ模式情况下控制横屏工具条的显示或隐藏 
 			if (isPTZMode && isInPreviewing()) {
 				showOrHideLandToolbar();
@@ -277,6 +289,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private OnDoubleClickListener doubleClickListener = new OnDoubleClickListener() {
 		@Override
 		public void onDoubleClick(View v) {
+			if (!isViewInitialized()) {
+				return;
+			}
+			
 			Log.d(TAG, "on double click, isLayoutCompleted:" + isLayoutCompleted());
 			int clickedItemIndex = calcClickItemIndex(
 					getLastMotionX(), getLastMotionY());
@@ -741,7 +757,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 */
 	public void setDevices(List<PreviewDeviceItem> devices, boolean relayout) {
 		if (devices == null || devices.size() == 0) {
-			return;
+			throw new IllegalArgumentException("Devices can not be null or 0 size.");
 		}
 		
 		int oldDevicesSize = mDevices == null ? 0 : mDevices.size();
@@ -849,6 +865,15 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	}
 	
 	public void regenerateLayout(MODE m, int c, int initialItemIndex) {
+		super.regenerateLayout(m, c, initialItemIndex);
+	}
+	
+	public void regenerateLayout(MODE m, int c, int initialItemIndex, List<PreviewDeviceItem> devices) {
+		if (devices == null || devices.size() == 0) {
+			throw new IllegalArgumentException("Devices can not be null or 0 size.");
+		}
+		
+		mDevices = devices;
 		super.regenerateLayout(m, c, initialItemIndex);
 	}
 	

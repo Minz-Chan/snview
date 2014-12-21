@@ -124,6 +124,7 @@ public class RealplayActivity extends BaseActivity {
 		final int mode = 1, page = 1, pageCount = 1;
 		List<PreviewDeviceItem> devices = getAlarmDevices();
 		
+		mLiveviewGroup.setDevices(devices);
 		restoreVideoRegionLayout(mode, page, pageCount, devices);
 		requestOrientationDelaySetting();
 	}
@@ -198,11 +199,16 @@ public class RealplayActivity extends BaseActivity {
 		Log.i(TAG, "mode: " + mode + ", page: " + page);
 		if (mode != -1 && page != -1) {				
 			Log.d(TAG, "mode:" + mode + ", page:" + page);
-			modifyPreviewDevices(devices);
+			//modifyPreviewDevices(devices);
+			mPreviewDevices.clear();
+			for (PreviewDeviceItem p : devices) {
+				mPreviewDevices.add(p);
+			}
 			mLiveviewGroup.regenerateLayout(
 					mode == 4 ? MODE.MULTIPLE : MODE.SINGLE, // mode
 					mPreviewDevices.size(),     // capacity
-					mode == 4 ? (page-1)*4 : page-1);  // initial index
+					mode == 4 ? (page-1)*4 : page-1,  // initial index
+					devices);	
 			
 			if (!isMultiMode()) {
 				ptzControl.setIsEnterPTZInSingleMode(true);
