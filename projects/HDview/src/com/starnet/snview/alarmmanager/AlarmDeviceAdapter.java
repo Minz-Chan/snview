@@ -28,8 +28,8 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	private Context ctx;
 	private String dName;
 	private List<Integer> indexes;
-	private final int REQUESTCODE = 0x0023;
 	private List<AlarmShowItem> almList;
+	private final int REQUESTCODE = 0x0023;
 	private AlarmImageDownLoadTask imgLoadTask;
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
 	private final int ALARM_CONTEN_DIALOG = 0x0003;
@@ -104,8 +104,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 					R.layout.alarm_listview_item_layout, null);
 		}
 		String time = almList.get(groupPosition).getAlarm().getAlarmTime();
-		TextView dTxt = (TextView) convertView
-				.findViewById(R.id.device_item_name);
+		TextView dTxt = (TextView) convertView.findViewById(R.id.devicename);
 		dTxt.setText(almList.get(groupPosition).getAlarm().getDeviceName());
 
 		TextView almTime = (TextView) convertView.findViewById(R.id.alarm_time);
@@ -120,11 +119,17 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		} else {
 			aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
+//		if (groupPosition == almList.size() - 1) {
+//			// View view = convertView.findViewById(R.id.view);
+//			int resId = getColor(R.color.gray_transplate);
+//			convertView.setBackgroundColor(resId);
+//		}
 		convertView.setTag(R.id.arrowimg, groupPosition);// 为父元素设置标签
 		return convertView;
 	}
 
 	private static int groupPos = -1;
+
 	@Override
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
@@ -164,15 +169,15 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 				}
 			}
 		});
-		
+
 		AlarmDevice device = almList.get(pos).getAlarm();
 		boolean isNull = isExistNull(device);
 		if (isNull) {
 			vdoBtn.setVisibility(View.GONE);
-		}else {
+		} else {
 			vdoBtn.setVisibility(View.VISIBLE);
 		}
-		
+
 		vdoBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -196,7 +201,8 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 				AlarmDevice device = almList.get(pos).getAlarm();
 				intent.putExtra("alarmDevice", device);
 				intent.putExtra("position", pos);
-				((AlarmActivity)ctx).startActivityForResult(intent, ALARM_CONTEN_DIALOG);
+				((AlarmActivity) ctx).startActivityForResult(intent,
+						ALARM_CONTEN_DIALOG);
 			}
 		});
 		return convertView;
@@ -204,13 +210,14 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
 	private boolean isExistNull(AlarmDevice device) {
 		boolean isExist = false;
-		if (device.getIp()==null||device.getIp().trim().length()==0) {
+		if (device.getIp() == null || device.getIp().trim().length() == 0) {
 			return true;
 		}
-		if (device.getUserName()==null||device.getUserName().trim().length()==0) {
+		if (device.getUserName() == null
+				|| device.getUserName().trim().length() == 0) {
 			return true;
 		}
-		if (device.getPort()==0) {
+		if (device.getPort() == 0) {
 			return true;
 		}
 		return isExist;
@@ -266,6 +273,10 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public static int getGroupPos() {
 		return groupPos;
 	}
+
+//	private int getColor(int resid) {
+//		return ctx.getResources().getColor(resid);
+//	}
 
 	public static void setGroupPos(int groupPos) {
 		AlarmDeviceAdapter.groupPos = groupPos;

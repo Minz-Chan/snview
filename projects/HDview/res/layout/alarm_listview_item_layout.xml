@@ -5,6 +5,7 @@
     android:orientation="vertical" >
 
     <LinearLayout
+        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/device_list_item_imgcontainer_height"
         android:gravity="center_vertical"
@@ -30,7 +31,7 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@id/device_item_name"
+                android:id="@+id/devicename"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"

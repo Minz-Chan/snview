@@ -32,21 +32,22 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("HandlerLeak")
 public class AlarmActivity extends BaseActivity {
 
-	protected static final String TAG = "AlarmActivity";
-	public static final String ALARM_DEVICE_DETAIL = "alarm_device_detail";
-	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 	private int groupPos;
 	private Context mContext;
 	private Button navBackBtn;
 	private TextView titleView;
 	private boolean cancel = false;
 	public ProgressDialog imgprogress;
+	private boolean isContentBack = false;
 	private ExpandableListView alarmListView;
 	private List<AlarmShowItem> alarmInfoList;
 	private AlarmDeviceAdapter listviewAdapter;
 
 	private final int IMAGE_LOAD_DIALOG = 0x0013;
 	private final int ALARM_CONTEN_DIALOG = 0x0003;
+	protected static final String TAG = "AlarmActivity";
+	public static final String ALARM_DEVICE_DETAIL = "alarm_device_detail";
+	public static final String START_FROM_NOTIFICATION = "start_from_notification";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,6 @@ public class AlarmActivity extends BaseActivity {
 								alarmInfoList.remove(groupPos);
 								listviewAdapter.notifyDataSetChanged();
 								restoreExpandedStatus();
-
 								ReadWriteXmlUtils.removeSpecifyAlarm(groupPos);
 							}
 						});
@@ -140,25 +140,13 @@ public class AlarmActivity extends BaseActivity {
 		alarmListView.setOnGroupExpandListener(new OnGroupExpandListener() {
 			@Override
 			public void onGroupExpand(int groupPosition) {
-				// alarmListView.expandGroup(groupPosition);
 			}
 		});
 		alarmListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
 			@Override
 			public void onGroupCollapse(int groupPosition) {
-				// alarmListView.collapseGroup(groupPosition);
 			}
 		});
-
-		// alarmListView.setOnGroupClickListener(new OnGroupClickListener(){
-		//
-		// @Override
-		// public boolean onGroupClick(ExpandableListView parent, View v,
-		// int groupPosition, long id) {
-		// AlarmDeviceAdapter.setGroupPos(-1);
-		// return true;
-		// }
-		// });
 	}
 
 	/*** 获取展开列表的下标;postion：元素的个数；delPos：删除的位置 ***/
@@ -271,8 +259,6 @@ public class AlarmActivity extends BaseActivity {
 		}
 	}
 
-	private boolean isContentBack = false;
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -287,7 +273,7 @@ public class AlarmActivity extends BaseActivity {
 			}
 		} else if (requestCode == ALARM_CONTEN_DIALOG) {
 			if (data != null) {
-				isContentBack = data.getBooleanExtra("isContentBack", true);
+				isContentBack = true;
 			}
 		}
 	}

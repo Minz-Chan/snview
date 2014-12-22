@@ -31,12 +31,15 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("SdCardPath")
 public class AlarmPushManagerActivity extends BaseActivity {
 
+	private String api;
 	private Context ctx;
-
-	boolean isAcc;
-	boolean isShake;
-	boolean isSound;
-	boolean isAllAcc;
+	private boolean isAcc;
+	private boolean isShake;
+	private boolean isSound;
+	private boolean isAllAcc;
+	private SharedPreferences sp;
+	private List<CloudAccount> ps;
+	private List<CloudAccount> ca;
 	private Button clearAlarmInfBtn;
 	private HashMap<String, Object> map;
 	private final int REQUESTCODE = 0x0001;
@@ -46,6 +49,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	private CornerListView alarmNotifyListView;// 报警通知（接收、声音和震动的设置）
 	private AalarmNotifyAdapter alarmNotifyAdapter;
 	private List<HashMap<String, Object>> settingList;
+	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -95,10 +99,6 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			}
 		});
 	}
-
-	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
-	private List<CloudAccount> ps;
-	private List<CloudAccount> ca;
 
 	/** 保存用户的设置选项 **/
 	private void saveSettingsToSharedPreference() {
@@ -165,9 +165,6 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		setAlarmUserAdapter(isAcc);
 
 	}
-
-	SharedPreferences sp;
-	private String api;
 
 	/** 保存设置选项 **/
 	private void saveStarnetAndAlarmPushAccounts() {
