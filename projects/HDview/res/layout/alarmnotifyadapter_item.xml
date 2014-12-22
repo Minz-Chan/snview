@@ -7,12 +7,14 @@
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="50.0dip" >
+        android:layout_height="wrap_content" >
 
         <LinearLayout
             android:layout_width="150.0dip"
             android:layout_height="fill_parent"
+            android:layout_marginBottom="5.0dp"
             android:layout_marginLeft="15dp"
+            android:layout_marginTop="5.0dp"
             android:gravity="center|left"
             android:orientation="vertical" >
 
@@ -29,6 +31,7 @@
                 android:id="@+id/alarm_cnt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="5.0dip"
                 android:gravity="left"
                 android:maxLines="3"
                 android:text="TextView"
@@ -40,17 +43,16 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="15dp"
-            android:gravity="center" >
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp" >
 
             <ImageButton
                 android:id="@+id/imgBtn"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:background="@drawable/pushset_notify_off" />
         </LinearLayout>
-
     </RelativeLayout>
 
 </LinearLayout>

@@ -129,17 +129,19 @@ public class CloudAccountViewActivity extends BaseActivity {
 										cloudAccountList.remove(deleteCA);
 										caAdapter.notifyDataSetChanged();
 
-										if (deleteCA.isEnabled()) {// 删除tag
-											List<String> del_tags = new ArrayList<String>();
-											del_tags.add(deleteCA.getUsername()
-													+ "_"
-													+ deleteCA.getPassword());
-											PushManager
-													.delTags(
-															CloudAccountViewActivity.this,
-															del_tags);
+										if (deleteCA.isEnabled()) {// 删除tagring
+											String uNm;
+											String pswd;
+											try {
+												Context ctx = CloudAccountViewActivity.this;
+												List<String> dTags = new ArrayList<String>();
+												uNm = deleteCA.getUsername();
+												pswd = MD5Utils.createMD5(deleteCA.getPassword());
+												dTags.add(uNm + pswd);
+												PushManager.delTags(ctx, dTags);
+											} catch (Exception e) {
+											}
 										}
-
 									}
 								});
 						builder.setNegativeButton(
@@ -219,31 +221,37 @@ public class CloudAccountViewActivity extends BaseActivity {
 			if (data != null) {
 				Bundle bundle = data.getExtras();
 				if (bundle != null) {
-					CloudAccount afterEditCA = (CloudAccount) bundle.getSerializable("edit_cloudAccount");
+					CloudAccount afterEditCA = (CloudAccount) bundle
+							.getSerializable("edit_cloudAccount");
 					cloudAccountList.set(pos, afterEditCA);
 					caAdapter.notifyDataSetChanged();
 					try {
 						Context ctx = CloudAccountViewActivity.this;
-						boolean isChanged = checkCloudAccountChange(afterEditCA, beforeEditCA); // 检测用户信息是否改变
+						boolean isChanged = checkCloudAccountChange(
+								afterEditCA, beforeEditCA); // 检测用户信息是否改变
 						if (!isChanged) {// 用户信息更改
 							changeNoUseState();
-							if (beforeEditCA.isEnabled()&& !afterEditCA.isEnabled()) {
+							if (beforeEditCA.isEnabled()
+									&& !afterEditCA.isEnabled()) {
 								if (NetWorkUtils.checkNetConnection(ctx)) {
 									delTags();
 								}
-							}else if (beforeEditCA.isEnabled() && afterEditCA.isEnabled()) {
+							} else if (beforeEditCA.isEnabled()
+									&& afterEditCA.isEnabled()) {
 								if (NetWorkUtils.checkNetConnection(ctx)) {
 									registerTags(afterEditCA);
 									delTags();
 								}
 							}
 						} else { // 如果用户信息未改变的话
-							if (beforeEditCA.isEnabled()&& !afterEditCA.isEnabled()) {//删除注册标签
+							if (beforeEditCA.isEnabled()
+									&& !afterEditCA.isEnabled()) {// 删除注册标签
 								changeNoUseState();
 								if (NetWorkUtils.checkNetConnection(ctx)) {
 									delTags();
 								}
-							}else if (!beforeEditCA.isEnabled()&& afterEditCA.isEnabled()) {//注册账户标签
+							} else if (!beforeEditCA.isEnabled()
+									&& afterEditCA.isEnabled()) {// 注册账户标签
 								if (NetWorkUtils.checkNetConnection(ctx)) {
 									registerTags(afterEditCA);
 								}
@@ -270,22 +278,24 @@ public class CloudAccountViewActivity extends BaseActivity {
 			}
 		}
 	}
-	
-	/**注册新的账户标签***/
-	private void registerTags(CloudAccount afterEditCA) throws Exception{
+
+	/** 注册新的账户标签 ***/
+	private void registerTags(CloudAccount afterEditCA) throws Exception {
 		List<String> reg_tags = new ArrayList<String>();
-		reg_tags.add(afterEditCA.getUsername()+ MD5Utils.createMD5(afterEditCA.getPassword()));
-		PushManager.setTags(CloudAccountViewActivity.this,reg_tags);
-	}
-	
-	/**删除旧的账户标签***/
-	private void delTags() throws Exception{
-		List<String> del_tags = new ArrayList<String>();
-		del_tags.add(beforeEditCA.getUsername()+ MD5Utils.createMD5(beforeEditCA.getPassword()));
-		PushManager.delTags(CloudAccountViewActivity.this,del_tags);
+		reg_tags.add(afterEditCA.getUsername()
+				+ MD5Utils.createMD5(afterEditCA.getPassword()));
+		PushManager.setTags(CloudAccountViewActivity.this, reg_tags);
 	}
 
-	/**通知预览通道禁用***/
+	/** 删除旧的账户标签 ***/
+	private void delTags() throws Exception {
+		List<String> del_tags = new ArrayList<String>();
+		del_tags.add(beforeEditCA.getUsername()
+				+ MD5Utils.createMD5(beforeEditCA.getPassword()));
+		PushManager.delTags(CloudAccountViewActivity.this, del_tags);
+	}
+
+	/** 通知预览通道禁用 ***/
 	private void changeNoUseState() {
 		editPreviewDeviceItems = GlobalApplication.getInstance()
 				.getRealplayActivity().getPreviewDevices();

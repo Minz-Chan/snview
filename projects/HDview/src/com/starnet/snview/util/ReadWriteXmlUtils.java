@@ -1086,7 +1086,7 @@ public class ReadWriteXmlUtils {
 		}
 		return users;
 	}
-	
+
 	/*** 从文档中移除指定位置的的AlarmDevice ***/
 	@SuppressWarnings("unchecked")
 	public static void removeSpecifyPushsetAlarm(int index) {
@@ -1131,7 +1131,7 @@ public class ReadWriteXmlUtils {
 			}
 		}
 	}
-	
+
 	/** 替换指定位置的用户 **/
 	@SuppressWarnings("unchecked")
 	public static void deleteAlarmPushUserToXML(int index) {
@@ -1160,13 +1160,32 @@ public class ReadWriteXmlUtils {
 
 		}
 	}
-	
+
+	public static boolean deleteAlarmInfoFile() {
+		boolean isSuc = false;
+		File file = new File(ALARMS_PERSISTANCE_PATH);// ALARMPUSHUSER_FILEPATH
+		if (!file.exists()) {
+			isSuc = true;
+			return isSuc;
+		} else {
+			boolean is = file.delete();
+			if (is) {
+				isSuc = true;
+				return isSuc;
+			}else {
+				return isSuc;
+			}
+		}
+	}
+
 	/** 清楚所有的报警信息,清楚成功返回true；否则返回false **/
 	@SuppressWarnings("unchecked")
 	public static boolean clearAllAlarmInfo() {
-		File file = new File(ALARMPUSHUSER_FILEPATH);
+		boolean isSuc = false;
+		File file = new File(ALARMS_PERSISTANCE_PATH);// ALARMPUSHUSER_FILEPATH
 		if (!file.exists()) {
-			return true;
+			isSuc = true;
+			return isSuc;
 		}
 		try {
 			SAXReader saxReader = new SAXReader();
@@ -1183,9 +1202,11 @@ public class ReadWriteXmlUtils {
 			XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
 			xmlWriter.write(document);
 			fileWriter.close();
-			return true;
+			isSuc = true;
+			return isSuc;
 		} catch (Exception e) {
-			return false;
+			isSuc = false;
+			return isSuc;
 		}
 	}
 
@@ -1221,30 +1242,32 @@ public class ReadWriteXmlUtils {
 
 		}
 	}
-	
-	
-	/**与云台建立连接*/
-	public static Document SendURLPost(String domain,String port,String username,String password,String deviceName) throws IOException, DocumentException {
+
+	/** 与云台建立连接 */
+	public static Document SendURLPost(String domain, String port,
+			String username, String password, String deviceName)
+			throws IOException, DocumentException {
 		try {
 			String urlStr;
 			URL url;
 			HttpURLConnection httpURLConnection;
 
-			urlStr = "http://"+domain+":"+port+"/xml_device-list";   
+			urlStr = "http://" + domain + ":" + port + "/xml_device-list";
 			url = new URL(urlStr);
-			httpURLConnection = (HttpURLConnection) url.openConnection(); //获取连接
-			httpURLConnection.setRequestMethod("POST"); //设置请求方法为POST, 也可以为GET
-			httpURLConnection.setDoOutput(true);  
+			httpURLConnection = (HttpURLConnection) url.openConnection(); // 获取连接
+			httpURLConnection.setRequestMethod("POST"); // 设置请求方法为POST, 也可以为GET
+			httpURLConnection.setDoOutput(true);
 			httpURLConnection.setConnectTimeout(10000); // 设置连接超时时间为10s
-			String encoded = MD5Util.md5Encode(password);//为密码进行加密；      
-			StringBuffer param = new StringBuffer("wu="+username+"&wp="+encoded+"&pn=");  //请求URL的查询参数     
-			OutputStream os = httpURLConnection.getOutputStream();   
-			os.write(param.toString().getBytes()); //将数据转化成byte数组，即字节数组；
-			os.flush();   
+			String encoded = MD5Util.md5Encode(password);// 为密码进行加密；
+			StringBuffer param = new StringBuffer("wu=" + username + "&wp="
+					+ encoded + "&pn="); // 请求URL的查询参数
+			OutputStream os = httpURLConnection.getOutputStream();
+			os.write(param.toString().getBytes()); // 将数据转化成byte数组，即字节数组；
+			os.flush();
 			os.close();
-			
+
 			InputStream inputStr = httpURLConnection.getInputStream();
-			SAXReader sr = new SAXReader();//读取类 
+			SAXReader sr = new SAXReader();// 读取类
 			Document doc = sr.read(inputStr);
 			inputStr.close();
 			return doc;
@@ -1257,122 +1280,121 @@ public class ReadWriteXmlUtils {
 
 	@SuppressWarnings("rawtypes")
 	public static String readXmlStatus(Document doc) throws DocumentException {
-		//获取状态码及相应状态信息，用于检测是否连接成功
+		// 获取状态码及相应状态信息，用于检测是否连接成功
 		List resCodeList = null;
 		resCodeList = doc.selectNodes("//Devices/resCode");
 		Iterator resCodeIter = resCodeList.iterator();
-		Element resCodeElement = (Element)resCodeIter.next();
+		Element resCodeElement = (Element) resCodeIter.next();
 
-		//获取状态码相对应信息，用于检测是否连接成功
+		// 获取状态码相对应信息，用于检测是否连接成功
 		List descList = null;
 		descList = doc.selectNodes("//Devices/desc");
 		Iterator descIter = descList.iterator();
-		Element descElement = (Element)descIter.next();
-		
-		//若登陆失败则返回失败原因，否则返回null
-		if(!resCodeElement.getText().equals("0")){
+		Element descElement = (Element) descIter.next();
+
+		// 若登陆失败则返回失败原因，否则返回null
+		if (!resCodeElement.getText().equals("0")) {
 			return descElement.getText().toString();
-		}
-		else
+		} else
 			return null;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static List<DVRDevice> readXmlDVRDevices(Document doc)
-			throws DocumentException {//获取设备信息
-		//获取所有的设备节点元素
+			throws DocumentException {// 获取设备信息
+		// 获取所有的设备节点元素
 		List deviceListTemp = null;
 		deviceListTemp = doc.selectNodes("//Devices/Device");
 		Iterator deviceIter = deviceListTemp.iterator();
 		List<DVRDevice> deviceList = new ArrayList<DVRDevice>();
-		while(deviceIter.hasNext()){
+		while (deviceIter.hasNext()) {
 			DVRDevice dvrDevice = new DVRDevice();
-			//获得具体的元素   
-			Element element = (Element)deviceIter.next();
-			//<du>登陆设备用户名</du>
+			// 获得具体的元素
+			Element element = (Element) deviceIter.next();
+			// <du>登陆设备用户名</du>
 			Element duElement = element.element("du");
 			dvrDevice.setLoginUsername(duElement.getText().toString());
-			//<dp>登陆设备密码</dp>
+			// <dp>登陆设备密码</dp>
 			Element dpElement = element.element("dp");
 			dvrDevice.setLoginPassword(dpElement.getText().toString());
-			//<dm>登陆设备模式(0.IP  1.域名)</dm>
+			// <dm>登陆设备模式(0.IP 1.域名)</dm>
 			Element dmElement = element.element("dm");
 			dvrDevice.setLoginMode(dmElement.getText().toString());
-			//<dip>设备IP[登陆设备模式 为IP的时候有效]</dip>
+			// <dip>设备IP[登陆设备模式 为IP的时候有效]</dip>
 			Element dipElement = element.element("dip");
 			dvrDevice.setLoginIP(dipElement.getText().toString());
-			//<dd>设备域名[登陆设备模式 为域名的时候有效]</dd>
+			// <dd>设备域名[登陆设备模式 为域名的时候有效]</dd>
 			Element ddElement = element.element("dd");
 			dvrDevice.setLoginDomain(ddElement.getText().toString());
-			//<dpn>登陆设备端口号</dpn>
+			// <dpn>登陆设备端口号</dpn>
 			Element dpnElement = element.element("dpn");
 			dvrDevice.setLoginPort(dpnElement.getText().toString());
-			//<scn>开始通道号</scn>
+			// <scn>开始通道号</scn>
 			Element scnElement = element.element("scn");
 			dvrDevice.setStarChannel(scnElement.getText().toString());
-			//<cn>通道个数</cn>
+			// <cn>通道个数</cn>
 			Element cnElement = element.element("cn");
 			dvrDevice.setChannelNumber(cnElement.getText().toString());
-			//<ain>报警输入个数</ain>
+			// <ain>报警输入个数</ain>
 			Element ainElement = element.element("ain");
 			dvrDevice.setWarningInputNumber(ainElement.getText().toString());
-			//<aon>报警输出个数</aon>
+			// <aon>报警输出个数</aon>
 			Element aonElement = element.element("aon");
 			dvrDevice.setWarningOutputNumber(aonElement.getText().toString());
-			//<acn>音频通道个数</acn>
+			// <acn>音频通道个数</acn>
 			Element acnElement = element.element("acn");
 			dvrDevice.setAudioChannelNumber(acnElement.getText().toString());
-			//<vn>语音对讲个数</vn>
+			// <vn>语音对讲个数</vn>
 			Element vnElement = element.element("vn");
 			dvrDevice.setIntercomNumber(vnElement.getText().toString());
-			//<dn>硬盘个数</dn>
+			// <dn>硬盘个数</dn>
 			Element dnElement = element.element("dn");
 			dvrDevice.setHDNumber(dnElement.getText().toString());
-			//<mdn>最大支持的移动侦测区域个数</mdn>
+			// <mdn>最大支持的移动侦测区域个数</mdn>
 			Element mdnElement = element.element("mdn");
-			dvrDevice.setMaxMobileDetectionNumber(mdnElement.getText().toString());
-			//<can>最大支持的视频遮盖区域个数</can>
+			dvrDevice.setMaxMobileDetectionNumber(mdnElement.getText()
+					.toString());
+			// <can>最大支持的视频遮盖区域个数</can>
 			Element canElement = element.element("can");
 			dvrDevice.setMaxOverlayAreaNumber(canElement.getText().toString());
-			//<tp>产品型号</tp>
+			// <tp>产品型号</tp>
 			Element tpElement = element.element("tp");
 			dvrDevice.setProductModel(tpElement.getText().toString());
-			//<ma>厂家类型: 星网锐捷[枚举类型]</ma>
+			// <ma>厂家类型: 星网锐捷[枚举类型]</ma>
 			Element maElement = element.element("ma");
 			dvrDevice.setManufacturer(maElement.getText().toString());
-			//<sn>设备序列号</sn>
+			// <sn>设备序列号</sn>
 			Element snElement = element.element("sn");
 			dvrDevice.setSerialNumber(snElement.getText().toString());
-			//<dmc>设备网卡地址</dmc>
+			// <dmc>设备网卡地址</dmc>
 			Element dmcElement = element.element("dmc");
 			dvrDevice.setEthernetaddress(dmcElement.getText().toString());
-			//<dv>设备版本号</dv>
+			// <dv>设备版本号</dv>
 			Element dvElement = element.element("dv");
 			dvrDevice.setVersionNumber(dvElement.getText().toString());
-			//<wu>平台用户名</wu>
+			// <wu>平台用户名</wu>
 			Element wuElement = element.element("wu");
 			dvrDevice.setPlatformUsername(wuElement.getText().toString());
-			//<wp>密码（密文）</wp>
+			// <wp>密码（密文）</wp>
 			Element wpElement = element.element("wp");
 			dvrDevice.setPlatformPassword(wpElement.getText().toString());
-			//<dwp>设备WEB端口</dwp>
+			// <dwp>设备WEB端口</dwp>
 			Element dwpElement = element.element("dwp");
 			dvrDevice.setWEBPort(dwpElement.getText().toString());
-			//<dna>(在线、离线)设备名称</dna>
+			// <dna>(在线、离线)设备名称</dna>
 			Element dnaElement = element.element("dna");
 			dvrDevice.setDeviceName(dnaElement.getText().toString());
-			//<mp>手机端口号</mp>
+			// <mp>手机端口号</mp>
 			Element mpElement = element.element("mp");
 			dvrDevice.setMobliePhonePort(mpElement.getText().toString());
-			//<up>是否通过upnp上网(0.否，1.是)</up>
+			// <up>是否通过upnp上网(0.否，1.是)</up>
 			Element upElement = element.element("up");
 			dvrDevice.setIsUPNP(upElement.getText().toString());
 			deviceList.add(dvrDevice);
 		}
 		return deviceList;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param pdiList
@@ -1382,7 +1404,9 @@ public class ReadWriteXmlUtils {
 	 * @return :true表示正常写入，FALSE，表示写入错误；
 	 * @throws IOException
 	 */
-	public static boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList,String filePath) throws IOException {
+	public static boolean writePreviewItemListInfoToXML(
+			List<PreviewDeviceItem> previewDeviceItemList, String filePath)
+			throws IOException {
 		boolean result = false;
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -1390,52 +1414,55 @@ public class ReadWriteXmlUtils {
 		}
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("previewDeviceItems");
-		
-		
+
 		int size = previewDeviceItemList.size();
 		for (int i = 0; i < size; i++) {
 			Element subElement = root.addElement("previewDeviceItem");
-			
+
 			PreviewDeviceItem previewDeviceItem = previewDeviceItemList.get(i);
-			
+
 			String dRName = previewDeviceItem.getDeviceRecordName();
 			String lgPass = previewDeviceItem.getLoginPass();
 			String lgUser = previewDeviceItem.getLoginUser();
-			
+
 			String dSvrIp = previewDeviceItem.getSvrIp();
 			String svPort = previewDeviceItem.getSvrPort();
 			String channl = String.valueOf(previewDeviceItem.getChannel());
-			
+
 			String platformUsername = previewDeviceItem.getPlatformUsername();
-			
-			subElement.addAttribute("dRName", dRName);//测试使用。。。
+
+			subElement.addAttribute("dRName", dRName);// 测试使用。。。
 			subElement.addAttribute("lgPass", lgPass);
 			subElement.addAttribute("lgUser", lgUser);
-			
+
 			subElement.addAttribute("dSvrIp", dSvrIp);
 			subElement.addAttribute("svPort", svPort);
 			subElement.addAttribute("channl", channl);
 			subElement.addAttribute("platformUsername", platformUsername);
 		}
-		
+
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
 		FileWriter writer = new FileWriter(file);
-		XMLWriter xmlWriter = new XMLWriter(writer,opf);
+		XMLWriter xmlWriter = new XMLWriter(writer, opf);
 		xmlWriter.write(document);
 		writer.close();
 		result = true;
 		return result;
 	}
+
 	/**
 	 * 
-	 * @param page:页数
-	 * @param filePath：文件路径
+	 * @param page
+	 *            :页数
+	 * @param filePath
+	 *            ：文件路径
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean writePageInfoToXML( int page,String filePath) throws IOException {
+	public boolean writePageInfoToXML(int page, String filePath)
+			throws IOException {
 		boolean result = false;
-		if ((filePath == null)||(filePath.equals(null))||(page < 0)) {
+		if ((filePath == null) || (filePath.equals(null)) || (page < 0)) {
 			return result;
 		}
 		File file = new File(filePath);
@@ -1444,29 +1471,32 @@ public class ReadWriteXmlUtils {
 		}
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("pages");
-		
+
 		Element subElement = root.addElement("page");
 		subElement.addAttribute("pageth", String.valueOf(page));
-		
+
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
 		FileWriter writer = new FileWriter(file);
-		XMLWriter xmlWriter = new XMLWriter(writer,opf);
+		XMLWriter xmlWriter = new XMLWriter(writer, opf);
 		xmlWriter.write(document);
 		writer.close();
 		result = true;
 		return result;
 	}
-	
+
 	/**
 	 * 
-	 * @param channelMode：通道模式(1/4)
-	 * @param filePath:文件路径
+	 * @param channelMode
+	 *            ：通道模式(1/4)
+	 * @param filePath
+	 *            :文件路径
 	 * @return
 	 * @throws IOException
 	 */
-	public boolean writeModeInfoToXML( int channelMode,String filePath) throws IOException {
+	public boolean writeModeInfoToXML(int channelMode, String filePath)
+			throws IOException {
 		boolean result = false;
-		if ((filePath == null)||(filePath.equals(null))||(channelMode < 0)) {
+		if ((filePath == null) || (filePath.equals(null)) || (channelMode < 0)) {
 			return result;
 		}
 		File file = new File(filePath);
@@ -1475,21 +1505,23 @@ public class ReadWriteXmlUtils {
 		}
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("channelModes");
-		
+
 		Element subElement = root.addElement("channelMode");
 		subElement.addAttribute("chMode", String.valueOf(channelMode));
-		
+
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
 		FileWriter writer = new FileWriter(file);
-		XMLWriter xmlWriter = new XMLWriter(writer,opf);
+		XMLWriter xmlWriter = new XMLWriter(writer, opf);
 		xmlWriter.write(document);
 		writer.close();
 		result = true;
 		return result;
 	}
+
 	/**
 	 * 
-	 * @param filePath:文件路径
+	 * @param filePath
+	 *            :文件路径
 	 * @return 页数
 	 * @throws IOException
 	 */
@@ -1511,13 +1543,13 @@ public class ReadWriteXmlUtils {
 				String chMode = subElement.attributeValue("chMode");
 				modeList.add(Integer.valueOf(chMode));
 			}
-		}catch (DocumentException e) {
+		} catch (DocumentException e) {
 			e.printStackTrace();
 			return modeList;
 		}
 		return modeList;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<Integer> getPageInfoFromXML(String filePath) throws IOException {
 		List<Integer> modeList = new ArrayList<Integer>();
@@ -1536,20 +1568,22 @@ public class ReadWriteXmlUtils {
 				String chMode = subElement.attributeValue("pageth");
 				modeList.add(Integer.valueOf(chMode));
 			}
-		}catch (DocumentException e) {
+		} catch (DocumentException e) {
 			e.printStackTrace();
 			return modeList;
 		}
 		return modeList;
 	}
-	
+
 	/**
 	 * 
-	 * @param filePath:文件路径
+	 * @param filePath
+	 *            :文件路径
 	 * @return 预览列表
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<PreviewDeviceItem> getPreviewItemListInfoFromXML(String filePath){
+	public static List<PreviewDeviceItem> getPreviewItemListInfoFromXML(
+			String filePath) {
 		List<PreviewDeviceItem> previewDeviceItemList = new ArrayList<PreviewDeviceItem>();
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -1564,17 +1598,18 @@ public class ReadWriteXmlUtils {
 			for (int i = 0; i < size; i++) {
 				Element subElement = subElements.get(i);
 				PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
-				
+
 				String dRName = subElement.attributeValue("dRName");
 				String lgPass = subElement.attributeValue("lgPass");
 				String lgUser = subElement.attributeValue("lgUser");
 				String dSvrIp = subElement.attributeValue("dSvrIp");
 				String svPort = subElement.attributeValue("svPort");
 				String channl = subElement.attributeValue("channl");
-				String platformUsername = subElement.attributeValue("platformUsername");
-				
+				String platformUsername = subElement
+						.attributeValue("platformUsername");
+
 				int channel = Integer.valueOf(channl);
-				
+
 				previewDeviceItem.setDeviceRecordName(dRName);
 				previewDeviceItem.setLoginPass(lgPass);
 				previewDeviceItem.setLoginUser(lgUser);
@@ -1582,7 +1617,7 @@ public class ReadWriteXmlUtils {
 				previewDeviceItem.setSvrPort(svPort);
 				previewDeviceItem.setChannel(channel);
 				previewDeviceItem.setPlatformUsername(platformUsername);
-				
+
 				previewDeviceItemList.add(previewDeviceItem);
 			}
 		} catch (DocumentException e) {

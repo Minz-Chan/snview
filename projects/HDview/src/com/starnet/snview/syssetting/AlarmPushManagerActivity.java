@@ -3,6 +3,7 @@ package com.starnet.snview.syssetting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -11,12 +12,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
@@ -58,6 +61,8 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				saveSettingsToSharedPreference();
+				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
 			}
 		});
@@ -72,40 +77,8 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				isAcc = alarmUserAdapter.isClickFlag();
-				isShake = alarmNotifyAdapter.isClickFlagSha();
-				isSound = alarmNotifyAdapter.isClickFlagSou();
-				isAllAcc = alarmNotifyAdapter.isClickFlagAcc();
-
-				Editor editor = ctx.getSharedPreferences("ALARM_PUSHSET_FILE",
-						Context.MODE_PRIVATE).edit();
-				editor.putBoolean("isAccept", isAcc);
-				editor.putBoolean("isShake", isShake);
-				editor.putBoolean("isSound", isSound);
-				editor.putBoolean("isAllAccept", isAllAcc);
-				editor.commit();
-
-				if (!isAllAcc) {// 关闭状态时
-					if (PushManager.isPushEnabled(ctx.getApplicationContext())) {
-						PushManager.stopWork(ctx.getApplicationContext());
-						closeAllPushUsers();
-					}
-				} else {
-					if (!PushManager.isPushEnabled(ctx.getApplicationContext())) {
-						PushManager.startWork(getApplicationContext(),
-								PushConstants.LOGIN_TYPE_API_KEY, Utils
-										.getMetaValue(
-												ctx.getApplicationContext(),
-												"api_key"));
-						if (isAcc) {
-							openPushUser();
-						}
-					} else {
-						if (isAcc) {
-							closePushUser();
-						}
-					}
-				}
+				saveSettingsToSharedPreference();
+				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
 			}
 		});
@@ -123,71 +96,28 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		});
 	}
 
-	private void closePushUser() {
-		try {
-			List<String> delTags = new ArrayList<String>();
-			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-			if (ps != null) {
-				for (int i = 0; i < ps.size(); i++) {
-					CloudAccount cA = ps.get(i);
-					String tag = cA.getUsername() + ""
-							+ MD5Utils.createMD5(cA.getPassword());
-					delTags.add(tag);
-				}
-			}
-			PushManager.delTags(ctx.getApplicationContext(), delTags);
-		} catch (Exception e) {
-		}
-	}
-
-	private void openPushUser() {
-		try {
-			List<String> regTags = new ArrayList<String>();
-			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-			if (ps != null) {
-				for (int i = 0; i < ps.size(); i++) {
-					CloudAccount cA = ps.get(i);
-					String tag = cA.getUsername() + ""
-							+ MD5Utils.createMD5(cA.getPassword());
-					regTags.add(tag);
-				}
-			}
-			PushManager.setTags(ctx.getApplicationContext(), regTags);
-		} catch (Exception e) {
-		}
-	}
-
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	private List<CloudAccount> ps;
 	private List<CloudAccount> ca;
 
-	private void closeAllPushUsers() {
-		try {
-			List<String> delTags = new ArrayList<String>();
-			ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-			ca = ReadWriteXmlUtils.getCloudAccountList(filePath);
-			if (ps != null) {
-				for (int i = 0; i < ps.size(); i++) {
-					CloudAccount cA = ps.get(i);
-					String tag = cA.getUsername() + ""
-							+ MD5Utils.createMD5(cA.getPassword());
-					delTags.add(tag);
-				}
-			}
-			if (ca != null) {
-				for (int i = 0; i < ca.size(); i++) {
-					CloudAccount cA = ca.get(i);
-					String tag = cA.getUsername() + ""
-							+ MD5Utils.createMD5(cA.getPassword());
-					delTags.add(tag);
-				}
-			}
-			PushManager.delTags(ctx.getApplicationContext(), delTags);
-		} catch (Exception e) {
-		}
+	/** 保存用户的设置选项 **/
+	private void saveSettingsToSharedPreference() {
+		isAcc = alarmUserAdapter.isClickFlag();
+		isShake = alarmNotifyAdapter.isClickFlagSha();
+		isSound = alarmNotifyAdapter.isClickFlagSou();
+		isAllAcc = alarmNotifyAdapter.isClickFlagAcc();
+
+		Editor edt = ctx.getSharedPreferences("ALARM_PUSHSET_FILE",
+				Context.MODE_PRIVATE).edit();
+		edt.putBoolean("isAccept", isAcc);
+		edt.putBoolean("isShake", isShake);
+		edt.putBoolean("isSound", isSound);
+		edt.putBoolean("isAllAccept", isAllAcc);
+		edt.commit();
 
 	}
 
+	/** 清除所有的推送消息 **/
 	protected void jumpClearDialog() {
 		Builder builder = new Builder(ctx);
 		builder.setTitle(R.string.system_setting_pushset_clear_allalarminfo_ok);
@@ -197,7 +127,9 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if (ReadWriteXmlUtils.clearAllAlarmInfo()) {
+				// boolean isSuc = ReadWriteXmlUtils.clearAllAlarmInfo();
+				boolean isSuc = ReadWriteXmlUtils.deleteAlarmInfoFile();
+				if (isSuc) {
 					showTost(getString(R.string.system_setting_pushset_clear_alarm_suc));
 				} else {
 					showTost(getString(R.string.system_setting_pushset_clear_alarm_fai));
@@ -223,8 +155,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		alarmUserListView = (CornerListView) findViewById(R.id.alarmUserListView);
 		alarmNotifyListView = (CornerListView) findViewById(R.id.alarmNotifyListView);
 
-		SharedPreferences sp = ctx
-				.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+		sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
 		isAcc = sp.getBoolean("isAccept", true);
 		isShake = sp.getBoolean("isShake", true);
 		isSound = sp.getBoolean("isSound", true);
@@ -233,6 +164,92 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		setAalarmNotifyAdapter();
 		setAlarmUserAdapter(isAcc);
 
+	}
+
+	SharedPreferences sp;
+	private String api;
+
+	/** 保存设置选项 **/
+	private void saveStarnetAndAlarmPushAccounts() {
+		if (!isAllAcc) {
+			PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+		} else {
+			api = Utils.getMetaValue(ctx.getApplicationContext(), "api_key");
+			int login = PushConstants.LOGIN_TYPE_API_KEY;
+			PushManager.startWork(getApplicationContext(), login, api);
+			if (isAcc) {
+				try {
+					saveAllAccounts();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				try {
+					delPushUserAndSaveStarnetUser();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void saveAllAccounts() throws Exception {
+		List<String> rTags = new ArrayList<String>();
+
+		ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+		ca = ReadWriteXmlUtils.getCloudAccountList(filePath);// 获取星云平台账户
+
+		if (ps != null) {
+			for (int i = 0; i < ps.size(); i++) {
+				CloudAccount pA = ps.get(i);
+				String uName = pA.getUsername();
+				String pswd = MD5Utils.createMD5(pA.getPassword());
+				String tag = uName + "" + pswd;
+				rTags.add(tag);
+			}
+		}
+
+		if (ca != null) {
+			for (int i = 0; i < ca.size(); i++) {
+				CloudAccount cA = ca.get(i);
+				String uName = cA.getUsername();
+				String pswd = MD5Utils.createMD5(cA.getPassword());
+				String tag = uName + "" + pswd;
+				rTags.add(tag);
+			}
+			PushManager.setTags(ctx.getApplicationContext(), rTags);// 注册星云平台账户
+		}
+	}
+
+	/** 删除推送账户，注册星云平台账户 **/
+	private void delPushUserAndSaveStarnetUser() throws Exception {
+		List<String> dTags = new ArrayList<String>();
+		List<String> rTags = new ArrayList<String>();
+
+		ps = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+		ca = ReadWriteXmlUtils.getCloudAccountList(filePath);// 获取星云平台账户
+
+		if (ps != null) {
+			for (int i = 0; i < ps.size(); i++) {
+				CloudAccount pA = ps.get(i);
+				String uName = pA.getUsername();
+				String pswd = MD5Utils.createMD5(pA.getPassword());
+				String tag = uName + "" + pswd;
+				dTags.add(tag);
+			}
+			PushManager.delTags(ctx.getApplicationContext(), dTags);// 删除推送账户
+		}
+
+		if (ca != null) {
+			for (int i = 0; i < ca.size(); i++) {
+				CloudAccount cA = ca.get(i);
+				String uName = cA.getUsername();
+				String pswd = MD5Utils.createMD5(cA.getPassword());
+				String tag = uName + "" + pswd;
+				rTags.add(tag);
+			}
+			PushManager.setTags(ctx.getApplicationContext(), rTags);// 注册星云平台账户
+		}
 	}
 
 	private void setAlarmUserAdapter(boolean isAccept) {
@@ -307,4 +324,16 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		alarmUserAdapter = new AlarmUserAdapter(this, list, isAcc);
 		alarmUserListView.setAdapter(alarmUserAdapter);
 	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			saveSettingsToSharedPreference();
+			saveStarnetAndAlarmPushAccounts();
+			this.finish();
+		}
+		return true;
+	}
+
 }
