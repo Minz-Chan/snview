@@ -2,6 +2,7 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -20,21 +21,24 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.IPAndPortUtils;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.SynObject;
 
 @SuppressLint({ "HandlerLeak", "SdCardPath" })
 public class CloudAccountUpdateActivity extends BaseActivity {
-	
+
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	private EditText serverEditText;
@@ -44,25 +48,27 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 	private RadioButton isenablYseRadioBtn;
 	private RadioButton isenablNoRadioBtn;
 
-	private Button identifyBtn;										//验证按钮
-	private Button saveBtn;											//保存按钮
-	
-	private boolean identifier_flag = false;						//验证标志，如果验证通过，则令idenfier_flag = true;如果验证不通过，并且未进行验证，则令idenfier_flag = false;
+	private Button identifyBtn; // 验证按钮
+	private Button saveBtn; // 保存按钮
+
+	private boolean identifier_flag = false; // 验证标志，如果验证通过，则令idenfier_flag =
+												// true;如果验证不通过，并且未进行验证，则令idenfier_flag
+												// = false;
 	private boolean identifier_flag_after = false;
-	private CloudAccount identifyCloudAccount;						//验证后的账户
-	private CloudAccount saveCloudAccount;							//保存账户
-	private CloudAccount clickCloudAccount = new CloudAccount();	//要修改的原始账户
-//	private CloudAccountXML  caXml;
-	
+	private CloudAccount identifyCloudAccount; // 验证后的账户
+	private CloudAccount saveCloudAccount; // 保存账户
+	private CloudAccount clickCloudAccount = new CloudAccount(); // 要修改的原始账户
+	// private CloudAccountXML caXml;
+
 	private int clickPostion;
-	
+
 	private SynObject synObj = new SynObject();
 
-	private final int DDNS_RESP_SUCC = 0x1100;						// 获取设备信息成功
-	private final int DDNS_RESP_FAILURE = 0x1101;					// 获取设备信息失败
-	private final int DDNS_REQ_TIMEOUT = 0x1102;					// 设备列表请求超时
-	private final int DDNS_SYS_FAILURE = 0x1103;					// 非DDNS返回错误
-	
+	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
+	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
+	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
+	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
+
 	private Context context;
 
 	private String server;
@@ -80,15 +86,15 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			}
 			dismissDialog(1);
 			// 解除挂起， 程序往下执行
-//			synObj.resume();
+			// synObj.resume();
 			String errMsg = "";
 			context = CloudAccountUpdateActivity.this;
 			switch (msg.what) {
-			case DDNS_RESP_SUCC://只验证，不保存				
+			case DDNS_RESP_SUCC:// 只验证，不保存
 				identifier_flag = true;
 				identifier_flag_after = true;
 				showToast(getString(R.string.system_setting_cloudaccount_useable));
-//				dismissDialog(1);
+				// dismissDialog(1);
 				break;
 			case DDNS_RESP_FAILURE:
 				identifier_flag = false;
@@ -122,16 +128,16 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 	}
 
 	private void setListenters() {
-		
+
 		identifyBtn.setOnClickListener(new OnClickListener() {
-			//验证用户的有效性；首先检查填写信息是否完整，如果不完整，则提示用户不完整信息；否则，进行网络验证，验证之后，保存验证用户的信息
+			// 验证用户的有效性；首先检查填写信息是否完整，如果不完整，则提示用户不完整信息；否则，进行网络验证，验证之后，保存验证用户的信息
 			@Override
 			public void onClick(View v) {
 				Context context = CloudAccountUpdateActivity.this;
-				
-				boolean isConn = NetWorkUtils.checkNetConnection(context);//检测网络是否连接，若网络并未连接则
+
+				boolean isConn = NetWorkUtils.checkNetConnection(context);// 检测网络是否连接，若网络并未连接则
 				if (isConn) {
-					
+
 					server = serverEditText.getText().toString().trim();
 					port = portEditText.getText().toString().trim();
 					username = usernameEditText.getText().toString().trim();
@@ -139,36 +145,36 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 
 					if (!server.equals("") && !port.equals("")
 							&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
-												
-//						IPAndPortUtils ipAndPort = new IPAndPortUtils();
-						boolean isPort = IPAndPortUtils.isNetPort(port);//检测是否是网络端口号
+
+						// IPAndPortUtils ipAndPort = new IPAndPortUtils();
+						boolean isPort = IPAndPortUtils.isNetPort(port);// 检测是否是网络端口号
 						if (isPort) {
-							identifyCloudAccount = new CloudAccount();	
+							identifyCloudAccount = new CloudAccount();
 							if (isenablYseRadioBtn.isChecked()) {
 								identifyCloudAccount.setEnabled(true);
 							} else {
 								identifyCloudAccount.setEnabled(false);
 							}
-							
+
 							identifyCloudAccount.setDomain(server);
 							identifyCloudAccount.setPassword(password);
 							identifyCloudAccount.setUsername(username);
 							identifyCloudAccount.setPort(port);
-							
+
 							requset4DeviceList();
 							synObj.suspend();// 挂起等待请求结果
-						}else {
+						} else {
 							showToast(getString(R.string.device_manager_editact_port_wrong));
-						}						
+						}
 					} else {
 						showToast(getString(R.string.system_setting_cloudaccountsetedit_null_content));
 					}
-				}else {
+				} else {
 					showToast(getString(R.string.network_not_conn));
 				}
-			}	
+			}
 		});
-		
+
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -197,70 +203,98 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 					saveCloudAccount.setPort(port);
 					saveCloudAccount.setRotate(false);
 					saveCloudAccount.setExpanded(false);
-					
-					identifier_flag = isEqualCloudAccounts(saveCloudAccount,identifyCloudAccount);
-					
-					if (isenablYseRadioBtn.isChecked() && (identifier_flag)&& (identifier_flag_after)) {
+
+					identifier_flag = isEqualCloudAccounts(saveCloudAccount,
+							identifyCloudAccount);
+
+					if (isenablYseRadioBtn.isChecked() && (identifier_flag)
+							&& (identifier_flag_after)) {
 						saveCloudAccount.setEnabled(true);
 					} else {
 						saveCloudAccount.setEnabled(false);
 					}
 					try {
-						
-						List<CloudAccount> cloudAcountList = ReadWriteXmlUtils.getCloudAccountList(filePath);
-						boolean result = judgeListContainCloudAccount(saveCloudAccount, cloudAcountList);		// 检测是否已经存在账户
-						
+
+						List<CloudAccount> cloudAcountList = ReadWriteXmlUtils
+								.getCloudAccountList(filePath);
+						boolean result = judgeListContainCloudAccount(
+								saveCloudAccount, cloudAcountList); // 检测是否已经存在账户
+
 						if (result) {
 							showToast(getString(R.string.device_manager_setting_setedit_contain_no_need));
 						} else {
 							if (isenablNoRadioBtn.isChecked()) {
 								saveCloudAccount.setEnabled(false);
-								ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);	// 替换掉以前的星云账号
+								delTags(saveCloudAccount);
+								ReadWriteXmlUtils.replaceSpecifyCloudAccount(
+										filePath, clickCloudAccount,
+										saveCloudAccount); // 替换掉以前的星云账号
 								showToast(getString(R.string.system_setting_cloudaccountupdate_edit_right));
 								Intent intent = new Intent();
 								Bundle bundle = new Bundle();
-								bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
+								bundle.putSerializable("edit_cloudAccount",
+										saveCloudAccount);
 								intent.putExtras(bundle);
 								setResult(3, intent);
 								CloudAccountUpdateActivity.this.finish();
-							}else if (!identifier_flag) {
+							} else if (!identifier_flag) {
 								if (clickCloudAccount.isEnabled()) {
-									boolean isSame = isEqualCloudAccounts(clickCloudAccount,saveCloudAccount);
-									if(isSame){
-										CloudAccountUpdateActivity.this.finish();
-									}else {
-										Builder builder = new Builder(CloudAccountUpdateActivity.this);
+									boolean isSame = isEqualCloudAccounts(
+											clickCloudAccount, saveCloudAccount);
+									if (isSame) {
+										CloudAccountUpdateActivity.this
+												.finish();
+									} else {
+										Builder builder = new Builder(
+												CloudAccountUpdateActivity.this);
 										builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-										builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
+										builder.setPositiveButton(
+												getString(R.string.system_setting_cloudaccountview_ok),
+												null);
 										builder.show();
 									}
-								}else {
-									Builder builder = new Builder(CloudAccountUpdateActivity.this);
+								} else {
+									Builder builder = new Builder(
+											CloudAccountUpdateActivity.this);
 									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
+									builder.setPositiveButton(
+											getString(R.string.system_setting_cloudaccountview_ok),
+											null);
 									builder.show();
 								}
-							}else if (identifier_flag){															//曾经验证过，检查曾验证用户和当前用户是否相同
-								boolean isSame = isEqualCloudAccounts(identifyCloudAccount,saveCloudAccount);
+							} else if (identifier_flag) { // 曾经验证过，检查曾验证用户和当前用户是否相同
+								boolean isSame = isEqualCloudAccounts(
+										identifyCloudAccount, saveCloudAccount);
 								if (isSame) {
-									if(identifier_flag_after){
+									if (identifier_flag_after) {
 										saveCloudAccount.setEnabled(true);
-										//删除以前的，注册当前的
-									}else{
+										// 删除以前的，注册当前的
+										delTags(clickCloudAccount);
+										setTags(saveCloudAccount);
+									} else {
 										saveCloudAccount.setEnabled(false);
+										delTags(clickCloudAccount);
 									}
-									ReadWriteXmlUtils.replaceSpecifyCloudAccount(filePath,clickCloudAccount, saveCloudAccount);// 替换掉以前的星云账号
+									ReadWriteXmlUtils
+											.replaceSpecifyCloudAccount(
+													filePath,
+													clickCloudAccount,
+													saveCloudAccount);// 替换掉以前的星云账号
 									showToast(getString(R.string.system_setting_cloudaccountupdate_edit_right));
 									Intent intent = new Intent();
 									Bundle bundle = new Bundle();
-									bundle.putSerializable("edit_cloudAccount",saveCloudAccount);
+									bundle.putSerializable("edit_cloudAccount",
+											saveCloudAccount);
 									intent.putExtras(bundle);
 									setResult(3, intent);
 									CloudAccountUpdateActivity.this.finish();
-								}else {
-									Builder builder = new Builder(CloudAccountUpdateActivity.this);
+								} else {
+									Builder builder = new Builder(
+											CloudAccountUpdateActivity.this);
 									builder.setTitle(getString(R.string.system_setting_cloudaccount_identify_ok));
-									builder.setPositiveButton(getString(R.string.system_setting_cloudaccountview_ok), null);																				
+									builder.setPositiveButton(
+											getString(R.string.system_setting_cloudaccountview_ok),
+											null);
 									builder.show();
 								}
 							}
@@ -279,7 +313,8 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		if (bundle != null) {
-			clickCloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
+			clickCloudAccount = (CloudAccount) bundle
+					.getSerializable("cloudAccount");
 			String server = clickCloudAccount.getDomain();
 			String port = clickCloudAccount.getPort();
 			String userName = clickCloudAccount.getUsername();
@@ -313,14 +348,17 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
-		clickPostion = Integer.valueOf(getIntent().getExtras().getString("clickPostion"));
+		clickPostion = Integer.valueOf(getIntent().getExtras().getString(
+				"clickPostion"));
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case 1:
-			ProgressDialog progress = ProgressDialog.show(this, "",getString(R.string.system_set_setedit_identify_user_right), true, true);
+			ProgressDialog progress = ProgressDialog.show(this, "",
+					getString(R.string.system_set_setedit_identify_user_right),
+					true, true);
 			progress.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override
@@ -334,8 +372,9 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			return null;
 		}
 	}
-	private void showToast(String content){
-		Toast.makeText(context, content,Toast.LENGTH_LONG).show();
+
+	private void showToast(String content) {
+		Toast.makeText(context, content, Toast.LENGTH_LONG).show();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -343,7 +382,7 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 		showDialog(1);
 		(new RequestDeviceInfoThread(responseHandler)).start();
 	}
-	
+
 	class RequestDeviceInfoThread extends Thread {
 		private Handler handler;
 
@@ -353,10 +392,11 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 
 		@Override
 		public void run() {
-			
+
 			Message msg = new Message();
 			try {
-				Document doc = ReadWriteXmlUtils.SendURLPost(server, port, username,password,"conn");
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,
+						username, password, "conn");
 				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
@@ -380,30 +420,35 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 			handler.sendMessage(msg);
 		}
 	}
-	protected boolean isEqualCloudAccounts(CloudAccount save_CloudAccount2, CloudAccount identify_CloudAccount2) {
+
+	protected boolean isEqualCloudAccounts(CloudAccount save_CloudAccount2,
+			CloudAccount identify_CloudAccount2) {
 		boolean isEqual = false;
-		if((save_CloudAccount2 == null)||(identify_CloudAccount2 == null)){
+		if ((save_CloudAccount2 == null) || (identify_CloudAccount2 == null)) {
 			return isEqual;
-		}else {
+		} else {
 			String sDman = save_CloudAccount2.getDomain();
 			String sPort = save_CloudAccount2.getPort();
 			String sPass = save_CloudAccount2.getPassword();
 			String sName = save_CloudAccount2.getUsername();
-			
+
 			String iDman = identify_CloudAccount2.getDomain();
 			String iPort = identify_CloudAccount2.getPort();
 			String iPass = identify_CloudAccount2.getPassword();
 			String iName = identify_CloudAccount2.getUsername();
-			
-			if (sDman.equals(iDman)&&sPort.equals(iPort)&&sPass.equals(iPass)&&sName.equals(iName)) {
+
+			if (sDman.equals(iDman) && sPort.equals(iPort)
+					&& sPass.equals(iPass) && sName.equals(iName)) {
 				isEqual = true;
-			}else {
+			} else {
 				isEqual = false;
 			}
 			return isEqual;
 		}
 	}
-	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
+
+	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,
+			List<CloudAccount> cloudAccountList2) {
 		boolean result = false;
 		int size = cloudAccountList2.size();
 		for (int i = 0; i < size; i++) {
@@ -412,13 +457,37 @@ public class CloudAccountUpdateActivity extends BaseActivity {
 				String cADomain = cA.getDomain();
 				String cAPort = cA.getPort();
 				String cAUsername = cA.getUsername();
-				if (cloudAccount.getUsername().equals(cAUsername)&& cloudAccount.getDomain().equals(cADomain)
-					&& cloudAccount.getPort().equals(cAPort)) {
+				if (cloudAccount.getUsername().equals(cAUsername)
+						&& cloudAccount.getDomain().equals(cADomain)
+						&& cloudAccount.getPort().equals(cAPort)) {
 					result = true;
 					break;
 				}
 			}
 		}
 		return result;
+	}
+
+	/** 删除百度标签 **/
+	private void delTags(CloudAccount ca) {
+		try {
+			List<String> tagList = new ArrayList<String>();
+			String uName = ca.getUsername();
+			String pswd = MD5Utils.createMD5(ca.getPassword());
+			tagList.add(uName + "" + pswd);
+			PushManager.delTags(context, tagList);
+		} catch (Exception e) {
+		}
+	}
+	
+	private void setTags(CloudAccount ca){
+		try {
+			List<String> tagList = new ArrayList<String>();
+			String uName = ca.getUsername();
+			String pswd = MD5Utils.createMD5(ca.getPassword());
+			tagList.add(uName + "" + pswd);
+			PushManager.setTags(context, tagList);
+		} catch (Exception e) {
+		}
 	}
 }

@@ -28,7 +28,7 @@ import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class AlarmPushManagerActivity extends BaseActivity {
 
 	private String api;
@@ -49,6 +49,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	private CornerListView alarmNotifyListView;// 报警通知（接收、声音和震动的设置）
 	private AalarmNotifyAdapter alarmNotifyAdapter;
 	private List<HashMap<String, Object>> settingList;
+	protected final String TAG = "AlarmPushManagerActivity";
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	@Override
@@ -58,13 +59,13 @@ public class AlarmPushManagerActivity extends BaseActivity {
 
 		intialViews();
 		setListeners();
-
 	}
 
 	private void setListeners() {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// startPushSettingService();
 				saveSettingsToSharedPreference();
 				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
@@ -81,6 +82,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				startPushSettingService();
 				saveSettingsToSharedPreference();
 				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
@@ -127,7 +129,6 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				// boolean isSuc = ReadWriteXmlUtils.clearAllAlarmInfo();
 				boolean isSuc = ReadWriteXmlUtils.deleteAlarmInfoFile();
 				if (isSuc) {
 					showTost(getString(R.string.system_setting_pushset_clear_alarm_suc));
@@ -144,6 +145,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	}
 
 	private void intialViews() {
+		super.hideRightButton();
 		super.hideExtendButton();
 		super.getToolbarContainer().setVisibility(View.GONE);
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
@@ -168,12 +170,17 @@ public class AlarmPushManagerActivity extends BaseActivity {
 
 	/** 保存设置选项 **/
 	private void saveStarnetAndAlarmPushAccounts() {
+		getAllSettings();
 		if (!isAllAcc) {
-			PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+			if (PushManager.isPushEnabled(ctx.getApplicationContext())) {
+				PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+			}
 		} else {
 			api = Utils.getMetaValue(ctx.getApplicationContext(), "api_key");
 			int login = PushConstants.LOGIN_TYPE_API_KEY;
+			// if (PushManager.isPushEnabled(ctx.getApplicationContext())) {
 			PushManager.startWork(getApplicationContext(), login, api);
+			// }
 			if (isAcc) {
 				try {
 					saveAllAccounts();
@@ -214,8 +221,8 @@ public class AlarmPushManagerActivity extends BaseActivity {
 				String tag = uName + "" + pswd;
 				rTags.add(tag);
 			}
-			PushManager.setTags(ctx.getApplicationContext(), rTags);// 注册星云平台账户
 		}
+		PushManager.setTags(ctx.getApplicationContext(), rTags);// 注册星云平台账户
 	}
 
 	/** 删除推送账户，注册星云平台账户 **/
@@ -326,6 +333,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			 startPushSettingService();
 			saveSettingsToSharedPreference();
 			saveStarnetAndAlarmPushAccounts();
 			this.finish();
@@ -333,4 +341,15 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		return true;
 	}
 
+	private void getAllSettings() {
+		isAllAcc = alarmNotifyAdapter.isClickFlagAcc();
+		isSound = alarmNotifyAdapter.isClickFlagSou();
+		isShake = alarmNotifyAdapter.isClickFlagSha();
+		isAcc = alarmUserAdapter.isClickFlag();
+	}
+
+	private void startPushSettingService() {
+		Intent service = new Intent("syssetting.AlarmPushSettingService");
+		startService(service);
+	}
 }

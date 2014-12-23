@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,6 +22,7 @@ import android.util.Log;
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.syssetting.AlarmPushSettingService;
 import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -42,6 +44,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	/** TAG to Log */
 	public static final String TAG = AlarmReceiver.class.getSimpleName();
+	public static int ERROR_CODE;
 
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
@@ -70,9 +73,17 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 				+ " requestId=" + requestId;
 		Log.d(TAG, responseString);
 
-		// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
-		if (errorCode == 0) {
+		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
+			relFlag = 1;
+			delFlag = 1;
 			Utils.setBind(context, true);
+		} else {
+			Utils.setBind(context, false);
+			saveTagSuccOrFail(context, false);
+			AlarmPushSettingService.setCtx(context);
+			if (!started) {
+//				startRegOrDelService(context);// 开启服务
+			}
 		}
 	}
 
@@ -313,7 +324,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	}
 
 	private void controlSoundAndShake(Context ctx) {
-		SharedPreferences sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+		SharedPreferences sp = ctx
+				.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
 		boolean isShake = sp.getBoolean("isShake", true);
 		boolean isSound = sp.getBoolean("isSound", true);
 		final Context ct = ctx;
@@ -327,7 +339,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			}).start();
 		}
 		if (isShake) {
-			Vibrator vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+			Vibrator vibrator = (Vibrator) ctx
+					.getSystemService(Context.VIBRATOR_SERVICE);
 			long[] pattern = { 50, 200, 50, 200 };
 			vibrator.vibrate(pattern, -1);
 		}
@@ -373,6 +386,18 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		String responseString = "onSetTags errorCode=" + errorCode
 				+ " sucessTags=" + sucessTags + " failTags=" + failTags
 				+ " requestId=" + requestId;
+		if (errorCode == 0) {// 注册成功
+			relFlag = 1;
+			saveTagSuccOrFail(context, true);
+			closeRegOrDelService(context);
+		} else {// 注册失败
+			Utils.setBind(context, false);
+			saveTagSuccOrFail(context, false);
+			AlarmPushSettingService.setCtx(context);
+			if (!started) {
+//				startRegOrDelService(context);// 开启服务
+			}
+		}
 		Log.d(TAG, responseString);
 	}
 
@@ -396,6 +421,18 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		String responseString = "onDelTags errorCode=" + errorCode
 				+ " sucessTags=" + sucessTags + " failTags=" + failTags
 				+ " requestId=" + requestId;
+		if (errorCode == 0) {// 注册成功
+			delFlag = 1;
+			saveTagSuccOrFail(context, true);
+			closeRegOrDelService(context);
+		} else {
+			Utils.setBind(context, false);
+			saveTagSuccOrFail(context, false);
+			AlarmPushSettingService.setCtx(context);
+			if (!started) {
+//				startRegOrDelService(context);// 开启重新注册或者删除的服务
+			}
+		}
 		Log.d(TAG, responseString);
 	}
 
@@ -440,6 +477,38 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		if (errorCode == 0) {
 			Utils.setBind(context, false);
 		}
-		;
 	}
+
+	private static boolean started = false;
+	private static Intent intentService;
+	private SharedPreferences sp;
+	private final String PSXML = "PSXMLFILE";
+
+	/** 保存注册/删除的标志位的值isSucOrFail **/
+	private void saveTagSuccOrFail(Context ctx, boolean isSucOrFail) {
+		sp = ctx.getSharedPreferences(PSXML, Context.MODE_PRIVATE);
+		Editor edt = sp.edit();
+		edt.putBoolean("isRegOrDelSuc", isSucOrFail);
+		edt.commit();
+	}
+
+	/** 开启服务进程 **/
+//	private void startRegOrDelService(Context ctx) {
+//		if (intentService == null) {
+//			intentService = new Intent("syssetting.AlarmPushSettingService");
+//		}
+//		if (!started) {
+//			started = true;
+//		}
+//		ctx.getApplicationContext().startService(intentService);
+//	}
+
+	private void closeRegOrDelService(Context ctx) {
+		if (started) {
+			ctx.getApplicationContext().stopService(intentService);
+		}
+	}
+	
+	public static int relFlag = - 1;
+	public static int delFlag = - 1;
 }

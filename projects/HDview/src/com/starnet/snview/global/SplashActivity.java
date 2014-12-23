@@ -7,9 +7,11 @@ import com.baidu.android.pushservice.CustomPushNotificationBuilder;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmReceiver;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.RealplayActivity;
+import com.starnet.snview.syssetting.AlarmPushSettingService;
 import com.starnet.snview.util.AssetsUtil;
 import com.starnet.snview.util.FileUtility;
 
@@ -93,6 +95,7 @@ public class SplashActivity extends Activity {
 	}
 
 	private void startBaiduPushService() {
+		AlarmPushSettingService.setCtx(SplashActivity.this);
 		PushManager.startWork(getApplicationContext(),
 				PushConstants.LOGIN_TYPE_API_KEY,
 				Utils.getMetaValue(SplashActivity.this, "api_key"));

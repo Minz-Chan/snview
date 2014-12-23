@@ -113,10 +113,10 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	protected void deleteTags(CloudAccount clA) {
 		try {
 			List<String> delTags = new ArrayList<String>();
-			delTags.add(clA.getUsername() + ""
-					+ MD5Utils.createMD5(clA.getPassword()));
+			delTags.add(clA.getUsername() + "" + MD5Utils.createMD5(clA.getPassword()));
 			PushManager.delTags(ctx, delTags);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return;
 		}
 	}

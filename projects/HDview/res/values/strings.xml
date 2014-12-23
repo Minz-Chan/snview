@@ -139,6 +139,7 @@
     <string name="system_setting_alarm_pushset_exist_cover">已经存在该用户，是否覆盖？</string>
     <string name="system_setting_alarm_pushset_builer_identify_del">请进行验证后再删除</string>
     <string name="system_setting_alarm_pushset_builer_identify_add">请进行验证后再增加</string>
+    <string name="system_setting_pushset_saving">正在联网验证保存您的设置，请稍等&#8230;</string>
     <string name="system_setting_alarm_pushset_pswd_wrong">密码错误，请检查后再进行验证</string>
     <string name="system_setting_alarm_pushset_user_wrong">用户名错误，请检查后再进行验证</string>
     <string name="system_setting_corp_content_txt_chi">福建星网锐捷安防科技有限公司  版权所有</string>

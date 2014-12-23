@@ -217,6 +217,7 @@
             </intent-filter>
         </receiver>
 
+       
         <service
             android:name="com.baidu.android.pushservice.PushService"
             android:exported="true"
@@ -226,6 +227,14 @@
             </intent-filter>
         </service>
         <!-- push结束 -->
+        
+         <service
+            android:name="com.starnet.snview.syssetting.AlarmPushSettingService"
+             ><!-- android:process="remote" -->
+            <intent-filter>
+                <action android:name="syssetting.AlarmPushSettingService" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="api_key"
