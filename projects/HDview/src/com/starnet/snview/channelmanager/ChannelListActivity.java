@@ -182,7 +182,6 @@ public class ChannelListActivity extends BaseActivity {
 		});
 
 		search_edt.addTextChangedListener(new TextWatcher() {// 搜索查询事件
-
 					@Override
 					public void beforeTextChanged(CharSequence s, int start,
 							int count, int after) {
@@ -191,9 +190,7 @@ public class ChannelListActivity extends BaseActivity {
 					@Override
 					public void onTextChanged(CharSequence s, int start,
 							int before, int count) {
-
 						Editable able = search_edt.getText();
-
 						if (able != null) {
 							isFirstSearch = true;
 							String input_content = search_edt.getText()
@@ -253,29 +250,50 @@ public class ChannelListActivity extends BaseActivity {
 
 					@Override
 					public void onClick(View v) {
-						previewChannelList = new ArrayList<PreviewDeviceItem>();
-						previewChannelList = getPreviewChannelList(origin_cloudAccounts);
 
-						if (!isFirstSearch) {
-
-							if (previewChannelList.size() > 0) {
-								PreviewDeviceItem p = previewChannelList.get(0);
-
-								PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
-										.size()];
-								previewChannelList.toArray(l);
-
-								Intent intent = ChannelListActivity.this
-										.getIntent();
-								intent.putExtra("DEVICE_ITEM_LIST", l);
-
-								ChannelListActivity.this.setResult(8, intent);
-								ChannelListActivity.this.finish();
+						boolean isAllLoaded = checkCloudAccountsLoad();
+						if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
+							previewChannelList = new ArrayList<PreviewDeviceItem>();
+							previewChannelList = getPreviewChannelList(origin_cloudAccounts);
+							if (!isFirstSearch) {
+								if (previewChannelList.size() > 0) {
+									PreviewDeviceItem p = previewChannelList
+											.get(0);
+									PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
+											.size()];
+									previewChannelList.toArray(l);
+									Intent intent = ChannelListActivity.this
+											.getIntent();
+									intent.putExtra("DEVICE_ITEM_LIST", l);
+									ChannelListActivity.this.setResult(8,
+											intent);
+									ChannelListActivity.this.finish();
+								} else {
+									showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
+								}
 							} else {
-								showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
+								backAndLeftButtonOperation();
 							}
-						} else {
-							backAndLeftButtonOperation();
+						} else {// 如果某个用户的数据尚未加载完成，则用户需要使用原来的数据，进行播放
+							if (isAllUsersLoaded()) {
+								ChannelListActivity.this.finish();
+							} else {// 存在加载成功
+								List<PreviewDeviceItem> pItems = getPreviewItems();
+								if (pItems != null && pItems.size() > 0) {
+									PreviewDeviceItem p = pItems.get(0);
+									PreviewDeviceItem[] l = new PreviewDeviceItem[pItems
+											.size()];
+									pItems.toArray(l);
+									Intent intent = ChannelListActivity.this
+											.getIntent();
+									intent.putExtra("DEVICE_ITEM_LIST", l);
+									ChannelListActivity.this.setResult(8,
+											intent);
+									ChannelListActivity.this.finish();
+								} else {
+									showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
+								}
+							}
 						}
 					}
 				});
@@ -286,6 +304,97 @@ public class ChannelListActivity extends BaseActivity {
 				backAndLeftButtonOperation();
 			}
 		});
+	}
+
+	/** 检测所有的星云平台账户是否都未加载成功;如果都未加载返回true；否则，返回false **/
+	private boolean isAllUsersLoaded() {
+		boolean isAllLoad;
+		int loadNum = 0;
+		for (int i = 0; i < origin_cloudAccounts.size(); i++) {
+			CloudAccount ca = origin_cloudAccounts.get(i);
+			if (!ca.isRotate()) {// 未加载成功
+				loadNum++;
+			}
+		}
+		if (loadNum == origin_cloudAccounts.size()) {
+			isAllLoad = true;
+		} else {
+			isAllLoad = false;
+		}
+		return isAllLoad;
+	}
+
+	/** 获取预览通道列表项 **/
+	private List<PreviewDeviceItem> getPreviewItems() {
+		List<PreviewDeviceItem> pItems = new ArrayList<PreviewDeviceItem>();
+		for (int i = 0; i < origin_cloudAccounts.size(); i++) {
+			CloudAccount ca = origin_cloudAccounts.get(i);
+			if (ca.isRotate()) {// 加载完成，则获取用户选择的新数据
+				List<PreviewDeviceItem> items = getPItemsFromSpecify(ca);
+				if (items != null) {
+					for (int j = 0; j < items.size(); j++) {
+						pItems.add(items.get(j));
+					}
+				}
+			} else {// 该用户的数据未加载完成，则获取原理啊用户选择的旧数据
+				List<PreviewDeviceItem> items = getPItemsFromOrignalPItems(ca);
+				if (items != null) {
+					for (int j = 0; j < items.size(); j++) {
+						pItems.add(items.get(j));
+					}
+				}
+			}
+		}
+		return pItems;
+	}
+
+	private List<PreviewDeviceItem> getPItemsFromOrignalPItems(CloudAccount ca) {
+		List<PreviewDeviceItem> items = new ArrayList<PreviewDeviceItem>();
+		for (int i = 0; i < originPreviewChannelList.size(); i++) {
+			PreviewDeviceItem item = originPreviewChannelList.get(i);
+			if (item.getPlatformUsername().equals(ca.getUsername())) {
+				items.add(item);
+			}
+		}
+		return items;
+	}
+
+	/** 从指定的用户中获取收藏设备 **/
+	private List<PreviewDeviceItem> getPItemsFromSpecify(CloudAccount ca) {
+		List<PreviewDeviceItem> items = new ArrayList<PreviewDeviceItem>();
+		List<DeviceItem> dItms = ca.getDeviceList();
+		for (int i = 0; i < dItms.size(); i++) {
+			DeviceItem item = dItms.get(i);
+			List<Channel> chanels = item.getChannelList();
+			for (int j = 0; j < chanels.size(); j++) {
+				Channel chl = chanels.get(j);
+				if (chl.isSelected()) {
+					PreviewDeviceItem pItem = new PreviewDeviceItem();
+					pItem.setChannel(chl.getChannelNo());
+					pItem.setLoginPass(item.getLoginPass());
+					pItem.setLoginUser(item.getLoginUser());
+					pItem.setSvrIp(item.getSvrIp());
+					pItem.setSvrPort(item.getSvrPort());
+					String dName = item.getDeviceName();
+					pItem.setPlatformUsername(item.getPlatformUsername());
+					int len = dName.length();
+					String wordLen = getString(R.string.device_manager_off_on_line_length);
+					int wordLength = Integer.valueOf(wordLen);
+					if (len >= wordLength) {
+						String showName = dName.substring(0, wordLength);
+						String word3 = getString(R.string.device_manager_online_en);
+						String word4 = getString(R.string.device_manager_offline_en);
+						if (showName.contains(word3)
+								|| showName.contains(word4)) {
+							dName = dName.substring(wordLength);
+						}
+					}
+					pItem.setDeviceRecordName(dName);
+					items.add(pItem);
+				}
+			}
+		}
+		return items;
 	}
 
 	private void setOriginCloudAccountsEnable() {
@@ -306,69 +415,6 @@ public class ChannelListActivity extends BaseActivity {
 			previewChannelList2.add(previewSearchList.get(i));
 		}
 		return previewChannelList2;
-	}
-
-	protected List<PreviewDeviceItem> getPreviewChannelFromSearchList(
-			List<CloudAccount> searchList) {
-		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
-		if ((searchList == null) || (searchList.size() < 1)) {
-			return null;
-		} else {
-			int size = searchList.size();
-			for (int i = 0; i < size; i++) {
-				CloudAccount cloudAccount = searchList.get(i);
-				List<DeviceItem> deviceItems = cloudAccount.getDeviceList();
-				if (deviceItems != null) {
-					int deviceSize = deviceItems.size();
-					for (int j = 0; j < deviceSize; j++) {
-						DeviceItem deviceItem = deviceItems.get(j);
-						List<Channel> channelList = deviceItem.getChannelList();
-						if (channelList != null) {
-							int channelSize = channelList.size();
-							for (int k = 0; k < channelSize; k++) {
-								Channel channel = channelList.get(k);
-								if (channel.isSelected()) {// 判断通道列表是否选择
-									PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
-									previewDeviceItem.setChannel(channel
-											.getChannelNo());
-									previewDeviceItem.setLoginPass(deviceItem
-											.getLoginPass());
-									previewDeviceItem.setLoginUser(deviceItem
-											.getLoginUser());
-									previewDeviceItem.setSvrIp(deviceItem
-											.getSvrIp());
-									previewDeviceItem.setSvrPort(deviceItem
-											.getSvrPort());
-									String deviceName = deviceItem
-											.getDeviceName();
-									previewDeviceItem
-											.setPlatformUsername(deviceItem
-													.getPlatformUsername());
-									int len = deviceName.length();
-									String wordLen = getString(R.string.device_manager_off_on_line_length);
-									int wordLength = Integer.valueOf(wordLen);
-									if (len >= wordLength) {
-										String showName = deviceName.substring(
-												0, wordLength);
-										String w3 = getString(R.string.device_manager_online_en);
-										String w4 = getString(R.string.device_manager_offline_en);
-										if (showName.contains(w3)
-												|| showName.contains(w4)) {
-											deviceName = deviceName
-													.substring(wordLength);
-										}
-									}
-									previewDeviceItem
-											.setDeviceRecordName(deviceName);
-									previewList.add(previewDeviceItem);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		return previewList;
 	}
 
 	private void backAndLeftButtonOperation() {
@@ -415,6 +461,7 @@ public class ChannelListActivity extends BaseActivity {
 		}
 	}
 
+	/** 检测星云用户是否已经将数据加载完毕 **/
 	private boolean checkCloudAccountsLoad() {
 		boolean allLoad = true;
 		for (int i = 0; i < origin_cloudAccounts.size(); i++) {
@@ -521,7 +568,8 @@ public class ChannelListActivity extends BaseActivity {
 					cAccount.setRotate(true);
 				}
 				if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
-					netThread = new NetCloudAccountThread(cAccount,netHandler, i);
+					netThread = new NetCloudAccountThread(cAccount, netHandler,
+							i);
 					netThread.start();// 线程开启，进行网络访问
 				}
 			}
@@ -571,29 +619,22 @@ public class ChannelListActivity extends BaseActivity {
 				if (deviceItems != null) {
 					int deviceSize = deviceItems.size();
 					for (int j = 0; j < deviceSize; j++) {
-						DeviceItem deviceItem = deviceItems.get(j);
-						List<Channel> channelList = deviceItem.getChannelList();
+						DeviceItem dItem = deviceItems.get(j);
+						List<Channel> channelList = dItem.getChannelList();
 						if (channelList != null) {
 							int channelSize = channelList.size();
 							for (int k = 0; k < channelSize; k++) {
 								Channel channel = channelList.get(k);
 								if (channel.isSelected()) {// 判断通道列表是否选择
-									PreviewDeviceItem previewDeviceItem = new PreviewDeviceItem();
-									previewDeviceItem.setChannel(channel
-											.getChannelNo());
-									previewDeviceItem.setLoginPass(deviceItem
-											.getLoginPass());
-									previewDeviceItem.setLoginUser(deviceItem
-											.getLoginUser());
-									previewDeviceItem.setSvrIp(deviceItem
-											.getSvrIp());
-									previewDeviceItem.setSvrPort(deviceItem
-											.getSvrPort());
-									String deviceName = deviceItem
-											.getDeviceName();
-									previewDeviceItem
-											.setPlatformUsername(deviceItem
-													.getPlatformUsername());
+									PreviewDeviceItem pItem = new PreviewDeviceItem();
+									pItem.setChannel(channel.getChannelNo());
+									pItem.setLoginPass(dItem.getLoginPass());
+									pItem.setLoginUser(dItem.getLoginUser());
+									pItem.setSvrIp(dItem.getSvrIp());
+									pItem.setSvrPort(dItem.getSvrPort());
+									String deviceName = dItem.getDeviceName();
+									pItem.setPlatformUsername(dItem
+											.getPlatformUsername());
 									int len = deviceName.length();
 									String wordLen = getString(R.string.device_manager_off_on_line_length);
 									int wordLength = Integer.valueOf(wordLen);
@@ -609,10 +650,8 @@ public class ChannelListActivity extends BaseActivity {
 										}
 									}
 
-									previewDeviceItem
-											.setDeviceRecordName(deviceName);
-
-									previewList.add(previewDeviceItem);
+									pItem.setDeviceRecordName(deviceName);
+									previewList.add(pItem);
 								}
 							}
 						}
