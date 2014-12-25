@@ -48,16 +48,18 @@ public class AlarmImageFileCache {
 	}
 
 	private static String getApplicationName() {
-		PackageManager packageManager = null;
-		ApplicationInfo applicationInfo = null;
+		PackageManager pkManager = null;
+		ApplicationInfo appInfo = null;
 		try {
-			packageManager = context.getApplicationContext().getPackageManager();
-			applicationInfo = packageManager.getApplicationInfo(context.getPackageName(), 0);
+			Context ctx = context.getApplicationContext();
+			pkManager = ctx.getPackageManager();
+			appInfo = pkManager.getApplicationInfo(context.getPackageName(), 0);
 		} catch (PackageManager.NameNotFoundException e) {
-			applicationInfo = null;
+			appInfo = null;
 		}
-		String applicationName = (String) packageManager.getApplicationLabel(applicationInfo);
-		return applicationName+"/alarmImg/";
+		String applicationName = (String) pkManager
+				.getApplicationLabel(appInfo);
+		return applicationName + "/alarmImg/";
 	}
 
 }

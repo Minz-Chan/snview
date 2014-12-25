@@ -5,11 +5,9 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,9 +18,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-//import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ExpandableListView.OnGroupCollapseListener;
-import android.widget.ExpandableListView.OnGroupExpandListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
@@ -136,15 +132,18 @@ public class AlarmActivity extends BaseActivity {
 				return true;
 			}
 		});
-
-		alarmListView.setOnGroupExpandListener(new OnGroupExpandListener() {
+		
+		alarmListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
-			public void onGroupExpand(int groupPosition) {
-			}
-		});
-		alarmListView.setOnGroupCollapseListener(new OnGroupCollapseListener() {
-			@Override
-			public void onGroupCollapse(int groupPosition) {
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+				Intent intent = new Intent();
+				intent.setClass(mContext, AlarmContentActivity.class);
+				intent.putExtra("position", groupPosition);
+				AlarmDevice aD = alarmInfoList.get(groupPosition).getAlarm();
+				intent.putExtra("alarmDevice", aD);
+				startActivityForResult(intent, ALARM_CONTEN_DIALOG);
+				return true;
 			}
 		});
 	}
@@ -205,27 +204,27 @@ public class AlarmActivity extends BaseActivity {
 		});
 	}
 
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case IMAGE_LOAD_DIALOG:
-			imgprogress = new ProgressDialog(this);
-			imgprogress.setMessage(getString(R.string.alarm_iamgeload_wait));
-			imgprogress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			imgprogress.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					listviewAdapter.cancel(true);
-					if (imgprogress != null) {
-						imgprogress.dismiss();
-					}
-				}
-			});
-			return imgprogress;
-		default:
-			return null;
-		}
-	}
+//	@Override
+//	protected Dialog onCreateDialog(int id) {
+//		switch (id) {
+//		case IMAGE_LOAD_DIALOG:
+//			imgprogress = new ProgressDialog(this);
+//			imgprogress.setMessage(getString(R.string.alarm_iamgeload_wait));
+//			imgprogress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//			imgprogress.setOnCancelListener(new OnCancelListener() {
+//				@Override
+//				public void onCancel(DialogInterface dialog) {
+//					listviewAdapter.cancel(true);
+//					if (imgprogress != null) {
+//						imgprogress.dismiss();
+//					}
+//				}
+//			});
+//			return imgprogress;
+//		default:
+//			return null;
+//		}
+//	}
 
 	private void setNewAlarmDevices() {
 		if ((alarmInfoList != null && alarmInfoList.size() > 0)) {
@@ -262,6 +261,7 @@ public class AlarmActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		isContentBack = true;
 		if (requestCode == IMAGE_LOAD_DIALOG) {
 			if (data != null) {
 				boolean alarmCancel = data
@@ -282,6 +282,7 @@ public class AlarmActivity extends BaseActivity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			isContentBack = true;
 			cancel = true;
 			if (listviewAdapter != null) {
 				listviewAdapter.cancel(cancel);

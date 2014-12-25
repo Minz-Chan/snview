@@ -6,12 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 
 @SuppressLint("SdCardPath")
 public class AlarmImageDownLoadTask {
@@ -25,15 +29,19 @@ public class AlarmImageDownLoadTask {
 	private boolean timeoutover;
 	private Thread timeoutThread;
 	private Thread imgeLoadThread;
-	private final int TIMEOUT = 18;
-	private boolean isDownloadSuc = true;
+	private final int TIMEOUT = 7;
+//	private boolean isDownloadSuc = true;
+	private final int TIMOUTCODE = 0x0002;// 超时发送标志
+	private final int LOADSUCCESS = 0x0004;
 	private final int REQUESTCODE = 0x0023;
+	private final int DOWNLOADFAILED = 0x0003;
+	private boolean isDownloadFailOver = false;
+	private boolean isStartDownloadOver = false;
 	protected final String TAG = "AlarmImageDownLoadTask";
-//	private final String imagePath = "/data/data/com.starnet.snview/alarmImg";
 	private final String imagePath = "/mnt/sdcard/SNview/alarmImg";
 
 	public AlarmImageDownLoadTask(String imageUrl, Context context,Handler handler) {
-		
+
 		this.handler = handler;
 		this.mContext = context;
 		this.imageUrl = imageUrl;
@@ -43,14 +51,13 @@ public class AlarmImageDownLoadTask {
 				super.run();
 				boolean canRun = true;
 				int timeCount = 0;
-				while (canRun&&!timeoutover) {
+				while (canRun && !timeoutover) {
 					try {
 						Thread.sleep(1000);
 						timeCount++;
 						if (timeCount == TIMEOUT) {
 							canRun = false;
-							isTimeOut = true;
-							if (!isCanceled&&isTimeOut) {
+							if (!isCanceled && isTimeOut) {
 								onTimeOut();
 							}
 						}
@@ -63,29 +70,69 @@ public class AlarmImageDownLoadTask {
 
 		imgeLoadThread = new Thread() {
 			byte[] imgData = null;
+
 			@Override
 			public void run() {
 				super.run();
 				try {
 					imgData = startDownloadImage();// 耗时操作
+					sendDataToImgActivity(imgData);
 				} catch (IOException e) {
 					onDownloadFailed();// 下载失败的处理
-				} finally {
-					if (isDownloadSuc&&!isCanceled && !isTimeOut) {
-						onStartFinished(imgData);
-					}
-				}
+				} 
+//				finally {
+//					if (isDownloadSuc && !isCanceled && !isTimeOut) {
+//						onStartFinished(imgData);
+//					}
+//				}
 			}
 		};
 	}
 
-	/***下载失败的处理**/
-	protected void onDownloadFailed() {
-		isDownloadSuc = false;
+	private void sendDataToImgActivity(byte[] imgData) {
+		if (!isStartDownloadOver && !isCanceled) {
+			if (imgData == null) {
+				return;
+			}
+			Message msg = new Message();
+			if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
+				createMkdir();
+				String[] urls = imageUrl.split("/");
+				String imagename = urls[urls.length - 1];
+				String fImgPath = imagePath + "/" + imagename;
+				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
+				Bundle data = new Bundle();
+				data.putByteArray("image", imgData);
+				msg.setData(data);
+				msg.what = LOADSUCCESS;
+				handler.sendMessage(msg);
+			} else {
+				Intent intent = new Intent();
+				intent.putExtra("image", imgData);
+				intent.setClass(mContext, AlarmImageActivity.class);
+				getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
+			}
+		}
+		isStartDownloadOver = true;
+		isDownloadFailOver = true;
+//		isDownloadSuc = true;
 		timeoutover = true;
 	}
 
-	/***下载图像文件成功的处理**/
+	/*** 下载失败的处理 **/
+	protected void onDownloadFailed() {
+		if (!isDownloadFailOver && isCanceled) {
+			Message msg = new Message();
+			msg.what = DOWNLOADFAILED;
+			handler.sendMessage(msg);
+		}
+		isStartDownloadOver = true;
+		isDownloadFailOver = true;
+//		isDownloadSuc = false;
+		timeoutover = true;
+	}
+
+	/*** 下载图像文件成功的处理 **/
 	protected void onStartFinished(byte[] imgData) {
 		timeoutover = true;
 		if (getAlarmActivity().imgprogress != null) {
@@ -93,9 +140,8 @@ public class AlarmImageDownLoadTask {
 		}
 		if (imgData == null) {
 			return;
-		}		
+		}
 		if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
-			
 			createMkdir();
 			String[] urls = imageUrl.split("/");
 			String imagename = urls[urls.length - 1];
@@ -111,15 +157,16 @@ public class AlarmImageDownLoadTask {
 		intent.setClass(getAlarmActivity(), AlarmImageActivity.class);
 		getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
 	}
-	
-	/***创建文件夹***/
-	private void createMkdir(){
+
+	/*** 创建文件夹 ***/
+	private void createMkdir() {
 		File file = new File(imagePath);
 		if (!file.exists() && !file.isDirectory()) {
-			file .mkdir();
+			file.mkdir();
 		}
 	}
-	/***开始从网络上下载数据**/
+
+	/*** 开始从网络上下载数据 **/
 	protected byte[] startDownloadImage() throws IOException {
 		byte[] data = null;
 		URL url = new URL(imageUrl);
@@ -132,7 +179,8 @@ public class AlarmImageDownLoadTask {
 		}
 		return data;
 	}
-	/***从输入流中读取数据，并包装成byte数组**/
+
+	/*** 从输入流中读取数据，并包装成byte数组 **/
 	private byte[] readStream(InputStream inPutStream) throws IOException {
 		int len = 0;
 		byte[] buffer = new byte[1024];
@@ -149,6 +197,8 @@ public class AlarmImageDownLoadTask {
 		isTimeOut = false;
 		isCanceled = false;
 		timeoutover = false;
+		isDownloadFailOver = false;
+		isStartDownloadOver = false;
 		imgeLoadThread.start();
 		timeoutThread.start();
 	}
@@ -157,13 +207,16 @@ public class AlarmImageDownLoadTask {
 	 * 超时处理函数
 	 */
 	protected void onTimeOut() {
-		isTimeOut = true;
-		if (getAlarmActivity().imgprogress != null && !isCanceled) {
-			getAlarmActivity().imgprogress.dismiss();
-			handler.sendEmptyMessage(0);
+		if (!isTimeOut && !isCanceled) {
+			Message msg = new Message();
+			msg.what = TIMOUTCODE;
+			handler.sendMessage(msg);
 		}
+		isTimeOut = true;
+		isDownloadFailOver = true;
+		isStartDownloadOver = true;
 	}
-	
+
 	public void setCancel(boolean isCanceled) {
 		this.isCanceled = isCanceled;
 	}
@@ -172,8 +225,8 @@ public class AlarmImageDownLoadTask {
 		this.deviceName = deviceName;
 	}
 
-	public AlarmActivity getAlarmActivity() {
-		return (AlarmActivity) mContext;
+	private AlarmContentActivity getAlarmActivity() {
+		return (AlarmContentActivity) mContext;
 	}
-	
+
 }

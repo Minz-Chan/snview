@@ -68,7 +68,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public int getChildrenCount(int groupPosition) {
-		return 1;
+		return 0;
 	}
 
 	@Override
@@ -114,11 +114,12 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 		almTime.setText(time);
 
 		ImageView aImg = (ImageView) convertView.findViewById(R.id.arrowimg);
-		if (isExpanded) {
-			aImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
-		} else {
-			aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
-		}
+		aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
+//		if (isExpanded) {
+//			aImg.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
+//		} else {
+//			aImg.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
+//		}
 //		if (groupPosition == almList.size() - 1) {
 //			// View view = convertView.findViewById(R.id.view);
 //			int resId = getColor(R.color.gray_transplate);
@@ -273,10 +274,6 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 	public static int getGroupPos() {
 		return groupPos;
 	}
-
-//	private int getColor(int resid) {
-//		return ctx.getResources().getColor(resid);
-//	}
 
 	public static void setGroupPos(int groupPos) {
 		AlarmDeviceAdapter.groupPos = groupPos;

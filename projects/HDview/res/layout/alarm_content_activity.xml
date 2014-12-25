@@ -354,6 +354,30 @@
                     android:inputType="textMultiLine" />
             </LinearLayout>
         </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+            android:gravity="center_horizontal" >
+
+            <Button
+                android:id="@+id/imgBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:text="@string/alarm_manageradapter_imageload" >
+            </Button>
+
+            <Button
+                android:id="@+id/vdoBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:text="@string/alarm_manageradapter_videopreview" >
+            </Button>
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView> <!-- </LinearLayout> -->

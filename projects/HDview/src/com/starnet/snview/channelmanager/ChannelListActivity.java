@@ -52,7 +52,7 @@ public class ChannelListActivity extends BaseActivity {
 	private long end_time = 0;
 	private int title_num = 0;
 	private Context curContext;
-	private TextView titleView;// 通道列表
+	private TextView titleView;// 通道列表标题栏
 	private Button rightButton;
 
 	private long start_time = 0;
