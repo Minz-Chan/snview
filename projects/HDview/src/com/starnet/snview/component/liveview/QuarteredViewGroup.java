@@ -846,6 +846,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
+		if (!isLayoutCompleted) {
+			return true;  // If layout has not finished, touch motion make no sense.
+		}
+		
 		if (velocityTracker == null) {
 			velocityTracker = VelocityTracker.obtain();
 		}
