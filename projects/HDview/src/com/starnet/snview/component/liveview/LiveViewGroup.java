@@ -1024,6 +1024,16 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 
 		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			Log.d(TAG, "onSingleTapUp");
+			if (singleClickListener != null) {
+				singleClickListener.onClick(LiveViewGroup.this);
+			}
+			
+			return super.onSingleTapUp(e);
+		}
+
+		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
 //			Log.d(TAG, "velocityX:" + velocityX + ", velocityY:" + velocityY);
@@ -1095,7 +1105,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			//isVelocityMeetScrollCondition(e1, e2);
 			if (isPTZMoving 
 					|| !isVelocityMeetScrollCondition(e1, e2)) {
-				return true;
+				return false;
 			}
 			
 			int[] slideDirections = calcActionDirection(e1, e2, SLIDING_DISTANCE);

@@ -517,8 +517,8 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 						Log.d(TAG, "scrollTo(Single), getWidth():" + getWidth() 
 								+ ", screenIndex:" + screenIndex);
 					}
-					scrollTo(getWidth()*screenIndex, 0); // Scroll to specific index
 					performViewsLayoutSingle();
+					scrollTo(getWidth()*screenIndex, 0); // Scroll to specific index
 					privateFlags &= ~PFLAGS_LAYOUT_NEED_UPDATE_ALL;  // Clear flag
 					
 					adjustSlidingWindow();  // adjust sliding window
@@ -583,12 +583,19 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 		}
 		
 		// Sub views apply new positions, pageRects[windowLeftIndex, windowRightIndex]
+		// Layout in reverse order to avoid persistence of vision of multiple-channel mode
 		int size = windowRightIndex - windowLeftIndex + 1;
-		for (int i = 0; i < size; i++) {
+		for (int i = size-1; i >= 0; i--) {
 			Rect pageRect = screenRects.get(windowLeftIndex + i);
 			reusedViews.get(i).layout(pageRect.left, pageRect.top, pageRect.right, pageRect.bottom);
 			onSubViewLayoutCompleted(reusedViews.get(i), true);
 		}
+		/*
+		for (int i = 0; i < size; i++) {
+			Rect pageRect = screenRects.get(windowLeftIndex + i);
+			reusedViews.get(i).layout(pageRect.left, pageRect.top, pageRect.right, pageRect.bottom);
+			onSubViewLayoutCompleted(reusedViews.get(i), true);
+		}*/
 	}
 	
 	/**
@@ -846,6 +853,10 @@ public abstract class QuarteredViewGroup extends ViewGroup {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
+		if (!isLayoutCompleted) {
+			return true;  // If layout has not finished, touch motion make no sense.
+		}
+		
 		if (velocityTracker == null) {
 			velocityTracker = VelocityTracker.obtain();
 		}
