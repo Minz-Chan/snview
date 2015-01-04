@@ -5,7 +5,6 @@ import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.content.Context;
 import android.view.LayoutInflater;
