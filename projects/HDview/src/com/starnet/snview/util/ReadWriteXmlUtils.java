@@ -39,6 +39,8 @@ public class ReadWriteXmlUtils {
 
 	private static String INDENT = "";
 	private static String CHARSET = "UTF-8";
+	
+	public static boolean expandFlag = false;
 
 	/**
 	 * 持久化报警信息到XML文件中

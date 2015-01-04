@@ -1,10 +1,11 @@
 package com.starnet.snview.playback;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -12,8 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -27,7 +28,7 @@ import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "SimpleDateFormat" })
 public class TimeSettingActivity extends BaseActivity {
 
 	private int dayNum;
@@ -37,7 +38,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private int poor;
 
 	private Context ctx;
-	private Button okBtn;
 	private WheelView day;
 	private WheelView hour;
 	private WheelView year;
@@ -72,7 +72,6 @@ public class TimeSettingActivity extends BaseActivity {
 
 	/** 为用户添加设备数据 **/
 	private void setExtPandableListview() {
-
 		List<CloudAccount> accounts = getCloudAccounts();
 		List<CloudAccount> users = testData();
 		actsAdapter = new AccountsPlayBackExpanableAdapter(ctx, users);
@@ -113,6 +112,20 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		});
 
+		cloudAccountView.setOnGroupClickListener(new OnGroupClickListener() {
+
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+				if (RealPlaybackStateUtils.exapandFlag) {
+					RealPlaybackStateUtils.exapandFlag = false;
+				} else {
+					RealPlaybackStateUtils.exapandFlag = true;
+				}
+				return false;
+			}
+		});
+
 		starttimeView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -122,12 +135,10 @@ public class TimeSettingActivity extends BaseActivity {
 					popupWindow.dismiss();
 				} else {
 					popupWindow.showAsDropDown(v);
+					popupWindow.setFocusable(false);
+					popupWindow.setOutsideTouchable(true);
+					popupWindow.update();
 				}
-
-				// Intent intent = new Intent();
-				// intent.putExtra("flag", "start");
-				// intent.setClass(ctx, TimeDialogActivity.class);
-				// startActivityForResult(intent, TIMEDIALOG);
 			}
 		});
 
@@ -141,12 +152,10 @@ public class TimeSettingActivity extends BaseActivity {
 					popupWindow.dismiss();
 				} else {
 					popupWindow.showAsDropDown(v);
+					popupWindow.setFocusable(false);
+					popupWindow.setOutsideTouchable(true);
+					popupWindow.update();
 				}
-
-				// Intent intent = new Intent();
-				// intent.putExtra("flag", "end");
-				// intent.setClass(ctx, TimeDialogActivity.class);
-				// startActivityForResult(intent, TIMEDIALOG);
 			}
 		});
 		imgBtn.setOnClickListener(new OnClickListener() {
@@ -178,7 +187,17 @@ public class TimeSettingActivity extends BaseActivity {
 		cloudAccountView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
 		cloudAccountView.setGroupIndicator(null);
 
+		setCurrentTimeForTxt();
+
 		initPopupWindow();
+	}
+
+	private void setCurrentTimeForTxt() {
+		Date d = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String dateNowStr = sdf.format(d);
+		endtimeTxt.setText(dateNowStr);
+		startTimeTxt.setText(dateNowStr);
 	}
 
 	private void initPopupWindow() {
@@ -186,28 +205,16 @@ public class TimeSettingActivity extends BaseActivity {
 		View view = inflater.inflate(R.layout.time_dialog, null);
 		popupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT);
-		// popupWindow.setOutsideTouchable(true);
-		// popupWindow.setFocusable(true);
 		View view2 = popupWindow.getContentView();
-		okBtn = (Button) view2.findViewById(R.id.okBtn);
-		// cancelBtn = (Button) view2.findViewById(R.id.cancelBtn);
 
 		year = (WheelView) view2.findViewById(R.id.year);
 		month = (WheelView) view2.findViewById(R.id.month);
 		day = (WheelView) view2.findViewById(R.id.day);
 		hour = (WheelView) view2.findViewById(R.id.hour);
 		minute = (WheelView) view2.findViewById(R.id.minute);
-
+		popupWindow.setAnimationStyle(R.style.PopupAnimation);
 		setWheelView();
 
-		okBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (popupWindow.isShowing()) {
-					popupWindow.dismiss();
-				}
-			}
-		});
 	}
 
 	private void setWheelView() {
@@ -220,30 +227,31 @@ public class TimeSettingActivity extends BaseActivity {
 
 		yearAdapter = new NumericWheelAdapter(2000, c1.get(Calendar.YEAR));
 		year.setAdapter(yearAdapter);
-		year.setLabel("年");
+		year.setLabel(null);
 		year.setCyclic(true);
 		year.setCurrentItem(curyear);
 		curMonth += 1;
 
 		monthAdapter = new NumericWheelAdapter(1, 12, "%02d");
 		month.setAdapter(monthAdapter);
-		month.setLabel("月");
+		month.setLabel(null);
 		month.setCyclic(true);
 
 		dayNum = setwheelDay(curyear, curMonth);
 		dayAdapter = new NumericWheelAdapter(1, dayNum, "%02d");
 		day.setAdapter(dayAdapter);
-		day.setLabel("日");
+		day.setLabel(null);
 		day.setCyclic(true);
 
 		hourAdapter = new NumericWheelAdapter(0, 23, "%02d");
 		hour.setAdapter(hourAdapter);
-		hour.setLabel("时");
+		hour.setLabel(null);
 		hour.setCyclic(true);
 
 		minuteAdapter = new NumericWheelAdapter(0, 59, "%02d");
 		minute.setAdapter(minuteAdapter);
-		minute.setLabel("分");
+		// minute.setLabel("分");
+		minute.setLabel(null);
 		minute.setCyclic(true);
 
 		year.setCurrentItem(curyear + 10);
@@ -336,7 +344,6 @@ public class TimeSettingActivity extends BaseActivity {
 		int endSeconds = endData[3] * 3600 + endData[4] * 60;
 		int startSeconds = startData[3] * 3600 + startData[4] * 60;
 
-		
 		return isExt;
 	}
 

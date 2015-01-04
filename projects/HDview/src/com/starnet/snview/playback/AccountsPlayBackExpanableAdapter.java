@@ -5,12 +5,16 @@ import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter {
@@ -79,6 +83,12 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		}
 		TextView txt = (TextView) convertView.findViewById(R.id.account_name);
 		txt.setText(users.get(groupPosition).getUsername());
+		ImageView arrow = (ImageView) convertView.findViewById(R.id.arrow);
+		if (RealPlaybackStateUtils.exapandFlag) {
+			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
+		}else {
+			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
+		}
 		return convertView;
 	}
 
@@ -90,8 +100,29 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 					R.layout.playback_deviceitems_act, null);
 		}
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
-		txt.setText(users.get(groupPosition).getDeviceList().get(childPosition)
-				.getDeviceName());
+		txt.setText(users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName());
+		
+		final Button stateBtn = (Button) convertView.findViewById(R.id.stateBtn);
+		if (RealPlaybackStateUtils.stateFlag) {
+			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
+		}else {
+			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
+		}
+		stateBtn.setOnClickListener(new OnClickListener() {
+			private boolean clickFlag = false;
+			@Override
+			public void onClick(View v) {
+				if (clickFlag) {
+					clickFlag = false;
+					stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
+					notifyDataSetChanged();
+				}else{
+					clickFlag = true;
+					stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
+					notifyDataSetChanged();
+				}	
+			}
+		});
 		return convertView;
 	}
 

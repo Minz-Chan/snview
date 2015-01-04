@@ -71,12 +71,6 @@
         android:layout_marginTop="5.0dip"
         android:gravity="center_horizontal" >
 
-        <Button
-            android:id="@+id/okBtn"
-            android:layout_width="300.0dip"
-            android:layout_height="wrap_content"
-            android:text="确定" />
-
         <!-- <Button
             android:id="@+id/cancelBtn"
             android:layout_width="wrap_content"

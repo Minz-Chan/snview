@@ -51,10 +51,10 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/button_channel_list"
+            android:id="@+id/stateBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/channel_listview_device_channel_btn_selector" />
+            android:background="@drawable/channellist_select_empty" />
     </LinearLayout>
 
 </LinearLayout>
