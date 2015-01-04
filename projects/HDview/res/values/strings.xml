@@ -262,5 +262,9 @@
     <string name="alarm_iamgeload_wait">图片正在下载,请等待&#8230;</string>
     <string name="alarm_videoload_wait">视频正在下载,请等待&#8230;</string>
     <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
+    <string name="playback_click_start_scan">开始回放</string>
+    <string name="playback_setting_end_time">结束时间</string>
+    <string name="playback_setting_start_time">开始时间</string>
+    <string name="playback_click_input_time">点击输入时间</string>
 
 </resources>

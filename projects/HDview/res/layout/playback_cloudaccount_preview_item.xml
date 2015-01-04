@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/liveview_extend_bar"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    android:weightSum="10.0" >
+
+    <LinearLayout
+        android:layout_width="0.0dip"
+        android:layout_height="@dimen/channel_listview_account_item_height"
+        android:layout_weight="1.0" >
+
+        <ProgressBar
+            android:id="@+id/progressBar_net_load"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progress="10"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0.0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0"
+        android:gravity="center" >
+
+        <ImageView
+            android:id="@+id/item_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/channel_listview_account_sel"
+            android:contentDescription="@string/nothing" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/account_name"
+        android:layout_width="0.0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="5.14"
+        android:paddingLeft="15sp"
+        android:text="@string/system_setting_cloudaccount_username"
+        android:textColor="@color/black"
+        android:textSize="@dimen/common_textsize_small_18sp" />
+
+    <LinearLayout
+        android:layout_width="0.0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="2.5"
+        android:gravity="center|right" >
+
+        <ImageView
+            android:id="@+id/arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/channel_listview_right_arrow_selector"
+            android:contentDescription="@string/nothing" />
+    </LinearLayout>
+
+</LinearLayout>

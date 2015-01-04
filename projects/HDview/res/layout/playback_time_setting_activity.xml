@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="#FFFFFF"
+    android:orientation="vertical" >
+
+    <!-- android:background="#FFFFFF" -->
+
+
+    <!-- android:gravity="center_vertical" -->
+
+    <RelativeLayout
+        android:id="@+id/input_starttime_view"
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:background="@drawable/liveview_extend_bar" >
+
+        <TextView
+            android:id="@+id/start_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20.0dip"
+            android:layout_toRightOf="@+id/imageView1"
+            android:text="@string/playback_setting_start_time"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/starttime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:layout_toRightOf="@+id/start_time"
+            android:text="@string/playback_click_input_time"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignTop="@+id/start_time"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="48dp"
+            android:contentDescription="@string/nothing"
+            android:src="@drawable/channel_listview_account_sel" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/frameLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="80.0dip"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@color/channel_listview_device_item_bg" >
+
+        <ImageButton
+            android:id="@+id/startScan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/channel_listview_preview_selector"
+            android:contentDescription="@string/nothing" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/playback_click_start_scan"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/common_textsize_middle_20sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/divider"
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:layout_below="@+id/input_starttime_view"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/input_endtime_view"
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/divider"
+        android:layout_centerVertical="true"
+        android:background="@drawable/liveview_extend_bar" >
+
+        <!-- android:src="@drawable/playback_clock" -->
+
+        <TextView
+            android:id="@+id/end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20.0dip"
+            android:layout_toRightOf="@+id/imageView2"
+            android:text="@string/playback_setting_end_time"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/endtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="24dp"
+            android:layout_toRightOf="@+id/end_time"
+            android:text="@string/playback_click_input_time"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="48dp"
+            android:contentDescription="@string/nothing"
+            android:src="@drawable/channel_listview_account_sel" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/divider2"
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:layout_below="@+id/input_endtime_view"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <ExpandableListView
+        android:id="@+id/cloudaccountExtListview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/frameLayout1"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/divider2" >
+    </ExpandableListView>
+
+</RelativeLayout>
