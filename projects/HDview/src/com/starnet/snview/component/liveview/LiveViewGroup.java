@@ -152,7 +152,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			// Reset the variable associated with double-clicked event
 			// so we can know who trigger the mode change event
 			mDoubleClickedIndex = -1;
-			mDoubleClickedLiveView = null;			
+			mDoubleClickedLiveView = null;		
 		}
 
 		@Override
@@ -311,6 +311,13 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			if (GlobalApplication.getInstance().isIsFullMode()
 					&& mLiveControl.getLandscapeToolbar().isLandToolbarShow()) { // 更新工具栏页码
 				mLiveControl.getLandscapeToolbar().showLandscapeToolbar();
+			}
+			
+			// Set the flag to control PTZ action
+			if (getScreenMode() == MODE.SINGLE) {
+				mPtzControl.setIsEnterPTZInSingleMode(true);
+			} else {
+				mPtzControl.setIsEnterPTZInSingleMode(false);
 			}
 		}
 	};
@@ -764,8 +771,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		mDevices = devices;
 		mToBeRemovedLiveviews.clear();
 		if (relayout) {
-			if (oldDevicesSize != mDevices.size()) { 
-				regenerateLayout(getScreenMode(), mDevices.size(), 0);
+			if (oldDevicesSize != mDevices.size() || mDevices.size() == 1) {
+				// When device size is 1, then mode must be single
+				regenerateLayout(mDevices.size() > 1 ? getScreenMode() : MODE.SINGLE
+						, mDevices.size(), 0);
 			} else { // Do not need to regenerate layout, just update
 					 // LiveItemItemContainers in current screen
 				if (getScreenMode() != null) { 
