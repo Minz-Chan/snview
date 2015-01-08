@@ -54,7 +54,10 @@
             android:id="@+id/stateBtn"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/channellist_select_empty" />
+            android:background="@drawable/channellist_select_empty"
+            android:focusable="false"
+            android:clickable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
 
 </LinearLayout>

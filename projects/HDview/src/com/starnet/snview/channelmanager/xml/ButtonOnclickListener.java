@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ButtonOnclickListener implements OnClickListener {
 
@@ -41,6 +40,7 @@ public class ButtonOnclickListener implements OnClickListener {
 	private ConnectionIdentifyTask connTask;// 连接验证线程
 	List<PreviewDeviceItem> previewChannelList;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -76,10 +76,6 @@ public class ButtonOnclickListener implements OnClickListener {
 		bundle.putSerializable("clickCloudAccount", clickCloudAccount);
 		data.putExtras(bundle);
 		((ChannelListActivity) context).startActivityForResult(data, 31);
-	}
-
-	private void showToast(String content) {
-		Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
 	}
 
 	public ButtonOnclickListener(Context context2, Handler handler,

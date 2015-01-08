@@ -21,13 +21,13 @@
         android:background="@drawable/system_setting_listview_shape"
         android:cacheColorHint="#00000000" />
 
-    <Button
+    <!-- <Button
         android:id="@+id/logout_setting_btn"
         android:text="@string/system_setting_logout" 
     	android:layout_width="fill_parent"   
     	android:layout_height="40dp"
     	android:layout_margin="20dip"
-    	android:background="@drawable/system_setting_round_button"/>
+    	android:background="@drawable/system_setting_round_button"/> -->
     
     <!-- <android:background="@drawable/app_list_corner_border"> -->
 

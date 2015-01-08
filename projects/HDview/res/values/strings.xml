@@ -95,7 +95,7 @@
     <string name="system_setting_pushset_clear_alarm_suc">完成清除</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
-    <string name="system_setting_about_build_time">(Build 20141205)</string>
+    <string name="system_setting_about_build_time">(Build 20150108)</string>
     <string name="system_setting_alarm_account_manager">报警账户管理</string>
     <string name="system_setting_alarm_pushset_user_del_cancel">取消</string>
     <string name="system_setting_alarm_pushset_identify_suc">验证成功</string>
@@ -264,7 +264,12 @@
     <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
     <string name="playback_click_start_scan">开始回放</string>
     <string name="playback_setting_end_time">结束时间</string>
+    <string name="playback_infoact_alarmtype">报警类型</string>
     <string name="playback_setting_start_time">开始时间</string>
+    <string name="playback_infoact_devicename">报警设备</string>
+    <string name="playback_infoact_setting">报警信息设置</string>
     <string name="playback_click_input_time">点击输入时间</string>
+    <string name="playback_infoact_alarmchannel">报警通道</string>
+    <string name="playback_extend3days_time">选择的回放时间不能超过3天，请重新选择</string>
 
 </resources>

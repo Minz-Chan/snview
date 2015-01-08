@@ -11,7 +11,7 @@
         android:toYScale="0.5" />
 
     <alpha
-        android:duration="500"
+        android:duration="300"
         android:fromAlpha="1.0"
         android:interpolator="@android:anim/accelerate_interpolator"
         android:toAlpha="0.0" />

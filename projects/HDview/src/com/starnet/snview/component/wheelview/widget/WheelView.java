@@ -70,7 +70,7 @@ public class WheelView extends View {
 			0x00AAAAAA, 0x00AAAAAA };
 
 	/** Additional items height (is added to standard text item height) */
-	private static final int ADDITIONAL_ITEM_HEIGHT = 15;//���ÿؼ��ĸ߶�
+	private static final int ADDITIONAL_ITEM_HEIGHT = 15;//15���ÿؼ��ĸ߶�
 
 	/** Text size */
 	private static final int TEXT_SIZE = 30;//15
@@ -88,7 +88,7 @@ public class WheelView extends View {
 	private static final int PADDING = 10;
 
 	/** Default count of visible items */
-	private static final int DEF_VISIBLE_ITEMS = 4;//���������յ�λ��
+	private static final int DEF_VISIBLE_ITEMS = 8;//4���������յ�λ��
 
 	// Wheel Values
 	private WheelAdapter adapter = null;

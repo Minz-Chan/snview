@@ -8,16 +8,20 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ImageButton;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
@@ -44,7 +48,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private WheelView month;
 	private WheelView minute;
 	private View endtimeView;
-	private ImageButton imgBtn;
 	private View starttimeView;
 	private TextView endtimeTxt;
 	private TextView startTimeTxt;
@@ -55,10 +58,13 @@ public class TimeSettingActivity extends BaseActivity {
 	private NumericWheelAdapter monthAdapter;
 	private NumericWheelAdapter minuteAdapter;
 
+	private Button startScanBtn;
+
 	private boolean endFlag = false;
 	private boolean startFlag = false;
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
+	private final int REQUESTCODE = 0x0001;
 	private final String filePath = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 
 	@Override
@@ -92,15 +98,24 @@ public class TimeSettingActivity extends BaseActivity {
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		CloudAccount caAccount = new CloudAccount();
 		caAccount.setUsername("jtpt");
-		DeviceItem deviceItem = new DeviceItem();
-		deviceItem.setDeviceName("天津平台");
+		DeviceItem deviceItem1 = new DeviceItem();
+		deviceItem1.setDeviceName("天津平台");
 		DeviceItem deviceItem2 = new DeviceItem();
 		deviceItem2.setDeviceName("福州平台");
-		deviceList.add(deviceItem);
+		DeviceItem deviceItem3 = new DeviceItem();
+		deviceItem3.setDeviceName("南京平台");
+		deviceList.add(deviceItem1);
 		deviceList.add(deviceItem2);
+		deviceList.add(deviceItem3);
 		caAccount.setDeviceList(deviceList);
 		users.add(caAccount);
 		return users;
+	}
+
+	private void backAndLeftOperation() {
+		dismissTimeDialog();
+		PlaybackUtils.exapandFlag = false;
+		TimeSettingActivity.this.finish();
 	}
 
 	private void setListenersForWadgets() {
@@ -108,7 +123,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
-				TimeSettingActivity.this.finish();
+				backAndLeftOperation();
 			}
 		});
 
@@ -117,10 +132,10 @@ public class TimeSettingActivity extends BaseActivity {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,
 					int groupPosition, long id) {
-				if (RealPlaybackStateUtils.exapandFlag) {
-					RealPlaybackStateUtils.exapandFlag = false;
+				if (PlaybackUtils.exapandFlag) {
+					PlaybackUtils.exapandFlag = false;
 				} else {
-					RealPlaybackStateUtils.exapandFlag = true;
+					PlaybackUtils.exapandFlag = true;
 				}
 				return false;
 			}
@@ -158,18 +173,40 @@ public class TimeSettingActivity extends BaseActivity {
 				}
 			}
 		});
-		imgBtn.setOnClickListener(new OnClickListener() {
+		startScanBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				startPlayBack();
+				PlaybackUtils.exapandFlag = false;
+				TimeSettingActivity.this.finish();
 			}
+		});
+
+		cloudAccountView.setOnChildClickListener(new OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v,
+					int groupPosition, int childPosition, long id) {
+				showToast("单击了" + childPosition + "项.");
+
+				Intent intent = new Intent();
+
+				intent.setClass(ctx, PlayBackInfoActivity.class);
+
+				startActivityForResult(intent, REQUESTCODE);
+				return true;
+			}
+
 		});
 	}
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
+		dismissTimeDialog();
+	}
 
+	private void showToast(String content) {
+		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
 
 	private void initViews() {
@@ -180,9 +217,9 @@ public class TimeSettingActivity extends BaseActivity {
 		super.setTitleViewText(getString(R.string.navigation_title_remote_playback));
 		ctx = TimeSettingActivity.this;
 		endtimeTxt = (TextView) findViewById(R.id.endtime);
-		imgBtn = (ImageButton) findViewById(R.id.startScan);
-		startTimeTxt = (TextView) findViewById(R.id.starttime);
 		endtimeView = findViewById(R.id.input_endtime_view);
+		startScanBtn = (Button) findViewById(R.id.startScan);
+		startTimeTxt = (TextView) findViewById(R.id.starttime);
 		starttimeView = findViewById(R.id.input_starttime_view);
 		cloudAccountView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
 		cloudAccountView.setGroupIndicator(null);
@@ -192,6 +229,7 @@ public class TimeSettingActivity extends BaseActivity {
 		initPopupWindow();
 	}
 
+	/** 对开始、结束时间设置为当前时间 **/
 	private void setCurrentTimeForTxt() {
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -214,7 +252,6 @@ public class TimeSettingActivity extends BaseActivity {
 		minute = (WheelView) view2.findViewById(R.id.minute);
 		popupWindow.setAnimationStyle(R.style.PopupAnimation);
 		setWheelView();
-
 	}
 
 	private void setWheelView() {
@@ -224,6 +261,8 @@ public class TimeSettingActivity extends BaseActivity {
 		curMonth = c.get(Calendar.MONTH);
 		curDays = c.get(Calendar.DAY_OF_MONTH);
 		poor = curyear - 10;
+		int curHour = c.get(Calendar.HOUR_OF_DAY);
+		int curMint = c.get(Calendar.MINUTE);
 
 		yearAdapter = new NumericWheelAdapter(2000, c1.get(Calendar.YEAR));
 		year.setAdapter(yearAdapter);
@@ -254,9 +293,11 @@ public class TimeSettingActivity extends BaseActivity {
 		minute.setLabel(null);
 		minute.setCyclic(true);
 
-		year.setCurrentItem(curyear + 10);
+		year.setCurrentItem(curyear);
 		month.setCurrentItem(curMonth - 1);
 		day.setCurrentItem(curDays - 1);
+		hour.setCurrentItem(curHour);
+		minute.setCurrentItem(curMint);
 
 		OnWheelScrollListener scrollListener = new OnWheelScrollListener() {
 
@@ -267,6 +308,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 			@Override
 			public void onScrollingFinished(WheelView wheel) {
+				// 需要自动确定日期
 				if (wheel.getId() == R.id.year) {
 					dayNum = setwheelDay(year.getCurrentItem() + poor,
 							month.getCurrentItem() + 1);
@@ -293,10 +335,60 @@ public class TimeSettingActivity extends BaseActivity {
 
 				String selectTime = yearContent + "-" + monthContent + "-"
 						+ dayContent + "  " + hourContent + ":" + minuteContent;
+				// 设置时间显示
+				boolean isLeaapYear = PlaybackUtils.isLeapYear(Integer
+						.valueOf(yearContent));
 				if (startFlag) {
 					startTimeTxt.setText(selectTime);
+					if (isLeaapYear) {
+						int monDay = Integer.valueOf(monthContent);
+						if (monDay == 2) {
+							int scrollDay = Integer.valueOf(dayContent);
+							String t;
+							if (scrollDay < 27) {
+								t = yearContent + "-" + monthContent + "-"
+										+ dayAdapter.getItem(newday + 2) + "  "
+										+ hourContent + ":" + minuteContent;
+								endtimeTxt.setText(t);
+							} else {
+								t = yearContent + "-" + monthContent + "-" + 29
+										+ "  " + hourContent + ":"
+										+ minuteContent;
+								endtimeTxt.setText(t);
+							}
+						} else if ((monDay == 4) || (monDay == 6)
+								|| (monDay == 9) || (monDay == 11)) {
+							String t;
+							int scrollDay = Integer.valueOf(dayContent);
+							if (scrollDay < 28) {
+								t = yearContent + "-" + monthContent + "-"
+										+ dayAdapter.getItem(newday + 2) + "  "
+										+ hourContent + ":" + minuteContent;
+								endtimeTxt.setText(t);
+							} else {
+								t = yearContent + "-" + monthContent + "-" + 30
+										+ "  " + hourContent + ":"
+										+ minuteContent;
+								endtimeTxt.setText(t);
+							}
+						} else {
+							String t;
+							int scrollDay = Integer.valueOf(dayContent);
+							if (scrollDay < 29) {
+								t = yearContent + "-" + monthContent + "-"
+										+ dayAdapter.getItem(newday + 2) + "  "
+										+ hourContent + ":" + minuteContent;
+								endtimeTxt.setText(t);
+							} else {
+								t = yearContent + "-" + monthContent + "-" + 31
+										+ "  " + hourContent + ":"
+										+ minuteContent;
+								endtimeTxt.setText(t);
+							}
+						}
+					}
 				} else if (endFlag) {
-					endtimeTxt.setText(selectTime);
+
 				}
 			}
 		};
@@ -310,8 +402,8 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private int setwheelDay(int year, int month) {
 		int day = 31;
-		if (month == 2) {
-			if ((year % 4 == 0) && ((year % 100 != 0) | (year % 400 == 0))) {
+		if (month == 2) {// 闰年
+			if ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))) {
 				day = 29;
 			} else {
 				day = 28;
@@ -323,50 +415,42 @@ public class TimeSettingActivity extends BaseActivity {
 		return day;
 	}
 
-	/** 检测时间是否超过三天，如果超过，则返回false；否则，返回true **/
-	private boolean examineTimeExt3() {
-		boolean isExt = false;
-		String endTime = (String) endtimeTxt.getText();
-		String startTime = (String) startTimeTxt.getText();
-		int[] endData = getValidateTime(endTime);
-		int[] startData = getValidateTime(startTime);
-		isExt = getBooleanBtwTime(startData, endData);
-		return isExt;
+	private void dismissTimeDialog() {
+		if (popupWindow != null && popupWindow.isShowing()) {
+			popupWindow.dismiss();
+		}
 	}
 
-	/** 比较开始时间和结束时间 **/
-	private boolean getBooleanBtwTime(int[] startData, int[] endData) {
-		boolean isExt = false;
-
-		int endDay = endData[0] * 365 + endData[1] * 30 + endData[2];
-		int startDay = startData[0] * 365 + startData[1] * 30 + startData[2];
-
-		int endSeconds = endData[3] * 3600 + endData[4] * 60;
-		int startSeconds = startData[3] * 3600 + startData[4] * 60;
-
-		return isExt;
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			backAndLeftOperation();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
-	private int[] getValidateTime(String endTime) {
-		int timeData[] = new int[5];
-		String[] data = endTime.split("-");
-		int year = Integer.valueOf(data[0]);
-		int month = Integer.valueOf(data[1]);
-		int day = Integer.valueOf(data[2]);
+	private boolean okFlag = false;
+	private int clickGroup;
+	private int clickChild;
 
-		String[] hourMinutes = endTime.split("  ");
-		String hourMinute = hourMinutes[1];
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		String[] hm = hourMinute.split(":");
+		super.onActivityResult(requestCode, resultCode, data);
 
-		int hour = Integer.valueOf(hm[0]);
-		int mintute = Integer.valueOf(hm[1]);
-
-		timeData[0] = year;
-		timeData[1] = month;
-		timeData[2] = day;
-		timeData[3] = hour;
-		timeData[4] = mintute;
-		return timeData;
+		if (requestCode == REQUESTCODE) {
+			if (data != null) {
+				okFlag = data.getBooleanExtra("okBtn", false);
+				if (okFlag) {
+					actsAdapter.setOkFlag(true);
+					clickGroup = data.getIntExtra("group", 0);
+					clickChild = data.getIntExtra("child", 0);
+					actsAdapter.setChild(clickChild);
+					actsAdapter.setGroup(clickGroup);
+					actsAdapter.notifyDataSetChanged();
+				}
+			}
+		}
 	}
 }

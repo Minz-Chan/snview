@@ -393,10 +393,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		bs.setState(state);
 
 		if (groupPosition == 0) {
-//			DeviceItem dItem = groupAccountList.get(0).getDeviceList().get(childPosition);
-//			if (!isClickCancel) {
-//				connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem, groupPosition, childPosition);
-//			}
 			touchL = new ButtonOnTouchListener(context,handler,ChannelExpandableListviewAdapter.this,clickCloudAccount,titleView,
 					groupPosition, childPosition, state_button, groupAccountList);
 			state_button.setOnTouchListener(touchL);// 原来的情形
@@ -413,10 +409,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 				&& !clickCloudAccount.getDeviceList().get(childPosition).isConnPass()) {//
 			button_channel_list.setVisibility(View.GONE);
 		} else {
-//			DeviceItem dItem = clickCloudAccount.getDeviceList().get(childPosition);
-//			if (!isClickCancel) {
-//				connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem, groupPosition, childPosition);
-//			}
 			clickL = new ButtonOnclickListener(context, handler,ChannelExpandableListviewAdapter.this, clickCloudAccount,
 					groupAccountList, groupPosition, childPosition,
 					state_button, titleView);

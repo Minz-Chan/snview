@@ -22,7 +22,7 @@ public class SystemSettingActivity extends BaseActivity {
 
 	private CornerListView firstCornerListView = null; 
 	private CornerListView secondCornerListView = null; 
-	private Button logoutBtn = null; 
+//	private Button logoutBtn = null; 
 	
 	private List<HashMap<String, Object>> settingList;
 	private HashMap<String, Object> map;
@@ -109,13 +109,13 @@ public class SystemSettingActivity extends BaseActivity {
 			}
         });
         
-        logoutBtn = (Button)findViewById(R.id.logout_setting_btn); 
-        logoutBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-//				showTips();
-			}
-		});
+//        logoutBtn = (Button)findViewById(R.id.logout_setting_btn); 
+//        logoutBtn.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+////				showTips();
+//			}
+//		});
 	}
 
 	protected void showTips(){

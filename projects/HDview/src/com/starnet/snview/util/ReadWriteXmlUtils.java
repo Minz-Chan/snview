@@ -3,6 +3,7 @@ package com.starnet.snview.util;
 import android.annotation.SuppressLint;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +41,7 @@ public class ReadWriteXmlUtils {
 
 	private static String INDENT = "";
 	private static String CHARSET = "UTF-8";
-	
+
 	public static boolean expandFlag = false;
 
 	/**
@@ -659,8 +661,7 @@ public class ReadWriteXmlUtils {
 		sEle.addAttribute("loginPass", dItem.getLoginPass());
 		sEle.addAttribute("platformusername", dItem.getPlatformUsername());
 
-		sEle.addAttribute("defaultChannel",
-				String.valueOf(dItem.getDefaultChannel()));
+		sEle.addAttribute("defaultChannel",String.valueOf(dItem.getDefaultChannel()));
 		sEle.addAttribute("serverIP", dItem.getSvrIp());
 		sEle.addAttribute("serverPort", dItem.getSvrPort());
 		sEle.addAttribute("deviceType", String.valueOf(dItem.getDeviceType()));
@@ -686,7 +687,6 @@ public class ReadWriteXmlUtils {
 		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
 		xmlWriter.write(document);
 		fileWriter.close();
-		saveResult = "saving success...";
 		return saveResult;
 	}
 
@@ -841,13 +841,11 @@ public class ReadWriteXmlUtils {
 				XMLWriter writer = new XMLWriter(fw, format);
 				writer.write(document1);
 				fw.close();
-				System.out.println("Generate Over!");
 			}
 			SAXReader saxReader = new SAXReader();
 			Document document = saxReader.read(file);
 			Element root = document.getRootElement();
 			if (clAcc != null) {
-				// 判断文件是否存在，如果存在，则删除
 				List<Element> subElements = root.elements();
 				if (subElements != null) {
 					int size = subElements.size();
@@ -915,6 +913,102 @@ public class ReadWriteXmlUtils {
 								cEle.addAttribute("isSelected",
 										String.valueOf(chl.isSelected()));
 							}
+						}
+					}
+				}
+			}
+			// 开始输入到文档中
+			OutputFormat format = new OutputFormat("    ", true, "UTF-8");
+			FileWriter fw = new FileWriter(fileName);
+			XMLWriter writer = new XMLWriter(fw, format);
+			writer.write(document);
+			fw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/** 替换掉原来的星云平台信息 **/
+	public static void specifyNewAccountInXML(CloudAccount cA,
+			String fileName, int index) {
+		File file = new File(fileName);
+		try {
+			if (!file.exists()) {// 如果文件不存在，则新建立一个文件，并添加根节点；
+				return;
+			}
+			SAXReader saxReader = new SAXReader();
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			if (cA != null) {
+				List<Element> subElements = root.elements();
+				if (subElements != null) {
+					int size = subElements.size();
+					for (int i = 0; i < size; i++) {
+						if (i == index) {
+							Element sub = subElements.get(i);
+							sub.setAttributeValue("domain", cA.getDomain());
+							sub.setAttributeValue("port", cA.getPort());
+							sub.setAttributeValue("username", cA.getUsername());
+							sub.setAttributeValue("password", cA.getPassword());
+							sub.setAttributeValue("enabled",String.valueOf(cA.isEnabled()));
+							sub.setAttributeValue("isRotate",String.valueOf(cA.isRotate()));
+							sub.setAttributeValue("isExpanded",String.valueOf(cA.isEnabled()));
+							List<DeviceItem> deviceItems = cA.getDeviceList();
+							if (deviceItems != null) {
+								List<Element> subs = sub.elements();
+								for (int j = 0; j < subs.size(); j++) {
+									subs.get(i).detach();
+								}
+								int deviceSize = deviceItems.size();
+								for (int j = 0; j < deviceSize; j++) {
+									DeviceItem dItem = deviceItems.get(j);
+									Element dEle = sub.addElement("device");
+									dEle.addAttribute("deviceName",
+											dItem.getDeviceName());
+									dEle.addAttribute("svrIp", dItem.getSvrIp());
+									dEle.addAttribute("svrPort",
+											dItem.getSvrPort());
+									dEle.addAttribute("loginUser",
+											dItem.getLoginUser());
+									dEle.addAttribute("loginPass",
+											dItem.getLoginPass());
+									dEle.addAttribute("defaultChannel", String
+											.valueOf(dItem.getDefaultChannel()));
+									dEle.addAttribute("channelSum",
+											dItem.getChannelSum());
+									dEle.addAttribute("deviceType", String
+											.valueOf(dItem.getDeviceType()));
+									dEle.addAttribute(
+											"isSecurityProtectionOpen",
+											String.valueOf(dItem
+													.isSecurityProtectionOpen()));
+									dEle.addAttribute("isExpanded",
+											String.valueOf(dItem.isExpanded()));
+									dEle.addAttribute("isIdentify",
+											String.valueOf(dItem.isIdentify()));
+									dEle.addAttribute("isConnPass",
+											String.valueOf(dItem.isConnPass()));
+									List<Channel> chList = dItem
+											.getChannelList();
+									if (chList != null) {
+										int channelSize = chList.size();
+										for (int k = 0; k < channelSize; k++) {
+											Channel chl = chList.get(k);
+											Element cEle = dEle
+													.addElement("channel");
+											cEle.addAttribute("channelName",
+													chl.getChannelName());
+											cEle.addAttribute("channelNo",
+													String.valueOf(chl
+															.getChannelNo()));
+											cEle.addAttribute("isSelected",
+													String.valueOf(chl
+															.isSelected()));
+										}
+									}
+								}
+							}
+							break;
 						}
 					}
 				}
@@ -1174,7 +1268,7 @@ public class ReadWriteXmlUtils {
 			if (is) {
 				isSuc = true;
 				return isSuc;
-			}else {
+			} else {
 				return isSuc;
 			}
 		}
@@ -1627,5 +1721,30 @@ public class ReadWriteXmlUtils {
 			return previewDeviceItemList;
 		}
 		return previewDeviceItemList;
+	}
+
+	public static void fileChannelCopy(File s, File t) {
+		FileInputStream fi = null;
+		FileOutputStream fo = null;
+		FileChannel in = null;
+		FileChannel out = null;
+		try {
+			fi = new FileInputStream(s);
+			fo = new FileOutputStream(t);
+			in = fi.getChannel();// 得到对应的文件通道
+			out = fo.getChannel();// 得到对应的文件通道
+			in.transferTo(0, in.size(), out);// 连接两个通道，并且从in通道读取，然后写入out通道
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				fi.close();
+				in.close();
+				fo.close();
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
