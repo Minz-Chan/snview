@@ -672,6 +672,7 @@ public class ChannelListActivity extends BaseActivity {
 			int size = getEnableCACount(netSize);
 			if (size >= 1) {
 				tasks = new ChannelRequestTask[size];
+				int j = 0 ;
 				for (int i = 1; i < netSize; i++) {
 					CloudAccount cAccount = origin_cloudAccounts.get(i);
 					boolean isEnable = cAccount.isEnabled();
@@ -681,9 +682,9 @@ public class ChannelListActivity extends BaseActivity {
 						cAccount.setRotate(true);
 					}
 					if (isEnable) {// 如果启用该用户的话，则访问网络，否则，不访问；不访问网络时，其rotate=true;
-						tasks[i - 1] = new ChannelRequestTask(curContext,
-								cAccount, netHandler, i);
-						tasks[i - 1].start();
+						tasks[j] = new ChannelRequestTask(curContext,cAccount, netHandler, i);
+						tasks[j].start();
+						j++;
 					}
 				}
 			}
