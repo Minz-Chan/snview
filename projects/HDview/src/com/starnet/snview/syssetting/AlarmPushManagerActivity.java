@@ -65,7 +65,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// startPushSettingService();
+				startPushSettingService();
 				saveSettingsToSharedPreference();
 				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
