@@ -76,11 +76,10 @@ public class AlarmContentActivity extends BaseActivity implements
 				startActivityForResult(in, REQUESTCODE);
 				break;
 			case DOWNLOADFAILED:
-				// showDialog(IMAGE_LOAD_DIALOG);
 				if (imgprogress != null && imgprogress.isShowing()) {
 					imgprogress.dismiss();
 				}
-				showToast("连接请求有误，请检查网络后再试...");
+				showToast("");
 				break;
 			}
 		}
@@ -216,23 +215,26 @@ public class AlarmContentActivity extends BaseActivity implements
 			AlarmImageFileCache.context = ctx;
 			String imgUrl = device.getImageUrl();
 			boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
-			boolean isEt = AlarmImageFileCache.isExistImgFileInternal(imgUrl);
 			if (isExist) {
 				if (imgprogress != null && imgprogress.isShowing()) {
 					imgprogress.dismiss();
 				}
 				getImageFromUrlFromLocal(imgUrl);
-			} else if (isEt) {
-				if (imgprogress != null && imgprogress.isShowing()) {
-					imgprogress.dismiss();
-				}
-				getImageFromUrlFromInteral(imgUrl);
 			} else {
-				if (NetWorkUtils.checkNetConnection(ctx)) {
-					dName = device.getDeviceName();
-					getImageFromUrlFromNet(imgUrl);
+				boolean isEt = AlarmImageFileCache
+						.isExistImgFileInternal(imgUrl);
+				if (isEt) {
+					if (imgprogress != null && imgprogress.isShowing()) {
+						imgprogress.dismiss();
+					}
+					getImageFromUrlFromInteral(imgUrl);
 				} else {
-					showToast(ctx.getString(R.string.alarm_net_notopen));
+					if (NetWorkUtils.checkNetConnection(ctx)) {
+						dName = device.getDeviceName();
+						getImageFromUrlFromNet(imgUrl);
+					} else {
+						showToast(ctx.getString(R.string.alarm_net_notopen));
+					}
 				}
 			}
 			break;
@@ -260,7 +262,6 @@ public class AlarmContentActivity extends BaseActivity implements
 		if (imgprogress != null && imgprogress.isShowing()) {
 			imgprogress.dismiss();
 		}
-
 		Intent intent = new Intent();
 		intent.putExtra("isExist", true);
 		intent.putExtra("imageUrl", imgUrl);

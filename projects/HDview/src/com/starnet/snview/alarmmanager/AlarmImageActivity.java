@@ -50,27 +50,20 @@ public class AlarmImageActivity extends BaseActivity {
 		
 		showImageView = (ImageView) findViewById(R.id.img_net);
 		Intent intent = getIntent();
-		// setTitle(title);
 		if (!intent.getBooleanExtra("cancel", false)) {
 			if (intent.getBooleanExtra("isExist", false)) {
 				String url = intent.getStringExtra("imageUrl");
 				Bitmap bitmap = AlarmImageFileCache.getImage(url);
 				showImageView.setScaleType(ScaleType.FIT_XY);
-//				byte[] imgData = intent.getByteArrayExtra("image");
-//				Bitmap bitmap = BitmapFactory.decodeByteArray(imgData, 0,imgData.length);
 				showImageView.setImageBitmap(bitmap);
-				// setTitle(title);
 			}else if (intent.getBooleanExtra("isInExist", false)) {
 				String url = intent.getStringExtra("imageUrl");
 				Bitmap bitmap = AlarmImageFileCache.getImageInternal(url);
 				showImageView.setScaleType(ScaleType.FIT_XY);
 				showImageView.setImageBitmap(bitmap);
-				// setTitle(title);
 			} else {
-				// String title = getIntent().getStringExtra("title");
 				byte[] imgData = intent.getByteArrayExtra("image");
 				Bitmap bitmap = BitmapFactory.decodeByteArray(imgData, 0,imgData.length);
-				// setTitle(title);
 				showImageView.setScaleType(ScaleType.FIT_XY);
 				showImageView.setImageBitmap(bitmap);
 

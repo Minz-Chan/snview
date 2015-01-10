@@ -931,6 +931,7 @@ public class ReadWriteXmlUtils {
 	}
 
 	/** 替换掉原来的星云平台信息 **/
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public synchronized static void specifyNewAccountInXML(CloudAccount cA,
 			String fileName, int index) {
 		File file = new File(fileName);
