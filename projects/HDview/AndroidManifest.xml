@@ -170,7 +170,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmAccountsEditActivity"
+            android:name="com.starnet.snview.syssetting.AlarmAccountsEditingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />

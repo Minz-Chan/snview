@@ -71,7 +71,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 				Intent intent = new Intent();
 				intent.putExtra("pos", position);
 				intent.putExtra("cla", mList.get(position));
-				intent.setClass(ctx, AlarmAccountsEditActivity.class);
+				intent.setClass(ctx, AlarmAccountsEditingActivity.class);
 				startActivityForResult(intent, REQUESTCODE_EDIT);
 			}
 		});
@@ -195,39 +195,25 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			}
 		} else if (resultCode == REQUESTCODE_EDIT) {
 			if (data != null) {
-				CloudAccount da = (CloudAccount) data
-						.getSerializableExtra("claa");
+				CloudAccount da = (CloudAccount) data.getSerializableExtra("claa");
 				da.setEnabled(true);
 				int pos = data.getIntExtra("position", 0);
-				boolean cover = data.getBooleanExtra("cover", false);
-				if (cover) {
-					CloudAccount orda = mList.get(pos);
-					boolean isSame = checkIfSame(orda, da);
-					if (isSame) {// 跟原来是同一个账户则替换掉
-						mList.set(pos, da);
-						caAdapter.notifyDataSetChanged();
-					} else {// 和其他用户相同，则删除被编辑的
-						int index = getIndex(da);
-						mList.set(index, da);
-						ReadWriteXmlUtils.replaceAlarmPushUserToXML(da, index);
+				String flag = data.getStringExtra("flag");
+				if (flag!=null&&flag.equals("cover")) {// 表示需要替代
+					boolean cover = data.getBooleanExtra("cover", false);
+					if (cover) {//表示需要覆盖
+						int ind = getIndex(da);
+						mList.set(ind, da);
+						ReadWriteXmlUtils.replaceAlarmPushUserToXML(da, ind);
 						mList.remove(pos);
 						ReadWriteXmlUtils.deleteAlarmPushUserToXML(pos);
 						caAdapter.notifyDataSetChanged();
 					}
-				} else {
+				} else if (flag==null) {
 					mList.set(pos, da);
 					caAdapter.notifyDataSetChanged();
 				}
 			}
-		}
-	}
-
-	/** 检测两个用户的用户名是否一致，一致返回true；否则返回false **/
-	private boolean checkIfSame(CloudAccount orda, CloudAccount da) {
-		if (orda.getUsername().equals(da.getUsername())) {
-			return true;
-		} else {
-			return false;
 		}
 	}
 

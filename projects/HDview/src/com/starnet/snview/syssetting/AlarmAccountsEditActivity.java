@@ -241,14 +241,6 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 	private void addBaiduPushTags(CloudAccount addAccount) throws Exception {
 		boolean isExist = isExistUser(addAccount);
 		if (!isExist) {
-//			List<String> delTags = new ArrayList<String>();
-//			List<String> regTags = new ArrayList<String>();
-//			delTags.add(originCA.getUsername() + ""
-//					+ MD5Utils.createMD5(originCA.getPassword()));
-//			regTags.add(addAccount.getUsername() + ""
-//					+ MD5Utils.createMD5(addAccount.getPassword()));
-//			PushManager.delTags(ctx, delTags);
-//			PushManager.setTags(ctx, regTags);
 			ReadWriteXmlUtils.replaceAlarmPushUserToXML(addAccount, pos);
 			Intent intent = new Intent();
 			intent.putExtra("position", pos);
@@ -265,13 +257,6 @@ public class AlarmAccountsEditActivity extends BaseActivity {
 		builder.setTitle(R.string.system_setting_alarm_pushset_exist_cover);
 		String ok = getString(R.string.system_setting_alarm_pushset_builer_identify_add_ok);
 		String cancel = getString(R.string.system_setting_alarm_pushset_builer_identify_add_cance);
-		// builder.setNegativeButton(cancel,
-		// new DialogInterface.OnClickListener() {
-		// @Override
-		// public void onClick(DialogInterface dialog, int which) {
-		// AlarmAccountsAddActivity.this.finish();
-		// }
-		// });
 		builder.setNegativeButton(cancel, null);
 		final CloudAccount cla = ca;
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
