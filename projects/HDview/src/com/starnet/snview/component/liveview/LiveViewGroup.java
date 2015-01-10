@@ -841,9 +841,11 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 		
 		for (LiveViewItemContainer c2 : mToBeRemovedLiveviews) {
-			if (c2.isConnected() || c2.isConnecting()) {
-				c2.stopPreview(false);
-				c2.reset(true);
+			if (!mCurrentLiveviews.contains(c2)) {
+				if (c2.isConnected() || c2.isConnecting()) {
+					c2.stopPreview(false);
+					c2.reset(true);
+				}
 			}
 		}
 		
