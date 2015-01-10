@@ -28,11 +28,17 @@
 
             <TextView
                 android:id="@+id/devicename"
-                android:layout_width="wrap_content"
+                android:layout_width="320px"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/textView1"
-                android:layout_centerHorizontal="true"
-                android:layout_marginLeft="5.0dip"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="34dp"
+                android:layout_toRightOf="@+id/textView1"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:text="@string/playback_infoact_devicename"
                 android:textColor="@color/black"
                 android:textSize="18sp" />

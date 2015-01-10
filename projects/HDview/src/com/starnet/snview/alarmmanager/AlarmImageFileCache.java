@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 
 @SuppressLint("SdCardPath")
 public class AlarmImageFileCache {
@@ -23,6 +24,22 @@ public class AlarmImageFileCache {
 		String path = SDCardUtils.getSDCardPath() + appName
 				+ urls[urls.length - 1];
 		// String path = imagePath + "/"+ urls[urls.length - 1];
+		File file = new File(path);
+		if (file.exists()) {
+			Bitmap bmp = BitmapFactory.decodeFile(path);
+			return bmp;
+		} else {
+			return null;
+		}
+	}
+	
+	/** 从缓存中获取图片 **/
+	public static Bitmap getImageInternal(String url) {
+		String appName = getApplicationName();
+		String[] urls = url.split("/");
+		// String path = imagePath + "/"+ urls[urls.length - 1];
+		String tPath = "/storage/emulated/0/";
+		String path = tPath + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
@@ -47,7 +64,21 @@ public class AlarmImageFileCache {
 		return isExist;
 	}
 
-	private static String getApplicationName() {
+	/** 检测内存中是否包含该图像 **/
+	public static boolean isExistImgFileInternal(String imgUrl) {
+		String tPath = "/storage/emulated/0/";
+		String appName = getApplicationName();
+		String[] urls = imgUrl.split("/");
+		boolean isExist = false;
+		String path = tPath + appName + urls[urls.length - 1];
+		File file = new File(path);
+		if (file.exists()) {
+			isExist = true;
+		}
+		return isExist;
+	}
+
+	public static String getApplicationName() {
 		PackageManager pkManager = null;
 		ApplicationInfo appInfo = null;
 		try {
@@ -61,5 +92,21 @@ public class AlarmImageFileCache {
 				.getApplicationLabel(appInfo);
 		return applicationName + "/alarmImg/";
 	}
+	
+	public static String getApplicationName2() {
+		PackageManager pkManager = null;
+		ApplicationInfo appInfo = null;
+		try {
+			Context ctx = context.getApplicationContext();
+			pkManager = ctx.getPackageManager();
+			appInfo = pkManager.getApplicationInfo(context.getPackageName(), 0);
+		} catch (PackageManager.NameNotFoundException e) {
+			appInfo = null;
+		}
+		String applicationName = (String) pkManager
+				.getApplicationLabel(appInfo);
+		return applicationName + "/alarmImg";
+	}
+
 
 }

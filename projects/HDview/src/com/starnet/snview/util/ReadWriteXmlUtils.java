@@ -31,6 +31,7 @@ import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.channelmanager.xml.MD5Util;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.syssetting.AlarmUser;
 import com.starnet.snview.syssetting.CloudAccount;
 
 @SuppressLint("SdCardPath")
@@ -661,7 +662,8 @@ public class ReadWriteXmlUtils {
 		sEle.addAttribute("loginPass", dItem.getLoginPass());
 		sEle.addAttribute("platformusername", dItem.getPlatformUsername());
 
-		sEle.addAttribute("defaultChannel",String.valueOf(dItem.getDefaultChannel()));
+		sEle.addAttribute("defaultChannel",
+				String.valueOf(dItem.getDefaultChannel()));
 		sEle.addAttribute("serverIP", dItem.getSvrIp());
 		sEle.addAttribute("serverPort", dItem.getSvrPort());
 		sEle.addAttribute("deviceType", String.valueOf(dItem.getDeviceType()));
@@ -918,7 +920,7 @@ public class ReadWriteXmlUtils {
 				}
 			}
 			// 开始输入到文档中
-			OutputFormat format = new OutputFormat("    ", true, "UTF-8");
+			OutputFormat format = new OutputFormat("", true, "UTF-8");
 			FileWriter fw = new FileWriter(fileName);
 			XMLWriter writer = new XMLWriter(fw, format);
 			writer.write(document);
@@ -929,7 +931,7 @@ public class ReadWriteXmlUtils {
 	}
 
 	/** 替换掉原来的星云平台信息 **/
-	public static void specifyNewAccountInXML(CloudAccount cA,
+	public synchronized static void specifyNewAccountInXML(CloudAccount cA,
 			String fileName, int index) {
 		File file = new File(fileName);
 		try {
@@ -950,15 +952,21 @@ public class ReadWriteXmlUtils {
 							sub.setAttributeValue("port", cA.getPort());
 							sub.setAttributeValue("username", cA.getUsername());
 							sub.setAttributeValue("password", cA.getPassword());
-							sub.setAttributeValue("enabled",String.valueOf(cA.isEnabled()));
-							sub.setAttributeValue("isRotate",String.valueOf(cA.isRotate()));
-							sub.setAttributeValue("isExpanded",String.valueOf(cA.isEnabled()));
+							sub.setAttributeValue("enabled",
+									String.valueOf(cA.isEnabled()));
+							sub.setAttributeValue("isRotate",
+									String.valueOf(cA.isRotate()));
+							sub.setAttributeValue("isExpanded",
+									String.valueOf(cA.isEnabled()));
+
+							List<Element> subs = sub.elements();
+							int subSize = subs.size();
+							for (int j = subSize - 1; j < subSize; j--) {
+								subs.get(j).detach();
+							}
+
 							List<DeviceItem> deviceItems = cA.getDeviceList();
 							if (deviceItems != null) {
-								List<Element> subs = sub.elements();
-								for (int j = 0; j < subs.size(); j++) {
-									subs.get(i).detach();
-								}
 								int deviceSize = deviceItems.size();
 								for (int j = 0; j < deviceSize; j++) {
 									DeviceItem dItem = deviceItems.get(j);
@@ -1014,7 +1022,7 @@ public class ReadWriteXmlUtils {
 				}
 			}
 			// 开始输入到文档中
-			OutputFormat format = new OutputFormat("    ", true, "UTF-8");
+			OutputFormat format = new OutputFormat("", true, "UTF-8");
 			FileWriter fw = new FileWriter(fileName);
 			XMLWriter writer = new XMLWriter(fw, format);
 			writer.write(document);
@@ -1132,8 +1140,6 @@ public class ReadWriteXmlUtils {
 			Element root = document.getRootElement();
 			if (user != null) {
 				Element aEle = root.addElement("alarmPushuser");
-				aEle.addAttribute("domain", user.getDomain());
-				aEle.addAttribute("port", user.getPort());
 				aEle.addAttribute("username", user.getUsername());
 				aEle.addAttribute("password", user.getPassword());
 			}
@@ -1166,13 +1172,8 @@ public class ReadWriteXmlUtils {
 				CloudAccount cloudAccount = new CloudAccount();
 				Element cAElement = eles.get(i);
 				// 获取cloudAccountElement的属性值
-				String domain = cAElement.attributeValue("domain");
-				String port = cAElement.attributeValue("port");
 				String username = cAElement.attributeValue("username");
 				String password = cAElement.attributeValue("password");
-				cloudAccount.setDomain(domain);
-				cloudAccount.setPort(port);
-				cloudAccount.setEnabled(true);
 				cloudAccount.setUsername(username);
 				cloudAccount.setPassword(password);
 				users.add(cloudAccount);
@@ -1322,8 +1323,6 @@ public class ReadWriteXmlUtils {
 			for (int i = 0; i < size; i++) {
 				if (i == index) {
 					Element sEl = subElements.get(i);
-					sEl.setAttributeValue("domain", user.getDomain());
-					sEl.setAttributeValue("port", user.getPort());
 					sEl.setAttributeValue("password", user.getPassword());
 					sEl.setAttributeValue("username", user.getUsername());
 					break;
@@ -1721,6 +1720,18 @@ public class ReadWriteXmlUtils {
 			return previewDeviceItemList;
 		}
 		return previewDeviceItemList;
+	}
+
+	/** 添加报警推送账户 **/
+	public static void addAlarmUser(AlarmUser user) {
+
+	}
+
+	/** 获取报警推送账户 **/
+	public static List<AlarmUser> getAlarmUserList() {
+		List<AlarmUser> userList = new ArrayList<AlarmUser>();
+
+		return userList;
 	}
 
 	public static void fileChannelCopy(File s, File t) {

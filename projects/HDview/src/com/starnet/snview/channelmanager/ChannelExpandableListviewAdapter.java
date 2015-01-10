@@ -163,10 +163,10 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					R.layout.channel_listview_account_item_layout_copy, null);
 		}
 		// 为组元素设置背景颜色...
-		ProgressBar progressBar_net_load = (ProgressBar) convertView
+		ProgressBar prgBar = (ProgressBar) convertView
 				.findViewById(R.id.progressBar_net_load);
 		if (groupAccountList.get(groupPosition).isRotate() || (!isOpen)) {// 判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
-			progressBar_net_load.setVisibility(View.GONE);
+			prgBar.setVisibility(View.GONE);
 		}
 
 		TextView title = (TextView) convertView
@@ -175,7 +175,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 
 		if (notify_number == 3) {
-			Log.v(TAG, "===notify_number:===" + notify_number);
 			if (mPreviewDeviceItems != null) {
 				int size = mPreviewDeviceItems.size();
 				for (int i = 0; i < size; i++) {
@@ -393,23 +392,32 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		bs.setState(state);
 
 		if (groupPosition == 0) {
-			touchL = new ButtonOnTouchListener(context,handler,ChannelExpandableListviewAdapter.this,clickCloudAccount,titleView,
-					groupPosition, childPosition, state_button, groupAccountList);
+			touchL = new ButtonOnTouchListener(context, handler,
+					ChannelExpandableListviewAdapter.this, clickCloudAccount,
+					titleView, groupPosition, childPosition, state_button,
+					groupAccountList);
 			state_button.setOnTouchListener(touchL);// 原来的情形
-		}else{
-			touchL = new ButtonOnTouchListener(context,ChannelExpandableListviewAdapter.this, titleView,
-					groupPosition, childPosition, state_button, groupAccountList);
+		} else {
+			touchL = new ButtonOnTouchListener(context,
+					ChannelExpandableListviewAdapter.this, titleView,
+					groupPosition, childPosition, state_button,
+					groupAccountList);
 			state_button.setOnTouchListener(touchL);// 原来的情形
 		}
 		// 发现“通道列表按钮”并为之添加单击事件
-		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
+		button_channel_list = (Button) convertView
+				.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
 
-		if ((groupPosition == 0)&& clickCloudAccount.getDeviceList().get(childPosition).isIdentify()
-				&& !clickCloudAccount.getDeviceList().get(childPosition).isConnPass()) {//
+		if ((groupPosition == 0)
+				&& clickCloudAccount.getDeviceList().get(childPosition)
+						.isIdentify()
+				&& !clickCloudAccount.getDeviceList().get(childPosition)
+						.isConnPass()) {//
 			button_channel_list.setVisibility(View.GONE);
 		} else {
-			clickL = new ButtonOnclickListener(context, handler,ChannelExpandableListviewAdapter.this, clickCloudAccount,
+			clickL = new ButtonOnclickListener(context, handler,
+					ChannelExpandableListviewAdapter.this, clickCloudAccount,
 					groupAccountList, groupPosition, childPosition,
 					state_button, titleView);
 			button_channel_list.setVisibility(View.VISIBLE);
@@ -417,6 +425,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 		return convertView;
 	}
+
 	private ButtonOnTouchListener touchL;
 	private ButtonOnclickListener clickL;
 
@@ -474,15 +483,18 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	 */
 	private void changeStateButton(Button state_button, String state) {
 		if ((state == "all") || (state.equals("all"))) {
-			state_button.setBackgroundResource(R.drawable.channellist_select_alled);
+			state_button
+					.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else if ((state == "half") || (state.equals("half"))) {
-			state_button.setBackgroundResource(R.drawable.channel_selected_half);
+			state_button
+					.setBackgroundResource(R.drawable.channel_selected_half);
 		} else {
-			state_button.setBackgroundResource(R.drawable.channellist_select_empty);
+			state_button
+					.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
 	}
 
-	/**获取通道列表的选择的多少*/
+	/** 获取通道列表的选择的多少 */
 	private String getChannelSelectNum(int groupPos, int childPos) {
 		String state = "";
 		int channelNum = 0;
@@ -524,7 +536,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	public void setCancel(boolean isCanceled) {
 		if (clickL.isClick()) {
 			clickL.setCancel(isCanceled);
-		}else if (touchL.isTouch()) {
+		} else if (touchL.isTouch()) {
 			touchL.setCancel(isCanceled);
 		}
 	}

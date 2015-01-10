@@ -23,6 +23,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -44,9 +45,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 	private Button user_save_btn;// 账号添加按钮
 
-	private List<PreviewDeviceItem> previewDeviceItems;
+	private List<PreviewDeviceItem> preDevItems;
 	private List<PreviewDeviceItem> editPreviewDeviceItems;
-	private List<PreviewDeviceItem> delPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
+	private List<PreviewDeviceItem> delPreDevs = new LinkedList<PreviewDeviceItem>();
 	private List<PreviewDeviceItem> delEditPreviewDeviceItems = new LinkedList<PreviewDeviceItem>();
 
 	@Override
@@ -97,31 +98,25 @@ public class CloudAccountViewActivity extends BaseActivity {
 									public void onClick(DialogInterface dialog,
 											int which) {
 
-										int previewDeviceSize = previewDeviceItems
+										int previewDeviceSize = preDevItems
 												.size();
 										for (int i = 0; i < previewDeviceSize; i++) {
-											PreviewDeviceItem previewDeviceItem = previewDeviceItems
+											PreviewDeviceItem pItem = preDevItems
 													.get(i);
 											boolean isFrom = checkPreviewDeviceItemFromDelCA(
-													previewDeviceItem, deleteCA);
+													pItem, deleteCA);
 											if (isFrom) {
-												delPreviewDeviceItems
-														.add(previewDeviceItem);
+												delPreDevs.add(pItem);
 											}
 										}
 
-										int delSize = delPreviewDeviceItems
-												.size();
-										for (int i = 0; i < delSize; i++) {
-											previewDeviceItems
-													.remove(delPreviewDeviceItems
-															.get(i));
+										int dSize = delPreDevs.size();
+										for (int i = 0; i < dSize; i++) {
+											preDevItems.remove(delPreDevs.get(i));
 										}
-										if (delSize > 0) {
-											GlobalApplication
-													.getInstance()
-													.getRealplayActivity()
-													.notifyPreviewDevicesContentChanged();
+										if (dSize > 0) {
+											RealplayActivity ra = GlobalApplication.getInstance().getRealplayActivity();
+											ra.notifyPreviewDevicesContentChanged();
 										}
 										ReadWriteXmlUtils
 												.removeCloudAccoutFromXML(
@@ -136,7 +131,9 @@ public class CloudAccountViewActivity extends BaseActivity {
 												Context ctx = CloudAccountViewActivity.this;
 												List<String> dTags = new ArrayList<String>();
 												uNm = deleteCA.getUsername();
-												pswd = MD5Utils.createMD5(deleteCA.getPassword());
+												pswd = MD5Utils
+														.createMD5(deleteCA
+																.getPassword());
 												dTags.add(uNm + pswd);
 												PushManager.delTags(ctx, dTags);
 											} catch (Exception e) {
@@ -176,8 +173,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 		user_save_btn = super.getRightButton();
 		mNetWorkSettingList = (ListView) findViewById(R.id.cloudaccount_listview);
 
-		previewDeviceItems = GlobalApplication.getInstance()
-				.getRealplayActivity().getPreviewDevices();
+		preDevItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		try {
 			cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePath);

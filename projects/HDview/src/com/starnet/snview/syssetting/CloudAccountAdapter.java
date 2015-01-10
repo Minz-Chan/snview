@@ -15,28 +15,28 @@ import android.widget.TextView;
 public class CloudAccountAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private List<CloudAccount> mCloudAccountList;
+	private List<CloudAccount> mUserList;
 	private LayoutInflater mLayoutInflater;
 
-	public CloudAccountAdapter(Context context,List<CloudAccount> mCloudAccountList) {
+	public CloudAccountAdapter(Context context,List<CloudAccount> mUserList) {
 		super();
 		this.mContext = context;
-		this.mCloudAccountList = mCloudAccountList;
+		this.mUserList = mUserList;
 		this.mLayoutInflater = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 	}
 
 	@Override
 	public int getCount() {
 		int size = 0;
-		if (mCloudAccountList != null) {
-			size = mCloudAccountList.size();
+		if (mUserList != null) {
+			size = mUserList.size();
 		}
 		return size;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return mCloudAccountList.get(position);
+		return mUserList.get(position);
 	}
 
 	@Override
@@ -51,17 +51,16 @@ public class CloudAccountAdapter extends BaseAdapter {
 			mLayoutInflater = LayoutInflater.from(mContext);
 			convertView = mLayoutInflater.inflate(R.layout.cloudaccount_listview_item_layout, null);
 		}
-		CloudAccount item = mCloudAccountList.get(position);
+		CloudAccount item = mUserList.get(position);
 		TextView caTitleName = (TextView) convertView.findViewById(R.id.cloudaccount_item_name);
 		caTitleName.setText(item.getUsername());
 		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.imageView_user_photo);
-		
-		if (item.isEnabled()) {
-			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-		}else{
-			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
-		}
-		
+		itemIcon.setBackgroundResource(R.drawable.user_photo_select);
+//		if (item.isEnabled()) {
+//			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
+//		}else{
+//			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
+//		}
 		return convertView;
 	}
 }

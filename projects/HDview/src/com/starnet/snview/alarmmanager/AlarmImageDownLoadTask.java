@@ -30,7 +30,7 @@ public class AlarmImageDownLoadTask {
 	private Thread timeoutThread;
 	private Thread imgeLoadThread;
 	private final int TIMEOUT = 7;
-//	private boolean isDownloadSuc = true;
+	// private boolean isDownloadSuc = true;
 	private final int TIMOUTCODE = 0x0002;// 超时发送标志
 	private final int LOADSUCCESS = 0x0004;
 	private final int REQUESTCODE = 0x0023;
@@ -38,9 +38,12 @@ public class AlarmImageDownLoadTask {
 	private boolean isDownloadFailOver = false;
 	private boolean isStartDownloadOver = false;
 	protected final String TAG = "AlarmImageDownLoadTask";
-	private final String imagePath = "/mnt/sdcard/SNview/alarmImg";
 
-	public AlarmImageDownLoadTask(String imageUrl, Context context,Handler handler) {
+	// private String imagePath = "/mnt/sdcard/SNview/alarmImg";
+	// private String imagePath;
+
+	public AlarmImageDownLoadTask(String imageUrl, Context context,
+			Handler handler) {
 
 		this.handler = handler;
 		this.mContext = context;
@@ -79,12 +82,7 @@ public class AlarmImageDownLoadTask {
 					sendDataToImgActivity(imgData);
 				} catch (IOException e) {
 					onDownloadFailed();// 下载失败的处理
-				} 
-//				finally {
-//					if (isDownloadSuc && !isCanceled && !isTimeOut) {
-//						onStartFinished(imgData);
-//					}
-//				}
+				}
 			}
 		};
 	}
@@ -96,10 +94,12 @@ public class AlarmImageDownLoadTask {
 			}
 			Message msg = new Message();
 			if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
-				createMkdir();
 				String[] urls = imageUrl.split("/");
 				String imagename = urls[urls.length - 1];
-				String fImgPath = imagePath + "/" + imagename;
+				String appName = AlarmImageFileCache.getApplicationName2();
+				String fImgPath = SDCardUtils.getSDCardPath() + appName;
+				createMkdir(fImgPath);
+				fImgPath = fImgPath + "/"+imagename;
 				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
 				Bundle data = new Bundle();
 				data.putByteArray("image", imgData);
@@ -115,51 +115,24 @@ public class AlarmImageDownLoadTask {
 		}
 		isStartDownloadOver = true;
 		isDownloadFailOver = true;
-//		isDownloadSuc = true;
+		// isDownloadSuc = true;
 		timeoutover = true;
 	}
 
 	/*** 下载失败的处理 **/
 	protected void onDownloadFailed() {
-		if (!isDownloadFailOver && isCanceled) {
+		if (!isDownloadFailOver && !isCanceled) {
 			Message msg = new Message();
 			msg.what = DOWNLOADFAILED;
 			handler.sendMessage(msg);
 		}
 		isStartDownloadOver = true;
 		isDownloadFailOver = true;
-//		isDownloadSuc = false;
+		// isDownloadSuc = false;
 		timeoutover = true;
 	}
-
-	/*** 下载图像文件成功的处理 **/
-	protected void onStartFinished(byte[] imgData) {
-		timeoutover = true;
-		if (getAlarmActivity().imgprogress != null) {
-			getAlarmActivity().imgprogress.dismiss();
-		}
-		if (imgData == null) {
-			return;
-		}
-		if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
-			createMkdir();
-			String[] urls = imageUrl.split("/");
-			String imagename = urls[urls.length - 1];
-			String fullImgPath = imagePath + "/" + imagename;
-			BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fullImgPath);
-		}
-		Intent intent = new Intent();
-		intent.putExtra("isExist", false);
-		intent.putExtra("image", imgData);
-		intent.putExtra("title", deviceName);
-		intent.putExtra("cancel", isCanceled);
-		intent.putExtra("imageUrl", imageUrl);
-		intent.setClass(getAlarmActivity(), AlarmImageActivity.class);
-		getAlarmActivity().startActivityForResult(intent, REQUESTCODE);
-	}
-
-	/*** 创建文件夹 ***/
-	private void createMkdir() {
+	// /*** 创建文件夹 ***/
+	private void createMkdir(String imagePath) {
 		File file = new File(imagePath);
 		if (!file.exists() && !file.isDirectory()) {
 			file.mkdir();

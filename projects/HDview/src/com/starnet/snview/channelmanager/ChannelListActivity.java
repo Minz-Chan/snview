@@ -83,41 +83,10 @@ public class ChannelListActivity extends BaseActivity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			// case STARCLOUNDDOWNLOAD:
-			// Bundle data = msg.getData();
-			// String position = data.getString("position");
-			// String success = data.getString("success");
-			// if (success.equals("Yes")) {
-			// int pos = Integer.valueOf(position);
-			// CloudAccount account = (CloudAccount) data
-			// .getSerializable("netCloudAccount");
-			// account.setRotate(true);
-			// origin_cloudAccounts.set(pos, account);
-			// } else {
-			// int pos = Integer.valueOf(position);
-			// CloudAccount acc = (CloudAccount)
-			// data.getSerializable("netCloudAccount");
-			// acc.setRotate(false);
-			// origin_cloudAccounts.set(pos, acc);
-			// }
-			// int size = origin_cloudAccounts.size();
-			// for (int i = 1; i < size; i++) {
-			// CloudAccount cloudAccount = origin_cloudAccounts.get(i);
-			// if (cloudAccount != null) {
-			// List<DeviceItem> dList = cloudAccount.getDeviceList();
-			// if ((dList != null) && (dList.size() > 0)) {
-			// Collections.sort(dList, new PinyinComparator());// 排序...
-			// }
-			// }
-			// }
-			// chExpandableListAdapter.notifyDataSetChanged();
-			// break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
-
 				showToast("连接验证成功");
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					// dismissDialog(CONNIDENTIFYDIALOG);
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
 				}
@@ -125,7 +94,6 @@ public class ChannelListActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_WRONG:
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					// dismissDialog(CONNIDENTIFYDIALOG);
 					showToast("连接验证错误，请检查信息");
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
@@ -134,14 +102,12 @@ public class ChannelListActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					// dismissDialog(CONNIDENTIFYDIALOG);
 					showToast("连接验证超时");
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
 				}
 				break;
 			case LOADSUC:
-				showToast("加载成功");
 				Bundle msgD = msg.getData();
 				final int posi = msgD.getInt("position");
 				String suc = msgD.getString("success");
@@ -150,34 +116,22 @@ public class ChannelListActivity extends BaseActivity {
 					final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 					boolean replace = msgD.getBoolean("replace");
 					if (replace) {
-						Thread thread = new Thread(){
-							@Override
-							public void run() {
-								super.run();
-								int index = getIndexNetCaInList(netCA);
-								ReadWriteXmlUtils.specifyNewAccountInXML(netCA,CLOUD_ACCOUNT_PATH, index);
-							}
-
-							private int getIndexNetCaInList(CloudAccount netCA) {
-								int ind = 0 ;
-								List<CloudAccount> caList = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
-								for (int i = 0; i < caList.size(); i++) {
-									CloudAccount ca = caList.get(i);
-									if(ca.getUsername().equals(netCA.getUsername())){
-										ind = i;
-									}
-									break;
-								}
-								return ind;
-							}
-						};
-						thread.start();
+//						int index = getIndexNetCaInList(netCA);
+//						ReadWriteXmlUtils.specifyNewAccountInXML(netCA,CLOUD_ACCOUNT_PATH, index);
+//						Thread thread = new Thread(){
+//							@Override
+//							public void run() {
+//								super.run();
+//								int index = getIndexNetCaInList(netCA);
+//								//删除以前的文档，拷贝当前的文档
+//								//ReadWriteXmlUtils.specifyNewAccountInXML(netCA,CLOUD_ACCOUNT_PATH, index);
+//							}
+//						};
+//						thread.start();
 					}
 					netCA.setRotate(true);
 					origin_cloudAccounts.set(pos, netCA);
 				}
-				
-				
 				int size = origin_cloudAccounts.size();
 				for (int i = 1; i < size; i++) {
 					CloudAccount cloudAccount = origin_cloudAccounts.get(i);
@@ -198,28 +152,21 @@ public class ChannelListActivity extends BaseActivity {
 				setCloudAccountFromLast(netCA1, caList);
 				netCA1.setRotate(true);
 				origin_cloudAccounts.set(posit, netCA1);
-				size = origin_cloudAccounts.size();
-				for (int i = 1; i < size; i++) {
-					CloudAccount cloudAccount = origin_cloudAccounts.get(i);
-					List<DeviceItem> dList = cloudAccount.getDeviceList();
+//				size = origin_cloudAccounts.size();
+//				for (int i = 1; i < size; i++) {
+//					CloudAccount cloudAccount = origin_cloudAccounts.get(i);
+					List<DeviceItem> dList = netCA1.getDeviceList();
 					if(dList!=null){
 						int dSize = dList.size();
 						for(int j = 0 ;j<dSize;j++){
 							DeviceItem d = dList.get(j);
 							d.setIdentify(true);
 							d.setConnPass(true);
+							d.setPlatformUsername(netCA1.getUsername());
 						}
 					}
-				}
-				for (int i = 1; i < size; i++) {
-					CloudAccount cloudAccount = origin_cloudAccounts.get(i);
-					if (cloudAccount != null) {
-						List<DeviceItem> dList = cloudAccount.getDeviceList();
-						if ((dList != null) && (dList.size() > 0)) {
-							Collections.sort(dList, new PinyinComparator());// 排序...
-						}
-					}
-				}
+//				}
+				Collections.sort(netCA1.getDeviceList(), new PinyinComparator());// 排序...
 				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			case TIMEOUT:// 使用上一次的数据进行展开
@@ -231,16 +178,17 @@ public class ChannelListActivity extends BaseActivity {
 				setCloudAccountFromLast(netCA, caList1);
 				netCA.setRotate(true);
 				origin_cloudAccounts.set(positi, netCA);
-				size = origin_cloudAccounts.size();
-				for (int i = 1; i < size; i++) {
-					CloudAccount cloudAccount = origin_cloudAccounts.get(i);
-					if (cloudAccount != null) {
-						List<DeviceItem> dList = cloudAccount.getDeviceList();
-						if ((dList != null) && (dList.size() > 0)) {
-							Collections.sort(dList, new PinyinComparator());// 排序...
-						}
+				List<DeviceItem> dList1 = netCA.getDeviceList();
+				if(dList1!=null){
+					int dSize = dList1.size();
+					for(int j = 0 ;j<dSize;j++){
+						DeviceItem d = dList1.get(j);
+						d.setIdentify(true);
+						d.setConnPass(true);
+						d.setPlatformUsername(netCA.getUsername());
 					}
 				}
+				Collections.sort(netCA.getDeviceList(), new PinyinComparator());// 排序...
 				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			default:
@@ -248,6 +196,19 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		}
 	};
+	
+	private int getIndexNetCaInList(CloudAccount netCA) {
+		int ind = 0 ;
+		List<CloudAccount> caList = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		for (int i = 0; i < caList.size(); i++) {
+			CloudAccount ca = caList.get(i);
+			if(ca.getUsername().equals(netCA.getUsername())){
+				ind = i;
+				break;
+			}
+		}
+		return ind;
+	}
 
 	private void setCloudAccountFromLast(CloudAccount ca,
 			List<CloudAccount> caList) {
@@ -360,8 +321,7 @@ public class ChannelListActivity extends BaseActivity {
 							previewChannelList = getPreviewChannelList(origin_cloudAccounts);
 							if (!isFirstSearch) {
 								if (previewChannelList.size() > 0) {
-									// PreviewDeviceItem p =
-									// previewChannelList.get(0);
+									PreviewDeviceItem p = previewChannelList.get(0);
 									PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
 											.size()];
 									previewChannelList.toArray(l);
@@ -383,7 +343,7 @@ public class ChannelListActivity extends BaseActivity {
 							} else {// 存在加载成功
 								List<PreviewDeviceItem> pItems = getPreviewItems();
 								if (pItems != null && pItems.size() > 0) {
-									// PreviewDeviceItem p = pItems.get(0);
+									PreviewDeviceItem p = pItems.get(0);
 									PreviewDeviceItem[] l = new PreviewDeviceItem[pItems
 											.size()];
 									pItems.toArray(l);
@@ -550,7 +510,7 @@ public class ChannelListActivity extends BaseActivity {
 		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
 		previewChannelList = getPreviewChannelList(origin_cloudAccounts);
 		if (previewChannelList.size() > 0) {
-			// PreviewDeviceItem p = previewChannelList.get(0);
+			PreviewDeviceItem p = previewChannelList.get(0);
 
 			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
 					.size()];

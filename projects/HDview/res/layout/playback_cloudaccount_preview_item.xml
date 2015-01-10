@@ -13,11 +13,11 @@
         android:layout_weight="1.0" >
 
         <ProgressBar
-            android:id="@+id/progressBar_net_load"
+            android:id="@+id/prgBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:progress="10"
-            android:visibility="invisible" />
+            android:progress="10" />
+ <!-- android:visibility="invisible" -->
     </LinearLayout>
 
     <LinearLayout

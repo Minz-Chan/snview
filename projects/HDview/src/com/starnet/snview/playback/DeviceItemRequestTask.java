@@ -1,4 +1,4 @@
-package com.starnet.snview.channelmanager;
+package com.starnet.snview.playback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,31 +7,28 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-@SuppressLint("SdCardPath")
-public class ChannelRequestTask {
+
+public class DeviceItemRequestTask {
 	private int pos;
-	private Context ctx;
+	protected Context ctx;
 	private Handler mHandler;
 	private Thread timeThread;
 	private Thread workThread;
 	private CloudAccount reqCA;
-	private final int TIME = 7;
+	private final int TIME = 5;
 	private boolean isCanceled;
-	private SharedPreferences sp;
 	private boolean isDocumentOpt;
 	private boolean isRequestTimeOut;
 	private boolean isTimeThreadOver;
@@ -39,9 +36,8 @@ public class ChannelRequestTask {
 	private final int TIMEOUT = 0x0002;
 	private final int LOADSUC = 0x0003;
 	private final int LOADFAI = 0x0004;
-	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 
-	public ChannelRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, int pos) {
+	public DeviceItemRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, int pos) {
 		this.pos = pos;
 		this.ctx = ctx;
 		this.reqCA = reqCA;
@@ -132,16 +128,6 @@ public class ChannelRequestTask {
 				Message msg = new Message();
 				Bundle data = new Bundle();
 				CloudAccount netAct = getCloudAccountFromDVRDevice(dList);
-				sp = ctx.getSharedPreferences("isFirstWrite", Context.MODE_PRIVATE);
-				boolean isFirst = sp.getBoolean(netAct.getUsername(), true);
-				if (isFirst) {
-					ReadWriteXmlUtils.writeNewCloudAccountToXML(netAct,CLOUD_ACCOUNT_PATH);// 第一次是写入，之后都是替代
-					Editor editor = sp.edit();
-					editor.putBoolean(netAct.getUsername(), false);
-					editor.commit();
-				}else {
-					data.putBoolean("replace", true);
-				}
 				isDocumentOpt = true;
 				isTimeThreadOver = true;
 				isRequestTimeOut = true;
@@ -247,8 +233,7 @@ public class ChannelRequestTask {
 			if (channeNumber != 0) {
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE
-							+ (j + 1));
+					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE + (j + 1));
 					channel.setSelected(false);
 					channel.setChannelNo((j + 1));
 					channelList.add(channel);

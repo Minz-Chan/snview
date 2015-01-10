@@ -79,7 +79,7 @@
             android:name="com.starnet.snview.alarmmanager.AlarmImageActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@style/SampleTheme" /> <!-- @android:style/Theme.Dialog -->
         <activity
             android:name="com.starnet.snview.alarmmanager.AlarmContentActivity"
             android:launchMode="singleTop"
@@ -161,6 +161,11 @@
             android:theme="@style/SampleTheme" />
         <activity
             android:name="com.starnet.snview.syssetting.AlarmAccountsAddActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
+        <activity
+            android:name="com.starnet.snview.syssetting.AlarmAccountsAddingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />

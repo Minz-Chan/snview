@@ -55,21 +55,32 @@ public class AlarmContentActivity extends BaseActivity implements
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case TIMOUTCODE:
+				if (imgprogress != null && imgprogress.isShowing()) {
+					imgprogress.dismiss();
+				}
 				showToast(ctx.getString(R.string.alarm_img_load_timeout));
 				break;
 			case LOADSUCCESS:
-				if (imgprogress.isShowing()) {
+				if (imgprogress != null && imgprogress.isShowing()) {
 					imgprogress.dismiss();
 				}
+				Bundle data = msg.getData();
+				byte[] imgData = data.getByteArray("image");
+
 				Intent in = new Intent();
 				in.putExtra("isExist", true);
 				in.putExtra("title", device.getDeviceName());
 				in.putExtra("imageUrl", device.getImageUrl());
+				in.putExtra("image", imgData);
 				in.setClass(AlarmContentActivity.this, AlarmImageActivity.class);
 				startActivityForResult(in, REQUESTCODE);
 				break;
 			case DOWNLOADFAILED:
-
+				// showDialog(IMAGE_LOAD_DIALOG);
+				if (imgprogress != null && imgprogress.isShowing()) {
+					imgprogress.dismiss();
+				}
+				showToast("连接请求有误，请检查网络后再试...");
 				break;
 			}
 		}
@@ -197,20 +208,27 @@ public class AlarmContentActivity extends BaseActivity implements
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.imgBtn:
+			showDialog(IMAGE_LOAD_DIALOG);
 			AlarmImageFileCache.context = ctx;
 			String imgUrl = device.getImageUrl();
 			boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
+			boolean isEt = AlarmImageFileCache.isExistImgFileInternal(imgUrl);
 			if (isExist) {
-				showDialog(IMAGE_LOAD_DIALOG);
+				if (imgprogress != null && imgprogress.isShowing()) {
+					imgprogress.dismiss();
+				}
 				getImageFromUrlFromLocal(imgUrl);
+			} else if (isEt) {
+				if (imgprogress != null && imgprogress.isShowing()) {
+					imgprogress.dismiss();
+				}
+				getImageFromUrlFromInteral(imgUrl);
 			} else {
 				if (NetWorkUtils.checkNetConnection(ctx)) {
-					showDialog(IMAGE_LOAD_DIALOG);
 					dName = device.getDeviceName();
 					getImageFromUrlFromNet(imgUrl);
 				} else {
@@ -239,15 +257,31 @@ public class AlarmContentActivity extends BaseActivity implements
 	/*** 获得一张图片,从是从文件中获取 ***/
 	protected void getImageFromUrlFromLocal(String imgUrl) {
 
-		if (imgprogress.isShowing()) {
+		if (imgprogress != null && imgprogress.isShowing()) {
 			imgprogress.dismiss();
 		}
+
 		Intent intent = new Intent();
 		intent.putExtra("isExist", true);
 		intent.putExtra("imageUrl", imgUrl);
 		intent.putExtra("title", dName);
 		intent.setClass(ctx, AlarmImageActivity.class);
 		startActivityForResult(intent, REQUESTCODE);
+
+	}
+
+	/*** 获得一张图片,从是从文件中获取 ***/
+	protected void getImageFromUrlFromInteral(String imgUrl) {
+		if (imgprogress != null && imgprogress.isShowing()) {
+			imgprogress.dismiss();
+		}
+		Intent intent = new Intent();
+		intent.putExtra("isInExist", true);
+		intent.putExtra("imageUrl", imgUrl);
+		intent.putExtra("title", dName);
+		intent.setClass(ctx, AlarmImageActivity.class);
+		startActivityForResult(intent, REQUESTCODE);
+
 	}
 
 	/*** 获得一张图片,从网络获取 ***/

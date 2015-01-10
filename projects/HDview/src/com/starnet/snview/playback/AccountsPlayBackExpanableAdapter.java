@@ -15,13 +15,14 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter {
 
 	private Context ctx;
 	private List<CloudAccount> users;// 星云账户
-	private final int REQ = 0x0001;
+	private final int REQ = 0x0005;
 
 	public AccountsPlayBackExpanableAdapter(Context ctx,
 			List<CloudAccount> users) {
@@ -65,13 +66,11 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	@Override
 	public long getChildId(int groupPosition, int childPosition) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public boolean hasStableIds() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -82,10 +81,16 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 			convertView = LayoutInflater.from(ctx).inflate(
 					R.layout.playback_cloudaccount_preview_item, null);
 		}
+
+		ProgressBar prg = (ProgressBar) convertView.findViewById(R.id.prgBar);
+		if (users.get(groupPosition).isRotate()) {
+			prg.setVisibility(View.GONE);
+		}
+
 		TextView txt = (TextView) convertView.findViewById(R.id.account_name);
 		txt.setText(users.get(groupPosition).getUsername());
 		ImageView arrow = (ImageView) convertView.findViewById(R.id.arrow);
-		if (PlaybackUtils.exapandFlag) {
+		if (users.get(groupPosition).isExpanded()) {
 			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 		} else {
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
@@ -103,22 +108,17 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		List<DeviceItem> list = users.get(groupPosition).getDeviceList();
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
 		txt.setText(list.get(childPosition).getDeviceName());
-
 		final Button stateBtn = (Button) convertView
 				.findViewById(R.id.stateBtn);
-
 		if (okFlag && (groupPosition == clickGroup)
 				&& (childPosition == clickChild)) {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
-
 		final int group = groupPosition;
 		final int child = childPosition;
-
 		stateBtn.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				clickChild = child;

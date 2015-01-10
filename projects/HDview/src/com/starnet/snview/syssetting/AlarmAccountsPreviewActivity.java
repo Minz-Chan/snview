@@ -29,6 +29,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	private ListView userListView;
 	private List<CloudAccount> mList;
 	private CloudAccountAdapter caAdapter;
+	private final int ADDINGTCODE = 0x0006;
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int REQUESTCODE_EDIT = 0x0004;
 
@@ -56,7 +57,8 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			public void onClick(View v) {
 
 				Intent intent = new Intent();
-				intent.setClass(ctx, AlarmAccountsAddActivity.class);
+				intent.setClass(ctx, AlarmAccountsAddingActivity.class);
+				// intent.setClass(ctx, AlarmAccountsAddActivity.class);
 				startActivityForResult(intent, REQUESTCODE_ADD);
 
 			}
@@ -113,7 +115,8 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	protected void deleteTags(CloudAccount clA) {
 		try {
 			List<String> delTags = new ArrayList<String>();
-			delTags.add(clA.getUsername() + "" + MD5Utils.createMD5(clA.getPassword()));
+			delTags.add(clA.getUsername() + ""
+					+ MD5Utils.createMD5(clA.getPassword()));
 			PushManager.delTags(ctx, delTags);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -135,6 +138,9 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.setTitleViewText(getString(R.string.system_setting_alarmuser_preview));
 
 		mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+		if (mList == null) {
+			mList = new ArrayList<CloudAccount>();
+		}
 		caAdapter = new CloudAccountAdapter(ctx, mList);
 		userListView = (ListView) findViewById(R.id.userListView);
 		userListView.setAdapter(caAdapter);
@@ -144,7 +150,31 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == REQUESTCODE_ADD) {
+
+		if (resultCode == ADDINGTCODE) {
+			if (data != null) {
+				CloudAccount ca = (CloudAccount) data
+						.getSerializableExtra("alarmUser");
+				boolean cover = data.getBooleanExtra("cover", false);
+				if (!cover) {
+					ReadWriteXmlUtils.addAlarmPushUserToXML(ca);
+					mList.add(ca);
+					caAdapter.notifyDataSetChanged();
+				} else {
+					mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+					int index = 0;
+					for (int i = 0; i < mList.size(); i++) {
+						if (ca.getUsername().equals(mList.get(i).getUsername())) {
+							index = i;
+							mList.set(i, ca);
+							caAdapter.notifyDataSetChanged();
+							break;
+						}
+					}
+					ReadWriteXmlUtils.replaceAlarmPushUserToXML(ca, index);
+				}
+			}
+		} else if (resultCode == REQUESTCODE_ADD) {
 			if (data != null) {
 				CloudAccount ca = (CloudAccount) data
 						.getSerializableExtra("ca");
@@ -165,18 +195,18 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			}
 		} else if (resultCode == REQUESTCODE_EDIT) {
 			if (data != null) {
-				CloudAccount da = (CloudAccount) data.getSerializableExtra("claa");
+				CloudAccount da = (CloudAccount) data
+						.getSerializableExtra("claa");
 				da.setEnabled(true);
 				int pos = data.getIntExtra("position", 0);
 				boolean cover = data.getBooleanExtra("cover", false);
 				if (cover) {
-					
 					CloudAccount orda = mList.get(pos);
-					boolean isSame = checkIfSame(orda,da);
-					if(isSame){//跟原来是同一个账户则替换掉
+					boolean isSame = checkIfSame(orda, da);
+					if (isSame) {// 跟原来是同一个账户则替换掉
 						mList.set(pos, da);
 						caAdapter.notifyDataSetChanged();
-					}else {//和其他用户相同，则删除被编辑的
+					} else {// 和其他用户相同，则删除被编辑的
 						int index = getIndex(da);
 						mList.set(index, da);
 						ReadWriteXmlUtils.replaceAlarmPushUserToXML(da, index);
@@ -184,18 +214,19 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 						ReadWriteXmlUtils.deleteAlarmPushUserToXML(pos);
 						caAdapter.notifyDataSetChanged();
 					}
-				}else {
+				} else {
 					mList.set(pos, da);
 					caAdapter.notifyDataSetChanged();
 				}
 			}
 		}
 	}
-	/**检测两个用户的用户名是否一致，一致返回true；否则返回false**/
-	private boolean checkIfSame(CloudAccount orda,CloudAccount da){
+
+	/** 检测两个用户的用户名是否一致，一致返回true；否则返回false **/
+	private boolean checkIfSame(CloudAccount orda, CloudAccount da) {
 		if (orda.getUsername().equals(da.getUsername())) {
 			return true;
-		}else {
+		} else {
 			return false;
 		}
 	}

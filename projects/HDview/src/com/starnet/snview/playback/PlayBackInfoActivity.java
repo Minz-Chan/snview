@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 
@@ -28,9 +29,8 @@ public class PlayBackInfoActivity extends BaseActivity {
 
 	private int group;
 	private int child;
-	// private Button okBtn;
 	private TextView devicenameTxt;
-	private final int REQUESTCODE = 0x0001;
+	private final int REQUESTCODE = 0x0005;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +42,6 @@ public class PlayBackInfoActivity extends BaseActivity {
 	}
 
 	private void setListeners() {
-		// okBtn.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		//
-		// }
-		// });
 
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 
@@ -61,6 +54,10 @@ public class PlayBackInfoActivity extends BaseActivity {
 
 	private void backAndLeftOperation() {
 		Intent data = new Intent();
+		String type = typeSpinner.getSelectedItem().toString();
+		String channel = channelSpinner.getSelectedItem().toString();
+		data.putExtra("type", type);
+		data.putExtra("channel", channel);
 		data.putExtra("okBtn", true);
 		data.putExtra("group", group);
 		data.putExtra("child", child);
@@ -76,7 +73,6 @@ public class PlayBackInfoActivity extends BaseActivity {
 		String title = getString(R.string.playback_infoact_setting);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.getTitleView().setText(title);
-		// okBtn = (Button) findViewById(R.id.okBtn);
 		typeSpinner = (Spinner) findViewById(R.id.typeSpinner);
 		devicenameTxt = (TextView) findViewById(R.id.devicename);
 		channelSpinner = (Spinner) findViewById(R.id.channelSpinner);
@@ -86,8 +82,8 @@ public class PlayBackInfoActivity extends BaseActivity {
 		Intent intent = getIntent();
 		group = intent.getIntExtra("group", 0);
 		child = intent.getIntExtra("child", 0);
-		device = intent.getParcelableExtra("device");
-		testData();
+		device = (DeviceItem) intent.getSerializableExtra("device");
+		loadData();
 
 		if (device!=null) {
 			devicenameTxt.setText(device.getDeviceName());
@@ -103,29 +99,30 @@ public class PlayBackInfoActivity extends BaseActivity {
 
 	}
 
-	private void testData() {
+	private void loadData() {
+		String chName = getString(R.string.playback_channel);
+		List<Channel> chList = device.getChannelList();
+		if (chList!=null) {
+			int size = chList.size();
+			int j = 1;
+			for (int i = 0; i < size; i++) {
+				String data = chName +j;
+				j++;
+				cList.add(data);
+			}
+		}
 
-		String data11 = "通道1";
-		String data12 = "通道2";
-		String data13 = "通道3";
-		String data14 = "通道4";
+		String allType = getString(R.string.playback_alarm_type);
+		String typeShD = getString(R.string.playback_alarm_type1);
+		String typeDsh = getString(R.string.playback_alarm_type2);
+		String typeYDZC = getString(R.string.playback_alarm_type3);
+		String typeKGLJG = getString(R.string.playback_alarm_type4);
 
-		cList.add(data11);
-		cList.add(data12);
-		cList.add(data13);
-		cList.add(data14);
-
-		String data21 = "开关量告警录像";
-		String data22 = "移动侦测录像";
-		String data23 = "定时录像";
-		String data24 = "手动录像";
-		String data25 = "全部";
-
-		tList.add(data21);
-		tList.add(data22);
-		tList.add(data23);
-		tList.add(data24);
-		tList.add(data25);
+		tList.add(typeKGLJG);
+		tList.add(typeYDZC);
+		tList.add(typeDsh);
+		tList.add(typeShD);
+		tList.add(allType);
 
 	}
 
