@@ -1,6 +1,9 @@
 package com.starnet.snview.protocol.message;
 
-public class OWSPDateTime {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class OWSPDateTime implements Parcelable {
 
 	private int year;
 	private int month;
@@ -11,6 +14,10 @@ public class OWSPDateTime {
 
 	public int getYear() {
 		return year;
+	}
+	
+	public OWSPDateTime(){
+		
 	}
 
 	public void setYear(int year) {
@@ -56,5 +63,41 @@ public class OWSPDateTime {
 	public void setSecond(int second) {
 		this.second = second;
 	}
+	
+	private OWSPDateTime(Parcel in){
+		this.year = in.readInt();
+		this.month = in.readInt();
+		this.day = in.readInt();
+		this.hour = in.readInt();
+		this.minute = in.readInt();
+		this.second = in.readInt();
+	}
+	
+	public static final Parcelable.Creator<OWSPDateTime> CREATOR = new Parcelable.Creator<OWSPDateTime>() {
 
+		@Override
+		public OWSPDateTime createFromParcel(Parcel in) {
+			return new OWSPDateTime(in);
+		}
+
+		@Override
+		public OWSPDateTime[] newArray(int size) {
+			return new OWSPDateTime[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(year);
+		dest.writeInt(month);
+		dest.writeInt(day);
+		dest.writeInt(hour);
+		dest.writeInt(minute);
+		dest.writeInt(second);
+	}
 }

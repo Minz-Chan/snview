@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 @SuppressLint("SdCardPath")
 public class AlarmImageDownLoadTask {
@@ -23,9 +24,9 @@ public class AlarmImageDownLoadTask {
 	private String imageUrl;
 	private Handler handler;
 	private Context mContext;
-	private String deviceName;
 	private boolean isTimeOut;
 	private boolean isCanceled;
+	protected String deviceName;
 	private boolean timeoutover;
 	private Thread timeoutThread;
 	private Thread imgeLoadThread;
@@ -93,13 +94,20 @@ public class AlarmImageDownLoadTask {
 				return;
 			}
 			Message msg = new Message();
-			if (SDCardUtils.IS_MOUNTED) {// 保存下载的图像文件
+			boolean isAvailable = false;
+			String exPath = SDCardUtils.getExternalSDCardPath();
+			String appName = AlarmImageFileCache.getApplicationName2();
+			String tempPath = exPath + appName;
+			File file = new File(tempPath);
+			if (file.exists()) {
+				isAvailable = true;
+			}
+			if (isAvailable) {// 保存下载的图像文件
 				String[] urls = imageUrl.split("/");
 				String imagename = urls[urls.length - 1];
-				String appName = AlarmImageFileCache.getApplicationName2();
-				String fImgPath = SDCardUtils.getSDCardPath() + appName;
+				String fImgPath = SDCardUtils.getExternalSDCardPath() + appName;
 				createMkdir(fImgPath);
-				fImgPath = fImgPath + "/"+imagename;
+				fImgPath = fImgPath + "/" + imagename;
 				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
 				Bundle data = new Bundle();
 				data.putByteArray("image", imgData);
@@ -107,6 +115,13 @@ public class AlarmImageDownLoadTask {
 				msg.what = LOADSUCCESS;
 				handler.sendMessage(msg);
 			} else {
+				String inPath = SDCardUtils.getInternalSDCardPath();
+				String[] urls = imageUrl.split("/");
+				String imagename = urls[urls.length - 1];
+				String fImgPath = inPath + appName;
+				createMkdir(fImgPath);
+				fImgPath = fImgPath + "/" + imagename;
+				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
 				Intent intent = new Intent();
 				intent.putExtra("image", imgData);
 				intent.setClass(mContext, AlarmImageActivity.class);
@@ -131,11 +146,18 @@ public class AlarmImageDownLoadTask {
 		// isDownloadSuc = false;
 		timeoutover = true;
 	}
+
 	// /*** 创建文件夹 ***/
 	private void createMkdir(String imagePath) {
 		File file = new File(imagePath);
 		if (!file.exists() && !file.isDirectory()) {
-			file.mkdir();
+			boolean isSuc = file.mkdirs();
+			if (isSuc) {
+				Log.v(TAG, "success");
+			} else {
+				Log.v(TAG, "failed");
+			}
+
 		}
 	}
 

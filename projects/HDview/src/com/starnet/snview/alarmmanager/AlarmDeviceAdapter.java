@@ -155,7 +155,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			public void onClick(View v) {
 				AlarmImageFileCache.context = ctx;
 				String imgUrl = almList.get(pos).getAlarm().getImageUrl();
-				boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
+				boolean isExist = AlarmImageFileCache.isExistImageFileInExternal(imgUrl);
 				if (isExist) {
 					getAlarmActivity().showDialog(IMAGE_LOAD_DIALOG);
 					getImageFromUrl(imgUrl);
@@ -232,7 +232,7 @@ public class AlarmDeviceAdapter extends BaseExpandableListAdapter {
 			return;
 		}
 
-		boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
+		boolean isExist = AlarmImageFileCache.isExistImageFileInExternal(imgUrl);
 		if (!isExist) {
 			imgLoadTask = new AlarmImageDownLoadTask(imgUrl, ctx, mHandler);
 			imgLoadTask.setTitle(dName);

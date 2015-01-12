@@ -17,10 +17,10 @@ public class AlarmImageFileCache {
 	public static Context context;
 
 	/** 从缓存中获取图片 **/
-	public static Bitmap getImage(String url) {
+	public static Bitmap getImageFromExternal(String url) {
 		String appName = getApplicationName();
 		String[] urls = url.split("/");
-		String path = SDCardUtils.getSDCardPath() + appName + urls[urls.length - 1];
+		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
@@ -34,7 +34,7 @@ public class AlarmImageFileCache {
 	public static Bitmap getImageInternal(String url) {
 		String appName = getApplicationName();
 		String[] urls = url.split("/");
-		String path = SDCardUtils.getSDCardPath() + appName + urls[urls.length - 1];
+		String path = SDCardUtils.getInternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
@@ -45,11 +45,11 @@ public class AlarmImageFileCache {
 	}
 
 	/*** 判断图像文件是否在SDCard上 **/
-	public static boolean isExistImageFile(String imgUrl) {
+	public static boolean isExistImageFileInExternal(String imgUrl) {
 		String appName = getApplicationName();
 		boolean isExist = false;
 		String[] urls = imgUrl.split("/");
-		String path = SDCardUtils.getSDCardPath() + appName + urls[urls.length - 1];
+		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			isExist = true;
@@ -62,7 +62,7 @@ public class AlarmImageFileCache {
 		String appName = getApplicationName();
 		String[] urls = imgUrl.split("/");
 		boolean isExist = false;
-		String path = SDCardUtils.getSDCardPath() + appName + urls[urls.length - 1];
+		String path = SDCardUtils.getInternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			isExist = true;

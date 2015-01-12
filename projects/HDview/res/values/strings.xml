@@ -123,7 +123,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_ok">确定</string>
     <string name="system_setting_alarm_pushset_port_null">端口号为空，请填充</string>
     <string name="system_setting_alarm_pushset_uName_null">用户名为空，请填充</string>
-    <string name="system_setting_about_build">Version 6.1.0 (Build 20150110)</string>
+    <string name="system_setting_about_build">Version 6.1.0 (Build 20150112)</string>
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
@@ -272,6 +272,8 @@
     <string name="playback_alarm_type">全部</string>
     <string name="playback_alarm_type1">手动录像</string>
     <string name="playback_alarm_type2">定时录像</string>
+    <string name="playback_req_fail"> 用户请求失败</string>
+    <string name="playback_req_extime"> 用户请求超时</string>
     <string name="playback_alarm_type3">移动侦测录像</string>
     <string name="playback_alarm_type4">开关量告警录像</string>
     <string name="playback_infoact_alarmtype">报警类型</string>
@@ -281,5 +283,6 @@
     <string name="playback_click_input_time">点击输入时间</string>
     <string name="playback_infoact_alarmchannel">报警通道</string>
     <string name="playback_extend3days_time">选择的回放时间不能超过3天，请重新选择</string>
+   
 
 </resources>

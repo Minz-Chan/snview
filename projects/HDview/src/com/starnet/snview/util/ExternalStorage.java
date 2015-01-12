@@ -69,7 +69,12 @@ public class ExternalStorage {
                 Scanner scanner = new Scanner(mountFile);
                 while (scanner.hasNext()) {
                     String line = scanner.nextLine();
-                    if (line.startsWith("/dev/block/vold/")) {
+                    /*
+                     * /dev/block/vold/, command device
+                     * /dev/fuse, Android 4.4.2 for Xiaomi "HM NOTE 1LTETD"
+                     */
+                    if (line.startsWith("/dev/block/vold/") ||
+                    		line.startsWith("/dev/fuse")) {
                         String[] lineElements = line.split(" ");
                         String element = lineElements[1];
  

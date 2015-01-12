@@ -12,7 +12,11 @@ import android.view.View.OnClickListener;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.Toolbar;
+import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.utils.PlayBackTask;
+import com.starnet.snview.protocol.message.LoginRequest;
+import com.starnet.snview.protocol.message.SearchRecordRequest;
 
 public class PlaybackActivity extends BaseActivity {
 	private static final String TAG = "PlaybackActivity";
@@ -23,7 +27,7 @@ public class PlaybackActivity extends BaseActivity {
 	private TimeBar mTimebar;
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
 	
-	private final int TIMESETTING = 0x0003;
+	private final int TIMESETTING = 0x0007;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -150,13 +154,18 @@ public class PlaybackActivity extends BaseActivity {
 				c8.get(Calendar.MINUTE));
 		mTimebar.addFileInfo(1, c7, c8);
 	}
-
+	private PlayBackTask pbTask;
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING) {
 			if (data!=null) {
-				
+				SearchRecordRequest srr = data.getParcelableExtra("srr");
+				DeviceItem vItem = (DeviceItem) data.getSerializableExtra("visitDevItem");
+				LoginRequest lr = new LoginRequest();
+				pbTask = new PlayBackTask(vItem,srr);
+				pbTask.setLoginReq(lr);
+				pbTask.start();
 			}
 		}
 	}

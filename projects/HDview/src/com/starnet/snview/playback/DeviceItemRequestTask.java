@@ -27,7 +27,7 @@ public class DeviceItemRequestTask {
 	private Thread timeThread;
 	private Thread workThread;
 	private CloudAccount reqCA;
-	private final int TIME = 5;
+	private final int TIME = 15;
 	private boolean isCanceled;
 	private boolean isDocumentOpt;
 	private boolean isRequestTimeOut;

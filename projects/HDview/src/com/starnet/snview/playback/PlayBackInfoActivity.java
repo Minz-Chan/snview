@@ -55,12 +55,17 @@ public class PlayBackInfoActivity extends BaseActivity {
 	private void backAndLeftOperation() {
 		Intent data = new Intent();
 		String type = typeSpinner.getSelectedItem().toString();
+		int tPostion = typeSpinner.getSelectedItemPosition();
+		int tChannel = channelSpinner.getSelectedItemPosition();
+		
 		String channel = channelSpinner.getSelectedItem().toString();
 		data.putExtra("type", type);
 		data.putExtra("channel", channel);
 		data.putExtra("okBtn", true);
 		data.putExtra("group", group);
 		data.putExtra("child", child);
+		data.putExtra("pos", tPostion);
+		data.putExtra("chnl", tChannel);
 		setResult(REQUESTCODE, data);
 		PlayBackInfoActivity.this.finish();
 	}
@@ -112,7 +117,7 @@ public class PlayBackInfoActivity extends BaseActivity {
 			}
 		}
 
-		String allType = getString(R.string.playback_alarm_type);
+//		String allType = getString(R.string.playback_alarm_type);
 		String typeShD = getString(R.string.playback_alarm_type1);
 		String typeDsh = getString(R.string.playback_alarm_type2);
 		String typeYDZC = getString(R.string.playback_alarm_type3);
@@ -122,7 +127,7 @@ public class PlayBackInfoActivity extends BaseActivity {
 		tList.add(typeYDZC);
 		tList.add(typeDsh);
 		tList.add(typeShD);
-		tList.add(allType);
+//		tList.add(allType);
 
 	}
 

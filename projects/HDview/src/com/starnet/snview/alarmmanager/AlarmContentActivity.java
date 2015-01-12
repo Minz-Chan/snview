@@ -1,9 +1,12 @@
 package com.starnet.snview.alarmmanager;
 
+import java.io.File;
+
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.SDCardUtils;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -49,6 +52,7 @@ public class AlarmContentActivity extends BaseActivity implements
 	private final int TIMOUTCODE = 0x0002;// 超时发送标志
 	private final int LOADSUCCESS = 0x0004;
 	private final int DOWNLOADFAILED = 0x0003;
+
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -207,22 +211,34 @@ public class AlarmContentActivity extends BaseActivity implements
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.imgBtn:
+			// 首先需要检测外置SDCard是否可用，如果可用，则到外置SDCard去查找，若是找到，则使用；否则，去内置SDCard查找
 			showDialog(IMAGE_LOAD_DIALOG);
+			boolean isExist = false;
+			boolean isAvailable = false;
 			AlarmImageFileCache.context = ctx;
 			String imgUrl = device.getImageUrl();
-			boolean isExist = AlarmImageFileCache.isExistImageFile(imgUrl);
+			String exPath = SDCardUtils.getExternalSDCardPath();
+			String appName = AlarmImageFileCache.getApplicationName2();
+			String tempPath = exPath + appName;
+			File file = new File(tempPath);
+			if (file.exists()) {
+				isAvailable = true;
+			}
+			if (isAvailable) {
+				isExist = AlarmImageFileCache.isExistImageFileInExternal(imgUrl);
+			}
 			if (isExist) {
 				if (imgprogress != null && imgprogress.isShowing()) {
 					imgprogress.dismiss();
 				}
 				getImageFromUrlFromLocal(imgUrl);
 			} else {
-				boolean isEt = AlarmImageFileCache
-						.isExistImgFileInternal(imgUrl);
+				boolean isEt = AlarmImageFileCache.isExistImgFileInternal(imgUrl);
 				if (isEt) {
 					if (imgprogress != null && imgprogress.isShowing()) {
 						imgprogress.dismiss();
@@ -258,12 +274,11 @@ public class AlarmContentActivity extends BaseActivity implements
 
 	/*** 获得一张图片,从是从文件中获取 ***/
 	protected void getImageFromUrlFromLocal(String imgUrl) {
-
 		if (imgprogress != null && imgprogress.isShowing()) {
 			imgprogress.dismiss();
 		}
 		Intent intent = new Intent();
-		intent.putExtra("isExist", true);
+		intent.putExtra("isExistOutSD", true);
 		intent.putExtra("imageUrl", imgUrl);
 		intent.putExtra("title", dName);
 		intent.setClass(ctx, AlarmImageActivity.class);

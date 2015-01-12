@@ -31,7 +31,6 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.playback.utils.PlayBackTask;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.SearchRecordRequest;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -64,6 +63,8 @@ public class TimeSettingActivity extends BaseActivity {
 	private NumericWheelAdapter monthAdapter;
 	private NumericWheelAdapter minuteAdapter;
 
+	private SearchRecordRequest srr;
+	private DeviceItem visitDevItem;
 	private Button startScanBtn;
 
 	private List<CloudAccount> originCAs;
@@ -74,6 +75,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private final int LOADFAI = 0x0004;
 	private DeviceItemRequestTask[] tasks;
 	private final int REQUESTCODE = 0x0005;
+	private final int TIMESETTING = 0x0007;
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
@@ -88,7 +90,8 @@ public class TimeSettingActivity extends BaseActivity {
 				Bundle msgD = msg.getData();
 				CloudAccount netCA1 = (CloudAccount) msgD
 						.getSerializable("netCA");
-				showToast(netCA1.getUsername() + "用户请求超时");
+				String reqExt = getString(R.string.playback_req_extime);
+				showToast(netCA1.getUsername() + reqExt);
 
 				int positi = msgD.getInt("position");
 
@@ -105,26 +108,23 @@ public class TimeSettingActivity extends BaseActivity {
 					final CloudAccount netCA = (CloudAccount) msgD
 							.getSerializable("netCA");
 					netCA.setRotate(true);
-					originCAs.set(pos, netCA);
-				}
-				int size = originCAs.size();
-				for (int i = 1; i < size; i++) {
-					CloudAccount cloudAccount = originCAs.get(i);
-					if (cloudAccount != null) {
-						List<DeviceItem> dList = cloudAccount.getDeviceList();
+					if (netCA != null) {
+						List<DeviceItem> dList = netCA.getDeviceList();
 						if ((dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
 					}
+					originCAs.set(pos, netCA);
+					actsAdapter.notifyDataSetChanged();
 				}
-				actsAdapter.notifyDataSetChanged();
 				break;
 			case LOADFAI:
 				msgD = msg.getData();
 				int posit = msgD.getInt("position");
 				CloudAccount netCA2 = (CloudAccount) msgD
 						.getSerializable("netCA");
-				showToast(netCA2.getUsername() + "用户请求失败");
+				String fail = getString(R.string.playback_req_fail);
+				showToast(netCA2.getUsername() + fail);
 				netCA2.setRotate(true);
 				originCAs.set(posit, netCA2);
 				actsAdapter.notifyDataSetChanged();
@@ -268,44 +268,61 @@ public class TimeSettingActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				startPlayBack();
+				Intent data = new Intent();
+				data.putExtra("srr", srr);
+				data.putExtra("visitDevItem", visitDevItem);
+				setResult(TIMESETTING, data);
 				TimeSettingActivity.this.finish();
 			}
 		});
 	}
 
-	private PlayBackTask pbTask;
-
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
 		dismissTimeDialog();
-		SearchRecordRequest srr = getRequestInfo();
-		pbTask = new PlayBackTask(srr);
-		pbTask.start();
+		srr = getRequestInfo();
 	}
 
 	private SearchRecordRequest getRequestInfo() {
 		SearchRecordRequest srr = new SearchRecordRequest();
 		String startTime = (String) startTimeTxt.getText();
 		String endTime = (String) endtimeTxt.getText();
-		DeviceItem dItem = (DeviceItem) actsAdapter.getChild(clickGroup,
-				clickChild);
-		int maxChannelCount = 1;
+		visitDevItem = (DeviceItem) actsAdapter.getChild(clickGroup, clickChild);
+
 		OWSPDateTime sTime = getOWSPDateTime(startTime);
 		OWSPDateTime eTime = getOWSPDateTime(endTime);
+		
+		//测试数据
+		sTime.setYear(2015);
+		sTime.setMonth(1);
+		sTime.setDay(10);
+		sTime.setHour(10);
+		sTime.setMinute(9);
+		sTime.setSecond(12);
+		//测试数据
+
+//		int recordType = 1;// 测试数据
+		int deviceId = 0;// 测试数据
+		int count = Integer.valueOf(visitDevItem.getChannelSum());// 测试数据
+//		int channel = 1;// 测试数据
+
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
-		
-		
+		srr.setCount(count);
+		srr.setChannel(channelNo);
+		srr.setDeviceId(deviceId);
+		srr.setRecordType(recordType);
+		srr.setReserve(new int[] { 0, 0, 0 });
 		return srr;
 	}
 
 	private OWSPDateTime getOWSPDateTime(String time) {
 		OWSPDateTime owspTime = new OWSPDateTime();
-		String []sumTime = time.split(" ");
+		String[] sumTime = time.split(" ");
 		String ymdTemp = sumTime[0];
 		String hmsTemp = sumTime[1];
-		int []ymd = getIntYMDData(ymdTemp);
-		int []hms = getIntHMSData(hmsTemp);
+		int[] ymd = getIntYMDData(ymdTemp);
+		int[] hms = getIntHMSData(hmsTemp);
 		owspTime.setYear(ymd[0]);
 		owspTime.setMonth(ymd[1]);
 		owspTime.setDay(ymd[2]);
@@ -316,17 +333,17 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private int[] getIntHMSData(String ymdTemp) {
-		int []data = new int[3];
-		String []temp = ymdTemp.split(":");
+		int[] data = new int[3];
+		String[] temp = ymdTemp.split(":");
 		for (int i = 0; i < 2; i++) {
 			data[i] = Integer.valueOf(temp[i]);
 		}
 		return data;
 	}
-	
+
 	private int[] getIntYMDData(String ymdTemp) {
-		int []data = new int[3];
-		String []temp = ymdTemp.split("-");
+		int[] data = new int[3];
+		String[] temp = ymdTemp.split("-");
 		for (int i = 0; i < 3; i++) {
 			data[i] = Integer.valueOf(temp[i]);
 		}
@@ -591,6 +608,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private int clickChild;
 	private int channelNo;
 	private String type;
+	private int recordType;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -600,17 +618,33 @@ public class TimeSettingActivity extends BaseActivity {
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
 				if (okFlag) {
-					String chName = getString(R.string.playback_channel);
 					actsAdapter.setOkFlag(true);
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					type = data.getStringExtra("type");
-					channelNo = Integer.valueOf(data.getStringExtra("channel").replace(chName, ""));
+					setRecordTypeAcc(type);
+					channelNo = data.getIntExtra("chnl", 0) + 1;
 					actsAdapter.setChild(clickChild);
 					actsAdapter.setGroup(clickGroup);
 					actsAdapter.notifyDataSetChanged();
 				}
 			}
+		}
+	}
+
+	private void setRecordTypeAcc(String type2) {
+		String typeShD = getString(R.string.playback_alarm_type1);
+		String typeDsh = getString(R.string.playback_alarm_type2);
+		String typeYDZC = getString(R.string.playback_alarm_type3);
+		String typeKGLJG = getString(R.string.playback_alarm_type4);
+		if (type2.equals(typeShD)) {
+			recordType = 8;
+		}else if (type2.equals(typeDsh)){
+			recordType = 4;
+		}else if (type2.equals(typeYDZC)){
+			recordType = 2;
+		}else if (type2.equals(typeKGLJG)){
+			recordType = 1;
 		}
 	}
 }

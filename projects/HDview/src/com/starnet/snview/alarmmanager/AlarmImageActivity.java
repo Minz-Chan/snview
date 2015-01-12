@@ -51,9 +51,9 @@ public class AlarmImageActivity extends BaseActivity {
 		showImageView = (ImageView) findViewById(R.id.img_net);
 		Intent intent = getIntent();
 		if (!intent.getBooleanExtra("cancel", false)) {
-			if (intent.getBooleanExtra("isExist", false)) {
+			if (intent.getBooleanExtra("isExistOutSD", false)) {//如果存在于外部，则从外部获取
 				String url = intent.getStringExtra("imageUrl");
-				Bitmap bitmap = AlarmImageFileCache.getImage(url);
+				Bitmap bitmap = AlarmImageFileCache.getImageFromExternal(url);
 				showImageView.setScaleType(ScaleType.FIT_XY);
 				showImageView.setImageBitmap(bitmap);
 			}else if (intent.getBooleanExtra("isInExist", false)) {
