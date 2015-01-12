@@ -1,8 +1,12 @@
 package com.starnet.snview.util;
 
 import java.io.File;
+
+import com.starnet.snview.global.GlobalApplication;
+
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 
 public class SDCardUtils {
 
@@ -25,13 +29,23 @@ public class SDCardUtils {
 		if (SDCARD_PATH != null) {
 			return SDCARD_PATH;
 		}
-
-		File path = ExternalStorage.getAllStorageLocations().get(
-				ExternalStorage.EXTERNAL_SD_CARD); // external sdcard
-		if (path == null) {
+		File path;
+		boolean isAvailable = isAvailableForExternalSDCard();
+		if (isAvailable) {
+			path = ExternalStorage.getAllStorageLocations().get(
+					ExternalStorage.EXTERNAL_SD_CARD); // external sdcard
+		} else {
 			path = ExternalStorage.getAllStorageLocations().get(
 					ExternalStorage.SD_CARD); // internal sdcard
 		}
+
+		// File path =
+		// ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
+		// // external sdcard
+		// if (path == null) {
+		// path = ExternalStorage.getAllStorageLocations().get(
+		// ExternalStorage.SD_CARD); // internal sdcard
+		// }
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		SDCARD_PATH = absPath;
@@ -41,7 +55,8 @@ public class SDCardUtils {
 
 	/** 获取内置SDCard的路径 **/
 	public static String getInternalSDCardPath() {
-		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.SD_CARD);
+		File path = ExternalStorage.getAllStorageLocations().get(
+				ExternalStorage.SD_CARD);
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		return absPath;
@@ -49,10 +64,26 @@ public class SDCardUtils {
 
 	/** 获取外置SDCard的路径 ；如果不可用，则返回为空 **/
 	public static String getExternalSDCardPath() {
-		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
+		File path = ExternalStorage.getAllStorageLocations().get(
+				ExternalStorage.EXTERNAL_SD_CARD);
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		return absPath;
+	}
+
+	/** 判断外置SDCard是否可用 **/
+	public static boolean isAvailableForExternalSDCard() {
+		boolean isAvailable = false;
+		File path = ExternalStorage.getAllStorageLocations().get(
+				ExternalStorage.EXTERNAL_SD_CARD);
+		String appName = GlobalApplication.getInstance().getAppName();
+		String absPath = path.getAbsolutePath();
+		String pat = absPath + File.separator + appName;
+		File file = new File(pat);
+		if (file.exists()) {
+			isAvailable = true;
+		}
+		return isAvailable;
 	}
 
 	/**
@@ -89,4 +120,5 @@ public class SDCardUtils {
 
 		return (availableBlocks * blockSize) / 1024 / 1024;
 	}
+
 }

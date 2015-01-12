@@ -118,14 +118,10 @@ public class BitmapUtils {
     public static boolean saveBmpFile(Bitmap b, String fullImgPath) {
 		File f = new File(fullImgPath);
 		FileOutputStream fout =  null;
-		
 		try {
 			fout =  new FileOutputStream(f);
-			
 			b.compress(Bitmap.CompressFormat.JPEG, 100, fout);
-			
 			fout.close();
-			
 			return true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -139,7 +135,6 @@ public class BitmapUtils {
 			}
 			e.printStackTrace();
 		}
-		
 		return false;
 	}
 }

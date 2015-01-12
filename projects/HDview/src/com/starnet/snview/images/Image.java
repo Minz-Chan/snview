@@ -13,7 +13,6 @@ public class Image implements Parcelable {//
 	private ImageType mType;
 	private boolean isThumnailUsed;//根据该标志位确定在缩略图中是否已经显示：true表示已经显示，FALSE表示缩略图尚未显示
 	
-
 	public Image() {
 	}
 	

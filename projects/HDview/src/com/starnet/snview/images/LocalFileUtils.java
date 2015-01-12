@@ -2,7 +2,9 @@ package com.starnet.snview.images;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.util.FileUtility;
@@ -48,6 +50,13 @@ public class LocalFileUtils {
 
 	public static String getCaptureFolderRootPath() {
 		return getLocalFileRootPath() + "/" + CAPTURE_FOLDER_NAME;
+	}
+	
+	public static String getCaptureFolderRootPathInternal(){
+		String appName = GlobalApplication.getInstance().getAppName();
+		String path = SDCardUtils.getInternalSDCardPath() + appName;
+		path = path + "/" + CAPTURE_FOLDER_NAME;
+		return path;
 	}
 
 	public static String getFormatedFileName(String paramString, int paramInt) {
@@ -99,6 +108,13 @@ public class LocalFileUtils {
 	public static String getRecordFolderRootPath() {
 		return getLocalFileRootPath() + "/" + RECORD_FOLDER_NAME;
 	}
+	
+	public static String getRecordFolderRootPathInternal() {
+		String inPath = SDCardUtils.getInternalSDCardPath();
+		String appName = GlobalApplication.getInstance().getAppName();
+		String path = inPath + appName;
+		return path + "/" + RECORD_FOLDER_NAME;
+	}
 
 	public static String getThumbnailsFileFullPath(String paramString,
 			boolean paramBoolean) {
@@ -111,5 +127,11 @@ public class LocalFileUtils {
 
 	public static String getThumbnailsFolderPath() {
 		return getLocalFileRootPath() + "/" + THUMBNAILS_FOLDER_NAME;
+	}
+	
+	public static String getThumbnailsFolderPathInternal() {
+		String appName = GlobalApplication.getInstance().getAppName();
+		String path = SDCardUtils.getInternalSDCardPath() + appName;	
+		return path + "/" + THUMBNAILS_FOLDER_NAME;
 	}
 }

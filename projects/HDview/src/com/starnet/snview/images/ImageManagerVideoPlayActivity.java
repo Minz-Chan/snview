@@ -39,7 +39,6 @@ import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.images.Image.ImageType;
 import com.starnet.snview.images.utils.TimeManager;
-import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.BitmapUtils;
 import com.starnet.snview.util.SDCardUtils;
 

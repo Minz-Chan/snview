@@ -309,11 +309,11 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			return size;
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public View instantiateItem(ViewGroup container, int position) {
 			photoView = new PhotoView(container.getContext());
 			int mPostion = position;
-			
 			int m_pos = mSelfDefViewPager.getCurrentItem();
 			Log.v(TAG, "m_pos:"+m_pos);
 			final Image m_image = imageList.get(m_pos);
@@ -342,7 +342,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						.findViewById(R.id.images_video_play);
 				Drawable bg = Drawable.createFromPath(jpgPath);//设置的缩略图背景...
 				if (bg == null) {
-//					return null;
 					bg = getResources().getDrawable(R.drawable.demo_bg);
 				}
 
@@ -351,11 +350,6 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				
 				imageVideoContent.setBackgroundDrawable(bg);
 				imageVideoContent.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
-				
-				Log.i(TAG,
-						"w:" + w + ", h:" + h + ", InstrinsicW:"
-								+ bg.getIntrinsicWidth() + ", InstrinsicH:"
-								+ bg.getIntrinsicHeight());
 				
 				container.addView(imageVideo, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 				
@@ -383,18 +377,15 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						int cur_postion = mSelfDefViewPager.getMPostion();
 						Log.v(TAG, " pos : "+pos+",cur_postion-1"+(cur_postion-1));
 						//将路径转化为mp4路径
-						
 						String path = imageList.get(pos).getImagePath();
 						String mp4Path = transformCapPath2RecordPath(path);
 						Log.v(TAG, " mp4Path : "+mp4Path);
-						
 						int number = imageList.size();
 						bundle.putInt("cur_postion", cur_postion);
 						bundle.putInt("showSum", number);
 						bundle.putString("video_path", mp4Path);
 						intent.putExtras(bundle);
 						Log.i(TAG, "curr pos:" + cur_postion + ", showSum:" + showSum + ", video_path:" + mp4Path);
-
 						intent.setClass(ImagePreviewViewPagerActivity.this,ImageManagerVideoPlayActivity.class);
 						startActivityForResult(intent, 10);
 					}
@@ -428,14 +419,13 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		}
 	}
 	
-	OnViewTapListener onViewTapListener = new OnViewTapListener() { // 视图监听器...
+	OnViewTapListener onViewTapListener = new OnViewTapListener() {
 		@Override
 		public void onViewTap(View view, float x, float y) {
 			click_time++;
 			if (click_time % 2 != 0) {
 				mNavigationBar.setVisibility(View.GONE);
 				nToolbar.setVisibility(View.GONE);
-				// photoView.setImageMatrix(matrix);//不能够让图片变形...
 			} else {
 				mNavigationBar.setVisibility(View.VISIBLE);
 				nToolbar.setVisibility(View.VISIBLE);
@@ -443,10 +433,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		}
 	};
 
-	// 需要更新ViewPager列表....???????
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
 		super.onActivityResult(requestCode, resultCode, data);
 		if (data != null) {
 			ImagesManager imagesManager = ImagesManager.getInstance();
@@ -458,10 +447,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			for (int i = 0; i < date_size; i++) {
 				sum += imagesManager.getImageListForDate(dateList.get(i)).size();
 			}
-			
-			
-			imagepreview_title.setText("(" + cur_pos + "/" + sum + ")");			
-			
+			imagepreview_title.setText("(" + cur_pos + "/" + sum + ")");
 			ArrayList<Image> imgNewAdded = null;
 			try {
 				imgNewAdded = (ArrayList<Image>) data.getExtras().get("CAPTURE_NEW_ADDED");
@@ -469,25 +455,19 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				e.printStackTrace();
 				return;
 			}
-	
 			if (imgNewAdded.size() == 0) {
 				return;
 			}
-		
 			for (int i = 0; i < imgNewAdded.size(); i++) {
 				imageList.add(0, imgNewAdded.get(i));
 			}
-			
 			selfPagerAdapter.notifyDataSetChanged();
 			mSelfDefViewPager.setShowSum(sum);
 			selfPagerAdapter = new SelfPagerAdapter();
 			mSelfDefViewPager.setAdapter(selfPagerAdapter);
 			mSelfDefViewPager.setCurrentItem(cur_pos);
-			
 			Log.i(TAG, "imageList:" + imageList.size());				
 			Log.i(TAG, "count:" + selfPagerAdapter.getCount());
-			
-//			selfPagerAdapter.startUpdate(mSelfDefViewPager);
 		}
 	}
 
