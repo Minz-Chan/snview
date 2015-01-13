@@ -95,7 +95,7 @@
     <string name="system_setting_pushset_clear_alarm_suc">完成清除</string>
     <string name="system_setting_cloudaccount_nouseable">用户不可用</string>
     <string name="system_setting_cloudaccount_isenable_choice">启用</string>
-    <string name="system_setting_about_build_time">(Build 20150108)</string>
+    <string name="system_setting_about_build_time">(Build 20150113)</string>
     <string name="system_setting_alarm_account_manager">报警账户管理</string>
     <string name="system_setting_alarm_pushset_user_del_cancel">取消</string>
     <string name="system_setting_alarm_pushset_identify_suc">验证成功</string>

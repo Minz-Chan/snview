@@ -143,10 +143,18 @@ public class ImagesManager {
 			Image image = it.next();
 			String path = image.getImagePath();
 			if (path.contains("mp4")) {
+				String thumPath = image.getThumbnailsPath();
+				File file = new File(thumPath);
+				file.delete();
+				File recordFile = new File(path);
+				recordFile.delete();
 				path = path.replace("record", "capture").replace("mp4", "jpg");
 				File captureFile = new File(path);
 				captureFile.delete();
 			}else {
+				String thumPath = image.getThumbnailsPath();
+				File file = new File(thumPath);
+				file.delete();
 				File captureFile = new File(path);
 				captureFile.delete();
 			}
