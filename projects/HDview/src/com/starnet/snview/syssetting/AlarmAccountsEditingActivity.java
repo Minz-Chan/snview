@@ -75,13 +75,23 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				int index = checkIsNull();
 				if (index == -1) {
 					CloudAccount aA = getCloudAccount();
-					boolean isSame = checkISSame(originCA, aA);
+					boolean isSame = checkISSame(originCA, aA);// 检测用户是否发生改变
 					if (isSame) {
 						AlarmAccountsEditingActivity.this.finish();
-					} else {
-						if (isExistUser(aA)) {
-							jumpCoverDialog(aA);
-						} else {// 直接替换原来的用户
+					} else {// 用户信息发生改变的时候，要检测是用户名发生改变还是用户密码发生了改变
+						int inde = checkPswdOrUsernameChange(originCA, aA);// 1，代表用户名发生改变；2，代表密码发生改变
+						if (inde==1) {// 1代表用户名发生改变
+							if (isExistUser(aA)) {
+								jumpCoverDialog(aA);
+							} else {// 直接替换原来的用户
+								ReadWriteXmlUtils.replaceAlarmPushUserToXML(aA, pos);
+								Intent intent = new Intent();
+								intent.putExtra("position", pos);
+								intent.putExtra("claa", aA);
+								setResult(REQUESTCODE_EDIT, intent);
+								AlarmAccountsEditingActivity.this.finish();
+							}
+						}else if (inde==2) {
 							ReadWriteXmlUtils.replaceAlarmPushUserToXML(aA, pos);
 							Intent intent = new Intent();
 							intent.putExtra("position", pos);
@@ -89,6 +99,16 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 							setResult(REQUESTCODE_EDIT, intent);
 							AlarmAccountsEditingActivity.this.finish();
 						}
+//						if (isExistUser(aA)) {
+//							jumpCoverDialog(aA);
+//						} else {// 直接替换原来的用户
+//							ReadWriteXmlUtils.replaceAlarmPushUserToXML(aA, pos);
+//							Intent intent = new Intent();
+//							intent.putExtra("position", pos);
+//							intent.putExtra("claa", aA);
+//							setResult(REQUESTCODE_EDIT, intent);
+//							AlarmAccountsEditingActivity.this.finish();
+//						}
 					}
 				} else if (index == 1) {
 					showToast(getString(R.string.alarm_usernamenull));
@@ -97,8 +117,20 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				}
 			}
 
+			private int checkPswdOrUsernameChange(CloudAccount originCA,
+					CloudAccount aA) {
+				int index = -1;
+				if (!originCA.getUsername().equals(aA.getUsername())) {
+					index = 1;
+				} else if (!originCA.getPassword().equals(aA.getPassword())) {
+					index = 2;
+				}
+				return index;
+			}
+
 			private boolean checkISSame(CloudAccount orCA, CloudAccount aA) {
-				if (orCA.getUsername().equals(aA.getUsername())) {
+				if (orCA.getUsername().equals(aA.getUsername())
+						&& (orCA.getPassword().equals(aA.getPassword()))) {
 					return true;
 				} else {
 					return false;

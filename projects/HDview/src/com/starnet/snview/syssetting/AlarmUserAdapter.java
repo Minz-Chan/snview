@@ -90,7 +90,11 @@ public class AlarmUserAdapter extends BaseAdapter {
 			convertView = flater.inflate(R.layout.alarmuseradapter_item, null);
 			TextView cnt = (TextView) convertView.findViewById(R.id.pset_cnt);
 			HashMap<String, Object> map = mData.get(position);
-			cnt.setText("" + map.get("text").toString());
+			String content = map.get("text").toString();
+			if (content.length() >= 18) {
+				content = content.substring(0, 18) + "...";
+			}
+			cnt.setText("" + content);
 		}
 		return convertView;
 	}

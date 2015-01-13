@@ -99,13 +99,12 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				
+				mList.remove(position);
+				caAdapter.notifyDataSetChanged();
+				ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
 				if (NetWorkUtils.checkNetConnection(ctx)) {
 					deleteTags(mList.get(position));
-					mList.remove(position);
-					caAdapter.notifyDataSetChanged();
-					ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
-				} else {
-					showToast(getString(R.string.system_setting_alarm_pushset_netnotopen));
 				}
 			}
 		});
@@ -124,7 +123,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		}
 	}
 
-	private void showToast(String content) {
+	protected void showToast(String content) {
 		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
 
@@ -195,13 +194,14 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			}
 		} else if (resultCode == REQUESTCODE_EDIT) {
 			if (data != null) {
-				CloudAccount da = (CloudAccount) data.getSerializableExtra("claa");
+				CloudAccount da = (CloudAccount) data
+						.getSerializableExtra("claa");
 				da.setEnabled(true);
 				int pos = data.getIntExtra("position", 0);
 				String flag = data.getStringExtra("flag");
-				if (flag!=null&&flag.equals("cover")) {// 表示需要替代
+				if (flag != null && flag.equals("cover")) {// 表示需要替代
 					boolean cover = data.getBooleanExtra("cover", false);
-					if (cover) {//表示需要覆盖
+					if (cover) {// 表示需要覆盖
 						int ind = getIndex(da);
 						mList.set(ind, da);
 						ReadWriteXmlUtils.replaceAlarmPushUserToXML(da, ind);
@@ -209,7 +209,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 						ReadWriteXmlUtils.deleteAlarmPushUserToXML(pos);
 						caAdapter.notifyDataSetChanged();
 					}
-				} else if (flag==null) {
+				} else if (flag == null) {
 					mList.set(pos, da);
 					caAdapter.notifyDataSetChanged();
 				}
