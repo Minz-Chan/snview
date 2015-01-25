@@ -1,13 +1,21 @@
-package com.starnet.snview.protocol.message;
+package com.starnet.snview.playback.utils;
+
+import java.io.Serializable;
+
+import com.starnet.snview.protocol.message.OWSPDateTime;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class SearchRecordRequest implements Parcelable{
+public class SearchRecordRequest implements Serializable{/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2642774531057574480L;
+//Parcelable
 	
 	private int deviceId;//设备编号
 	private int channel;//通道号
-	private int recordType;//记录类型
+	private int recordType;//远程录像回放类型
 	private int count;//记录总数
 	private OWSPDateTime startTime;
 	private OWSPDateTime endTime;
@@ -59,11 +67,11 @@ public class SearchRecordRequest implements Parcelable{
 	public void setReserve(int[] reserve) {
 		this.reserve = reserve;
 	}
-	@Override
+	
 	public int describeContents() {
 		return 0;
 	}
-	@Override
+	
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(deviceId);
 		dest.writeInt(channel);
@@ -71,8 +79,8 @@ public class SearchRecordRequest implements Parcelable{
 		dest.writeInt(count);
 //		dest.writeValue(startTime);
 //		dest.writeValue(endTime);
-		dest.writeParcelable(startTime, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-		dest.writeParcelable(endTime, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+//		dest.writeParcelable(startTime, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
+//		dest.writeParcelable(endTime, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
 		dest.writeIntArray(reserve);
 	}
 	

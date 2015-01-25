@@ -33,16 +33,16 @@ import android.widget.TextView;
  * @Modify date Jul 7, 2014
  * @Modify description TODO 主要完成通道列表操作的类，包含
  */
-public class ChannelListViewActivity extends Activity {// 被观察的对象
+public class ChannelListViewActivity extends Activity {
 
 	private ChannelListViewAdapter adapter = null;// ListView的适配器
 	private ListView myListView = null; // 显示列表listview
 	private Context context = null;// 上下文换进
 
-	private List<Channel> channelList;// 通道列表
+	private List<Channel> channelList;
 
-	private Button button_ok;// 确定按钮
-	private Button button_cancel;// 取消按钮
+	private Button button_ok;
+	private Button button_cancel;
 
 	private Intent intent;
 	private CloudAccount writeCloudAccount;

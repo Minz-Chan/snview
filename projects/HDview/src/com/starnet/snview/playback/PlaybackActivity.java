@@ -2,21 +2,23 @@ package com.starnet.snview.playback;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
-
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
-import com.starnet.snview.playback.utils.PlayBackTask;
-import com.starnet.snview.protocol.message.LoginRequest;
-import com.starnet.snview.protocol.message.SearchRecordRequest;
+import com.starnet.snview.playback.utils.PlayBackSearchRecordTask;
+import com.starnet.snview.playback.utils.RecordInfo;
+import com.starnet.snview.playback.utils.SearchRecordRequest;
+import com.starnet.snview.protocol.message.OWSPDateTime;
 
 public class PlaybackActivity extends BaseActivity {
 	private static final String TAG = "PlaybackActivity";
@@ -26,8 +28,29 @@ public class PlaybackActivity extends BaseActivity {
 
 	private TimeBar mTimebar;
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
-	
+
 	private final int TIMESETTING = 0x0007;
+	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
+	private final int NOTIFYREMOTEUIFRESH_FAIL = 0x0009;
+
+	@SuppressLint("HandlerLeak")
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case NOTIFYREMOTEUIFRESH_SUC:
+				Bundle data = msg.getData();
+				ArrayList<RecordInfo> list = data
+						.getParcelableArrayList("srres");
+				setNewTimeBar(list);
+				break;
+
+			default:
+				break;
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +87,33 @@ public class PlaybackActivity extends BaseActivity {
 				startActivityForResult(intent, TIMESETTING);
 			}
 		});
+	}
+
+	/** 设置新的时间显示条 **/
+	private void setNewTimeBar(ArrayList<RecordInfo> list) {
+		if (list != null) {
+			int size = list.size();
+			for (int i = 0; i < size; i++) {
+				RecordInfo rcdInfo = list.get(i);
+				OWSPDateTime starTime = rcdInfo.getStartTime();
+				OWSPDateTime endTime = rcdInfo.getEndTime();
+				showTimeBar(starTime, endTime);
+			}
+		}
+	}
+
+	/** 根据起始时间、结束时间进行时间显示条的渲染 **/
+	private void showTimeBar(OWSPDateTime sTime, OWSPDateTime eTime) {
+
+		Calendar startTime = Calendar.getInstance();
+		startTime.set(sTime.getYear(), sTime.getMonth(), sTime.getDay(),
+				sTime.getHour(), sTime.getMinute(), sTime.getSecond());
+
+		Calendar endTime = Calendar.getInstance();
+		endTime.set(eTime.getYear(), eTime.getMonth(), eTime.getDay(),
+				eTime.getHour(), eTime.getMinute(), eTime.getSecond());
+
+		mTimebar.addFileInfo(1, startTime, endTime);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -154,20 +204,57 @@ public class PlaybackActivity extends BaseActivity {
 				c8.get(Calendar.MINUTE));
 		mTimebar.addFileInfo(1, c7, c8);
 	}
-	private PlayBackTask pbTask;
+
+	private PlayBackSearchRecordTask pbTask;
+	private DeviceItem deviceItem;
+	private SearchRecordRequest srr;
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING) {
-			if (data!=null) {
-				SearchRecordRequest srr = data.getParcelableExtra("srr");
-				DeviceItem vItem = (DeviceItem) data.getSerializableExtra("visitDevItem");
-				LoginRequest lr = new LoginRequest();
-				pbTask = new PlayBackTask(vItem,srr);
-				pbTask.setLoginReq(lr);
+			if (data != null) {
+				srr = (SearchRecordRequest) data.getSerializableExtra("srr");
+				deviceItem = (DeviceItem) data.getSerializableExtra("visitDevItem");
+				// LoginInfoRequest lr = new LoginInfoRequest();
+
+				DeviceItem dItem = new DeviceItem();
+				dItem.setSvrIp("192.168.87.10");
+				dItem.setSvrPort("8080");
+				dItem.setLoginUser("admin");
+				dItem.setLoginPass("1");
+				dItem.setDefaultChannel(1);
+				dItem.setDeviceName("ewrte");
+
+				OWSPDateTime startTime = new OWSPDateTime();
+				startTime.setYear(2015 - 2009);
+				startTime.setMonth(1);
+				startTime.setDay(20);
+				startTime.setHour(11);
+				startTime.setMinute(10);
+				startTime.setSecond(0);
+				srr.setStartTime(startTime);
+
+				OWSPDateTime endTime = new OWSPDateTime();
+				endTime.setYear(2015 - 2009);
+				endTime.setMonth(1);
+				endTime.setHour(11);
+				endTime.setMinute(10);
+				endTime.setSecond(0);
+				endTime.setDay(23);
+				srr.setEndTime(endTime);
+				srr.setChannel(0);
+
+				pbTask = new PlayBackSearchRecordTask(mHandler, dItem, srr);
+				// pbTask.setLoginReq(lr);
 				pbTask.start();
+				// pbTask.testParseResponsePacketFromSocket();
+			}
+		} else if (requestCode == NOTIFYREMOTEUIFRESH_SUC) {
+			if (data != null) {
+				ArrayList<RecordInfo> riList = data
+						.getParcelableArrayListExtra("recordinfo");
 			}
 		}
 	}
-
 }

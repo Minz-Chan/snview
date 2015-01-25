@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/channel_listview_device_item_bg"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_weight="0.7"
+            android:gravity="left|center"
+            android:text="@string/playback_alarm_type1"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/stateBtn1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="@string/nothing"
+            android:background="@drawable/channellist_select_empty" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_weight="0.7"
+            android:gravity="left|center"
+            android:text="@string/playback_alarm_type2"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/stateBtn2"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="@string/nothing"
+            android:background="@drawable/channellist_select_empty" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_weight="0.7"
+            android:gravity="left|center"
+            android:text="@string/playback_alarm_type3"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/stateBtn3"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="@string/nothing"
+            android:background="@drawable/channellist_select_empty" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_weight="0.7"
+            android:gravity="left|center"
+            android:text="@string/playback_alarm_type4"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/stateBtn4"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:contentDescription="@string/nothing"
+            android:background="@drawable/channellist_select_empty" />
+    </LinearLayout>
+
+</LinearLayout>

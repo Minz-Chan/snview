@@ -269,7 +269,9 @@
     <string name="playback_channel">通道</string>
     <string name="playback_click_start_scan">开始回放</string>
     <string name="playback_setting_end_time">结束时间</string>
+    <string name="playback_setting_video_type">视频类型</string>
     <string name="playback_alarm_type">全部</string>
+    
     <string name="playback_alarm_type1">手动录像</string>
     <string name="playback_alarm_type2">定时录像</string>
     <string name="playback_req_fail"> 用户请求失败</string>
@@ -281,7 +283,10 @@
     <string name="playback_infoact_devicename">报警设备</string>
     <string name="playback_infoact_setting">报警信息设置</string>
     <string name="playback_click_input_time">点击输入时间</string>
+    <string name="playback_click_select_video_type">选择视频类型</string>
     <string name="playback_infoact_alarmchannel">报警通道</string>
+    <string name="playback_videotype_null">还没有选择视频类型，请选择后再回放</string>
+    <string name="playback_content_null">还没有选择，预览设备，请选择后，进行查看</string>
     <string name="playback_extend3days_time">选择的回放时间不能超过3天，请重新选择</string>
    
 

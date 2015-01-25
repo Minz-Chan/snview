@@ -6,14 +6,16 @@ import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 
+import com.starnet.snview.playback.utils.LoginInfoRequest;
+import com.starnet.snview.playback.utils.PlayRecordRequest;
+import com.starnet.snview.playback.utils.SearchRecordRequest;
 import com.starnet.snview.protocol.message.Constants;
-import com.starnet.snview.protocol.message.LoginRequest;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.PlayBackConstants;
-import com.starnet.snview.protocol.message.SearchRecordRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 
 public class BufferSendManagerPlayBack {
@@ -21,6 +23,8 @@ public class BufferSendManagerPlayBack {
 	private PacketBuffer PACKET_BUFFER;
 	private AtomicLong SEQUENCE;
 	private OutputStream out;
+
+	ObjectSerializationCodecFactory oscf;
 
 	private BufferSendManagerPlayBack() {
 	}
@@ -70,7 +74,8 @@ public class BufferSendManagerPlayBack {
 	}
 
 	private byte[] serializeMessage(Object msg) {
-		IoBuffer outBuffer = IoBuffer.allocate(200).order(ByteOrder.LITTLE_ENDIAN);
+		IoBuffer outBuffer = IoBuffer.allocate(200).order(
+				ByteOrder.LITTLE_ENDIAN);
 		if (msg instanceof VersionInfoRequest) {
 			outBuffer.putUnsignedShort(Constants.MSG_TYPE.VERSION_INFO_REQUEST);
 			outBuffer.putUnsignedShort(Constants.MSG_LEN.VERSION_INFO_REQUEST);
@@ -113,17 +118,16 @@ public class BufferSendManagerPlayBack {
 			outBuffer.put((byte) message.getReserve2());
 			outBuffer.put((byte) message.getReserve3());
 			outBuffer.put((byte) message.getReserve4());
-		} else if (msg instanceof LoginRequest) {
+		} else if (msg instanceof LoginInfoRequest) {
 			outBuffer.putUnsignedShort(Constants.MSG_TYPE.LOGIN_REQUEST);
 			outBuffer.putUnsignedShort(Constants.MSG_LEN.LOGIN_REQUEST);
 
-			LoginRequest message = (LoginRequest) msg;
+			LoginInfoRequest message = (LoginInfoRequest) msg;
 			IoBuffer tmp = IoBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN);
 
 			String userName = message.getUserName().trim();
 			if (userName == null || userName.length() > 32) {
-				throw new IllegalArgumentException(
-						"Error userName of LoginRequest, be null or it's length is greater than 32.");
+				throw new IllegalArgumentException("Error userName of LoginRequest, be null or it's length is greater than 32.");
 			}
 			tmp.put(userName.getBytes());
 			tmp.rewind();
@@ -135,35 +139,65 @@ public class BufferSendManagerPlayBack {
 
 			String password = message.getPassword().trim();
 			if (password == null || password.length() > 16) {
-				throw new IllegalArgumentException(
-						"Error password of LoginRequest, be null or it's length is greater than 16.");
+				throw new IllegalArgumentException("Error password of LoginRequest, be null or it's length is greater than 16.");
 			}
 			tmp.put(password.getBytes());
 			tmp.rewind();
 			outBuffer.put(tmp); // put password
 
-			outBuffer.putInt(message.getDeviceId()); // put deviceId
-			outBuffer.put((byte) 1); // should be set to 1 to be compatible with
-										// the previous version
-			outBuffer.put((byte) (message.getChannel() - 1)); // put channel,
-																// start from 0
-			outBuffer.put((byte) message.getReserve()[0]); // reserve[0]
-			outBuffer.put((byte) message.getReserve()[1]); // reserve[1]
-		}else if (msg instanceof SearchRecordRequest) {
-			
+			outBuffer.putUnsignedInt(message.getDeviceId()); // put deviceId
+			outBuffer.put((byte) 1); // should be set to 1 to be compatible with the previous version
+			outBuffer.put((byte) (message.getChannel() - 1)); // put channel,start from 0
+			outBuffer.put((byte) message.getStreamMode());
+			outBuffer.put((byte) message.getDataType());
+		} else if (msg instanceof SearchRecordRequest) {
+
 			outBuffer.putUnsignedShort(PlayBackConstants.MSG_TYPE.RECORD_REQUEST);
 			outBuffer.putUnsignedShort(PlayBackConstants.MSG_LEN.RECORD_REQUEST);
+
+			SearchRecordRequest srr = (SearchRecordRequest) msg;
+			outBuffer.putUnsignedInt(srr.getDeviceId());
+			outBuffer.put((byte) (srr.getChannel()-1));
+			outBuffer.put((byte) srr.getRecordType());
+			outBuffer.put((byte) srr.getCount());
 			
-			SearchRecordRequest srr = (SearchRecordRequest)msg ;
-			outBuffer.putInt(srr.getDeviceId());
-			outBuffer.putInt(srr.getChannel());
-			outBuffer.putInt(srr.getRecordType());
-			outBuffer.putInt(srr.getCount());
-			outBuffer.putObject(srr.getStartTime());
-			outBuffer.putObject(srr.getEndTime());
+			outBuffer.putUnsignedShort((short) srr.getStartTime().getYear());
+			outBuffer.put((byte) srr.getStartTime().getMonth());
+			outBuffer.put((byte) srr.getStartTime().getDay());
+			outBuffer.put((byte) srr.getStartTime().getHour());
+			outBuffer.put((byte) srr.getStartTime().getMinute());
+			outBuffer.put((byte) srr.getStartTime().getSecond());
+
+			outBuffer.putUnsignedShort((short) srr.getEndTime().getYear());
+			outBuffer.put((byte) srr.getEndTime().getMonth());
+			outBuffer.put((byte) srr.getEndTime().getDay());
+			outBuffer.put((byte) srr.getEndTime().getHour());
+			outBuffer.put((byte) srr.getEndTime().getMinute());
+			outBuffer.put((byte) srr.getEndTime().getSecond());
+
 			outBuffer.put((byte) srr.getReserve()[0]); // reserve[0]
 			outBuffer.put((byte) srr.getReserve()[1]); // reserve[1]
 			outBuffer.put((byte) srr.getReserve()[2]); // reserve[1]
+		} else if (msg instanceof PlayRecordRequest) {
+
+			outBuffer
+					.putUnsignedShort(PlayBackConstants.MSG_TYPE.RECORD_REQUEST);
+			outBuffer
+					.putUnsignedShort(PlayBackConstants.MSG_LEN.RECORD_REQUEST);
+
+			PlayRecordRequest srr = (PlayRecordRequest) msg;
+			outBuffer.putInt(srr.getDeviceId());
+			
+			outBuffer.putShort((short) srr.getStartTime().getYear());
+			outBuffer.put((byte) srr.getStartTime().getMonth());
+			outBuffer.put((byte) srr.getStartTime().getDay());
+			outBuffer.put((byte) srr.getStartTime().getHour());
+			outBuffer.put((byte) srr.getStartTime().getMinute());
+			outBuffer.put((byte) srr.getStartTime().getSecond());
+
+			outBuffer.put((byte) srr.getChannel());
+			outBuffer.put((byte) srr.getCommand());
+			outBuffer.put((byte) srr.getReserve()); // reserve[0]
 		}
 		outBuffer.flip();
 		byte[] data = new byte[outBuffer.remaining()];
@@ -222,6 +256,7 @@ public class BufferSendManagerPlayBack {
 			buffer.order(ByteOrder.BIG_ENDIAN).putInt(len - 4); // fill length
 			buffer.order(ByteOrder.LITTLE_ENDIAN).putInt(seq); // fill sequence
 			buffer.rewind();
+			
 		}
 
 		public void append(byte[] a) {

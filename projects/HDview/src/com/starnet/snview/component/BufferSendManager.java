@@ -19,6 +19,7 @@ public class BufferSendManager {
 	private OutputStream out;
 
 	private BufferSendManager() {
+		
 	}
 
 	public static BufferSendManager getInstance() {
@@ -125,8 +126,7 @@ public class BufferSendManager {
 			tmp.rewind();
 			outBuffer.put(tmp); // put userName
 
-			tmp.sweep(); // reset the data to NUL, position to 0, and limit to
-							// capacity
+			tmp.sweep(); // reset the data to NUL, position to 0, and limit to capacity
 			tmp.limit(16);
 
 			String password = message.getPassword().trim();

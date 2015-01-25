@@ -25,14 +25,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.playback.utils.SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
-import com.starnet.snview.protocol.message.SearchRecordRequest;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -43,8 +44,9 @@ public class TimeSettingActivity extends BaseActivity {
 	private int dayNum;
 	private int curyear;
 	private int curMonth;
-	private int curDays;
-	private int poor;
+	private int curDate;
+	private int curHour;
+	private int curMint;
 
 	private Context ctx;
 	private WheelView day;
@@ -54,14 +56,26 @@ public class TimeSettingActivity extends BaseActivity {
 	private WheelView minute;
 	private View endtimeView;
 	private View starttimeView;
+	private View remotePreView;
 	private TextView endtimeTxt;
 	private TextView startTimeTxt;
-	private PopupWindow popWindow;
+	private PopupWindow typePopupWindow;
+	private PopupWindow timePopupWindow;
 	private NumericWheelAdapter dayAdapter;
 	private NumericWheelAdapter yearAdapter;
 	private NumericWheelAdapter hourAdapter;
 	private NumericWheelAdapter monthAdapter;
 	private NumericWheelAdapter minuteAdapter;
+
+	private TextView videoType;
+	private Button staBtn1;
+	private Button staBtn2;
+	private Button staBtn3;
+	private Button staBtn4;
+	private String typeSD;
+	private String typeDsh;
+	private String typeYDZC;
+	private String typeKGLJG;
 
 	private SearchRecordRequest srr;
 	private DeviceItem visitDevItem;
@@ -81,7 +95,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	private Handler mHdler = new Handler() {
-
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -92,9 +105,7 @@ public class TimeSettingActivity extends BaseActivity {
 						.getSerializable("netCA");
 				String reqExt = getString(R.string.playback_req_extime);
 				showToast(netCA1.getUsername() + reqExt);
-
 				int positi = msgD.getInt("position");
-
 				netCA1.setRotate(true);
 				originCAs.set(positi, netCA1);
 				actsAdapter.notifyDataSetChanged();
@@ -133,7 +144,6 @@ public class TimeSettingActivity extends BaseActivity {
 				break;
 			}
 		}
-
 	};
 
 	@Override
@@ -207,8 +217,10 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void setListenersForWadgets() {
-		super.getLeftButton().setOnClickListener(new OnClickListener() {
 
+		setVideoTypeOnClick();
+
+		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				backAndLeftOperation();
@@ -216,7 +228,6 @@ public class TimeSettingActivity extends BaseActivity {
 		});
 
 		cloudAccountView.setOnGroupClickListener(new OnGroupClickListener() {
-
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,
 					int groupPosition, long id) {
@@ -234,15 +245,19 @@ public class TimeSettingActivity extends BaseActivity {
 		starttimeView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (typePopupWindow != null && typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+					cloudAccountView.setVisibility(View.VISIBLE);
+				}
 				startFlag = true;
 				endFlag = false;
-				if (popWindow.isShowing()) {
-					popWindow.dismiss();
+				if (timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
 				} else {
-					popWindow.showAsDropDown(v);
-					popWindow.setFocusable(false);
-					popWindow.setOutsideTouchable(true);
-					popWindow.update();
+					timePopupWindow.showAsDropDown(v);
+					timePopupWindow.setFocusable(false);
+					timePopupWindow.setOutsideTouchable(true);
+					timePopupWindow.update();
 				}
 			}
 		});
@@ -250,37 +265,129 @@ public class TimeSettingActivity extends BaseActivity {
 		endtimeView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
+				if (typePopupWindow != null && typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+					cloudAccountView.setVisibility(View.VISIBLE);
+				}
 				endFlag = true;
 				startFlag = false;
-				if (popWindow.isShowing()) {
-					popWindow.dismiss();
+				if (timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
 				} else {
-					popWindow.showAsDropDown(v);
-					popWindow.setFocusable(false);
-					popWindow.setOutsideTouchable(true);
-					popWindow.update();
+					timePopupWindow.showAsDropDown(v);
+					timePopupWindow.setFocusable(false);
+					timePopupWindow.setOutsideTouchable(true);
+					timePopupWindow.update();
 				}
 			}
 		});
+
+		remotePreView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				if (timePopupWindow != null && timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
+				}
+
+				if (typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+					cloudAccountView.setVisibility(View.VISIBLE);
+				} else {
+
+					cloudAccountView.setVisibility(View.GONE);
+					typePopupWindow.showAsDropDown(v);
+					typePopupWindow.setFocusable(false);
+					typePopupWindow.setOutsideTouchable(true);
+					typePopupWindow.update();
+					
+				}
+			}
+		});
+
 		startScanBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				startPlayBack();
-				Intent data = new Intent();
-				data.putExtra("srr", srr);
-				data.putExtra("visitDevItem", visitDevItem);
-				setResult(TIMESETTING, data);
-				TimeSettingActivity.this.finish();
 			}
 		});
+	}
+
+	private void setVideoTypeOnClick() {
+		staBtn1.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				videoType.setText(typeSD);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+
+			}
+		});
+		staBtn2.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				videoType.setText(typeDsh);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+			}
+		});
+		staBtn3.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				videoType.setText(typeYDZC);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+			}
+		});
+		staBtn4.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				videoType.setText(typeKGLJG);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+			}
+		});
+	}
+
+	private void showContentToast(String content) {
+		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
 		dismissTimeDialog();
-		srr = getRequestInfo();
+		if (!okFlag) {// if (!okFlag) {
+			String content = ctx.getString(R.string.playback_content_null);
+			showContentToast(content);
+		} else {
+			String vType = videoType.getText().toString();
+			int rTyPe = setRecordTypeAcc(vType);
+			if (rTyPe == -1) {
+				String content = ctx
+						.getString(R.string.playback_videotype_null);
+				showContentToast(content);
+			} else {
+				srr = getRequestInfo();
+				Intent data = new Intent();
+				srr.setCount(255);
+				data.putExtra("srr", srr);
+				data.putExtra("visitDevItem", visitDevItem);
+				setResult(TIMESETTING, data);
+				TimeSettingActivity.this.finish();
+			}
+		}
 	}
 
 	private SearchRecordRequest getRequestInfo() {
@@ -291,29 +398,37 @@ public class TimeSettingActivity extends BaseActivity {
 
 		OWSPDateTime sTime = getOWSPDateTime(startTime);
 		OWSPDateTime eTime = getOWSPDateTime(endTime);
-		
-		//测试数据
-		sTime.setYear(2015);
-		sTime.setMonth(1);
-		sTime.setDay(10);
-		sTime.setHour(10);
-		sTime.setMinute(9);
-		sTime.setSecond(12);
-		//测试数据
 
-//		int recordType = 1;// 测试数据
-		int deviceId = 0;// 测试数据
-		int count = Integer.valueOf(visitDevItem.getChannelSum());// 测试数据
-//		int channel = 1;// 测试数据
+		int deviceId = 0;
+		int count = Integer.valueOf(255);
+
+		String vType = videoType.getText().toString();
+		setRecordTypeAcc(vType);
+		
+		int channel = getScanChannel();
 
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
 		srr.setCount(count);
-		srr.setChannel(channelNo);
+		srr.setChannel(channel);
 		srr.setDeviceId(deviceId);
 		srr.setRecordType(recordType);
 		srr.setReserve(new int[] { 0, 0, 0 });
 		return srr;
+	}
+	
+	private int getScanChannel(){
+		int no = 0;
+		List<Channel> chanList = visitDevItem.getChannelList();
+		int size = chanList.size();
+		for (int i = 0; i < size; i++) {
+			Channel channel = chanList.get(i);
+			if (channel.isSelected()) {
+				no = i;
+				break;
+			}
+		}
+		return no;
 	}
 
 	private OWSPDateTime getOWSPDateTime(String time) {
@@ -323,7 +438,7 @@ public class TimeSettingActivity extends BaseActivity {
 		String hmsTemp = sumTime[1];
 		int[] ymd = getIntYMDData(ymdTemp);
 		int[] hms = getIntHMSData(hmsTemp);
-		owspTime.setYear(ymd[0]);
+		owspTime.setYear(ymd[0] - 2009);
 		owspTime.setMonth(ymd[1]);
 		owspTime.setDay(ymd[2]);
 		owspTime.setHour(hms[0]);
@@ -363,13 +478,22 @@ public class TimeSettingActivity extends BaseActivity {
 		ctx = TimeSettingActivity.this;
 		endtimeTxt = (TextView) findViewById(R.id.endtime);
 		endtimeView = findViewById(R.id.input_endtime_view);
+		videoType = (TextView) findViewById(R.id.video_type);
 		startScanBtn = (Button) findViewById(R.id.startScan);
+		remotePreView = findViewById(R.id.input_remote_type);
 		startTimeTxt = (TextView) findViewById(R.id.starttime);
 		starttimeView = findViewById(R.id.input_starttime_view);
 		cloudAccountView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
 		cloudAccountView.setGroupIndicator(null);
+
+		typeSD = getString(R.string.playback_alarm_type1);
+		typeDsh = getString(R.string.playback_alarm_type2);
+		typeYDZC = getString(R.string.playback_alarm_type3);
+		typeKGLJG = getString(R.string.playback_alarm_type4);
+
 		setCurrentTimeForTxt();
-		initPopupWindow();
+		initTimePopupWindow();
+		initTypePopWindow();
 	}
 
 	/** 对开始、结束时间设置为当前时间 **/
@@ -381,19 +505,43 @@ public class TimeSettingActivity extends BaseActivity {
 		startTimeTxt.setText(dateNowStr);
 	}
 
-	private void initPopupWindow() {
+	private void initTypePopWindow() {
+		LayoutInflater inflater = LayoutInflater.from(ctx);
+		View view = inflater.inflate(R.layout.type_popupwindow, null);
+		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT);
+		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
+		View view2 = typePopupWindow.getContentView();
+
+		staBtn1 = (Button) view2.findViewById(R.id.stateBtn1);
+		staBtn2 = (Button) view2.findViewById(R.id.stateBtn2);
+		staBtn3 = (Button) view2.findViewById(R.id.stateBtn3);
+		staBtn4 = (Button) view2.findViewById(R.id.stateBtn4);
+
+		view2.getRootView().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (typePopupWindow != null && typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+					cloudAccountView.setVisibility(View.VISIBLE);
+				}
+			}
+		});
+	}
+
+	private void initTimePopupWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.time_dialog, null);
-		popWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
+		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT);
-		View view2 = popWindow.getContentView();
+		View view2 = timePopupWindow.getContentView();
 
 		year = (WheelView) view2.findViewById(R.id.year);
 		month = (WheelView) view2.findViewById(R.id.month);
 		day = (WheelView) view2.findViewById(R.id.day);
 		hour = (WheelView) view2.findViewById(R.id.hour);
 		minute = (WheelView) view2.findViewById(R.id.minute);
-		popWindow.setAnimationStyle(R.style.PopupAnimation);
+		timePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		setWheelView();
 	}
 
@@ -402,16 +550,14 @@ public class TimeSettingActivity extends BaseActivity {
 		Calendar c = Calendar.getInstance();
 		curyear = c.get(Calendar.YEAR);
 		curMonth = c.get(Calendar.MONTH);
-		curDays = c.get(Calendar.DAY_OF_MONTH);
-		poor = curyear - 10;
-		int curHour = c.get(Calendar.HOUR_OF_DAY);
-		int curMint = c.get(Calendar.MINUTE);
+		curDate = c.get(Calendar.DAY_OF_MONTH);
+		curHour = c.get(Calendar.HOUR_OF_DAY);
+		curMint = c.get(Calendar.MINUTE);
 
-		yearAdapter = new NumericWheelAdapter(2003, c1.get(Calendar.YEAR));
+		yearAdapter = new NumericWheelAdapter(2009, c1.get(Calendar.YEAR));
 		year.setAdapter(yearAdapter);
 		year.setLabel(null);
 		year.setCyclic(true);
-		year.setCurrentItem(curyear);
 
 		monthAdapter = new NumericWheelAdapter(1, 12, "%02d");
 		month.setAdapter(monthAdapter);
@@ -432,145 +578,21 @@ public class TimeSettingActivity extends BaseActivity {
 
 		minuteAdapter = new NumericWheelAdapter(0, 59, "%02d");
 		minute.setAdapter(minuteAdapter);
-		// minute.setLabel("分");
 		minute.setLabel(null);
 		minute.setCyclic(true);
 
-		year.setCurrentItem(curyear + 10);
-		month.setCurrentItem(curMonth - 1);
-		day.setCurrentItem(curDays - 1);
-		hour.setCurrentItem(curHour);
-		minute.setCurrentItem(curMint);
-
-		OnWheelScrollListener scrollListener = new OnWheelScrollListener() {
-
-			@Override
-			public void onScrollingStarted(WheelView wheel) {
-
-			}
-
-			@Override
-			public void onScrollingFinished(WheelView wheel) {
-				// 需要自动确定日期
-				if (wheel.getId() == R.id.year) {
-					dayNum = setwheelDay(year.getCurrentItem() + poor,
-							month.getCurrentItem() + 1);
-					day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
-				} else if (wheel.getId() == R.id.month) {
-					dayNum = setwheelDay(year.getCurrentItem() + poor,
-							month.getCurrentItem() + 1);
-					day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
-				} else if (wheel.getId() == R.id.day) {
-					curDays = day.getCurrentItem();
-				}
-
-				int newday = day.getCurrentItem();
-				int curYear = year.getCurrentItem();
-				int newmon = month.getCurrentItem();
-				int newhour = hour.getCurrentItem();
-				int newmin = minute.getCurrentItem();
-
-				if (curYear >= 2) {
-					curYear = curYear - 2;
-				} else {
-					curYear = curYear + 8;
-				}
-
-				if (newmon >= 2) {
-					newmon = newmon - 2;
-				} else {
-					newmon = newmon + 10;
-				}
-
-				if (newday >= 2) {
-					newday = newday - 2;
-				}
-
-				if (newhour >= 2) {
-					newhour = newhour - 2;
-				} else {
-					newhour = newhour + 22;
-				}
-
-				if (newmin >= 2) {
-					newmin = newmin - 2;
-				} else {
-					newmin = newmin + 58;
-				}
-
-				String dayContent = dayAdapter.getItem(newday);
-				String hourContent = hourAdapter.getItem(newhour);
-				String yearContent = yearAdapter.getItem(curYear);
-				String monthContent = monthAdapter.getItem(newmon);
-				String minuteContent = minuteAdapter.getItem(newmin);
-
-				String selectTime = yearContent + "-" + monthContent + "-"
-						+ dayContent + "  " + hourContent + ":" + minuteContent;
-				startTimeTxt.setText(selectTime);
-				//
-				// 设置时间显示
-				boolean isLeaapYear = PlaybackUtils.isLeapYear(Integer
-						.valueOf(yearContent));
-				if (startFlag) {
-					startTimeTxt.setText(selectTime);
-					if (isLeaapYear) {
-						int monDay = Integer.valueOf(monthContent);
-						if (monDay == 2) {
-							int scrollDay = Integer.valueOf(dayContent);
-							String t;
-							if (scrollDay < 27) {
-								t = yearContent + "-" + monthContent + "-"
-										+ dayAdapter.getItem(newday + 2) + "  "
-										+ hourContent + ":" + minuteContent;
-								endtimeTxt.setText(t);
-							} else {
-								t = yearContent + "-" + monthContent + "-" + 29
-										+ "  " + hourContent + ":"
-										+ minuteContent;
-								endtimeTxt.setText(t);
-							}
-						} else if ((monDay == 4) || (monDay == 6)
-								|| (monDay == 9) || (monDay == 11)) {
-							String t;
-							int scrollDay = Integer.valueOf(dayContent);
-							if (scrollDay < 28) {
-								t = yearContent + "-" + monthContent + "-"
-										+ dayAdapter.getItem(newday + 2) + "  "
-										+ hourContent + ":" + minuteContent;
-								endtimeTxt.setText(t);
-							} else {
-								t = yearContent + "-" + monthContent + "-" + 30
-										+ "  " + hourContent + ":"
-										+ minuteContent;
-								endtimeTxt.setText(t);
-							}
-						} else {
-							String t;
-							int scrollDay = Integer.valueOf(dayContent);
-							if (scrollDay < 29) {
-								t = yearContent + "-" + monthContent + "-"
-										+ dayAdapter.getItem(newday + 2) + "  "
-										+ hourContent + ":" + minuteContent;
-								endtimeTxt.setText(t);
-							} else {
-								t = yearContent + "-" + monthContent + "-" + 31
-										+ "  " + hourContent + ":"
-										+ minuteContent;
-								endtimeTxt.setText(t);
-							}
-						}
-					}
-				} else if (endFlag) {
-
-				}
-			}
-		};
+		year.setCurrentItem(curyear + 2);
+		month.setCurrentItem(curMonth + 1);
+		day.setCurrentItem(curDate + 1);
+		hour.setCurrentItem(curHour + 2);
+		minute.setCurrentItem(curMint + 2);
 
 		year.addScrollingListener(scrollListener);
 		month.addScrollingListener(scrollListener);
 		day.addScrollingListener(scrollListener);
 		hour.addScrollingListener(scrollListener);
 		minute.addScrollingListener(scrollListener);
+
 	}
 
 	private int setwheelDay(int year, int month) {
@@ -589,8 +611,8 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void dismissTimeDialog() {
-		if (popWindow != null && popWindow.isShowing()) {
-			popWindow.dismiss();
+		if (timePopupWindow != null && timePopupWindow.isShowing()) {
+			timePopupWindow.dismiss();
 		}
 	}
 
@@ -606,8 +628,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private boolean okFlag = false;
 	private int clickGroup;
 	private int clickChild;
-	private int channelNo;
-	private String type;
 	private int recordType;
 
 	@Override
@@ -621,9 +641,17 @@ public class TimeSettingActivity extends BaseActivity {
 					actsAdapter.setOkFlag(true);
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
-					type = data.getStringExtra("type");
-					setRecordTypeAcc(type);
-					channelNo = data.getIntExtra("chnl", 0) + 1;
+					int tempCh = data.getIntExtra("chnl", 0);
+					DeviceItem dItem = (DeviceItem) actsAdapter.getChild(
+							clickGroup, clickChild);
+					List<Channel> channels = dItem.getChannelList();
+					for (int i = 0; i < channels.size(); i++) {
+						if (i == tempCh) {
+							channels.get(i).setSelected(true);
+						} else {
+							channels.get(i).setSelected(false);
+						}
+					}
 					actsAdapter.setChild(clickChild);
 					actsAdapter.setGroup(clickGroup);
 					actsAdapter.notifyDataSetChanged();
@@ -632,19 +660,209 @@ public class TimeSettingActivity extends BaseActivity {
 		}
 	}
 
-	private void setRecordTypeAcc(String type2) {
+	private int setRecordTypeAcc(String type2) {
 		String typeShD = getString(R.string.playback_alarm_type1);
 		String typeDsh = getString(R.string.playback_alarm_type2);
 		String typeYDZC = getString(R.string.playback_alarm_type3);
 		String typeKGLJG = getString(R.string.playback_alarm_type4);
 		if (type2.equals(typeShD)) {
 			recordType = 8;
-		}else if (type2.equals(typeDsh)){
+		} else if (type2.equals(typeDsh)) {
 			recordType = 4;
-		}else if (type2.equals(typeYDZC)){
+		} else if (type2.equals(typeYDZC)) {
 			recordType = 2;
-		}else if (type2.equals(typeKGLJG)){
+		} else if (type2.equals(typeKGLJG)) {
 			recordType = 1;
+		} else {
+			recordType = -1;
 		}
+		return recordType;
 	}
+
+	private OnWheelScrollListener scrollListener = new OnWheelScrollListener() {
+		@Override
+		public void onScrollingStarted(WheelView wheel) {
+		}
+
+		@Override
+		public void onScrollingFinished(WheelView wheel) {
+			int yPos = year.getCurrentItem();
+			int yCount = year.getAdapter().getItemsCount();
+			if (yPos >= 2) {
+				yPos = yPos - 2;
+			} else {
+				yPos = yPos + yCount - 2;
+			}
+			String yearNum = year.getAdapter().getItem(yPos);
+			int yNum = Integer.valueOf(yearNum);
+			int mPos = month.getCurrentItem();
+			int mCount = month.getAdapter().getItemsCount();
+			if (mPos >= 2) {
+				mPos = mPos - 2;
+			} else {
+				mPos = mPos + mCount - 2;
+			}
+			String monNums = month.getAdapter().getItem(mPos);
+			int moNum = Integer.valueOf(monNums);
+			dayNum = setwheelDay(yNum, moNum);
+			day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
+
+			int dayPos = day.getCurrentItem();
+			int dayCount = day.getAdapter().getItemsCount();
+			if (dayPos >= 2) {
+				dayPos = dayPos - 2;
+			} else {
+				dayPos = dayPos + dayCount - 2;
+			}
+			String dayTime = day.getAdapter().getItem(dayPos);
+
+			int hourPos = hour.getCurrentItem();
+			int hourCount = hour.getAdapter().getItemsCount();
+			if (hourPos >= 2) {
+				hourPos = hourPos - 2;
+			} else {
+				hourPos = hourPos + hourCount - 2;
+			}
+			String hourTime = hour.getAdapter().getItem(hourPos);
+
+			int minPos = minute.getCurrentItem();
+			int minuteCount = minute.getAdapter().getItemsCount();
+			if (minPos >= 2) {
+				minPos = minPos - 2;
+			} else {
+				minPos = minPos + minuteCount - 2;
+			}
+			String minTime = minute.getAdapter().getItem(minPos);
+
+			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
+			String contentHm = hourTime + ":" + minTime;
+			String content = contentDate + " " + contentHm;
+
+			if (startFlag) {
+				String newContDate = "";
+				startTimeTxt.setText(content);
+				int dayTimeNum = Integer.valueOf(dayTime);
+				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
+				if (isLeaapYear) {
+					if (moNum == 2) {
+						if (dayTimeNum < 27) {
+							String data = "";
+							if ((dayTimeNum + 3) < 10) {
+								data = "0" + (dayTimeNum + 3);
+							} else {
+								data = "" + (dayTimeNum + 3);
+							}
+							newContDate = yearNum + "-" + monNums + "-" + data;
+						} else {
+							newContDate = yearNum + "-" + monNums + "-" + 29;
+						}
+					}
+				} else {
+					if (moNum == 2) {
+						if (dayTimeNum < 26) {
+							String data = "";
+							if ((dayTimeNum + 3) < 10) {
+								data = "0" + (dayTimeNum + 3);
+							} else {
+								data = "" + (dayTimeNum + 3);
+							}
+							newContDate = yearNum + "-" + monNums + "-" + data;
+						} else {
+							newContDate = yearNum + "-" + monNums + "-" + 28;
+						}
+					}
+				}
+				if ((moNum == 4) || (moNum == 6) || (moNum == 9)
+						|| (moNum == 11)) {
+					if (dayTimeNum < 28) {
+						String data = "";
+						if ((dayTimeNum + 3) < 10) {
+							data = "0" + (dayTimeNum + 3);
+						} else {
+							data = "" + (dayTimeNum + 3);
+						}
+						newContDate = yearNum + "-" + monNums + "-" + data;
+					} else {
+						newContDate = yearNum + "-" + monNums + "-" + 30;
+					}
+				} else if ((moNum != 2)) {
+					if (dayTimeNum < 29) {
+						String data = "";
+						if ((dayTimeNum + 3) < 10) {
+							data = "0" + (dayTimeNum + 3);
+						} else {
+							data = "" + (dayTimeNum + 3);
+						}
+						newContDate = yearNum + "-" + monNums + "-" + data;
+					} else {
+						newContDate = yearNum + "-" + monNums + "-" + 31;
+					}
+				}
+				content = newContDate + " " + contentHm;
+				endtimeTxt.setText(content);
+			} else if (endFlag) {
+				String newContDate = "";
+				endtimeTxt.setText(content);
+				int dayTimeNum = Integer.valueOf(dayTime);
+				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
+				if (isLeaapYear) {
+					if (moNum == 2) {
+						if (dayTimeNum > 3) {
+							String data = "";
+							if ((dayTimeNum - 3) < 10) {
+								data = "0" + (dayTimeNum - 3);
+							} else {
+								data = "" + (dayTimeNum - 3);
+							}
+							newContDate = yearNum + "-" + monNums + "-" + data;
+						} else {
+							newContDate = yearNum + "-" + monNums + "-" + "01";
+						}
+					}
+				} else {
+					if (moNum == 2) {
+						if (dayTimeNum > 3) {
+							String data = "";
+							if ((dayTimeNum - 3) < 10) {
+								data = "0" + (dayTimeNum - 3);
+							} else {
+								data = "" + (dayTimeNum - 3);
+							}
+							newContDate = yearNum + "-" + monNums + "-" + data;
+						} else {
+							newContDate = yearNum + "-" + monNums + "-" + "01";
+						}
+					}
+				}
+				if ((moNum == 4) || (moNum == 6) || (moNum == 9)
+						|| (moNum == 11)) {
+					if (dayTimeNum > 3) {
+						String data = "";
+						if ((dayTimeNum - 3) < 10) {
+							data = "0" + (dayTimeNum - 3);
+						} else {
+							data = "" + (dayTimeNum - 3);
+						}
+						newContDate = yearNum + "-" + monNums + "-" + data;
+					} else {
+						newContDate = yearNum + "-" + monNums + "-01";
+					}
+				} else if ((moNum != 2)) {
+					if (dayTimeNum > 3) {
+						String data = "";
+						if ((dayTimeNum - 3) < 10) {
+							data = "0" + (dayTimeNum - 3);
+						} else {
+							data = "" + (dayTimeNum - 3);
+						}
+						newContDate = yearNum + "-" + monNums + "-" + data;
+					} else {
+						newContDate = yearNum + "-" + monNums + "-01";
+					}
+				}
+				content = newContDate + " " + contentHm;
+				startTimeTxt.setText(content);
+			}
+		}
+	};
 }

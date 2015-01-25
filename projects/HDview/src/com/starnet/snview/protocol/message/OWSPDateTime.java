@@ -1,9 +1,15 @@
 package com.starnet.snview.protocol.message;
 
+import java.io.Serializable;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class OWSPDateTime implements Parcelable {
+public class OWSPDateTime implements Serializable {/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4688929165750465945L;
+//Parcelable
 
 	private int year;
 	private int month;
@@ -86,12 +92,12 @@ public class OWSPDateTime implements Parcelable {
 		}
 	};
 
-	@Override
+	
 	public int describeContents() {
 		return 0;
 	}
 
-	@Override
+	
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(year);
 		dest.writeInt(month);

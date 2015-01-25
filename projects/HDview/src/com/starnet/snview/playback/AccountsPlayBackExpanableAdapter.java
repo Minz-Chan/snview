@@ -24,6 +24,9 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	private List<CloudAccount> users;// 星云账户
 	private final int REQ = 0x0005;
 
+	private CloudAccount clickUser;
+	private DeviceItem clickDItem;
+
 	public AccountsPlayBackExpanableAdapter(Context ctx,
 			List<CloudAccount> users) {
 		this.ctx = ctx;
@@ -56,7 +59,18 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
-		return users.get(groupPosition).getDeviceList().get(childPosition);
+		if (users == null) {
+			return null;
+		}
+		CloudAccount ca = users.get(groupPosition);
+		if (ca == null) {
+			return null;
+		}
+		List<DeviceItem> dList = ca.getDeviceList();
+		if (dList == null) {
+			return null;
+		}
+		return dList.get(childPosition);
 	}
 
 	@Override
@@ -110,8 +124,16 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		txt.setText(list.get(childPosition).getDeviceName());
 		final Button stateBtn = (Button) convertView
 				.findViewById(R.id.stateBtn);
-		if (okFlag && (groupPosition == clickGroup)
-				&& (childPosition == clickChild)) {
+		if ((clickDItem != null)
+				&& users.get(groupPosition).getDeviceList().get(childPosition)
+						.getDeviceName().equals(clickDItem.getDeviceName())) {// okFlag
+																				// &&
+																				// (groupPosition
+																				// ==
+																				// clickGroup)&&
+																				// (childPosition
+																				// ==
+																				// clickChild)
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -124,11 +146,13 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				clickChild = child;
 				clickGroup = group;
 				Intent intent = new Intent();
-				List<DeviceItem> dList = users.get(group).getDeviceList();
+				clickUser = users.get(clickGroup);
+				List<DeviceItem> dList = clickUser.getDeviceList();
+				clickDItem = dList.get(clickChild);
 				intent.putExtra("group", clickGroup);
 				intent.putExtra("child", clickChild);
-				intent.putExtra("device", dList.get(clickChild));
-				intent.setClass(ctx, PlayBackInfoActivity.class);
+				intent.putExtra("device", clickDItem);
+				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 				((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
 
 			}
