@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 
-import com.starnet.snview.playback.utils.LoginInfoRequest;
-import com.starnet.snview.playback.utils.PlayRecordRequest;
-import com.starnet.snview.playback.utils.SearchRecordRequest;
+import com.starnet.snview.playback.utils.TLV_V_LoginInfoRequest;
+import com.starnet.snview.playback.utils.TLV_V_PlayRecordRequest;
+import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
@@ -118,11 +118,11 @@ public class BufferSendManagerPlayBack {
 			outBuffer.put((byte) message.getReserve2());
 			outBuffer.put((byte) message.getReserve3());
 			outBuffer.put((byte) message.getReserve4());
-		} else if (msg instanceof LoginInfoRequest) {
+		} else if (msg instanceof TLV_V_LoginInfoRequest) {
 			outBuffer.putUnsignedShort(Constants.MSG_TYPE.LOGIN_REQUEST);
 			outBuffer.putUnsignedShort(Constants.MSG_LEN.LOGIN_REQUEST);
 
-			LoginInfoRequest message = (LoginInfoRequest) msg;
+			TLV_V_LoginInfoRequest message = (TLV_V_LoginInfoRequest) msg;
 			IoBuffer tmp = IoBuffer.allocate(32).order(ByteOrder.LITTLE_ENDIAN);
 
 			String userName = message.getUserName().trim();
@@ -147,17 +147,17 @@ public class BufferSendManagerPlayBack {
 
 			outBuffer.putUnsignedInt(message.getDeviceId()); // put deviceId
 			outBuffer.put((byte) 1); // should be set to 1 to be compatible with the previous version
-			outBuffer.put((byte) (message.getChannel() - 1)); // put channel,start from 0
+			outBuffer.put((byte) (message.getChannel())); // put channel,start from 0
 			outBuffer.put((byte) message.getStreamMode());
 			outBuffer.put((byte) message.getDataType());
-		} else if (msg instanceof SearchRecordRequest) {
+		} else if (msg instanceof TLV_V_SearchRecordRequest) {
 
 			outBuffer.putUnsignedShort(PlayBackConstants.MSG_TYPE.RECORD_REQUEST);
 			outBuffer.putUnsignedShort(PlayBackConstants.MSG_LEN.RECORD_REQUEST);
 
-			SearchRecordRequest srr = (SearchRecordRequest) msg;
+			TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) msg;
 			outBuffer.putUnsignedInt(srr.getDeviceId());
-			outBuffer.put((byte) (srr.getChannel()-1));
+			outBuffer.put((byte) (srr.getChannel()));//srr.getChannel()-1
 			outBuffer.put((byte) srr.getRecordType());
 			outBuffer.put((byte) srr.getCount());
 			
@@ -178,14 +178,14 @@ public class BufferSendManagerPlayBack {
 			outBuffer.put((byte) srr.getReserve()[0]); // reserve[0]
 			outBuffer.put((byte) srr.getReserve()[1]); // reserve[1]
 			outBuffer.put((byte) srr.getReserve()[2]); // reserve[1]
-		} else if (msg instanceof PlayRecordRequest) {
+		} else if (msg instanceof TLV_V_PlayRecordRequest) {
 
 			outBuffer
-					.putUnsignedShort(PlayBackConstants.MSG_TYPE.RECORD_REQUEST);
+					.putUnsignedShort(PlayBackConstants.MSG_TYPE.PLAY_RECORD_REQUEST);
 			outBuffer
-					.putUnsignedShort(PlayBackConstants.MSG_LEN.RECORD_REQUEST);
+					.putUnsignedShort(PlayBackConstants.MSG_LEN.PLAY_RECORD_ANSWER);
 
-			PlayRecordRequest srr = (PlayRecordRequest) msg;
+			TLV_V_PlayRecordRequest srr = (TLV_V_PlayRecordRequest) msg;
 			outBuffer.putInt(srr.getDeviceId());
 			
 			outBuffer.putShort((short) srr.getStartTime().getYear());

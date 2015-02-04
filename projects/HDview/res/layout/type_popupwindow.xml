@@ -16,6 +16,36 @@
             android:layout_marginLeft="24dp"
             android:layout_weight="0.7"
             android:gravity="left|center"
+            android:text="@string/playback_alarm_type"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/stateBtn0"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/channellist_select_empty"
+            android:contentDescription="@string/nothing" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:background="@color/black"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50.0dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="24dp"
+            android:layout_weight="0.7"
+            android:gravity="left|center"
             android:text="@string/playback_alarm_type1"
             android:textColor="@color/black"
             android:textSize="16sp" />
@@ -24,8 +54,8 @@
             android:id="@+id/stateBtn1"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:contentDescription="@string/nothing"
-            android:background="@drawable/channellist_select_empty" />
+            android:background="@drawable/channellist_select_empty"
+            android:contentDescription="@string/nothing" />
     </LinearLayout>
 
     <LinearLayout
@@ -55,8 +85,8 @@
             android:id="@+id/stateBtn2"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:contentDescription="@string/nothing"
-            android:background="@drawable/channellist_select_empty" />
+            android:background="@drawable/channellist_select_empty"
+            android:contentDescription="@string/nothing" />
     </LinearLayout>
 
     <LinearLayout
@@ -85,8 +115,8 @@
             android:id="@+id/stateBtn3"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:contentDescription="@string/nothing"
-            android:background="@drawable/channellist_select_empty" />
+            android:background="@drawable/channellist_select_empty"
+            android:contentDescription="@string/nothing" />
     </LinearLayout>
 
     <LinearLayout
@@ -115,8 +145,8 @@
             android:id="@+id/stateBtn4"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:contentDescription="@string/nothing"
-            android:background="@drawable/channellist_select_empty" />
+            android:background="@drawable/channellist_select_empty"
+            android:contentDescription="@string/nothing" />
     </LinearLayout>
 
 </LinearLayout>

@@ -2,7 +2,7 @@ package com.starnet.snview.playback.utils;
 
 import com.starnet.snview.protocol.message.OWSPDateTime;
 
-public class PlayRecordRequest {
+public class TLV_V_PlayRecordRequest {
 
 	private int deviceId;
 	private OWSPDateTime startTime; // 暂停、继续、停止命令无效
@@ -10,7 +10,7 @@ public class PlayRecordRequest {
 	private int command; // 回放控制命令
 	private int reserve;
 
-	public PlayRecordRequest() {
+	public TLV_V_PlayRecordRequest() {
 
 	}
 

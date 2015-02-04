@@ -1,6 +1,6 @@
 package com.starnet.snview.playback.utils;
 
-public class PlayRecordResponse {
+public class TLV_V_PlayRecordResponse {
 	
 	private int result;
 	private int reserve;

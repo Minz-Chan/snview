@@ -3,13 +3,13 @@ package com.starnet.snview.playback.utils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class SearchRecordResponse implements Parcelable {
+public class TLV_V_SearchRecordResponse implements Parcelable {
 
 	private int result;
 	private int count;
 	private int reserve;
 	
-	public SearchRecordResponse(){
+	public TLV_V_SearchRecordResponse(){
 		
 	}
 
@@ -37,7 +37,7 @@ public class SearchRecordResponse implements Parcelable {
 		this.reserve = reserve;
 	}
 
-	private SearchRecordResponse(Parcel in) {
+	private TLV_V_SearchRecordResponse(Parcel in) {
 		this.result = in.readInt();
 		this.count = in.readInt();
 		this.reserve = in.readInt();
@@ -55,16 +55,16 @@ public class SearchRecordResponse implements Parcelable {
 		dest.writeInt(reserve);
 	}
 
-	public final static Parcelable.Creator<SearchRecordResponse> CREATOR = new Parcelable.Creator<SearchRecordResponse>() {
+	public final static Parcelable.Creator<TLV_V_SearchRecordResponse> CREATOR = new Parcelable.Creator<TLV_V_SearchRecordResponse>() {
 
 		@Override
-		public SearchRecordResponse createFromParcel(Parcel source) {
-			return new SearchRecordResponse(source);
+		public TLV_V_SearchRecordResponse createFromParcel(Parcel source) {
+			return new TLV_V_SearchRecordResponse(source);
 		}
 
 		@Override
-		public SearchRecordResponse[] newArray(int size) {
-			return new SearchRecordResponse[size];
+		public TLV_V_SearchRecordResponse[] newArray(int size) {
+			return new TLV_V_SearchRecordResponse[size];
 		}
 	};
 }

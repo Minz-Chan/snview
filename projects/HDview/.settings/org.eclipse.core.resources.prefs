@@ -1,2 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/com/starnet/snview/playback/utils/BByteConvert.java=UTF-8
+encoding//src/com/starnet/snview/playback/utils/ByteArray2Object.java=UTF-8
+encoding//src/com/starnet/snview/playback/utils/LByteConvert.java=UTF-8
 encoding/src=UTF-8

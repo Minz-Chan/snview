@@ -7,11 +7,13 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+
 import com.starnet.snview.component.BufferSendManagerPlayBack;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,16 +24,24 @@ public class PlayBackSearchRecordTask {
 
 	private Socket client;
 	private Handler mHandler;
+	private Thread timeThread;
 	private Thread loadThread;
 	boolean isConnected = false;
-	private SearchRecordRequest srr;
+	private final int TIMECOUNT = 4;
+	private TLV_V_SearchRecordRequest srr;
 	private DeviceItem visitDevItem;
 	private BufferSendManagerPlayBack back;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_FAIL = 0x0009;
+	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
+
+	private boolean isCancel;
+	private boolean isTimeOut;
+	private boolean isInitWrong;
+	private boolean isOnSocketWork;
 
 	public PlayBackSearchRecordTask(Handler mHandler, DeviceItem dItem,
-			SearchRecordRequest srr) {
+			TLV_V_SearchRecordRequest srr) {
 		this.srr = srr;
 		this.mHandler = mHandler;
 		this.visitDevItem = dItem;
@@ -45,6 +55,36 @@ public class PlayBackSearchRecordTask {
 				}
 			}
 		};
+
+		timeThread = new Thread() {
+			@Override
+			public void run() {
+				super.run();
+				int timeCount = 0;
+				boolean isCanRun = true;
+				while (isCanRun && !isTimeOut && !isCancel) {
+					try {
+						Thread.sleep(1000);
+						timeCount++;
+						if (timeCount == TIMECOUNT) {
+							isCanRun = false;
+							isInitWrong = true;
+							isOnSocketWork = true;
+							
+							onWorkTimeOut();
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+	}
+
+	protected void onWorkTimeOut() {
+		Message msg = new Message();
+		msg.what = NOTIFYREMOTEUIFRESH_TMOUT;
+		mHandler.sendMessage(msg);
 	}
 
 	private void initClient() {
@@ -54,7 +94,16 @@ public class PlayBackSearchRecordTask {
 			client = new Socket(host, port);
 			isConnected = client.isConnected();
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (!isCancel && !isInitWrong) {
+				isTimeOut = true;
+				isOnSocketWork = true;
+				Bundle data = new Bundle();
+				Message msg = new Message();
+				msg.what = NOTIFYREMOTEUIFRESH_FAIL;
+				data.putParcelableArrayList("srres", null);
+				msg.setData(data);
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
@@ -69,7 +118,16 @@ public class PlayBackSearchRecordTask {
 				setResponseForSearchRecord();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (!isCancel) {
+				isTimeOut = true;
+				isInitWrong = true;
+				Bundle data = new Bundle();
+				Message msg = new Message();
+				msg.what = NOTIFYREMOTEUIFRESH_FAIL;
+				data.putParcelableArrayList("srres", null);
+				msg.setData(data);
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
@@ -91,10 +149,10 @@ public class PlayBackSearchRecordTask {
 		parseResponsePacketFromSocket(testInputStream);
 	}
 
-	/***从包中读取SearchRecordResponse的信息*/
+	/*** 从包中读取SearchRecordResponse的信息 */
 	@SuppressWarnings("static-access")
 	private void parseResponsePacketFromSocket(InputStream in) {
-		SearchRecordResponse srr = new SearchRecordResponse();
+		TLV_V_SearchRecordResponse srr = new TLV_V_SearchRecordResponse();
 		byte[] head = new byte[8];
 		try {
 			in.read(head);
@@ -105,8 +163,8 @@ public class PlayBackSearchRecordTask {
 			byte[] tBuf = new byte[7];
 			in.read(tBuf);
 			ByteBuffer t = ByteBuffer.wrap(tBuf).order(ByteOrder.LITTLE_ENDIAN);
-			t.getShort();
-			t.getShort();
+			int type = t.getShort();
+			int leng = t.getShort();
 			byte tempresult = t.get(4);
 			byte tempcount = t.get(5);
 			byte tempreserve = t.get(6);
@@ -133,13 +191,14 @@ public class PlayBackSearchRecordTask {
 			}
 
 			if (result == 1) {// 表示成功
-				ArrayList<RecordInfo> infoList = new ArrayList<RecordInfo>();
+				ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 				if (count > 0) {
 					for (int i = 0; i < count; i++) {
-						RecordInfo recordInfo = new RecordInfo();
+						TLV_V_RecordInfo recordInfo = new TLV_V_RecordInfo();
 						byte[] temp = new byte[26];
 						in.read(temp);
-						ByteBuffer tempBuffer = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN);
+						ByteBuffer tempBuffer = ByteBuffer.wrap(temp).order(
+								ByteOrder.LITTLE_ENDIAN);
 						tempBuffer.getShort();
 						tempBuffer.getShort();
 						int deviceID = tempBuffer.getInt();
@@ -189,27 +248,39 @@ public class PlayBackSearchRecordTask {
 
 						infoList.add(recordInfo);
 					}
+					if (!isOnSocketWork && !isCancel) {
+						isTimeOut = true;
+						isInitWrong = true;
+						Bundle data = new Bundle();
+						Message msg = new Message();
+						msg.what = NOTIFYREMOTEUIFRESH_SUC;
+						data.putParcelableArrayList("srres", infoList);
+						msg.setData(data);
+						mHandler.sendMessage(msg);
+					}
+				} else {// 没有数据
+					if (!isOnSocketWork && !isCancel) {
+						isTimeOut = true;
+						isInitWrong = true;
+						Bundle data = new Bundle();
+						Message msg = new Message();
+						msg.what = NOTIFYREMOTEUIFRESH_FAIL;
+						data.putParcelableArrayList("srres", null);
+						msg.setData(data);
+						mHandler.sendMessage(msg);
+					}
+				}
+			} else {// 表示失败
+				if (!isOnSocketWork && !isCancel) {
+					isTimeOut = true;
+					isInitWrong = true;
 					Bundle data = new Bundle();
 					Message msg = new Message();
-					msg.what = NOTIFYREMOTEUIFRESH_SUC;
-					data.putParcelableArrayList("srres", infoList);
-					msg.setData(data);
-					mHandler.sendMessage(msg);
-				} else {
-					Bundle data = new Bundle();
-					Message msg = new Message();
-					msg.what = NOTIFYREMOTEUIFRESH_SUC;
+					msg.what = NOTIFYREMOTEUIFRESH_FAIL;
 					data.putParcelableArrayList("srres", null);
 					msg.setData(data);
 					mHandler.sendMessage(msg);
 				}
-			} else {// 表示失败
-				Bundle data = new Bundle();
-				Message msg = new Message();
-				msg.what = NOTIFYREMOTEUIFRESH_SUC;
-				data.putParcelableArrayList("srres", null);
-				msg.setData(data);
-				mHandler.sendMessage(msg);
 			}
 			srr.setReserve(reserve);
 			srr.setCount(count);
@@ -257,7 +328,19 @@ public class PlayBackSearchRecordTask {
 		return ret;
 	}
 
+	public void setCancel(boolean isCancel) {
+		this.isCancel = isCancel;
+	}
+
 	public void start() {
+
+		isCancel = false;
+		isTimeOut = false;
+		isInitWrong = false;
+		isOnSocketWork = false;
+
 		loadThread.start();
+		timeThread.start();
+
 	}
 }

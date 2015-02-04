@@ -1,13 +1,18 @@
 package com.starnet.snview.playback;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,7 +37,8 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.playback.utils.SearchRecordRequest;
+import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
+import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
@@ -68,16 +74,18 @@ public class TimeSettingActivity extends BaseActivity {
 	private NumericWheelAdapter minuteAdapter;
 
 	private TextView videoType;
+	private Button staBtn0;
 	private Button staBtn1;
 	private Button staBtn2;
 	private Button staBtn3;
 	private Button staBtn4;
 	private String typeSD;
 	private String typeDsh;
+	private String typeAll;
 	private String typeYDZC;
 	private String typeKGLJG;
 
-	private SearchRecordRequest srr;
+	private TLV_V_SearchRecordRequest srr;
 	private DeviceItem visitDevItem;
 	private Button startScanBtn;
 
@@ -90,11 +98,16 @@ public class TimeSettingActivity extends BaseActivity {
 	private DeviceItemRequestTask[] tasks;
 	private final int REQUESTCODE = 0x0005;
 	private final int TIMESETTING = 0x0007;
+	private final int REQUESTCODE_DOG = 0x0005;
+	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
+	private final int NOTIFYREMOTEUIFRESH_FAIL = 0x0009;
+	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
+
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
-	private Handler mHdler = new Handler() {
+	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -140,6 +153,26 @@ public class TimeSettingActivity extends BaseActivity {
 				originCAs.set(posit, netCA2);
 				actsAdapter.notifyDataSetChanged();
 				break;
+			case NOTIFYREMOTEUIFRESH_SUC:
+				dismissPRGDialog();
+				Bundle bundle = msg.getData();
+				ArrayList<TLV_V_RecordInfo> srres = bundle
+						.getParcelableArrayList("srres");
+				Intent data = new Intent();
+				Bundle bu = new Bundle();
+				bu.putParcelableArrayList("srres", srres);
+				data.putExtras(bu);
+				setResult(TIMESETTING, data);
+				TimeSettingActivity.this.finish();
+				break;
+			case NOTIFYREMOTEUIFRESH_FAIL:
+				dismissPRGDialog();
+				showContentToast(getString(R.string.playback_netvist_datanull));
+				break;
+			case NOTIFYREMOTEUIFRESH_TMOUT:
+				dismissPRGDialog();
+				showContentToast(getString(R.string.playback_netvist_timeout));
+				break;
 			default:
 				break;
 			}
@@ -153,6 +186,12 @@ public class TimeSettingActivity extends BaseActivity {
 		initViews();
 		setExtPandableListview();
 		setListenersForWadgets();
+	}
+
+	private void dismissPRGDialog() {
+		if (prg != null && prg.isShowing()) {
+			prg.dismiss();
+		}
 	}
 
 	/** 为用户添加设备数据 **/
@@ -174,7 +213,8 @@ public class TimeSettingActivity extends BaseActivity {
 				for (int i = 0; i < accounts.size(); i++) {
 					CloudAccount c = accounts.get(i);
 					if (c.isEnabled()) {
-						tasks[j] = new DeviceItemRequestTask(ctx, c, mHdler, i);
+						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler,
+								i);
 						tasks[j].start();
 						j++;
 					}
@@ -300,26 +340,46 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.setFocusable(false);
 					typePopupWindow.setOutsideTouchable(true);
 					typePopupWindow.update();
-					
+
 				}
 			}
 		});
 
 		startScanBtn.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				startPlayBack();
+				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+				if (isOpen) {
+					startPlayBack();
+				} else {
+					showContentToast(getString(R.string.playback_network_not_open));
+				}
 			}
 		});
 	}
 
 	private void setVideoTypeOnClick() {
+
+		staBtn0.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				videoType.setText(typeAll);
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+
+			}
+		});
+
 		staBtn1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
 				videoType.setText(typeSD);
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -332,6 +392,7 @@ public class TimeSettingActivity extends BaseActivity {
 			public void onClick(View v) {
 
 				videoType.setText(typeDsh);
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
 				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -347,12 +408,14 @@ public class TimeSettingActivity extends BaseActivity {
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
 			}
 		});
 		staBtn4.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				videoType.setText(typeKGLJG);
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -367,34 +430,52 @@ public class TimeSettingActivity extends BaseActivity {
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
-		dismissTimeDialog();
-		if (!okFlag) {// if (!okFlag) {
-			String content = ctx.getString(R.string.playback_content_null);
-			showContentToast(content);
+		if (!okFlag) {
+			showContentToast(ctx.getString(R.string.playback_content_null));
 		} else {
 			String vType = videoType.getText().toString();
 			int rTyPe = setRecordTypeAcc(vType);
 			if (rTyPe == -1) {
-				String content = ctx
-						.getString(R.string.playback_videotype_null);
-				showContentToast(content);
+				showContentToast(ctx
+						.getString(R.string.playback_videotype_null));
 			} else {
-				srr = getRequestInfo();
-				Intent data = new Intent();
-				srr.setCount(255);
-				data.putExtra("srr", srr);
-				data.putExtra("visitDevItem", visitDevItem);
-				setResult(TIMESETTING, data);
-				TimeSettingActivity.this.finish();
+				setDataToPlayActivity();
 			}
 		}
 	}
 
-	private SearchRecordRequest getRequestInfo() {
-		SearchRecordRequest srr = new SearchRecordRequest();
+	private void setDataToPlayActivity() {
+		dismissPRGDialog();
+		Bundle bundle = new Bundle();
+		Intent data = new Intent();
+		srr = getRequestInfo();
+
+		String svrIp = visitDevItem.getSvrIp();
+		String svrPort = visitDevItem.getSvrPort();
+		String svrPass = visitDevItem.getLoginPass();
+		String svrUser = visitDevItem.getLoginUser();
+
+		String svrIps[] = svrIp.split("\\.");
+
+		bundle.putString("svrPort", svrPort);
+		bundle.putString("svrPass", svrPass);
+		bundle.putString("svrUser", svrUser);
+		// bundle.putString("svrIp",svrIp);
+		bundle.putStringArray("svrIps", svrIps);
+
+		bundle.putParcelable("srr", srr);
+
+		data.putExtras(bundle);
+		setResult(TIMESETTING, data);
+		TimeSettingActivity.this.finish();
+	}
+
+	private TLV_V_SearchRecordRequest getRequestInfo() {
+		TLV_V_SearchRecordRequest srr = new TLV_V_SearchRecordRequest();
 		String startTime = (String) startTimeTxt.getText();
 		String endTime = (String) endtimeTxt.getText();
-		visitDevItem = (DeviceItem) actsAdapter.getChild(clickGroup, clickChild);
+		visitDevItem = (DeviceItem) actsAdapter
+				.getChild(clickGroup, clickChild);
 
 		OWSPDateTime sTime = getOWSPDateTime(startTime);
 		OWSPDateTime eTime = getOWSPDateTime(endTime);
@@ -404,7 +485,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 		String vType = videoType.getText().toString();
 		setRecordTypeAcc(vType);
-		
+
 		int channel = getScanChannel();
 
 		srr.setStartTime(sTime);
@@ -416,8 +497,8 @@ public class TimeSettingActivity extends BaseActivity {
 		srr.setReserve(new int[] { 0, 0, 0 });
 		return srr;
 	}
-	
-	private int getScanChannel(){
+
+	private int getScanChannel() {
 		int no = 0;
 		List<Channel> chanList = visitDevItem.getChannelList();
 		int size = chanList.size();
@@ -487,6 +568,7 @@ public class TimeSettingActivity extends BaseActivity {
 		cloudAccountView.setGroupIndicator(null);
 
 		typeSD = getString(R.string.playback_alarm_type1);
+		typeAll = getString(R.string.playback_alarm_type);
 		typeDsh = getString(R.string.playback_alarm_type2);
 		typeYDZC = getString(R.string.playback_alarm_type3);
 		typeKGLJG = getString(R.string.playback_alarm_type4);
@@ -497,12 +579,26 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	/** 对开始、结束时间设置为当前时间 **/
+	@SuppressWarnings("deprecation")
 	private void setCurrentTimeForTxt() {
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String dateNowStr = sdf.format(d);
 		endtimeTxt.setText(dateNowStr);
-		startTimeTxt.setText(dateNowStr);
+
+		Date startDate = new Date();
+		Calendar c = Calendar.getInstance();
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		if (day <= 4) {
+			startDate.setDate(1);
+			String dateStr = sdf.format(startDate);
+			startTimeTxt.setText(dateStr);
+		} else {
+			int tempDay = day - 3;
+			startDate.setDate(tempDay);
+			String dateStr = sdf.format(startDate);
+			startTimeTxt.setText(dateStr);
+		}
 	}
 
 	private void initTypePopWindow() {
@@ -513,6 +609,7 @@ public class TimeSettingActivity extends BaseActivity {
 		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		View view2 = typePopupWindow.getContentView();
 
+		staBtn0 = (Button) view2.findViewById(R.id.stateBtn0);
 		staBtn1 = (Button) view2.findViewById(R.id.stateBtn1);
 		staBtn2 = (Button) view2.findViewById(R.id.stateBtn2);
 		staBtn3 = (Button) view2.findViewById(R.id.stateBtn3);
@@ -629,6 +726,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private int clickGroup;
 	private int clickChild;
 	private int recordType;
+	private DeviceItem visitDItem;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -642,9 +740,8 @@ public class TimeSettingActivity extends BaseActivity {
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					int tempCh = data.getIntExtra("chnl", 0);
-					DeviceItem dItem = (DeviceItem) actsAdapter.getChild(
-							clickGroup, clickChild);
-					List<Channel> channels = dItem.getChannelList();
+					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,clickChild);
+					List<Channel> channels = visitDItem.getChannelList();
 					for (int i = 0; i < channels.size(); i++) {
 						if (i == tempCh) {
 							channels.get(i).setSelected(true);
@@ -661,6 +758,7 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private int setRecordTypeAcc(String type2) {
+		String typeShAll = getString(R.string.playback_alarm_type);
 		String typeShD = getString(R.string.playback_alarm_type1);
 		String typeDsh = getString(R.string.playback_alarm_type2);
 		String typeYDZC = getString(R.string.playback_alarm_type3);
@@ -673,6 +771,8 @@ public class TimeSettingActivity extends BaseActivity {
 			recordType = 2;
 		} else if (type2.equals(typeKGLJG)) {
 			recordType = 1;
+		} else if (type2.equals(typeShAll)) {
+			recordType = 0;
 		} else {
 			recordType = -1;
 		}
@@ -865,4 +965,27 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		}
 	};
+
+	private ProgressDialog prg;
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case REQUESTCODE_DOG:
+			prg = new ProgressDialog(this);
+			prg.setMessage(getString(R.string.playback_timesetting_reqinfo));
+			prg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			prg.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					if (prg != null && prg.isShowing()) {
+						prg.dismiss();
+					}
+				}
+			});
+			return prg;
+		default:
+			return null;
+		}
+	}
 }

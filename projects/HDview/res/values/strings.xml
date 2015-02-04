@@ -123,7 +123,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_ok">确定</string>
     <string name="system_setting_alarm_pushset_port_null">端口号为空，请填充</string>
     <string name="system_setting_alarm_pushset_uName_null">用户名为空，请填充</string>
-    <string name="system_setting_about_build">Version 6.1.0 (Build 20150112)</string>
+    <string name="system_setting_about_build">Version 6.1.0 (Build 20150125)</string>
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
@@ -265,13 +265,13 @@
     <string name="alarm_manageradapter_imagepreview">报警图片预览</string>
     <string name="alarm_iamgeload_wait">图片正在下载,请等待&#8230;</string>
     <string name="alarm_videoload_wait">视频正在下载,请等待&#8230;</string>
-    <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
+    <string name="alarm_img_load_fail">图片下载失败,请稍后重试&#8230;</string>
+    <string name="alarm_img_load_timeout">访问超时,请检查网络是否畅通</string>
     <string name="playback_channel">通道</string>
     <string name="playback_click_start_scan">开始回放</string>
     <string name="playback_setting_end_time">结束时间</string>
     <string name="playback_setting_video_type">视频类型</string>
     <string name="playback_alarm_type">全部</string>
-    
     <string name="playback_alarm_type1">手动录像</string>
     <string name="playback_alarm_type2">定时录像</string>
     <string name="playback_req_fail"> 用户请求失败</string>
@@ -283,11 +283,17 @@
     <string name="playback_infoact_devicename">报警设备</string>
     <string name="playback_infoact_setting">报警信息设置</string>
     <string name="playback_click_input_time">点击输入时间</string>
-    <string name="playback_click_select_video_type">选择视频类型</string>
     <string name="playback_infoact_alarmchannel">报警通道</string>
+    <string name="playback_remote_record_null">没有远程回放记录</string>
+    <string name="playback_click_select_video_type">选择视频类型</string>
+    <string name="playback_netvisit_fail">网络访问失败，请稍后重试&#8230;</string>
+    <string name="playback_netvist_timeout">网络访问超时,请稍后再试&#8230;</string>
+    <string name="playback_network_not_open">网络未打开,请开启后再试&#8230;</string>
+    <string name="playback_netvisit_timeout">网络访问超时，请稍后重试&#8230;</string>
     <string name="playback_videotype_null">还没有选择视频类型，请选择后再回放</string>
-    <string name="playback_content_null">还没有选择，预览设备，请选择后，进行查看</string>
-    <string name="playback_extend3days_time">选择的回放时间不能超过3天，请重新选择</string>
-   
+    <string name="playback_timesetting_reqinfo">正在请求回放信息,请等待&#8230;</string>
+    <string name="playback_netvist_datanull">未请求到回放数据,请稍后再试&#8230;</string>
+    <string name="playback_content_null">还没有选择，预览设备，请选择后,进行查看</string>
+    <string name="playback_extend3days_time">选择的回放时间不能超过3天,请重新选择</string>
 
 </resources>

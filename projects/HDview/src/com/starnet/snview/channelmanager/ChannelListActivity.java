@@ -187,8 +187,8 @@ public class ChannelListActivity extends BaseActivity {
 						d.setConnPass(true);
 						d.setPlatformUsername(netCA.getUsername());
 					}
+					Collections.sort(dList1, new PinyinComparator());// 排序...
 				}
-				Collections.sort(netCA.getDeviceList(), new PinyinComparator());// 排序...
 				chExpandableListAdapter.notifyDataSetChanged();
 				break;
 			default:

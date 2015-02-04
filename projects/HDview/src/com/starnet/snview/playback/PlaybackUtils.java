@@ -2,6 +2,7 @@ package com.starnet.snview.playback;
 
 public class PlaybackUtils {
 
+	public static boolean isClickOk = false;
 	public static boolean stateFlag = false;
 	public static boolean exapandFlag = false;
 

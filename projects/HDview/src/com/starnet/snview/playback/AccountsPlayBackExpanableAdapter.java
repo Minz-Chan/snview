@@ -126,14 +126,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				.findViewById(R.id.stateBtn);
 		if ((clickDItem != null)
 				&& users.get(groupPosition).getDeviceList().get(childPosition)
-						.getDeviceName().equals(clickDItem.getDeviceName())) {// okFlag
-																				// &&
-																				// (groupPosition
-																				// ==
-																				// clickGroup)&&
-																				// (childPosition
-																				// ==
-																				// clickChild)
+						.getDeviceName().equals(clickDItem.getDeviceName())) {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -167,7 +160,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	private static int clickGroup;
 	private static int clickChild;
-	private boolean okFlag;
+	protected boolean okFlag;
 
 	public void setOkFlag(boolean okFlag) {
 		this.okFlag = okFlag;

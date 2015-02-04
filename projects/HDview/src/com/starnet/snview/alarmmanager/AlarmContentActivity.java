@@ -18,7 +18,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -84,7 +83,7 @@ public class AlarmContentActivity extends BaseActivity implements
 				if (imgprogress != null && imgprogress.isShowing()) {
 					imgprogress.dismiss();
 				}
-				showToast("");
+				showToast(ctx.getString(R.string.alarm_img_load_fail));
 				break;
 			}
 		}

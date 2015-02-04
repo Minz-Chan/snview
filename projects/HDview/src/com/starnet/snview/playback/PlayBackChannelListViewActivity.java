@@ -6,7 +6,7 @@ import java.util.List;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.playback.utils.ConstantUtils;
+//import com.starnet.snview.playback.utils.ConstantUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -33,6 +33,7 @@ public class PlayBackChannelListViewActivity extends Activity {
 	private final int REQ = 0x0005;
 	private Button button_cancel;
 	private Button button_ok;
+	private boolean isClickOk = false;
 
 	private Intent intent;
 	private int parentPos;
@@ -85,24 +86,21 @@ public class PlayBackChannelListViewActivity extends Activity {
 		myListView = (ListView) findViewById(R.id.channel_sublistview);
 		button_cancel = (Button) findViewById(R.id.channel_listview_cancel);
 		button_ok = (Button) findViewById(R.id.channel_listview_ok);
-		
-//		if (!clickDeviceItem.getDeviceName().equals(ConstantUtils.clickName)) {
-//			channelList.get(0).setSelected(true);// 默认第一个已经选择
-//		}
 		adapter = new PlaybackChannelListViewAdapter(context, channelList);
 		myListView.setAdapter(adapter);
 
 		button_ok.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ConstantUtils.clickName = clickDeviceItem.getDeviceName();
+				PlaybackUtils.isClickOk = true;
+				isClickOk = true;
 				int channl = getChannelIndex();
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putInt("child", childPos);
 				bundle.putInt("group", parentPos);
 				bundle.putInt("chnl", channl);
-				bundle.putBoolean("okBtn", true);
+				bundle.putBoolean("okBtn", isClickOk);
 				intent.putExtras(bundle);
 				setResult(REQ, intent);
 				PlayBackChannelListViewActivity.this.finish();
@@ -127,14 +125,8 @@ public class PlayBackChannelListViewActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				// ImageView img = (ImageView)
-				// view.findViewById(R.id.channel_listview_device_item_chkbox);//
 				// 方框显示按钮
 				Channel channel = channelList.get(position);
-				// if (channel.isSelected()) {
-				// channel.setSelected(false);
-				// adapter.notifyDataSetChanged();
-				// } else {
 				channel.setSelected(true);
 				int channelSize = channelList.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -143,7 +135,6 @@ public class PlayBackChannelListViewActivity extends Activity {
 					}
 				}
 				adapter.notifyDataSetChanged();
-				// }
 			}
 		});
 

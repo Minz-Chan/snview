@@ -1,6 +1,6 @@
 package com.starnet.snview.playback.utils;
 
-public class LoginInfoRequest {
+public class TLV_V_LoginInfoRequest {
 
 	private String userName;
 	private String password;

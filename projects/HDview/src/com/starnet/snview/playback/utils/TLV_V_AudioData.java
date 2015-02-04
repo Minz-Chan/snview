@@ -1,5 +1,5 @@
 package com.starnet.snview.playback.utils;
 
-public class LoginInfoResponse {
+public class TLV_V_AudioData {
 
 }

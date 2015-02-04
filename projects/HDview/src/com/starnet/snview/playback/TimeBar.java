@@ -254,6 +254,7 @@ public class TimeBar extends View {
 			// 绘制刻度上的文本
 			// canvas.drawText(si.getTime(), si.getX() -
 			// paint.measureText("00:00") / 2.0F, this.mScaleTimeY, paint);
+			
 			canvas.drawText(si.getTime(), si.getX(), mScaleTimeY, paint);
 		}
 
@@ -274,6 +275,8 @@ public class TimeBar extends View {
 		paint.setTypeface(mMiddleTimefont);
 		float f = 2.0F + (paint.measureText(str) / 2.0F + paint
 				.measureText("0"));
+		Log.i(TAG, "time:"+str);
+		currrentTime = str;
 		canvas.drawText(str, mMiddleLineX - f, mMiddleLineTimeY, paint);
 	}
 
@@ -333,6 +336,12 @@ public class TimeBar extends View {
 
 	public void setTimeBarCallback(TimePickedCallBack timePickedCallBack) {
 		this.mTimePickCallback = timePickedCallBack;
+	}
+	
+	private String currrentTime;
+	
+	public String getCurrentTime(){
+		return currrentTime;
 	}
 
 	public static abstract interface TimePickedCallBack {
