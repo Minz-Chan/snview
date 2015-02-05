@@ -9,11 +9,6 @@
  */
 package com.starnet.snview.playback.utils;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import com.starnet.snview.component.h264.H264DecodeUtil;
-
 import android.os.Message;
 import android.util.Log;
 
@@ -34,6 +29,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 	@Override
 	public int process(byte[] data, int length) {
 		// VideoView v = ViewManager.getInstance().getVideoView();
+		int returnValue = 0;
 		int nLeft = length - 4; // 未处理的字节数
 		int nLen_hdr = OWSP_LEN.TLV_HEADER;
 		int flag = 0;
@@ -67,10 +63,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "vediodata length:" + tmp.length);
 				int result = 0;
 				try {
-					for (int i = 0; i < tmp.length; i++) {
-						String cc = "" + tmp[i] + ",";
-						testSaveFile(videoFileName, cc);
-					}
 					// result = h264.decodePacket(tmp, tmp.length,
 					// v.getmPixel());
 				} catch (Exception e) {
@@ -93,10 +85,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "length:" + tmp.length);
 
 				try {
-					for (int i = 0; i < tmp.length; i++) {
-						String c = "" + tmp[i] + ",";
-						testSaveFile(audioFileName, c);
-					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -109,10 +97,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "length:" + tmp.length);
 				int result = 0;
 				try {
-					for (int i = 0; i < tmp.length; i++) {
-						String c = "" + tmp[i] + ",";
-						testSaveFile(videoFileName, c);
-					}
 					// result = h264.decodePacket(tmp, tmp.length,
 					// v.getmPixel());
 				} catch (Exception e) {
@@ -160,7 +144,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 								flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 				Log.i(TAG, "data:" + prr);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
-
+				returnValue = -1;
 				Log.i(TAG, "EOF:" + tlv_Header.getTlv_type());
 				break;
 
@@ -168,7 +152,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 			nLeft -= tlv_Header.getTlv_len();
 			flag += tlv_Header.getTlv_len();
 		}
-		return 0;
+		return returnValue;
 	}
 
 	/**
@@ -184,27 +168,5 @@ public class DataProcessServiceImpl implements DataProcessService {
 		// } else {
 		// ViewManager.getInstance().setHelpMsg(R.string.IDS_Unknown);
 		// }
-	}
-
-	private final String audioFileName = "/data/data/com.starnet.snview/audio.txt";
-	private final String videoFileName = "/data/data/com.starnet.snview/video.txt";
-
-	private static void testSaveFile(String fileName, String content) {
-		FileWriter writer = null;
-		try {
-			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
-			writer = new FileWriter(fileName, true);
-			writer.write(content);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (writer != null) {
-					writer.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

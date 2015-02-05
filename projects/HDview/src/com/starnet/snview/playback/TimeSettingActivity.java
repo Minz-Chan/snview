@@ -42,9 +42,8 @@ import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
-@SuppressLint({ "SdCardPath", "SimpleDateFormat", "HandlerLeak" })
+@SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
 
 	private int dayNum;
@@ -105,7 +104,6 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
-	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -203,10 +201,10 @@ public class TimeSettingActivity extends BaseActivity {
 
 	/** 加载新的数据 **/
 	private List<CloudAccount> downloadDatas() {
-		List<CloudAccount> accounts = getCloudAccounts();
+		List<CloudAccount> accounts = PlaybackUtils.getCloudAccounts();
 		if (accounts != null) {
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
-			int enableSize = getEnableCACount(accounts);
+			int enableSize = PlaybackUtils.getEnableCACount(accounts);
 			tasks = new DeviceItemRequestTask[enableSize];
 			if (isOpen) {
 				int j = 0;
@@ -222,26 +220,6 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		}
 		return accounts;
-	}
-
-	private int getEnableCACount(List<CloudAccount> accounts) {
-		int count = 0;
-		for (int i = 0; i < accounts.size(); i++) {// 启动线程进行网络访问，每个用户对应着一个线程
-			CloudAccount cAccount = accounts.get(i);
-			boolean isEnable = cAccount.isEnabled();
-			if (isEnable) {
-				count++;
-			}
-		}
-		return count;
-	}
-
-	private List<CloudAccount> getCloudAccounts() {
-		try {
-			return ReadWriteXmlUtils.getCloudAccountList(filePath);
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 	private void backAndLeftOperation() {
@@ -456,15 +434,12 @@ public class TimeSettingActivity extends BaseActivity {
 		String svrUser = visitDevItem.getLoginUser();
 
 		String svrIps[] = svrIp.split("\\.");
-
 		bundle.putString("svrPort", svrPort);
 		bundle.putString("svrPass", svrPass);
 		bundle.putString("svrUser", svrUser);
 		// bundle.putString("svrIp",svrIp);
 		bundle.putStringArray("svrIps", svrIps);
-
 		bundle.putParcelable("srr", srr);
-
 		data.putExtras(bundle);
 		setResult(TIMESETTING, data);
 		TimeSettingActivity.this.finish();
@@ -477,17 +452,16 @@ public class TimeSettingActivity extends BaseActivity {
 		visitDevItem = (DeviceItem) actsAdapter
 				.getChild(clickGroup, clickChild);
 
-		OWSPDateTime sTime = getOWSPDateTime(startTime);
-		OWSPDateTime eTime = getOWSPDateTime(endTime);
+		OWSPDateTime sTime = PlaybackUtils.getOWSPDateTime(startTime);
+		OWSPDateTime eTime = PlaybackUtils.getOWSPDateTime(endTime);
 
 		int deviceId = 0;
 		int count = Integer.valueOf(255);
 
 		String vType = videoType.getText().toString();
 		setRecordTypeAcc(vType);
-
-		int channel = getScanChannel();
-
+		int channel = PlaybackUtils.getScanChannel(visitDevItem
+				.getChannelList());
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
 		srr.setCount(count);
@@ -496,54 +470,6 @@ public class TimeSettingActivity extends BaseActivity {
 		srr.setRecordType(recordType);
 		srr.setReserve(new int[] { 0, 0, 0 });
 		return srr;
-	}
-
-	private int getScanChannel() {
-		int no = 0;
-		List<Channel> chanList = visitDevItem.getChannelList();
-		int size = chanList.size();
-		for (int i = 0; i < size; i++) {
-			Channel channel = chanList.get(i);
-			if (channel.isSelected()) {
-				no = i;
-				break;
-			}
-		}
-		return no;
-	}
-
-	private OWSPDateTime getOWSPDateTime(String time) {
-		OWSPDateTime owspTime = new OWSPDateTime();
-		String[] sumTime = time.split(" ");
-		String ymdTemp = sumTime[0];
-		String hmsTemp = sumTime[1];
-		int[] ymd = getIntYMDData(ymdTemp);
-		int[] hms = getIntHMSData(hmsTemp);
-		owspTime.setYear(ymd[0] - 2009);
-		owspTime.setMonth(ymd[1]);
-		owspTime.setDay(ymd[2]);
-		owspTime.setHour(hms[0]);
-		owspTime.setMinute(hms[1]);
-		owspTime.setSecond(hms[2]);
-		return owspTime;
-	}
-
-	private int[] getIntHMSData(String ymdTemp) {
-		int[] data = new int[3];
-		String[] temp = ymdTemp.split(":");
-		for (int i = 0; i < 2; i++) {
-			data[i] = Integer.valueOf(temp[i]);
-		}
-		return data;
-	}
-
-	private int[] getIntYMDData(String ymdTemp) {
-		int[] data = new int[3];
-		String[] temp = ymdTemp.split("-");
-		for (int i = 0; i < 3; i++) {
-			data[i] = Integer.valueOf(temp[i]);
-		}
-		return data;
 	}
 
 	private void showToast(String content) {
@@ -740,7 +666,8 @@ public class TimeSettingActivity extends BaseActivity {
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					int tempCh = data.getIntExtra("chnl", 0);
-					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,clickChild);
+					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,
+							clickChild);
 					List<Channel> channels = visitDItem.getChannelList();
 					for (int i = 0; i < channels.size(); i++) {
 						if (i == tempCh) {
@@ -786,120 +713,35 @@ public class TimeSettingActivity extends BaseActivity {
 
 		@Override
 		public void onScrollingFinished(WheelView wheel) {
-			int yPos = year.getCurrentItem();
-			int yCount = year.getAdapter().getItemsCount();
-			if (yPos >= 2) {
-				yPos = yPos - 2;
-			} else {
-				yPos = yPos + yCount - 2;
-			}
-			String yearNum = year.getAdapter().getItem(yPos);
+			String yearNum = getTime(year);
 			int yNum = Integer.valueOf(yearNum);
-			int mPos = month.getCurrentItem();
-			int mCount = month.getAdapter().getItemsCount();
-			if (mPos >= 2) {
-				mPos = mPos - 2;
-			} else {
-				mPos = mPos + mCount - 2;
-			}
-			String monNums = month.getAdapter().getItem(mPos);
+			String monNums = getTime(month);
 			int moNum = Integer.valueOf(monNums);
 			dayNum = setwheelDay(yNum, moNum);
 			day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
-
-			int dayPos = day.getCurrentItem();
-			int dayCount = day.getAdapter().getItemsCount();
-			if (dayPos >= 2) {
-				dayPos = dayPos - 2;
-			} else {
-				dayPos = dayPos + dayCount - 2;
-			}
-			String dayTime = day.getAdapter().getItem(dayPos);
-
-			int hourPos = hour.getCurrentItem();
-			int hourCount = hour.getAdapter().getItemsCount();
-			if (hourPos >= 2) {
-				hourPos = hourPos - 2;
-			} else {
-				hourPos = hourPos + hourCount - 2;
-			}
-			String hourTime = hour.getAdapter().getItem(hourPos);
-
-			int minPos = minute.getCurrentItem();
-			int minuteCount = minute.getAdapter().getItemsCount();
-			if (minPos >= 2) {
-				minPos = minPos - 2;
-			} else {
-				minPos = minPos + minuteCount - 2;
-			}
-			String minTime = minute.getAdapter().getItem(minPos);
+			String dayTime = getTime(day);
+			String hourTime = getTime(hour);			
+			String minTime = getTime(minute);
 
 			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
 			String contentHm = hourTime + ":" + minTime;
 			String content = contentDate + " " + contentHm;
 
 			if (startFlag) {
-				String newContDate = "";
+				String endTime = endtimeTxt.getText().toString();
+				String startTime = startTimeTxt.getText().toString();
+				String eTime[] = endTime.split(" ");
+				String sTime[] = startTime.split(" ");
 				startTimeTxt.setText(content);
 				int dayTimeNum = Integer.valueOf(dayTime);
 				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
-				if (isLeaapYear) {
-					if (moNum == 2) {
-						if (dayTimeNum < 27) {
-							String data = "";
-							if ((dayTimeNum + 3) < 10) {
-								data = "0" + (dayTimeNum + 3);
-							} else {
-								data = "" + (dayTimeNum + 3);
-							}
-							newContDate = yearNum + "-" + monNums + "-" + data;
-						} else {
-							newContDate = yearNum + "-" + monNums + "-" + 29;
-						}
-					}
-				} else {
-					if (moNum == 2) {
-						if (dayTimeNum < 26) {
-							String data = "";
-							if ((dayTimeNum + 3) < 10) {
-								data = "0" + (dayTimeNum + 3);
-							} else {
-								data = "" + (dayTimeNum + 3);
-							}
-							newContDate = yearNum + "-" + monNums + "-" + data;
-						} else {
-							newContDate = yearNum + "-" + monNums + "-" + 28;
-						}
-					}
-				}
-				if ((moNum == 4) || (moNum == 6) || (moNum == 9)
-						|| (moNum == 11)) {
-					if (dayTimeNum < 28) {
-						String data = "";
-						if ((dayTimeNum + 3) < 10) {
-							data = "0" + (dayTimeNum + 3);
-						} else {
-							data = "" + (dayTimeNum + 3);
-						}
-						newContDate = yearNum + "-" + monNums + "-" + data;
-					} else {
-						newContDate = yearNum + "-" + monNums + "-" + 30;
-					}
-				} else if ((moNum != 2)) {
-					if (dayTimeNum < 29) {
-						String data = "";
-						if ((dayTimeNum + 3) < 10) {
-							data = "0" + (dayTimeNum + 3);
-						} else {
-							data = "" + (dayTimeNum + 3);
-						}
-						newContDate = yearNum + "-" + monNums + "-" + data;
-					} else {
-						newContDate = yearNum + "-" + monNums + "-" + 31;
-					}
-				}
+				String newContDate = setDate(isLeaapYear, dayTimeNum,yearNum, moNum, monNums);
 				content = newContDate + " " + contentHm;
 				endtimeTxt.setText(content);
+//				if (sTime[0].equals(eTime[0])) {// 日期相同
+//					//允许修改小时和分钟
+//				} else {// 日期不同
+//				}
 			} else if (endFlag) {
 				String newContDate = "";
 				endtimeTxt.setText(content);
@@ -968,6 +810,79 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private ProgressDialog prg;
 
+	private String setDate(boolean isLeaapYear, int dayTimeNum, String yearNum,
+			int moNum, String monNums) {
+		String newContDate = "";
+		if (isLeaapYear) {
+			if (moNum == 2) {
+				if (dayTimeNum < 27) {
+					String data = "";
+					if ((dayTimeNum + 3) < 10) {
+						data = "0" + (dayTimeNum + 3);
+					} else {
+						data = "" + (dayTimeNum + 3);
+					}
+					newContDate = yearNum + "-" + monNums + "-" + data;
+				} else {
+					newContDate = yearNum + "-" + monNums + "-" + 29;
+				}
+			}
+		} else {
+			if (moNum == 2) {
+				if (dayTimeNum < 26) {
+					String data = "";
+					if ((dayTimeNum + 3) < 10) {
+						data = "0" + (dayTimeNum + 3);
+					} else {
+						data = "" + (dayTimeNum + 3);
+					}
+					newContDate = yearNum + "-" + monNums + "-" + data;
+				} else {
+					newContDate = yearNum + "-" + monNums + "-" + 28;
+				}
+			}
+		}
+		if ((moNum == 4) || (moNum == 6) || (moNum == 9) || (moNum == 11)) {
+			if (dayTimeNum < 28) {
+				String data = "";
+				if ((dayTimeNum + 3) < 10) {
+					data = "0" + (dayTimeNum + 3);
+				} else {
+					data = "" + (dayTimeNum + 3);
+				}
+				newContDate = yearNum + "-" + monNums + "-" + data;
+			} else {
+				newContDate = yearNum + "-" + monNums + "-" + 30;
+			}
+		} else if ((moNum != 2)) {
+			if (dayTimeNum < 29) {
+				String data = "";
+				if ((dayTimeNum + 3) < 10) {
+					data = "0" + (dayTimeNum + 3);
+				} else {
+					data = "" + (dayTimeNum + 3);
+				}
+				newContDate = yearNum + "-" + monNums + "-" + data;
+			} else {
+				newContDate = yearNum + "-" + monNums + "-" + 31;
+			}
+		}
+
+		return newContDate;
+	}
+
+	private String getTime(WheelView wv){
+		int hourPos = wv.getCurrentItem();
+		int hourCount = wv.getAdapter().getItemsCount();
+		if (hourPos >= 2) {
+			hourPos = hourPos - 2;
+		} else {
+			hourPos = hourPos + hourCount - 2;
+		}
+		String time = wv.getAdapter().getItem(hourPos);
+		return time;
+	}
+	
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {

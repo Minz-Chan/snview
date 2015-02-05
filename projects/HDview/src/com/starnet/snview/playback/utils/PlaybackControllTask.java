@@ -28,12 +28,11 @@ public class PlaybackControllTask {
 
 	private boolean isCancel = false;
 	private boolean isTimeOut = false;
-//	private boolean isInitWrong = false;
 	private boolean isOnSocketWork = false;
 
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
-	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
+	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
 
 	protected PlaybackControllTask() {
 

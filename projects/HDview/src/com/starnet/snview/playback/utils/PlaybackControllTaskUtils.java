@@ -5,12 +5,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-
-import com.hp.hpl.sparta.xpath.ThisNodeTest;
 import com.starnet.snview.protocol.message.LoginResponse;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
@@ -161,32 +158,28 @@ public class PlaybackControllTaskUtils {
 			SocketInputStream sockIn = new SocketInputStream(receiver);
 			byte[] packetHeaderBuf = new byte[8];
 			sockIn.read(packetHeaderBuf);
-			TLV_V_PacketHeader owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object
-					.convert2Object(TLV_V_PacketHeader.class, packetHeaderBuf,
-							0, OWSP_LEN.OwspPacketHeader);
-			if (!(owspPacketHeader.getPacket_length() >= 4 && owspPacketHeader
-					.getPacket_seq() > 0)) {
+			TLV_V_PacketHeader owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object.convert2Object(TLV_V_PacketHeader.class, packetHeaderBuf,0, OWSP_LEN.OwspPacketHeader);
+			if (!(owspPacketHeader.getPacket_length() >= 4 && owspPacketHeader.getPacket_seq() > 0)) {
 				return;
 			}
 			byte[] tlvContent = new byte[65535]; // 1 * 1024 * 1024
 			tlvContent = makesureBufferEnough(tlvContent, (int) owspPacketHeader.getPacket_length() - 4);
-			int len00 = (int) owspPacketHeader.getPacket_length() - 4;
-			sockIn.read(tlvContent, 0, len00);
+			sockIn.read(tlvContent, 0, (int) owspPacketHeader.getPacket_length() - 4);
 			while (!tlvContent.equals("")) {
-				service.process(tlvContent, (int) owspPacketHeader.getPacket_length());
+				int result = service.process(tlvContent, (int) owspPacketHeader.getPacket_length());
+				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
+					break;
+				}
+				Log.i(TAG, "result:" + result);
 				do {
 					for (int i = 0; i < 8; i++) {/* 数据重置 */
 						packetHeaderBuf[i] = 0;
 					}
 					sockIn.read(packetHeaderBuf, 0, 8);/* 读取公共包头 */
-					int headerLen = OWSP_LEN.OwspPacketHeader;
-					owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object
-							.convert2Object(TLV_V_PacketHeader.class,
-									packetHeaderBuf, 0, headerLen);
+					owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object.convert2Object(TLV_V_PacketHeader.class, packetHeaderBuf, 0, OWSP_LEN.OwspPacketHeader);
 				} while (owspPacketHeader.getPacket_length() <= 0);
 				tlvContent = makesureBufferEnough(tlvContent, (int) owspPacketHeader.getPacket_length() - 4);
-				/* 重置数据数组 */
-				resetArray(tlvContent);
+				resetArray(tlvContent);/* 重置数据数组 */
 				int iRead = sockIn.read(tlvContent, 0, (int) owspPacketHeader.getPacket_length() - 4);
 				Log.i(TAG, "iRead:" + iRead);
 			}
