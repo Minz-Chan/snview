@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.starnet.snview.component.BufferSendManagerPlayBack;
-import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
@@ -45,28 +44,28 @@ public class PlaybackControllTask {
 	private static PlaybackControllTask instance;
 
 	public static PlaybackControllTask getInstance(Context ctx,
-			Handler mHandler, TLV_V_SearchRecordRequest srr, DeviceItem dItem) {
+			Handler mHandler, TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
 		if (instance == null) {
 			return new PlaybackControllTask(ctx, mHandler, srr, dItem);
 		}
 		return instance;
 	}
 
-	private Context ctx;
+	protected Context ctx;
 	private Socket client;
 	private Handler mHandler;
 	private boolean isConnected;
 	private Thread timeThread;
 	private Thread firstPlayThread;
-	private DeviceItem visitDevItem;
+	private LoginDeviceItem visitDevItem;
+//	private LoginDeviceItem loginDeviceItem;
 	private TLV_V_SearchRecordRequest srr;
-	private final int TIMEOUT = 8;
+	private final int TIMEOUT = 500;
 
 	private boolean isCanLogin;
 	private boolean isCanPlay;
 
-	public PlaybackControllTask(Context ctx, Handler mHandler,
-			TLV_V_SearchRecordRequest srr, DeviceItem dItem) {
+	public PlaybackControllTask(Context ctx, Handler mHandler,TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
 		this.ctx = ctx;
 		this.srr = srr;
 		this.mHandler = mHandler;
@@ -113,7 +112,6 @@ public class PlaybackControllTask {
 
 	protected void onTimeOutWork() {// 超时处理
 		isTimeOut = true;
-//		isInitWrong = true;
 		isOnSocketWork = true;
 		sendMessageToActivity(NOTIFYREMOTEUIFRESH_TMOUT);
 	}
@@ -139,6 +137,19 @@ public class PlaybackControllTask {
 				sender.write(new OwspBegin());
 				sender.write(srr);
 				sender.write(new OwspEnd());
+//				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+//				ArrayList<TLV_V_RecordInfo> infos = (ArrayList<TLV_V_RecordInfo>) PlaybackControllTaskUtils.getRecordInfos();
+//				if (infos != null) {
+//					if (!isOnSocketWork && !isCancel) {
+//						isTimeOut = true;
+//						Bundle data = new Bundle();
+//						Message msg = new Message();
+//						msg.what = NOTIFYREMOTEUIFRESH_SUC;
+//						data.putParcelableArrayList("srres", infos);
+//						msg.setData(data);
+//						mHandler.sendMessage(msg);
+//					}
+//				}
 				parseSearchRecordResponse();
 			}
 		} catch (Exception e) {
@@ -151,13 +162,11 @@ public class PlaybackControllTask {
 	// 首先判断是否返回成功，如果不成功，则不需要渲染时间轴
 	private void parseSearchRecordResponse() throws IOException {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
-		infoList = PlaybackControllTaskUtils
-				.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
+		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
 		isCanLogin = PlaybackControllTaskUtils.isCanPlay;
 
 		if (!isOnSocketWork && !isCancel) {
 			isTimeOut = true;
-//			isInitWrong = true;
 			Bundle data = new Bundle();
 			Message msg = new Message();
 			msg.what = NOTIFYREMOTEUIFRESH_SUC;
@@ -172,9 +181,11 @@ public class PlaybackControllTask {
 
 	private void initClient() {
 		try {
-			String host = visitDevItem.getSvrIp();
+			String[] ips = visitDevItem.getSvrIP();
+			String host = PlaybackControllTaskUtils.getIP(ips);
 			int port = Integer.valueOf(visitDevItem.getSvrPort());
 			client = new Socket(host, port);
+			client.setSoTimeout(40 * 1000);
 			isConnected = client.isConnected();
 		} catch (Exception e) {
 			isCanLogin = false;
@@ -185,8 +196,7 @@ public class PlaybackControllTask {
 			try {
 				if (isConnected) {
 					receiver = client.getInputStream();
-					BufferSendManagerPlayBack.getInstance().setOutStream(
-							client.getOutputStream());
+					BufferSendManagerPlayBack.getInstance().setOutStream(client.getOutputStream());
 					sender = BufferSendManagerPlayBack.getInstance();
 				}
 			} catch (Exception e) {
@@ -209,12 +219,10 @@ public class PlaybackControllTask {
 			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 
 			prr.setDeviceId(0);
-			// prr.setStartTime(srr.getStartTime());
 			prr.setStartTime(time);
 			prr.setCommand(PlayCommandStart);
 			prr.setReserve(0);
 			prr.setChannel(srr.getChannel());
-			// prr.setChannel(1);
 
 			sender.write(new OwspBegin());
 			sender.write(prr);
@@ -253,6 +261,7 @@ public class PlaybackControllTask {
 			sender.write(l);
 			sender.write(new OwspEnd());
 
+//			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
 			isCanPlay = PlaybackControllTaskUtils.parseLoginRsp(receiver);
 
 		} catch (Exception e) {
@@ -261,7 +270,7 @@ public class PlaybackControllTask {
 		}
 	}
 
-	public void setDeviceItem(DeviceItem visitDevItem) {
+	public void setDeviceItem(LoginDeviceItem visitDevItem) {
 		this.visitDevItem = visitDevItem;
 	}
 

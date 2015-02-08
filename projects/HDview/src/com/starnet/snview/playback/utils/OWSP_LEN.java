@@ -18,4 +18,6 @@ public class OWSP_LEN {
 	public static final int TLV_V_ControlResponse = 4;
 	public static final int TLV_V_AudioInfo = 8;
 	public static final int TLV_V_PlayRecordResponse = 2;
+	public static final int TLV_V_SearchFileResponse = 3;
+	public static final int TLV_V_RECORDINFO = 22;
 }

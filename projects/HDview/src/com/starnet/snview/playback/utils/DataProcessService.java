@@ -9,6 +9,8 @@
  */
 package com.starnet.snview.playback.utils;
 
+import java.util.List;
+
 /**
  * @function     功能	  	数据处理接口
  * @author       创建人              陈明珍
@@ -19,4 +21,5 @@ package com.starnet.snview.playback.utils;
  */
 public interface DataProcessService {
 	public int process(byte[] data, int length);
+	public List<TLV_V_RecordInfo> getRecordInfos();
 }

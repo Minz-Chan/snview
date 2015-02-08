@@ -37,6 +37,7 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.playback.utils.LoginDeviceItem;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -85,16 +86,18 @@ public class TimeSettingActivity extends BaseActivity {
 	private String typeKGLJG;
 
 	private TLV_V_SearchRecordRequest srr;
+	private LoginDeviceItem loginItem;
 	private DeviceItem visitDevItem;
 	private Button startScanBtn;
-
-	private List<CloudAccount> originCAs;
+	private ProgressDialog prg;
+	
 	private boolean endFlag = false;
 	private boolean startFlag = false;
 	private final int TIMEOUT = 0x0002;
 	private final int LOADSUC = 0x0003;
 	private final int LOADFAI = 0x0004;
 	private DeviceItemRequestTask[] tasks;
+	private List<CloudAccount> originCAs;
 	private final int REQUESTCODE = 0x0005;
 	private final int TIMESETTING = 0x0007;
 	private final int REQUESTCODE_DOG = 0x0005;
@@ -112,8 +115,7 @@ public class TimeSettingActivity extends BaseActivity {
 			switch (msg.what) {
 			case TIMEOUT:
 				Bundle msgD = msg.getData();
-				CloudAccount netCA1 = (CloudAccount) msgD
-						.getSerializable("netCA");
+				CloudAccount netCA1 = (CloudAccount) msgD.getSerializable("netCA");
 				String reqExt = getString(R.string.playback_req_extime);
 				showToast(netCA1.getUsername() + reqExt);
 				int positi = msgD.getInt("position");
@@ -127,8 +129,7 @@ public class TimeSettingActivity extends BaseActivity {
 				String suc = msgD.getString("success");
 				if (suc.equals("Yes")) {
 					final int pos = Integer.valueOf(posi);
-					final CloudAccount netCA = (CloudAccount) msgD
-							.getSerializable("netCA");
+					final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 					netCA.setRotate(true);
 					if (netCA != null) {
 						List<DeviceItem> dList = netCA.getDeviceList();
@@ -141,10 +142,10 @@ public class TimeSettingActivity extends BaseActivity {
 				}
 				break;
 			case LOADFAI:
+				
 				msgD = msg.getData();
 				int posit = msgD.getInt("position");
-				CloudAccount netCA2 = (CloudAccount) msgD
-						.getSerializable("netCA");
+				CloudAccount netCA2 = (CloudAccount) msgD.getSerializable("netCA");
 				String fail = getString(R.string.playback_req_fail);
 				showToast(netCA2.getUsername() + fail);
 				netCA2.setRotate(true);
@@ -154,8 +155,7 @@ public class TimeSettingActivity extends BaseActivity {
 			case NOTIFYREMOTEUIFRESH_SUC:
 				dismissPRGDialog();
 				Bundle bundle = msg.getData();
-				ArrayList<TLV_V_RecordInfo> srres = bundle
-						.getParcelableArrayList("srres");
+				ArrayList<TLV_V_RecordInfo> srres = bundle.getParcelableArrayList("srres");
 				Intent data = new Intent();
 				Bundle bu = new Bundle();
 				bu.putParcelableArrayList("srres", srres);
@@ -247,10 +247,8 @@ public class TimeSettingActivity extends BaseActivity {
 
 		cloudAccountView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
-			public boolean onGroupClick(ExpandableListView parent, View v,
-					int groupPosition, long id) {
-				CloudAccount cA = (CloudAccount) parent
-						.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
+			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
+				CloudAccount cA = (CloudAccount) parent.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
 				if (cA.isExpanded()) {// 判断列表是否已经展开
 					cA.setExpanded(false);
 				} else {
@@ -312,7 +310,6 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.dismiss();
 					cloudAccountView.setVisibility(View.VISIBLE);
 				} else {
-
 					cloudAccountView.setVisibility(View.GONE);
 					typePopupWindow.showAsDropDown(v);
 					typePopupWindow.setFocusable(false);
@@ -408,14 +405,13 @@ public class TimeSettingActivity extends BaseActivity {
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
-		if (!okFlag) {
+		if (!okFlag) {// if (!okFlag) {
 			showContentToast(ctx.getString(R.string.playback_content_null));
 		} else {
 			String vType = videoType.getText().toString();
 			int rTyPe = setRecordTypeAcc(vType);
 			if (rTyPe == -1) {
-				showContentToast(ctx
-						.getString(R.string.playback_videotype_null));
+				showContentToast(ctx.getString(R.string.playback_videotype_null));
 			} else {
 				setDataToPlayActivity();
 			}
@@ -427,18 +423,25 @@ public class TimeSettingActivity extends BaseActivity {
 		Bundle bundle = new Bundle();
 		Intent data = new Intent();
 		srr = getRequestInfo();
+		loginItem = new LoginDeviceItem();
+		if (visitDevItem!=null) {
+			String svrIp = visitDevItem.getSvrIp();
+			String svrPort = visitDevItem.getSvrPort();
+			String svrPass = visitDevItem.getLoginPass();
+			String svrUser = visitDevItem.getLoginUser();
 
-		String svrIp = visitDevItem.getSvrIp();
-		String svrPort = visitDevItem.getSvrPort();
-		String svrPass = visitDevItem.getLoginPass();
-		String svrUser = visitDevItem.getLoginUser();
-
-		String svrIps[] = svrIp.split("\\.");
-		bundle.putString("svrPort", svrPort);
-		bundle.putString("svrPass", svrPass);
-		bundle.putString("svrUser", svrUser);
-		// bundle.putString("svrIp",svrIp);
-		bundle.putStringArray("svrIps", svrIps);
+			String svrIps[] = svrIp.split("\\.");
+			bundle.putString("svrPort", svrPort);
+			bundle.putString("svrPass", svrPass);
+			bundle.putString("svrUser", svrUser);
+			bundle.putStringArray("svrIps", svrIps);
+			
+			loginItem.setLoginUser(svrUser);
+			loginItem.setLoginPass(svrPass);
+			loginItem.setSvrIP(svrIps);
+			loginItem.setSvrPort(svrPort);
+			bundle.putParcelable("loginItem", loginItem);
+		}
 		bundle.putParcelable("srr", srr);
 		data.putExtras(bundle);
 		setResult(TIMESETTING, data);
@@ -449,24 +452,22 @@ public class TimeSettingActivity extends BaseActivity {
 		TLV_V_SearchRecordRequest srr = new TLV_V_SearchRecordRequest();
 		String startTime = (String) startTimeTxt.getText();
 		String endTime = (String) endtimeTxt.getText();
-		visitDevItem = (DeviceItem) actsAdapter
-				.getChild(clickGroup, clickChild);
+		visitDevItem = (DeviceItem) actsAdapter.getChild(clickGroup, clickChild);
 
 		OWSPDateTime sTime = PlaybackUtils.getOWSPDateTime(startTime);
 		OWSPDateTime eTime = PlaybackUtils.getOWSPDateTime(endTime);
 
-		int deviceId = 0;
-		int count = Integer.valueOf(255);
-
 		String vType = videoType.getText().toString();
 		setRecordTypeAcc(vType);
-		int channel = PlaybackUtils.getScanChannel(visitDevItem
-				.getChannelList());
+		int channel = 0;
+		if (visitDevItem != null) {
+			channel = PlaybackUtils.getScanChannel(visitDevItem.getChannelList());
+		}
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
-		srr.setCount(count);
+		srr.setCount(255);
 		srr.setChannel(channel);
-		srr.setDeviceId(deviceId);
+		srr.setDeviceId(0);
 		srr.setRecordType(recordType);
 		srr.setReserve(new int[] { 0, 0, 0 });
 		return srr;
@@ -511,7 +512,6 @@ public class TimeSettingActivity extends BaseActivity {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String dateNowStr = sdf.format(d);
 		endtimeTxt.setText(dateNowStr);
-
 		Date startDate = new Date();
 		Calendar c = Calendar.getInstance();
 		int day = c.get(Calendar.DAY_OF_MONTH);
@@ -530,8 +530,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void initTypePopWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.type_popupwindow, null);
-		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		View view2 = typePopupWindow.getContentView();
 
@@ -666,8 +665,7 @@ public class TimeSettingActivity extends BaseActivity {
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					int tempCh = data.getIntExtra("chnl", 0);
-					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,
-							clickChild);
+					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,clickChild);
 					List<Channel> channels = visitDItem.getChannelList();
 					for (int i = 0; i < channels.size(); i++) {
 						if (i == tempCh) {
@@ -720,7 +718,7 @@ public class TimeSettingActivity extends BaseActivity {
 			dayNum = setwheelDay(yNum, moNum);
 			day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
 			String dayTime = getTime(day);
-			String hourTime = getTime(hour);			
+			String hourTime = getTime(hour);
 			String minTime = getTime(minute);
 
 			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
@@ -735,13 +733,13 @@ public class TimeSettingActivity extends BaseActivity {
 				startTimeTxt.setText(content);
 				int dayTimeNum = Integer.valueOf(dayTime);
 				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
-				String newContDate = setDate(isLeaapYear, dayTimeNum,yearNum, moNum, monNums);
+				String newContDate = setDate(isLeaapYear, dayTimeNum, yearNum,moNum, monNums);
 				content = newContDate + " " + contentHm;
 				endtimeTxt.setText(content);
-//				if (sTime[0].equals(eTime[0])) {// 日期相同
-//					//允许修改小时和分钟
-//				} else {// 日期不同
-//				}
+				 if (sTime[0].equals(eTime[0])) {// 日期相同
+				 //允许修改小时和分钟
+				 } else {// 日期不同
+				 }
 			} else if (endFlag) {
 				String newContDate = "";
 				endtimeTxt.setText(content);
@@ -808,8 +806,6 @@ public class TimeSettingActivity extends BaseActivity {
 		}
 	};
 
-	private ProgressDialog prg;
-
 	private String setDate(boolean isLeaapYear, int dayTimeNum, String yearNum,
 			int moNum, String monNums) {
 		String newContDate = "";
@@ -871,7 +867,7 @@ public class TimeSettingActivity extends BaseActivity {
 		return newContDate;
 	}
 
-	private String getTime(WheelView wv){
+	private String getTime(WheelView wv) {
 		int hourPos = wv.getCurrentItem();
 		int hourCount = wv.getAdapter().getItemsCount();
 		if (hourPos >= 2) {
@@ -882,7 +878,7 @@ public class TimeSettingActivity extends BaseActivity {
 		String time = wv.getAdapter().getItem(hourPos);
 		return time;
 	}
-	
+
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {

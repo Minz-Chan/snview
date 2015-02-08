@@ -47,6 +47,8 @@ public class TLV_T_Command {
 	public final static int TLV_T_STREAM_FORMAT_INFO	= 200;    ///			流格式信息 ,描述视频属性,音频属性
 	public final static int TLV_T_PLAY_RECORD_RSP 	= 337;    ///			流格式信息 ,描述视频属性,音频属性
 	public final static int TLV_T_RECORD_EOF 	= 354;    ///			流格式信息 ,描述视频属性,音频属性
+	public final static int TLV_V_SEARCHRECORD = 334;    ///			流格式信息 ,描述视频属性,音频属性
+	public final static int TLV_V_RECORDINFO = 335;    ///			流格式信息 ,描述视频属性,音频属性
 
 	//vod
 	public final static int TLV_T_STREAM_FILE_INDEX = 213;

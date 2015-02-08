@@ -13,7 +13,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -24,7 +24,9 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.utils.LoginDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
+import com.starnet.snview.playback.utils.PlaybackControllTaskUtils;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -34,19 +36,22 @@ public class PlaybackActivity extends BaseActivity {
 
 	private Context ctx;
 	private Toolbar mToolbar;
-
-	private boolean isFirstIn = false;
-
 	private TimeBar mTimebar;
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
 
-	private final int REQUESTCODE_DOG = 0x0005;
 	private final int TIMESETTING = 0x0007;
+	private final int REQUESTCODE_DOG = 0x0005;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
-	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
+	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
 
+	private ProgressDialog prg;
+	private boolean hasContent = false;
+	private boolean isFirstIn = false;
+	private LoginDeviceItem loginItem;
 	private PlaybackControllTask pbcTask;
+	private TLV_V_SearchRecordRequest srr;
+	private static boolean isPlaying = false;// 是否是正在进行播放
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -55,27 +60,29 @@ public class PlaybackActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case NOTIFYREMOTEUIFRESH_SUC:
-				isFirstIn = false;
 				dismissPrg();
+				hasContent = true;
+				isFirstIn = false;
 				Bundle data = msg.getData();
-				ArrayList<TLV_V_RecordInfo> list = data
-						.getParcelableArrayList("srres");
+				ArrayList<TLV_V_RecordInfo> list = data.getParcelableArrayList("srres");
 				if (list == null) {
 					String content = getString(R.string.playback_remote_record_null);
 					showTostContent(content);
-				}else {
+				} else {
 					setNewTimeBar(list);
 				}
 				break;
 			case NOTIFYREMOTEUIFRESH_EXCEPTION:
-				isFirstIn = false;
 				dismissPrg();
+				isFirstIn = false;
+				hasContent = false;
 				String content = getString(R.string.playback_netvisit_fail);
 				showTostContent(content);
 				break;
 			case NOTIFYREMOTEUIFRESH_TMOUT:
-				isFirstIn = false;
 				dismissPrg();
+				isFirstIn = false;
+				hasContent = false;
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
 			default:
@@ -88,14 +95,10 @@ public class PlaybackActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.playback_activity);
-
 		// setBackPressedExitEventValid(true);
-
 		initView();
 		setListenersForWadgets();
-
 	}
 
 	protected void dismissPrg() {
@@ -139,16 +142,14 @@ public class PlaybackActivity extends BaseActivity {
 		}
 	}
 
-	/** 根据起始时间、结束时间进行时间显示条的渲染 **/
+	/** 根据起始时间、结束时间渲染时间显示条 **/
 	private void showTimeBar(OWSPDateTime sTime, OWSPDateTime eTime) {
 
 		Calendar startTime = Calendar.getInstance();
-		startTime.set(sTime.getYear(), sTime.getMonth() - 1, sTime.getDay(),
-				sTime.getHour(), sTime.getMinute());// , sTime.getSecond()
+		startTime.set(sTime.getYear(), sTime.getMonth() - 1, sTime.getDay(), sTime.getHour(), sTime.getMinute());// , sTime.getSecond()
 
 		Calendar endTime = Calendar.getInstance();
-		endTime.set(eTime.getYear(), eTime.getMonth() - 1, eTime.getDay(),
-				eTime.getHour(), eTime.getMinute());// , eTime.getSecond()
+		endTime.set(eTime.getYear(), eTime.getMonth() - 1, eTime.getDay(), eTime.getHour(), eTime.getMinute());// , eTime.getSecond()
 
 		mTimebar.addFileInfo(1, startTime, endTime);
 	}
@@ -191,7 +192,6 @@ public class PlaybackActivity extends BaseActivity {
 		};
 
 		Calendar c = Calendar.getInstance();
-
 		Calendar c1 = Calendar.getInstance();
 		c1.add(Calendar.MINUTE, 20);
 		c1.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH),
@@ -252,15 +252,21 @@ public class PlaybackActivity extends BaseActivity {
 					showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
 				} else {
 					String curTime = mTimebar.getCurrentTime();
-					OWSPDateTime startTime = getOWSPDateTime(curTime);
-					Log.i(TAG, "curTime:" + curTime);
-					// ？？？需要判断是否是继续播放
+					OWSPDateTime startTime = PlaybackUtils.getOWSPDateTime(curTime);
 					if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
-						isPlaying = false;
-						pause(startTime);
+						if (hasContent) {
+							isPlaying = false;
+							pause(startTime);
+						}else {
+							showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
+						}
 					} else {
-						isPlaying = true;
-						resume(startTime);
+						if (hasContent) {
+							isPlaying = true;
+							resume(startTime);
+						}else {
+							showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
+						}
 					}
 				}
 				break;
@@ -274,191 +280,88 @@ public class PlaybackActivity extends BaseActivity {
 		}
 	};
 
-	private static boolean isPlayed = false;// 是否已经播放过
-	private static boolean isPlaying = false;// 是否是正在进行播放
-
 	private void showTostContent(String content) {
 		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
 
 	protected void resume(OWSPDateTime startTime) {
-		srr = new TLV_V_SearchRecordRequest();
-		OWSPDateTime stTime = new OWSPDateTime();
-		stTime.setYear(2015 - 2009);
-		stTime.setMonth(2);
-		stTime.setDay(1);
-		stTime.setHour(15);
-		stTime.setMinute(44);
-		stTime.setSecond(0);
-		srr.setStartTime(stTime);
-
-		OWSPDateTime endTime = new OWSPDateTime();
-		endTime.setYear(2015 - 2009);
-		endTime.setMonth(2);
-		endTime.setDay(3);
-		endTime.setHour(14);
-		endTime.setMinute(2);
-		endTime.setSecond(0);
-		srr.setEndTime(endTime);
-
-		srr.setCount(255);
-		srr.setRecordType(8);
-		srr.setDeviceId(0);
-		srr.setChannel(1);
+		PlaybackControllTaskUtils.setStop(false);
 		srr.setStartTime(startTime);// 需要重新获取时间
 		pbcTask.setSearchRecord(srr);
 		pbcTask.resume();
 	}
 
 	protected void pause(OWSPDateTime startTime) {
+		PlaybackControllTaskUtils.setStop(true);
+		srr.setStartTime(startTime);// ？？？需要重新获取时间
+		pbcTask.setSearchRecord(srr);
+		pbcTask.pause();
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == TIMESETTING) {
+			if (data != null) {
+				Bundle bundle = data.getExtras();
+				TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+				loginItem = bundle.getParcelable("loginItem");
+				if (loginItem != null) {
+					startPlayTaskWithLoginItem(srr, loginItem);
+				}else {
+//					startPlayTask(srr, dItem);
+				}
+				isFirstIn = false;
+			}
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void startPlayTaskWithLoginItem(TLV_V_SearchRecordRequest srr,LoginDeviceItem lItem){
+		showDialog(REQUESTCODE_DOG);
+		if (pbcTask != null) {
+			pbcTask.exit();
+			pbcTask = null;
+		}
+		pbcTask = PlaybackControllTask.getInstance(ctx, mHandler, srr, lItem);
+		pbcTask.start();
+	}
+
+	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, DeviceItem dItem1) {
+		DeviceItem dItem = new DeviceItem();
+		// dItem.setSvrIp("61.131.16.27");
+		dItem.setSvrIp("192.168.87.10");
+		dItem.setSvrPort("8080");
+		// dItem.setSvrPort("9509");
+		dItem.setLoginUser("admin");
+		dItem.setLoginPass("1");
+		dItem.setDefaultChannel(1);
+		dItem.setDeviceName("ewrte");
+//		//
 		srr = new TLV_V_SearchRecordRequest();
 		OWSPDateTime stTime = new OWSPDateTime();
 		stTime.setYear(2015 - 2009);
-		stTime.setMonth(1);
-		stTime.setDay(28);
-		stTime.setHour(15);
-		stTime.setMinute(44);
-		stTime.setSecond(0);
+		stTime.setMonth(2);
+		stTime.setDay(5);
+		stTime.setHour(13);
+		stTime.setMinute(5);
+		stTime.setSecond(1);
 		srr.setStartTime(stTime);
+
 		OWSPDateTime endTime = new OWSPDateTime();
 		endTime.setYear(2015 - 2009);
-		endTime.setMonth(1);
-		endTime.setDay(29);
-		endTime.setHour(15);
-		endTime.setMinute(45);
-		endTime.setSecond(0);
+		endTime.setMonth(2);
+		endTime.setDay(5);
+		endTime.setHour(13);
+		endTime.setMinute(21);
+		endTime.setSecond(2);
 		srr.setEndTime(endTime);
 
 		srr.setCount(255);
 		srr.setRecordType(8);
 		srr.setDeviceId(0);
 		srr.setChannel(1);
-		srr.setStartTime(startTime);// ？？？需要重新获取时间
-		pbcTask.setSearchRecord(srr);
-		pbcTask.pause();
-
 	}
-
-	private OWSPDateTime getOWSPDateTime(String time) {
-		OWSPDateTime owspTime = new OWSPDateTime();
-		String[] sumTime = time.split(" ");
-		String ymdTemp = sumTime[0];
-		String hmsTemp = sumTime[1];
-		int[] ymd = getIntYMDData(ymdTemp);
-		int[] hms = getIntHMSData(hmsTemp);
-		owspTime.setYear(ymd[0] - 2009);
-		owspTime.setMonth(ymd[1]);
-		owspTime.setDay(ymd[2]);
-		owspTime.setHour(hms[0]);
-		owspTime.setMinute(hms[1]);
-		owspTime.setSecond(hms[2]);
-		return owspTime;
-	}
-
-	private int[] getIntYMDData(String ymdTemp) {
-		int[] data = new int[3];
-		String[] temp = ymdTemp.split("-");
-		for (int i = 0; i < 3; i++) {
-			data[i] = Integer.valueOf(temp[i]);
-		}
-		return data;
-	}
-
-	private int[] getIntHMSData(String ymdTemp) {
-		int[] data = new int[3];
-		String[] temp = ymdTemp.split(":");
-		for (int i = 0; i < 3; i++) {
-			data[i] = Integer.valueOf(temp[i]);
-		}
-		return data;
-	}
-
-	private TLV_V_SearchRecordRequest srr;
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == TIMESETTING) {
-			// try {
-			// startPlayTask(srr, null);
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			if (data != null) {
-				Bundle bundle = data.getExtras();
-				
-				String svrPort = bundle.getString("svrPort");
-				String svrPass = bundle.getString("svrPass");
-				String svrUser = bundle.getString("svrUser");
-				String []svrIps = bundle.getStringArray("svrIps");
-				String svrIp = getSvrIp(svrIps);
-//				String svrIp = data.getStringExtra("svrIp");
-
-				DeviceItem dItem = new DeviceItem();
-				dItem.setSvrIp(svrIp);
-				dItem.setSvrPort(svrPort);
-				dItem.setLoginUser(svrUser);
-				dItem.setLoginPass(svrPass);
-
-				TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) bundle
-						.getParcelable("srr");
-				isPlayed = false;
-				isFirstIn = false;
-				startPlayTask(srr, dItem);
-			}
-		}
-	}
-
-	private String getSvrIp(String[] svrIps) {
-		String svrIp = "";
-		for (int i = 0; i < svrIps.length-1; i++) {
-			svrIp += svrIps[i]+".";
-		}
-		svrIp = svrIp + svrIps[svrIps.length-1];
-		return svrIp;
-	}
-
-	@SuppressWarnings("deprecation")
-	private void startPlayTask(TLV_V_SearchRecordRequest srr, DeviceItem dItem) {
-		// DeviceItem dItem = new DeviceItem();
-		// dItem.setSvrIp("61.131.16.27");
-		// // dItem.setSvrIp("192.168.87.10");
-		// // dItem.setSvrPort("8080");
-		// dItem.setSvrPort("9509");
-		// dItem.setLoginUser("admin");
-		// dItem.setLoginPass("");
-		// dItem.setDefaultChannel(1);
-		// dItem.setDeviceName("ewrte");
-		//
-		// srr = new TLV_V_SearchRecordRequest();
-		// OWSPDateTime stTime = new OWSPDateTime();
-		// stTime.setYear(2015 - 2009);
-		// stTime.setMonth(2);
-		// stTime.setDay(3);
-		// stTime.setHour(14);
-		// stTime.setMinute(4);
-		// stTime.setSecond(1);
-		// srr.setStartTime(stTime);
-		//
-		// OWSPDateTime endTime = new OWSPDateTime();
-		// endTime.setYear(2015 - 2009);
-		// endTime.setMonth(2);
-		// endTime.setDay(3);
-		// endTime.setHour(14);
-		// endTime.setMinute(25);
-		// endTime.setSecond(2);
-		// srr.setEndTime(endTime);
-		// //
-		// srr.setCount(255);
-		// srr.setRecordType(4);
-		// srr.setDeviceId(0);
-		// srr.setChannel(0);
-		showDialog(REQUESTCODE_DOG);
-		pbcTask = PlaybackControllTask.getInstance(ctx, mHandler, srr, dItem);
-		pbcTask.start();
-	}
-
-	private ProgressDialog prg;
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -479,6 +382,21 @@ public class PlaybackActivity extends BaseActivity {
 			return prg;
 		default:
 			return null;
+		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		super.onKeyDown(keyCode, event);
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+			socketClose();
+		}
+		return true;
+	}
+	
+	private void socketClose(){
+		if (pbcTask != null) {
+			pbcTask.exit();
 		}
 	}
 }

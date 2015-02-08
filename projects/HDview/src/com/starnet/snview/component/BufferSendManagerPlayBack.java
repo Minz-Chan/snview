@@ -74,8 +74,7 @@ public class BufferSendManagerPlayBack {
 	}
 
 	private byte[] serializeMessage(Object msg) {
-		IoBuffer outBuffer = IoBuffer.allocate(200).order(
-				ByteOrder.LITTLE_ENDIAN);
+		IoBuffer outBuffer = IoBuffer.allocate(200).order(ByteOrder.LITTLE_ENDIAN);
 		if (msg instanceof VersionInfoRequest) {
 			outBuffer.putUnsignedShort(Constants.MSG_TYPE.VERSION_INFO_REQUEST);
 			outBuffer.putUnsignedShort(Constants.MSG_LEN.VERSION_INFO_REQUEST);
@@ -92,8 +91,7 @@ public class BufferSendManagerPlayBack {
 
 			String equipmentIdentity = message.getEquipmentIdentity().trim();
 			if (equipmentIdentity == null || equipmentIdentity.length() > 16) {
-				throw new IllegalArgumentException(
-						"Error equipmentIdentity of PhoneInfoRequest, be null or it's length is greater than 16.");
+				throw new IllegalArgumentException("Error equipmentIdentity of PhoneInfoRequest, be null or it's length is greater than 16.");
 			}
 			tmp.put(equipmentIdentity.getBytes());
 			tmp.rewind();
@@ -111,10 +109,7 @@ public class BufferSendManagerPlayBack {
 			tmp.rewind();
 			outBuffer.put(tmp); // put equipmentOS
 
-			outBuffer.put((byte) message.getReserve1()); // put reserve1,
-															// reserve2,
-															// reserve3 and
-															// reserve4
+			outBuffer.put((byte) message.getReserve1()); // put reserve1,reserve2,reserve3 and reserve4
 			outBuffer.put((byte) message.getReserve2());
 			outBuffer.put((byte) message.getReserve3());
 			outBuffer.put((byte) message.getReserve4());

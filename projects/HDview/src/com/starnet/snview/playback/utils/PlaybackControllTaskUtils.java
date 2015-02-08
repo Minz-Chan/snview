@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.List;
+
 import com.starnet.snview.protocol.message.LoginResponse;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 
@@ -13,14 +15,14 @@ import android.util.Log;
 
 public class PlaybackControllTaskUtils {
 
-	private static final String TAG = "PlaybackControllTaskUtils";
+	private static final String TAG = "DataProcessServiceImpl";
 
+	private static boolean stop = false; 
 	public static boolean isCanPlay;
 
 	private static DataProcessService service = new DataProcessServiceImpl("");;
 
-	public static ArrayList<TLV_V_RecordInfo> parseResponsePacketFromSocket(
-			InputStream receiver) {// , Handler mHandler
+	public static ArrayList<TLV_V_RecordInfo> parseResponsePacketFromSocket(InputStream receiver) {// , Handler mHandler
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		TLV_V_SearchRecordResponse srr = new TLV_V_SearchRecordResponse();
 		byte[] head = new byte[8];
@@ -33,8 +35,7 @@ public class PlaybackControllTaskUtils {
 			Log.i("packetLen", "packetLen:" + packetLen);
 			byte[] tBuf = new byte[7];
 			receiver.read(tBuf);
-			ByteBuffer tu = ByteBuffer.wrap(tBuf)
-					.order(ByteOrder.LITTLE_ENDIAN);
+			ByteBuffer tu = ByteBuffer.wrap(tBuf).order(ByteOrder.LITTLE_ENDIAN);
 			int type = tu.getShort();
 			int length = tu.getShort();
 			byte tempresult = tu.get(4);
@@ -62,7 +63,6 @@ public class PlaybackControllTaskUtils {
 			} else {
 				result = tempresult;
 			}
-
 			if (result == 1) {// 表示成
 				isCanPlay = true;
 				if (count > 0) {
@@ -70,8 +70,7 @@ public class PlaybackControllTaskUtils {
 						TLV_V_RecordInfo recordInfo = new TLV_V_RecordInfo();
 						byte[] temp = new byte[26];
 						receiver.read(temp);
-						ByteBuffer tempBuffer = ByteBuffer.wrap(temp).order(
-								ByteOrder.LITTLE_ENDIAN);
+						ByteBuffer tempBuffer = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN);
 						tempBuffer.getShort();
 						tempBuffer.getShort();
 						int deviceID = tempBuffer.getInt();
@@ -121,7 +120,6 @@ public class PlaybackControllTaskUtils {
 
 						infoList.add(recordInfo);
 					}
-
 				} else {// 没有数据
 					isCanPlay = false;
 					return null;
@@ -142,16 +140,6 @@ public class PlaybackControllTaskUtils {
 		}
 	}
 
-	/** 解析只有视频数据 **/
-	public static void parseVideoOnlyRsp(InputStream receiver) {
-
-	}
-
-	/** 解析只有视频数据 **/
-	public static void parseSearchRecordRsp(InputStream receiver) {
-
-	}
-
 	@SuppressWarnings("resource")
 	public static void newParseVideoAndAudioRsp(InputStream receiver) {// 需要一直从Socket中接收数据，直到接收完毕
 		try {
@@ -162,239 +150,37 @@ public class PlaybackControllTaskUtils {
 			if (!(owspPacketHeader.getPacket_length() >= 4 && owspPacketHeader.getPacket_seq() > 0)) {
 				return;
 			}
-			byte[] tlvContent = new byte[65535]; // 1 * 1024 * 1024
-			tlvContent = makesureBufferEnough(tlvContent, (int) owspPacketHeader.getPacket_length() - 4);
-			sockIn.read(tlvContent, 0, (int) owspPacketHeader.getPacket_length() - 4);
-			while (!tlvContent.equals("")) {
-				int result = service.process(tlvContent, (int) owspPacketHeader.getPacket_length());
+			Log.i(TAG, "Packet seq:" + owspPacketHeader.getPacket_seq() + ", len:" + (owspPacketHeader.getPacket_length() - 4));
+			byte[] tlvContent = new byte[655350]; // 1 * 1024 * 1024
+			tlvContent = makesureBufferEnough(tlvContent,(int) owspPacketHeader.getPacket_length() - 4);
+			sockIn.read(tlvContent, 0,(int) owspPacketHeader.getPacket_length() - 4);
+			while (!tlvContent.equals("") && !stop) {
+				int result = service.process(tlvContent,(int) owspPacketHeader.getPacket_length());
 				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
 					break;
 				}
-				Log.i(TAG, "result:" + result);
 				do {
 					for (int i = 0; i < 8; i++) {/* 数据重置 */
 						packetHeaderBuf[i] = 0;
 					}
 					sockIn.read(packetHeaderBuf, 0, 8);/* 读取公共包头 */
-					owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object.convert2Object(TLV_V_PacketHeader.class, packetHeaderBuf, 0, OWSP_LEN.OwspPacketHeader);
+					owspPacketHeader = (TLV_V_PacketHeader) ByteArray2Object.convert2Object(TLV_V_PacketHeader.class,packetHeaderBuf, 0,OWSP_LEN.OwspPacketHeader);
 				} while (owspPacketHeader.getPacket_length() <= 0);
-				tlvContent = makesureBufferEnough(tlvContent, (int) owspPacketHeader.getPacket_length() - 4);
+				tlvContent = makesureBufferEnough(tlvContent,(int) owspPacketHeader.getPacket_length() - 4);
 				resetArray(tlvContent);/* 重置数据数组 */
-				int iRead = sockIn.read(tlvContent, 0, (int) owspPacketHeader.getPacket_length() - 4);
-				Log.i(TAG, "iRead:" + iRead);
+				sockIn.read(tlvContent, 0,(int) owspPacketHeader.getPacket_length() - 4);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	/** 解析包含视频和音频数据 **/
-	public static void parseVideoAndAudioRsp(InputStream receiver) {// 需要一直从Socket中接收数据，直到接收完毕
-		try {
-
-			byte[] headBuf = new byte[8];
-			receiver.read(headBuf);
-			ByteBuffer headBuffer = ByteBuffer.wrap(headBuf).order(
-					ByteOrder.BIG_ENDIAN);
-			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
-			Log.i(TAG, "packetLen:" + packetLen);
-			byte[] rspBuf = new byte[6];
-			receiver.read(rspBuf);
-			ByteBuffer rspBuffer = ByteBuffer.wrap(rspBuf).order(
-					ByteOrder.LITTLE_ENDIAN);
-			int rspType = rspBuffer.getShort();
-			int rspLen = rspBuffer.getShort();
-			Log.i(TAG, "" + rspType + "--rspLen" + rspLen);
-			int result = rspBuffer.get();
-			int reserve = rspBuffer.get();
-			Log.i(TAG, "reserve" + reserve);
-			if (result == 1) {// 表示请求成功
-				TLV_V_StreamDataFormat sdf = getStreamFormatInfo(receiver);// StreamDataFormat信息
-				while (true) {// 如何确定收到的是eof
-					// 获取公共包头
-					int packetLength = parseCommonPacket(receiver);
-
-					Log.i(TAG, "packetLength:" + packetLength);
-					byte[] aRspByte = new byte[4];
-					receiver.read(aRspByte);
-					ByteBuffer aRspBuffer = ByteBuffer.wrap(aRspByte).order(
-							ByteOrder.LITTLE_ENDIAN);
-					int aRrpType = aRspBuffer.getShort();
-					int aRrpLength = aRspBuffer.getShort();
-					printTypeAndLength(aRrpType, aRrpLength);
-
-					if (aRrpType != 354) {
-						TLV_V_VideoFrameInfo vfiFrameInfo = getVideoFrameInfo(receiver);// 视频数据
-						byte[] videoData = getVideoIFrameData(receiver);
-						TLV_V_AudioInfo audioInfo = getAudioInfo(receiver);
-						byte[] audioData = getAudioData(receiver);
-						Log.i(TAG, sdf.toString());
-						Log.i(TAG, vfiFrameInfo.toString());
-						Log.i(TAG, audioInfo.toString());
-						Log.i(TAG, "videoData len:" + videoData.length);
-						Log.i(TAG, "audioData len:" + audioData.length);
-					} else {
-						break;
-					}
-				}
-			} else {// 表示请求失败
-
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public static List<TLV_V_RecordInfo> getRecordInfos(){
+		return service.getRecordInfos();
 	}
-
-	private static int parseCommonPacket(InputStream receiver)
-			throws IOException {
-		byte[] headerBuf = new byte[8];
-		receiver.read(headerBuf);
-		ByteBuffer headerBuffer = ByteBuffer.wrap(headerBuf).order(ByteOrder.BIG_ENDIAN);
-		return headerBuffer.getInt() - 4;// TLV的总长度
-	}
-
-	private static byte[] getAudioData(InputStream receiver) throws IOException {
-		byte[] aDBuf = new byte[4];// AudioDataFormatInfo
-		receiver.read(aDBuf);
-		ByteBuffer audioBufer = ByteBuffer.wrap(aDBuf).order(
-				ByteOrder.LITTLE_ENDIAN);
-		int audioType = audioBufer.getShort();
-		int audioLength = audioBufer.getShort();// 视频数据的长度
-		printTypeAndLength(audioType, audioLength);
-		byte[] audioByte = new byte[audioLength];
-		receiver.read(audioByte);
-		ByteBuffer audBuf = ByteBuffer.wrap(audioByte).order(
-				ByteOrder.LITTLE_ENDIAN);
-		return audBuf.array();
-	}
-
-	private static TLV_V_AudioInfo getAudioInfo(InputStream receiver)
-			throws IOException {
-		TLV_V_AudioInfo afi = new TLV_V_AudioInfo();
-		// 音频信息AudioInfo
-		byte[] audioInfoBuf = new byte[12];
-		receiver.read(audioInfoBuf);
-		ByteBuffer audioBuf = ByteBuffer.wrap(audioInfoBuf).order(
-				ByteOrder.LITTLE_ENDIAN);
-		int type = audioBuf.getShort();
-		int length = audioBuf.getShort();
-
-		printTypeAndLength(type, length);
-
-		int channlId = audioBuf.get();
-		int audioReserve = audioBuf.get();
-		int checkSum = audioBuf.getShort();
-		int audioTime = audioBuf.getInt();
-
-		afi.setChannelId(channlId);
-		afi.setReserve(audioReserve);
-		afi.setChecksum(checkSum);
-		afi.setTime(audioTime);
-		return afi;
-	}
-
+	
 	private static void printTypeAndLength(int type, int length) {
 		Log.i(TAG, "(type,length):" + "(" + type + "," + length + ")");
-	}
-
-	private static byte[] getVideoIFrameData(InputStream receiver)
-			throws IOException {
-
-		byte[] vFIBuf = new byte[4];// VideoData
-		receiver.read(vFIBuf);
-		ByteBuffer std = ByteBuffer.wrap(vFIBuf).order(ByteOrder.LITTLE_ENDIAN);
-		int type = std.getShort();
-		int length = std.getShort();// 视频数据的长度
-		Log.i(TAG, "type" + type);
-		// 视频数据
-		byte[] vFDBuff = new byte[length];// VideoFrameInfo
-		receiver.read(vFDBuff);
-		ByteBuffer std4 = ByteBuffer.wrap(vFDBuff).order(
-				ByteOrder.LITTLE_ENDIAN);
-		byte[] videoArray = std4.array();// ？？？？？
-		return videoArray;
-	}
-
-	private static TLV_V_VideoFrameInfo getVideoFrameInfo(InputStream receiver)
-			throws IOException {
-
-		TLV_V_VideoFrameInfo vfi = new TLV_V_VideoFrameInfo();
-		byte[] vFIBuffer = new byte[12];// VideoFrameInfo
-		receiver.read(vFIBuffer);
-		ByteBuffer std = ByteBuffer.wrap(vFIBuffer).order(
-				ByteOrder.LITTLE_ENDIAN);
-
-		short channelId = std.get();
-		short reserve = std.get();
-		int checksum = std.getShort();
-		int fIndex = std.getInt();
-		int time = std.getInt();
-
-		vfi.setChannelId(channelId);
-		vfi.setChecksum(checksum);
-		vfi.setFrameIndex(fIndex);
-		vfi.setTime(time);
-		vfi.setReserve(reserve);
-		return vfi;
-	}
-
-	private static TLV_V_StreamDataFormat getStreamFormatInfo(
-			InputStream receiver) throws IOException {
-		byte[] buffer = new byte[44];
-		receiver.read(buffer);
-		TLV_V_StreamDataFormat sdf = new TLV_V_StreamDataFormat();
-
-		ByteBuffer std = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
-		int type = std.getShort();
-		int length = std.getShort();
-		printTypeAndLength(type, length);
-
-		int videoChannel = std.get();
-		int audioChannel = std.get();
-		int dataType = std.get();
-		int reser = std.get();
-
-		// VideoDataFormat
-		TLV_V_VideoDataFormat vdf = new TLV_V_VideoDataFormat();
-		int codecId = std.getInt();
-		int bitrate = std.getInt();
-		int width = std.getShort();
-		int height = std.getShort();
-		short framerate = std.get();
-		short colorDepth = std.get();
-		int rserve = std.getShort();
-		vdf.setCodecId(codecId);
-		vdf.setBitrate(bitrate);
-		vdf.setWidth(width);
-		vdf.setHeight(height);
-		vdf.setFramerate(framerate);
-		vdf.setColorDepth(colorDepth);
-		vdf.setReserve(rserve);
-		// VideoDataFormat
-
-		// AudioDataFormat?????
-		TLV_V_AudioDataFormat adFormat = new TLV_V_AudioDataFormat();
-		int samplesPerSecond = std.getInt();
-		int audioBitrate = std.getInt();
-		int waveFormat = std.getShort();
-		int channelNumber = std.getShort();
-		int blockAlign = std.getShort();
-		int bitsPerSample = std.getShort();
-		int frameInterval = std.getShort();
-		int andioReserve = std.getShort();
-		adFormat.setSamplesPerSecond(samplesPerSecond);
-		adFormat.setBitrate(audioBitrate);
-		adFormat.setWaveFormat(waveFormat);
-		adFormat.setChannelNumber(channelNumber);
-		adFormat.setBlockAlign(blockAlign);
-		adFormat.setBitrate(bitsPerSample);
-		adFormat.setFrameInterval(frameInterval);
-		adFormat.setReserve(andioReserve);
-		// AudioDataFormat?????
-
-		// StreamDataFormat???????????
-		return sdf;
-
 	}
 
 	/** 解析登陆返回数据 **/
@@ -404,20 +190,16 @@ public class PlaybackControllTaskUtils {
 		byte[] head = new byte[8];
 		try {
 			receiver.read(head);
-			ByteBuffer headBuffer = ByteBuffer.wrap(head).order(
-					ByteOrder.BIG_ENDIAN);
+			ByteBuffer headBuffer = ByteBuffer.wrap(head).order(ByteOrder.BIG_ENDIAN);
 			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
 			Log.i(TAG, "packetLen:" + packetLen);
 			byte[] temp = new byte[8];
 			receiver.read(temp);
-			ByteBuffer tuBf = ByteBuffer.wrap(temp).order(
-					ByteOrder.LITTLE_ENDIAN);
+			ByteBuffer tuBf = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN);
 
 			int type1 = tuBf.getShort();
 			int leng1 = tuBf.getShort();
-			// tuBf.getShort();
-			// tuBf.getShort();
-			Log.i(TAG, "type1:" + type1 + "--leng1:" + leng1);
+			printTypeAndLength(type1,leng1);
 
 			short result = tuBf.getShort();
 			short reserve = tuBf.getShort();
@@ -498,5 +280,20 @@ public class PlaybackControllTaskUtils {
 
 	public static void setService(DataProcessService serv) {
 		service = serv;
+	}
+
+	public static String getIP(String[] ips) {
+		String ip = "";
+		int len = ips.length;
+		for (int i = 0; i < len - 1; i++) {
+			String temp = ips[i] + ".";
+			ip += temp;
+		}
+		ip = ip + ips[len-1];
+		return ip;
+	}
+	
+	public static void setStop(boolean isStop ){
+		stop = isStop;
 	}
 }
