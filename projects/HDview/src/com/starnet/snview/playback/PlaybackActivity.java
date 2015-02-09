@@ -65,14 +65,15 @@ public class PlaybackActivity extends BaseActivity {
 			switch (msg.what) {
 			case NOTIFYREMOTEUIFRESH_SUC:
 				dismissPrg();
-				hasContent = true;
 				isFirstIn = false;
 				Bundle data = msg.getData();
 				ArrayList<TLV_V_RecordInfo> list = data.getParcelableArrayList("srres");
 				if (list == null) {
+					hasContent = false;
 					String content = getString(R.string.playback_remote_record_null);
 					showTostContent(content);
 				} else {
+					hasContent = true;
 					setNewTimeBar(list);
 				}
 				break;
@@ -140,6 +141,7 @@ public class PlaybackActivity extends BaseActivity {
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				mTimebar.reset();
 				Intent intent = new Intent();
 				intent.setClass(ctx, TimeSettingActivity.class);
 				startActivityForResult(intent, TIMESETTING);
@@ -404,5 +406,9 @@ public class PlaybackActivity extends BaseActivity {
 		if (pbcTask != null) {
 			pbcTask.exit();
 		}
+	}
+	
+	public Handler getHandler(){
+		return mHandler;
 	}
 }

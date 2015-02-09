@@ -9,7 +9,7 @@
  */
 package com.starnet.snview.playback.utils;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @function     功能	  	数据处理接口
@@ -21,5 +21,5 @@ import java.util.List;
  */
 public interface DataProcessService {
 	public int process(byte[] data, int length);
-	public List<TLV_V_RecordInfo> getRecordInfos();
+	public ArrayList<TLV_V_RecordInfo> getRecordInfos();
 }

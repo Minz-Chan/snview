@@ -610,11 +610,17 @@ public class TimeSettingActivity extends BaseActivity {
 		minute.setLabel(null);
 		minute.setCyclic(true);
 
-		year.setCurrentItem(curyear + 2);
-		month.setCurrentItem(curMonth + 1);
-		day.setCurrentItem(curDate + 1);
-		hour.setCurrentItem(curHour + 2);
-		minute.setCurrentItem(curMint + 2);
+//		year.setCurrentItem(curyear + 2);
+//		month.setCurrentItem(curMonth + 1);
+//		day.setCurrentItem(curDate + 1);
+//		hour.setCurrentItem(curHour + 2);
+//		minute.setCurrentItem(curMint + 2);
+		
+		year.setCurrentItem(curyear);
+		month.setCurrentItem(curMonth - 1);
+		day.setCurrentItem(curDate - 1);
+		hour.setCurrentItem(curHour);
+		minute.setCurrentItem(curMint);
 
 		year.addScrollingListener(scrollListener);
 		month.addScrollingListener(scrollListener);
@@ -724,7 +730,7 @@ public class TimeSettingActivity extends BaseActivity {
 			int moNum = Integer.valueOf(monNums);
 			dayNum = setwheelDay(yNum, moNum);
 			day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
-			String dayTime = getTime(day);
+			String dayTime = getDayTime(yNum,moNum,day);
 			String hourTime = getTime(hour);
 			String minTime = getTime(minute);
 
@@ -876,13 +882,30 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private String getTime(WheelView wv) {
 		int hourPos = wv.getCurrentItem();
-		int hourCount = wv.getAdapter().getItemsCount();
-		if (hourPos >= 2) {
-			hourPos = hourPos - 2;
-		} else {
-			hourPos = hourPos + hourCount - 2;
-		}
+//		int hourCount = wv.getAdapter().getItemsCount();
+//		if (hourPos >= 2) {
+//			hourPos = hourPos - 2;
+//		} else {
+//			hourPos = hourPos + hourCount - 2;
+//		}
 		String time = wv.getAdapter().getItem(hourPos);
+		return time;
+	}
+	
+	private String getDayTime(int yearNum,int monthNum,WheelView wv) {
+		int pos = wv.getCurrentItem();
+		if (monthNum == 2) {
+			if (pos >= 28) {
+				pos = pos - 3;
+				day.setCurrentItem(pos);
+			}
+		} else if ((monthNum == 4)||(monthNum == 6)||(monthNum == 9)||(monthNum == 11)){
+			if (pos >= 30) {
+				pos = pos - 2;
+				day.setCurrentItem(pos);
+			}
+		}
+		String time = wv.getAdapter().getItem(pos);
 		return time;
 	}
 

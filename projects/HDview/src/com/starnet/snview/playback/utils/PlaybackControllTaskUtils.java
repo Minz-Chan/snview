@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.starnet.snview.protocol.message.LoginResponse;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -18,6 +17,7 @@ public class PlaybackControllTaskUtils {
 	private static final String TAG = "DataProcessServiceImpl";
 	private static final int LOGIN_SUC = 41;
 	private static final int LOGIN_FAIL = 42;
+	private static final int RECORDINFORS = 32;
 
 	private static boolean stop = false; 
 	public static boolean isCanPlay;
@@ -60,7 +60,7 @@ public class PlaybackControllTaskUtils {
 			}
 
 			int result;
-			if (tempcount < 0) {
+			if (tempresult < 0) {
 				result = PlaybackControllTaskUtils.getIntFromByte(tempresult);
 			} else {
 				result = tempresult;
@@ -171,6 +171,9 @@ public class PlaybackControllTaskUtils {
 				}else if(result == LOGIN_FAIL){//表示登陆失败
 					isCanPlay = false;
 					break;
+				} else if (result == RECORDINFORS){
+					
+					break;
 				}
 				do {
 					for (int i = 0; i < 8; i++) {/* 数据重置 */
@@ -188,7 +191,7 @@ public class PlaybackControllTaskUtils {
 		}
 	}
 
-	public static List<TLV_V_RecordInfo> getRecordInfos(){
+	public static ArrayList<TLV_V_RecordInfo> getRecordInfos(){
 		return service.getRecordInfos();
 	}
 	

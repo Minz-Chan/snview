@@ -1,10 +1,9 @@
 package com.starnet.snview.playback.utils;
 
-import java.util.ArrayList;
-
 import com.starnet.snview.protocol.message.OWSPDateTime;
 
 public class ByteArray2Object {
+		
 	/**
 	 * 
 	 * @param clazz

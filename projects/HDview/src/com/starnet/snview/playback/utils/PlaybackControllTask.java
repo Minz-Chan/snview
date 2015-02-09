@@ -29,8 +29,18 @@ public class PlaybackControllTask {
 	private boolean isTimeOut = false;
 	private boolean isOnSocketWork = false;
 	
+	protected Context ctx;
+	private Socket client;
+	private Handler mHandler;
+	private Thread timeThread;
+	private boolean isCanPlay;
+	private boolean isCanLogin;
+	private boolean isConnected;
+	private final int TIMEOUT = 80;
+	private Thread firstPlayThread;
 	private OWSPDateTime playStartTime;
-
+	private LoginDeviceItem visitDevItem;
+	private TLV_V_SearchRecordRequest srr;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
@@ -53,19 +63,7 @@ public class PlaybackControllTask {
 		return instance;
 	}
 
-	protected Context ctx;
-	private Socket client;
-	private Handler mHandler;
-	private boolean isConnected;
-	private Thread timeThread;
-	private Thread firstPlayThread;
-	private LoginDeviceItem visitDevItem;
-//	private LoginDeviceItem loginDeviceItem;
-	private TLV_V_SearchRecordRequest srr;
-	private final int TIMEOUT = 500;
 
-	private boolean isCanLogin;
-	private boolean isCanPlay;
 
 	public PlaybackControllTask(Context ctx, Handler mHandler,TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
 		this.ctx = ctx;
@@ -139,19 +137,6 @@ public class PlaybackControllTask {
 				sender.write(new OwspBegin());
 				sender.write(srr);
 				sender.write(new OwspEnd());
-//				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-//				ArrayList<TLV_V_RecordInfo> infos = (ArrayList<TLV_V_RecordInfo>) PlaybackControllTaskUtils.getRecordInfos();
-//				if (infos != null) {
-//					if (!isOnSocketWork && !isCancel) {
-//						isTimeOut = true;
-//						Bundle data = new Bundle();
-//						Message msg = new Message();
-//						msg.what = NOTIFYREMOTEUIFRESH_SUC;
-//						data.putParcelableArrayList("srres", infos);
-//						msg.setData(data);
-//						mHandler.sendMessage(msg);
-//					}
-//				}
 				parseSearchRecordResponse();
 			}
 		} catch (Exception e) {
@@ -164,10 +149,13 @@ public class PlaybackControllTask {
 	// 首先判断是否返回成功，如果不成功，则不需要渲染时间轴
 	private void parseSearchRecordResponse() throws IOException {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
-		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
+		PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+		infoList = PlaybackControllTaskUtils.getRecordInfos();
+//		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
 		if (infoList != null) {
 			playStartTime = infoList.get(0).getStartTime();
-			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
+			isCanLogin = true;
+//			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
 		}else {
 			isCanLogin = false;
 		}
@@ -188,18 +176,20 @@ public class PlaybackControllTask {
 
 	private void initClient() {
 		try {
+			DataProcessService serv = new DataProcessServiceImpl(ctx, "conn");
+			PlaybackControllTaskUtils.setService(serv);
 			String[] ips = visitDevItem.getSvrIP();
 			String host = PlaybackControllTaskUtils.getIP(ips);
 			int port = Integer.valueOf(visitDevItem.getSvrPort());
 			client = new Socket(host, port);
-			client.setSoTimeout(40 * 1000);
+//			client.setSoTimeout(TIMEOUT * 1000);
 			isConnected = client.isConnected();
 		} catch (Exception e) {
+			e.printStackTrace();
 			isCanLogin = false;
 			isCanPlay = false;
 			isConnected = false;
 			onClientWrongWork();
-			e.printStackTrace();
 		} finally {
 			try {
 				if (isConnected) {
@@ -237,8 +227,8 @@ public class PlaybackControllTask {
 			sender.write(new OwspEnd());
 
 			// PlaybackControllTaskUtils.parseVideoAndAudioRsp(receiver);
-			DataProcessService serv = new DataProcessServiceImpl(ctx, "conn");
-			PlaybackControllTaskUtils.setService(serv);
+//			DataProcessService serv = new DataProcessServiceImpl(ctx, "conn");
+//			PlaybackControllTaskUtils.setService(serv);
 			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
 
 		} catch (Exception e) {
