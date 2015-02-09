@@ -130,9 +130,14 @@ public class PlaybackActivity extends BaseActivity {
 
 	/** 设置新的时间显示条 **/
 	private void setNewTimeBar(ArrayList<TLV_V_RecordInfo> list) {
-		// mTimebar.reset();
 		if (list != null) {
+			mTimebar.reset();
 			int size = list.size();
+			TLV_V_RecordInfo rcd = list.get(0);
+			OWSPDateTime sT = rcd.getStartTime();
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(sT.getYear(), sT.getMonth()-1, sT.getDay(), sT.getHour(), sT.getMinute(), sT.getSecond());
+			mTimebar.setCurrentTime(calendar);
 			for (int i = 0; i < size; i++) {
 				TLV_V_RecordInfo rcdInfo = list.get(i);
 				OWSPDateTime starTime = rcdInfo.getStartTime();
@@ -144,42 +149,26 @@ public class PlaybackActivity extends BaseActivity {
 
 	/** 根据起始时间、结束时间渲染时间显示条 **/
 	private void showTimeBar(OWSPDateTime sTime, OWSPDateTime eTime) {
-
 		Calendar startTime = Calendar.getInstance();
 		startTime.set(sTime.getYear(), sTime.getMonth() - 1, sTime.getDay(), sTime.getHour(), sTime.getMinute());// , sTime.getSecond()
-
 		Calendar endTime = Calendar.getInstance();
 		endTime.set(eTime.getYear(), eTime.getMonth() - 1, eTime.getDay(), eTime.getHour(), eTime.getMinute());// , eTime.getSecond()
-
 		mTimebar.addFileInfo(1, startTime, endTime);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initToolbar() {
 		mToolbar = super.getBaseToolbar();
-
 		ArrayList itemList = new ArrayList();
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,
-				R.drawable.toolbar_play_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PICTURE,
-				R.drawable.toolbar_take_picture_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.QUALITY,
-				R.drawable.toolbar_quality_high_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PTZ,
-				R.drawable.toolbar_ptz_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.MICROPHONE,
-				R.drawable.toolbar_microphone_stop_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,
-				R.drawable.toolbar_sound_off_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.VIDEO_RECORD,
-				R.drawable.toolbar_video_record_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.ALARM,
-				R.drawable.toolbar_alarm_selector));
-
-		mToolbar.createToolbar(itemList, GlobalApplication.getInstance()
-				.getScreenWidth(),
-				getResources().getDimensionPixelSize(R.dimen.toolbar_height));
-
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,R.drawable.toolbar_play_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PICTURE,R.drawable.toolbar_take_picture_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.QUALITY,R.drawable.toolbar_quality_high_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PTZ,R.drawable.toolbar_ptz_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.MICROPHONE,R.drawable.toolbar_microphone_stop_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,R.drawable.toolbar_sound_off_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.VIDEO_RECORD,R.drawable.toolbar_video_record_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.ALARM,R.drawable.toolbar_alarm_selector));
+		mToolbar.createToolbar(itemList, GlobalApplication.getInstance().getScreenWidth(),getResources().getDimensionPixelSize(R.dimen.toolbar_height));
 		this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
 	}
 
@@ -253,7 +242,7 @@ public class PlaybackActivity extends BaseActivity {
 				} else {
 					String curTime = mTimebar.getCurrentTime();
 					OWSPDateTime startTime = PlaybackUtils.getOWSPDateTime(curTime);
-					if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
+					if (!isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 						if (hasContent) {
 							isPlaying = false;
 							pause(startTime);
@@ -303,15 +292,13 @@ public class PlaybackActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING) {
 			if (data != null) {
+				isFirstIn = false;
 				Bundle bundle = data.getExtras();
 				TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
 				if (loginItem != null) {
 					startPlayTaskWithLoginItem(srr, loginItem);
-				}else {
-//					startPlayTask(srr, dItem);
 				}
-				isFirstIn = false;
 			}
 		}
 	}

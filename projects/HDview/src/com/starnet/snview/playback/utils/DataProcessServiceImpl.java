@@ -19,6 +19,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 	private String TAG = "DataProcessServiceImpl";
 	private String conn_name;
+	private final int LOGIN_SUC = 41;
+	private final int LOGIN_FAIL = 42;
 	// private H264DecodeUtil h264 = new H264DecodeUtil();
 
 	private boolean isIFrameFinished = false;
@@ -118,7 +120,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 				TLV_V_LoginResponse tlv_V_LoginResponse;
 				tlv_V_LoginResponse = (TLV_V_LoginResponse) ByteArray2Object.convert2Object(TLV_V_LoginResponse.class, data, flag,OWSP_LEN.TLV_V_LoginResponse);
 				int result = tlv_V_LoginResponse.getResult();
-				return result;
+				if (result == 1) {
+					returnValue = LOGIN_SUC;
+				} else {
+					returnValue = LOGIN_FAIL;
+				}
+				return returnValue;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_FRAME_INFO_EX");
 				TLV_V_VideoFrameInfoEx infoEx;
@@ -131,11 +138,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 				returnValue = -1;
 				break;
 			}else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//登陆认证信息时
-				
 				TLV_V_LoginResponse loginRSP;
 				loginRSP = (TLV_V_LoginResponse)ByteArray2Object.convert2Object(TLV_V_LoginResponse.class, data,flag, OWSP_LEN.TLV_V_LoginResponse);
-				int reserve = loginRSP.getReserve();
 				int result = loginRSP.getResult();
+				if (result == 1) {
+					PlaybackControllTaskUtils.isCanPlay = true;
+				}else {
+					PlaybackControllTaskUtils.isCanPlay = false;
+				}
 				break;
 
 			}else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD){

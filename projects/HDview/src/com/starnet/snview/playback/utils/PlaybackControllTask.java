@@ -28,6 +28,8 @@ public class PlaybackControllTask {
 	private boolean isCancel = false;
 	private boolean isTimeOut = false;
 	private boolean isOnSocketWork = false;
+	
+	private OWSPDateTime playStartTime;
 
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
@@ -163,7 +165,12 @@ public class PlaybackControllTask {
 	private void parseSearchRecordResponse() throws IOException {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
-		isCanLogin = PlaybackControllTaskUtils.isCanPlay;
+		if (infoList != null) {
+			playStartTime = infoList.get(0).getStartTime();
+			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
+		}else {
+			isCanLogin = false;
+		}
 
 		if (!isOnSocketWork && !isCancel) {
 			isTimeOut = true;
@@ -208,18 +215,17 @@ public class PlaybackControllTask {
 	private void playRecordRequesWork() {
 		try {
 
-			OWSPDateTime time = new OWSPDateTime();
-			time.setYear(6);
-			time.setMonth(1);
-			time.setDay(29);
-			time.setHour(18);
-			time.setMinute(17);
-			time.setSecond(40);
-
+//			OWSPDateTime time = new OWSPDateTime();
+//			time.setYear(6);
+//			time.setMonth(1);
+//			time.setDay(29);
+//			time.setHour(18);
+//			time.setMinute(17);
+//			time.setSecond(40);
 			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 
 			prr.setDeviceId(0);
-			prr.setStartTime(time);
+			prr.setStartTime(playStartTime);
 			prr.setCommand(PlayCommandStart);
 			prr.setReserve(0);
 			prr.setChannel(srr.getChannel());
@@ -261,8 +267,8 @@ public class PlaybackControllTask {
 			sender.write(l);
 			sender.write(new OwspEnd());
 
-//			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-			isCanPlay = PlaybackControllTaskUtils.parseLoginRsp(receiver);
+			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+			isCanPlay = PlaybackControllTaskUtils.isCanPlay;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -354,7 +360,9 @@ public class PlaybackControllTask {
 
 	public void exit() {
 		try {
-			client.close();
+			if (!client.isClosed()) {
+				client.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

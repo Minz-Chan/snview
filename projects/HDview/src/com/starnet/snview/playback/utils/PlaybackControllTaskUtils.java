@@ -16,19 +16,21 @@ import android.util.Log;
 public class PlaybackControllTaskUtils {
 
 	private static final String TAG = "DataProcessServiceImpl";
+	private static final int LOGIN_SUC = 41;
+	private static final int LOGIN_FAIL = 42;
 
 	private static boolean stop = false; 
 	public static boolean isCanPlay;
 
-	private static DataProcessService service = new DataProcessServiceImpl("");;
-
+	private static DataProcessService service = new DataProcessServiceImpl("");
+	
+	@SuppressWarnings("static-access")
 	public static ArrayList<TLV_V_RecordInfo> parseResponsePacketFromSocket(InputStream receiver) {// , Handler mHandler
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		TLV_V_SearchRecordResponse srr = new TLV_V_SearchRecordResponse();
 		byte[] head = new byte[8];
 		try {
 			receiver.read(head);
-			@SuppressWarnings("static-access")
 			ByteBuffer headBuffer = ByteBuffer.allocate(8).wrap(head);
 			headBuffer = headBuffer.order(ByteOrder.BIG_ENDIAN);
 			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
@@ -65,22 +67,23 @@ public class PlaybackControllTaskUtils {
 			}
 			if (result == 1) {// 表示成
 				isCanPlay = true;
+				byte[] recordInfoDataBuffer = new byte[26*count];
+				receiver.read(recordInfoDataBuffer);
+				ByteBuffer riBuffers = ByteBuffer.wrap(recordInfoDataBuffer).order(ByteOrder.LITTLE_ENDIAN);
+				
 				if (count > 0) {
 					for (int i = 0; i < count; i++) {
 						TLV_V_RecordInfo recordInfo = new TLV_V_RecordInfo();
-						byte[] temp = new byte[26];
-						receiver.read(temp);
-						ByteBuffer tempBuffer = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN);
-						tempBuffer.getShort();
-						tempBuffer.getShort();
-						int deviceID = tempBuffer.getInt();
+						riBuffers.getShort();
+						riBuffers.getShort();
+						int deviceID = riBuffers.getInt();
 						// 解析时间
-						int startyear = tempBuffer.getShort();
-						int startMonth = tempBuffer.get();
-						int startDay = tempBuffer.get();
-						int starthour = tempBuffer.get();
-						int startminute = tempBuffer.get();
-						int startsecond = tempBuffer.get();
+						int startyear = riBuffers.getShort();
+						int startMonth = riBuffers.get();
+						int startDay = riBuffers.get();
+						int starthour = riBuffers.get();
+						int startminute = riBuffers.get();
+						int startsecond = riBuffers.get();
 
 						OWSPDateTime startTime = new OWSPDateTime();
 						startTime.setYear(startyear + 2009);
@@ -90,12 +93,12 @@ public class PlaybackControllTaskUtils {
 						startTime.setMinute(startminute);
 						startTime.setSecond(startsecond);
 
-						int endyear = tempBuffer.getShort();
-						int endMonth = tempBuffer.get();
-						int endDay = tempBuffer.get();
-						int endhour = tempBuffer.get();
-						int endminute = tempBuffer.get();
-						int endsecond = tempBuffer.get();
+						int endyear = riBuffers.getShort();
+						int endMonth = riBuffers.get();
+						int endDay = riBuffers.get();
+						int endhour = riBuffers.get();
+						int endminute = riBuffers.get();
+						int endsecond = riBuffers.get();
 
 						OWSPDateTime endTime = new OWSPDateTime();
 						endTime.setYear(endyear + 2009);
@@ -105,10 +108,10 @@ public class PlaybackControllTaskUtils {
 						endTime.setMinute(endminute);
 						endTime.setSecond(endsecond);
 
-						int channel = tempBuffer.get();
-						int recordTypeMask = tempBuffer.get();
-						int reserve1 = tempBuffer.get();
-						int reserve2 = tempBuffer.get();
+						int channel = riBuffers.get();
+						int recordTypeMask = riBuffers.get();
+						int reserve1 = riBuffers.get();
+						int reserve2 = riBuffers.get();
 						int reserv[] = { reserve1, reserve2 };
 
 						recordInfo.setChannel(channel);
@@ -157,6 +160,12 @@ public class PlaybackControllTaskUtils {
 			while (!tlvContent.equals("") && !stop) {
 				int result = service.process(tlvContent,(int) owspPacketHeader.getPacket_length());
 				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
+					break;
+				}else if(result == LOGIN_SUC){//表示登陆成功
+					isCanPlay = true;
+					break;
+				}else if(result == LOGIN_FAIL){//表示登陆失败
+					isCanPlay = false;
 					break;
 				}
 				do {

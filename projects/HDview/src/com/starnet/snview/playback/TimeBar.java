@@ -41,8 +41,7 @@ public class TimeBar extends View {
 	 * 中线/中线时间文本 （middleLine/middleTime）相关
 	 */
 	private GregorianCalendar mMiddleLineTime = new GregorianCalendar();
-	private static final SimpleDateFormat mTimeFormat = new SimpleDateFormat(
-			"yyyy-MM-dd HH:mm:ss"); // 中线时间格式
+	private static final SimpleDateFormat mTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 中线时间格式
 	private static final int mMiddleTimeColor = 0xfff15a24; // 中线时间文字颜色
 	private static final Typeface mMiddleTimefont = Typeface.create(
 			Typeface.SANS_SERIF, 1); // 中线时间文字字体
@@ -182,20 +181,10 @@ public class TimeBar extends View {
 	/* 更新刻度位置 */
 	private void updateScalePos() {
 		Iterator<ScaleInfo> scaleinfoIt = mScaleInfoList.iterator();
-
 		while (scaleinfoIt.hasNext()) {
 			ScaleInfo scaleinfo = (ScaleInfo) scaleinfoIt.next();
-			long deltaTInSecond = 3600
-					* (scaleinfo.getHour() - mMiddleLineTime
-							.get(Calendar.HOUR_OF_DAY))
-					+ 60
-					* (scaleinfo.getMinute() - mMiddleLineTime
-							.get(Calendar.MINUTE))
-					+ (scaleinfo.getSecond() - mMiddleLineTime
-							.get(Calendar.SECOND));
-			int i = (int) mMiddleLineX
-					+ (int) (1000L * deltaTInSecond
-							/ (1.0D * mCellMilliSeconds) * mCellWidth);
+			long deltaTInSecond = 3600 * (scaleinfo.getHour() - mMiddleLineTime.get(Calendar.HOUR_OF_DAY)) + 60 * (scaleinfo.getMinute() - mMiddleLineTime.get(Calendar.MINUTE)) + (scaleinfo.getSecond() - mMiddleLineTime.get(Calendar.SECOND));
+			int i = (int) mMiddleLineX + (int) (1000L * deltaTInSecond / (1.0D * mCellMilliSeconds) * mCellWidth);
 			scaleinfo.setPosRange(0.0F, 1.0F * mTotoalCellNumber * mCellWidth);
 			scaleinfo.setPos(i);
 		}
@@ -234,8 +223,7 @@ public class TimeBar extends View {
 		Iterator<FileRect> fileRectIt = null;
 
 		// 绘制横线
-		canvas.drawLine(2, mScaleLineY + mScaleLineHeight + 1, mWidth - 2,
-				mScaleLineY + mScaleLineHeight + 1, paint);
+		canvas.drawLine(2, mScaleLineY + mScaleLineHeight + 1, mWidth - 2,mScaleLineY + mScaleLineHeight + 1, paint);
 
 		/* 绘制刻度信息 */
 		while (scaleInfoIt.hasNext()) {
@@ -339,9 +327,13 @@ public class TimeBar extends View {
 	}
 	
 	private String currrentTime;
-	
+	/**获取当前的显示时间***/
 	public String getCurrentTime(){
 		return currrentTime;
+	}
+	/**设置当前的显示时间***/
+	public void setCurrentTime(String currrentTime){
+		this.currrentTime = currrentTime;
 	}
 
 	public static abstract interface TimePickedCallBack {

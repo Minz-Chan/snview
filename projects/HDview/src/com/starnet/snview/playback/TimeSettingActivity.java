@@ -311,11 +311,10 @@ public class TimeSettingActivity extends BaseActivity {
 					cloudAccountView.setVisibility(View.VISIBLE);
 				} else {
 					cloudAccountView.setVisibility(View.GONE);
-					typePopupWindow.showAsDropDown(v);
-					typePopupWindow.setFocusable(false);
-					typePopupWindow.setOutsideTouchable(true);
-					typePopupWindow.update();
-
+						typePopupWindow.showAsDropDown(v);
+						typePopupWindow.setFocusable(false);
+//						typePopupWindow.setOutsideTouchable(true);
+						typePopupWindow.update();
 				}
 			}
 		});
