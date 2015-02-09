@@ -129,8 +129,8 @@ public class ByteArray2Object {
 				return null;
 			}
 			TLV_V_LoginResponse tlv_V_LoginResponse = new TLV_V_LoginResponse();
-			tlv_V_LoginResponse.setResult(LByteConvert.bytesToUshort(tempByteArray, 0));
-			tlv_V_LoginResponse.setReserve(LByteConvert.bytesToUshort(tempByteArray, 2));
+			tlv_V_LoginResponse.setResult((short)LByteConvert.bytesToUshort(tempByteArray, 0));
+			tlv_V_LoginResponse.setReserve((short)LByteConvert.bytesToUshort(tempByteArray, 2));
 			return tlv_V_LoginResponse;
 		} else if (clazz == TLV_V_AudioInfo.class) {
 			if (tempByteArray.length != OWSP_LEN.TLV_V_AudioInfo)

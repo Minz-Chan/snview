@@ -16,20 +16,21 @@ import android.util.Log;
 public class PlaybackControllTaskUtils {
 
 	private static final String TAG = "DataProcessServiceImpl";
+	private static final int LOGIN_SUC = 41;
+	private static final int LOGIN_FAIL = 42;
 
 	private static boolean stop = false; 
 	public static boolean isCanPlay;
 
-//	private static DataProcessService service = new DataProcessServiceImpl("");;
 	private static DataProcessService service;
 
+	@SuppressWarnings("static-access")
 	public static ArrayList<TLV_V_RecordInfo> parseResponsePacketFromSocket(InputStream receiver) {// , Handler mHandler
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		TLV_V_SearchRecordResponse srr = new TLV_V_SearchRecordResponse();
 		byte[] head = new byte[8];
 		try {
 			receiver.read(head);
-			@SuppressWarnings("static-access")
 			ByteBuffer headBuffer = ByteBuffer.allocate(8).wrap(head);
 			headBuffer = headBuffer.order(ByteOrder.BIG_ENDIAN);
 			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
@@ -66,10 +67,10 @@ public class PlaybackControllTaskUtils {
 			}
 			if (result == 1) {// 表示成
 				isCanPlay = true;
-				
 				byte[] recordInfoDataBuffer = new byte[26*count];
 				receiver.read(recordInfoDataBuffer);
 				ByteBuffer riBuffers = ByteBuffer.wrap(recordInfoDataBuffer).order(ByteOrder.LITTLE_ENDIAN);
+				
 				if (count > 0) {
 					for (int i = 0; i < count; i++) {
 						TLV_V_RecordInfo recordInfo = new TLV_V_RecordInfo();
@@ -77,7 +78,8 @@ public class PlaybackControllTaskUtils {
 						int l = riBuffers.getShort();
 						
 						Log.i(TAG, "ri type:" + t + ", length:" + l);
-						
+						riBuffers.getShort();
+						riBuffers.getShort();
 						int deviceID = riBuffers.getInt();
 						// 解析时间
 						int startyear = riBuffers.getShort();
@@ -162,6 +164,12 @@ public class PlaybackControllTaskUtils {
 			while (!tlvContent.equals("") && !stop) {
 				int result = service.process(tlvContent,(int) owspPacketHeader.getPacket_length());
 				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
+					break;
+				}else if(result == LOGIN_SUC){//表示登陆成功
+					isCanPlay = true;
+					break;
+				}else if(result == LOGIN_FAIL){//表示登陆失败
+					isCanPlay = false;
 					break;
 				}
 				do {

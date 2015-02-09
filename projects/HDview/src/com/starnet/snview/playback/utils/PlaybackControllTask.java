@@ -165,12 +165,12 @@ public class PlaybackControllTask {
 	private void parseSearchRecordResponse() throws IOException {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
-		if(infoList!=null){
-			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
+		if (infoList != null) {
 			playStartTime = infoList.get(0).getStartTime();
+			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
+		}else {
+			isCanLogin = false;
 		}
-		
-		
 
 		if (!isOnSocketWork && !isCancel) {
 			isTimeOut = true;
@@ -269,8 +269,8 @@ public class PlaybackControllTask {
 			sender.write(l);
 			sender.write(new OwspEnd());
 
-//			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-			isCanPlay = PlaybackControllTaskUtils.parseLoginRsp(receiver);
+			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+			isCanPlay = PlaybackControllTaskUtils.isCanPlay;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -362,7 +362,9 @@ public class PlaybackControllTask {
 
 	public void exit() {
 		try {
-			client.close();
+			if (!client.isClosed()) {
+				client.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
