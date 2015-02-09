@@ -323,6 +323,14 @@ public class TimeSettingActivity extends BaseActivity {
 		startScanBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+				}
+				
+				if (timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
+				}
+				
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();

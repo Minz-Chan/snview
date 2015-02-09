@@ -110,6 +110,18 @@ public class ByteArray2Object {
 			tlv_V_VideoFrameInfo.setFrameIndex(LByteConvert.bytesToUint(tempByteArray, 4));
 			tlv_V_VideoFrameInfo.setTime(LByteConvert.bytesToUint(tempByteArray, 8));
 			return tlv_V_VideoFrameInfo;
+		} else if (clazz == TLV_V_VideoFrameInfoEx.class) {
+			if (tempByteArray.length != OWSP_LEN.TLV_V_VideoFrameInfoEx)
+				return null;
+			TLV_V_VideoFrameInfoEx tlv_V_VideoFrameInfoEx = new TLV_V_VideoFrameInfoEx();
+			tlv_V_VideoFrameInfoEx.setChannelId((short) LByteConvert.bytesToUbyte(tempByteArray, 0));
+			tlv_V_VideoFrameInfoEx.setReserve((short) LByteConvert.bytesToUbyte(tempByteArray, 1));
+			tlv_V_VideoFrameInfoEx.setChecksum(LByteConvert.bytesToUshort(tempByteArray, 2));
+			tlv_V_VideoFrameInfoEx.setFrameIndex(LByteConvert.bytesToUint(tempByteArray, 4));
+			tlv_V_VideoFrameInfoEx.setTime(LByteConvert.bytesToUint(tempByteArray, 8));
+			tlv_V_VideoFrameInfoEx.setDataSize(LByteConvert.bytesToUint(tempByteArray, 12));
+			return tlv_V_VideoFrameInfoEx;
+			
 		} else if (clazz == TLV_V_VideoData.class) {
 			return tempByteArray;
 		} else if (clazz == TLV_V_LoginResponse.class) {

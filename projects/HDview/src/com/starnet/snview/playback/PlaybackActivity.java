@@ -16,12 +16,14 @@ import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
+import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.playback.utils.LoginDeviceItem;
@@ -38,6 +40,8 @@ public class PlaybackActivity extends BaseActivity {
 	private Toolbar mToolbar;
 	private TimeBar mTimebar;
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
+	
+	private PlaybackLiveViewItemContainer mVideoContainer;
 
 	private final int TIMESETTING = 0x0007;
 	private final int REQUESTCODE_DOG = 0x0005;
@@ -106,6 +110,14 @@ public class PlaybackActivity extends BaseActivity {
 			prg.dismiss();
 		}
 	}
+	
+	private GlobalApplication getApp() {
+		return GlobalApplication.getInstance();
+	}
+	
+	public PlaybackLiveViewItemContainer getVideoContainer() {
+		return mVideoContainer;
+	}
 
 	private void initView() {
 		super.setTitleViewText(getString(R.string.navigation_title_remote_playback));
@@ -115,6 +127,13 @@ public class PlaybackActivity extends BaseActivity {
 		ctx = PlaybackActivity.this;
 		initToolbar();
 		initTimebar();
+		
+		final int screenWidth = getApp().getScreenWidth();
+		FrameLayout playbackVideoRegion = (FrameLayout) findViewById(R.id.playback_video_region);
+		mVideoContainer = new PlaybackLiveViewItemContainer(this);
+		mVideoContainer.findSubViews();
+		playbackVideoRegion.addView(mVideoContainer, 
+				new FrameLayout.LayoutParams(screenWidth, screenWidth));
 	}
 
 	public void setListenersForWadgets() {

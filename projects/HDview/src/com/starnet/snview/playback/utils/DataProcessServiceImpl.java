@@ -9,33 +9,65 @@
  */
 package com.starnet.snview.playback.utils;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.mina.core.buffer.IoBuffer;
+
+import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.liveview.PlaybackLiveView;
+import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.playback.PlaybackActivity;
+
+import android.content.Context;
 import android.os.Message;
 import android.util.Log;
 
 public class DataProcessServiceImpl implements DataProcessService {
 
 	private String TAG = "DataProcessServiceImpl";
+	private Context context;
 	private String conn_name;
-	// private H264DecodeUtil h264 = new H264DecodeUtil();
+	private H264DecodeUtil h264;
 
 	private boolean isIFrameFinished = false;
+	
+	private IoBuffer oneIFrameBuffer;
+	private int oneIFrameDataSize;
 
-	public DataProcessServiceImpl(String conn_name) {
+	public DataProcessServiceImpl(Context context, String conn_name) {
 		super();
+		this.context = context;
 		this.conn_name = conn_name;
-		// h264.init(352, 288);
+		h264 = getPlaybackContainer().getH264Decoder();
+		h264.init(352, 288);
+		
+		oneIFrameBuffer = IoBuffer.allocate(65536);
+//		oneIFrameBuffer.setAutoExpand(true);
+	}
+
+	private PlaybackLiveView getPlaybackLiveView() {
+		return getPlaybackContainer().getSurfaceView();
+	}
+	
+	private PlaybackLiveViewItemContainer getPlaybackContainer() {
+		return getPlaybackActivity().getVideoContainer();
+	}
+	
+	private PlaybackActivity getPlaybackActivity() {
+		return (PlaybackActivity) context;
 	}
 
 	@Override
 	public int process(byte[] data, int length) {
 		// VideoView v = ViewManager.getInstance().getVideoView();
+		PlaybackLiveView playbackVideo = getPlaybackLiveView();
 		int returnValue = 0;
 		int nLeft = length - 4; // 未处理的字节数
 		int nLen_hdr = OWSP_LEN.TLV_HEADER;
 		int flag = 0;
+		int lastType = 0;
 
 		// 循环处理所有的TLVl
 		while (nLeft > nLen_hdr) {
@@ -56,7 +88,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 					return 0;
 				}
 
-//				Log.i(TAG, "*********** P Frame process start  *******");
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_PFRAME_DATA");
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_VideoData.class, data, flag,
@@ -64,13 +95,49 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "vediodata length:" + tmp.length);
 				int result = 0;
 				try {
-					// result = h264.decodePacket(tmp, tmp.length,
-					// v.getmPixel());
+					result = h264.decodePacket(tmp, tmp.length,
+							 playbackVideo.retrievetDisplayBuffer());
 				} catch (Exception e) {
 					e.printStackTrace();
 					// 解码过程发生异常
 					// ViewManager.getInstance().setHelpMsg(R.string.IDS_Unknown);
 				}
+				
+				if(result == 1) {
+					playbackVideo.onContentUpdated();
+					Log.i(TAG, "*********************** update video: P Frame  *************************");
+				}
+			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_IFRAME_DATA) {
+				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_IFRAME_DATA");
+				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(TLV_V_VideoData.class, data, flag,tlv_Header.getTlv_len());
+				
+				if (lastType == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX
+						|| lastType == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO) {
+					h264.setbFirst(true);
+					h264.setbFindPPS(true);
+				}
+				
+				oneIFrameBuffer.put(tmp);
+				
+				if (oneIFrameDataSize == -1 // The data size of I Frame is less than 65536
+						|| !oneIFrameBuffer.hasRemaining() // The all I Frame data has been collected
+						) { 
+					int result = 0;
+					try {
+						result = h264.decodePacket(oneIFrameBuffer.array(), oneIFrameBuffer.position() + 1,
+								 playbackVideo.retrievetDisplayBuffer());
+					} catch (Exception e) {
+						// 解码过程发生异常
+						// ViewManager.getInstance().setHelpMsg(R.string.IDS_Unknown);
+					}
+
+					isIFrameFinished = true;
+					if(result == 1) {
+						playbackVideo.onContentUpdated();
+						Log.i(TAG, "*********************** update video: I Frame  *************************");
+					}
+				}
+				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_INFO) {
 
 				TLV_V_AudioInfo audioInfo = (TLV_V_AudioInfo) ByteArray2Object.convert2Object(TLV_V_AudioInfo.class, data, flag,OWSP_LEN.TLV_V_AudioInfo);
@@ -87,45 +154,50 @@ public class DataProcessServiceImpl implements DataProcessService {
 					e.printStackTrace();
 				}
 
-			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_IFRAME_DATA) {
-				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_IFRAME_DATA");
-				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(TLV_V_VideoData.class, data, flag,tlv_Header.getTlv_len());
-				int result = 0;
-				try {
-					// result = h264.decodePacket(tmp, tmp.length,
-					// v.getmPixel());
-				} catch (Exception e) {
-					// 解码过程发生异常
-					// ViewManager.getInstance().setHelpMsg(R.string.IDS_Unknown);
-				}
-
-				isIFrameFinished = true;
-				if (result == 1) {
-
-				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_STREAM_FORMAT_INFO");
-				TLV_V_StreamDataFormat tlv_V_StreamDataFormat;
-				tlv_V_StreamDataFormat = (TLV_V_StreamDataFormat) ByteArray2Object.convert2Object(TLV_V_StreamDataFormat.class, data,flag, OWSP_LEN.TLV_V_StreamDataFormat);
+				TLV_V_StreamDataFormat tlv_V_StreamDataFormat = (TLV_V_StreamDataFormat) ByteArray2Object
+						.convert2Object(TLV_V_StreamDataFormat.class, data,
+								flag, OWSP_LEN.TLV_V_StreamDataFormat);
 
 				int framerate = tlv_V_StreamDataFormat.getVideoFormat().getFramerate();
 				int width = tlv_V_StreamDataFormat.getVideoFormat().getWidth();
 				int height = tlv_V_StreamDataFormat.getVideoFormat().getHeight();
 				int bitrate = (int) (tlv_V_StreamDataFormat.getVideoFormat().getBitrate() / 1024);
-
+				
+				if (tlv_V_StreamDataFormat != null) {										
+					if (width > 0 && height > 0) {
+						h264.init(width, height);	// 初始化视频分辨率
+						playbackVideo.init(width, height);
+					}
+				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_LOGIN_ANSWER");
 				TLV_V_LoginResponse tlv_V_LoginResponse;
 				tlv_V_LoginResponse = (TLV_V_LoginResponse) ByteArray2Object.convert2Object(TLV_V_LoginResponse.class, data, flag,OWSP_LEN.TLV_V_LoginResponse);
 				int result = tlv_V_LoginResponse.getResult();
 				return result;
+			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO) {
+				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_FRAME_INFO_EX");
+				TLV_V_VideoFrameInfo tlv_V_VideoFrameInfo = (TLV_V_VideoFrameInfo) ByteArray2Object
+						.convert2Object(TLV_V_VideoFrameInfo.class, data,
+								flag, OWSP_LEN.TLV_V_VideoFrameInfo);
+				oneIFrameDataSize = -1;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_FRAME_INFO_EX");
-				TLV_V_VideoFrameInfoEx infoEx;
-				infoEx = (TLV_V_VideoFrameInfoEx) ByteArray2Object.convert2Object(TLV_V_VideoFrameInfoEx.class, data,flag, OWSP_LEN.TLV_V_VideoFrameInfoEX);
+				TLV_V_VideoFrameInfoEx tlv_V_VideoFrameInfoEx = (TLV_V_VideoFrameInfoEx) ByteArray2Object
+						.convert2Object(TLV_V_VideoFrameInfoEx.class, data,
+								flag, OWSP_LEN.TLV_V_VideoFrameInfoEX);
+				oneIFrameDataSize = (int) tlv_V_VideoFrameInfoEx.getDataSize();
+				oneIFrameBuffer.clear();
+				if (oneIFrameBuffer.remaining() < oneIFrameDataSize) {
+					oneIFrameBuffer.expand(oneIFrameDataSize);
+				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_PLAY_RECORD_RSP) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_PLAY_RECORD_RSP");
-				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
+				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object
+						.convert2Object(TLV_V_PlayRecordResponse.class, data,
+								flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");
 				returnValue = -1;
@@ -155,8 +227,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 				returnValue = 2;
 				//通知远程回放的进行界面更刷新
 			}
+			
+			lastType = tlv_Header.getTlv_type();
+			
 			nLeft -= tlv_Header.getTlv_len();
-			flag += tlv_Header.getTlv_len();
+			flag += tlv_Header.getTlv_len();			
 		}
 		return returnValue;
 	}

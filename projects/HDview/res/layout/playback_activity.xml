@@ -8,7 +8,8 @@
 	</FrameLayout>
 	  
 	<RelativeLayout android:id="@id/playback_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/playback_controlbar" android:layout_alignParentTop="true">
-		<ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/>
+<!-- 		<ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/> -->
+		<FrameLayout android:id="@+id/playback_video_region" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentTop="true" />
 	
 	</RelativeLayout>
 

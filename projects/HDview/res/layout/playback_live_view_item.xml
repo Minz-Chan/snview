@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- <com.starnet.snview.component.liveview.LiveViewItemContainer android:padding="@dimen/window_container_space" android:layout_width="wrap_content" android:layout_height="wrap_content" -->
+<!--   xmlns:android="http://schemas.android.com/apk/res/android"> -->
+    <com.starnet.snview.component.liveview.WindowLinearLayout android:orientation="vertical" android:id="@id/liveview_surface_infotext_layout" android:background="#00000000" android:padding="@dimen/surface_container_space" 
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+        <FrameLayout android:id="@id/liveview_playwindow_frame" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        	<com.starnet.snview.component.liveview.PlaybackLiveView android:id="@+id/liveview_surfaceview" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        	
+        	<!-- 加载进度条 -->
+        	<ProgressBar android:layout_gravity="center" android:id="@id/liveview_progressbar" android:visibility="invisible" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        	<!-- 刷新按钮 -->
+            <ImageView android:layout_gravity="center" android:id="@id/liveview_refresh_imageview" android:background="@drawable/liveview_view_refresh_selector" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing" />
+        	<!-- 方向控制手势箭头 -->
+            <include android:id="@id/liveview_arrow_all_container" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_all_container" />
+            <!-- 聚焦（放大）手势箭头 -->
+            <include android:id="@id/arrow_add_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_add_focallength" />
+			<!-- 聚焦（缩小）手势箭头 -->
+            <include android:id="@id/arrow_sub_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" layout="@layout/arrow_sub_focallength" />
+        </FrameLayout>
+        
+		<!-- 视频文字信息 -->
+        <TextView android:textSize="@dimen/common_textsize_small_11sp" android:gravity="center_vertical" android:id="@id/liveview_liveinfo_textview" android:background="@color/windows_info_text_bg" android:textColor="@color/windows_info_text" android:layout_width="fill_parent" android:layout_height="@dimen/window_text_height" android:paddingLeft="1.0dip" android:paddingRight="1.0dip" android:ellipsize="end" android:singleLine="true" />
+    </com.starnet.snview.component.liveview.WindowLinearLayout>
+<!-- </com.starnet.snview.component.liveview.LiveViewItemContainer> -->
