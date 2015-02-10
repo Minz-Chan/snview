@@ -9,10 +9,15 @@
  */
 package com.starnet.snview.playback.utils;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
+import com.starnet.snview.component.audio.AudioCodec;
 import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
@@ -46,6 +51,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private AudioPlayer audioPlayer;
 	private static final int UPDATINGTIMEBAR = 0x0010;
 	private Handler handler;
+	
+	private AudioCodec audioCodec;
+	private OutputStream audioWriter;
+	private int count = 0;
 
 	public DataProcessServiceImpl(Context context, String conn_name) {
 		super();
@@ -54,9 +63,17 @@ public class DataProcessServiceImpl implements DataProcessService {
 		h264 = getPlaybackContainer().getH264Decoder();
 		h264.init(352, 288);
 
+		audioCodec = new AudioCodec();
+		
 		oneIFrameBuffer = IoBuffer.allocate(65536);
 		handler = ((PlaybackActivity) context).getHandler();
-		// oneIFrameBuffer.setAutoExpand(true);
+		
+		/*
+		try {
+			audioWriter = new FileOutputStream("/mnt/sdcard/audioData2.raw");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}*/
 	}
 
 	private PlaybackLiveView getPlaybackLiveView() {
@@ -110,10 +127,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_PFRAME_DATA");
-				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(TLV_V_VideoData.class, data, flag,tlv_Header.getTlv_len());
+				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
+						TLV_V_VideoData.class, data, flag,
+						tlv_Header.getTlv_len());
 				int result = 0;
 				try {
-					result = h264.decodePacket(tmp, tmp.length,playbackVideo.retrievetDisplayBuffer());
+					result = h264.decodePacket(tmp, tmp.length,
+							playbackVideo.retrievetDisplayBuffer());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -141,7 +161,9 @@ public class DataProcessServiceImpl implements DataProcessService {
 				) {
 					int result = 0;
 					try {
-						result = h264.decodePacket(oneIFrameBuffer.array(),oneIFrameBuffer.position(),playbackVideo.retrievetDisplayBuffer());
+						result = h264.decodePacket(oneIFrameBuffer.array(),
+								oneIFrameBuffer.position(),
+								playbackVideo.retrievetDisplayBuffer());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -159,13 +181,35 @@ public class DataProcessServiceImpl implements DataProcessService {
 				TLV_V_AudioInfo audioInfo = (TLV_V_AudioInfo) ByteArray2Object
 						.convert2Object(TLV_V_AudioInfo.class, data, flag,
 								OWSP_LEN.TLV_V_AudioInfo);*/
-				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_DATA");
-				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
+				byte[] alawData = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
-				audioPlayer.playAudioTrack(tmp, 0, tmp.length);
+				byte[] pcmData = new byte[alawData.length*2];
+
+				audioCodec.g711aDecode(alawData, alawData.length, pcmData, pcmData.length);
+				audioPlayer.playAudioTrack(pcmData, 0, pcmData.length);
+				
+				/*
+				if (count < 800) {
+					try {
+						audioWriter.write(pcmData);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						audioWriter.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					Log.i(TAG, "$$$audioWriter close...");
+				}
+				
+				count++;*/
+				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_STREAM_FORMAT_INFO");
 				TLV_V_StreamDataFormat tlv_V_StreamDataFormat = (TLV_V_StreamDataFormat) ByteArray2Object
@@ -180,6 +224,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 						.getBitrate() / 1024);
 				int sampleRate = (int) tlv_V_StreamDataFormat.getAudioFormat()
 						.getSamplesPerSecond();
+				
+				Log.i(TAG, "sampleRate: " + sampleRate);
 
 				if (tlv_V_StreamDataFormat != null) {
 					if (width > 0 && height > 0) {
@@ -190,7 +236,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						if (audioPlayer != null) {
 							audioPlayer.release();
 						}
-
+						
 						audioPlayer = new AudioPlayer(sampleRate,
 								AudioFormat.CHANNEL_CONFIGURATION_STEREO,
 								AudioFormat.ENCODING_PCM_16BIT);
