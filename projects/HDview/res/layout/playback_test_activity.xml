@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#CCCCCC" >
+	<FrameLayout android:id="@+id/playback_test_video_region" android:layout_width="480.0dip" android:layout_height="480.0dip" android:layout_alignParentTop="true" />
+	<Button android:id="@+id/playback_test11_button" android:text="playback" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentBottom="true"/>
+</RelativeLayout>

@@ -19,7 +19,7 @@ import java.io.OutputStream;
 @SuppressLint("SdCardPath")
 public class SocketInputStream extends FilterInputStream {
 
-	protected SocketInputStream(InputStream in) {
+	public SocketInputStream(InputStream in) {
 		super(in);
 	}
 
