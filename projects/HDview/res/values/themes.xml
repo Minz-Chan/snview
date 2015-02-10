@@ -9,7 +9,7 @@
     <style name="SampleTheme.RightDrawer" parent="SampleBase">
         <item name="menuDrawerStyle">@style/MenuDrawerStyle.Right</item>
     </style>
-    
+
     <style name="SampleTheme.RightOverlayDrawer" parent="SampleBase">
         <item name="menuDrawerStyle">@style/MenuDrawerStyle.OverlayRight</item>
     </style>
@@ -24,6 +24,11 @@
 
     <style name="SampleTheme.Sherlock" parent="SampleBase">
         <item name="menuDrawerStyle">@style/MenuDrawerStyle</item>
+    </style>
+
+    <style name="Theme.Translucent.NoTitleBar" parent="SampleBase">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
 </resources>

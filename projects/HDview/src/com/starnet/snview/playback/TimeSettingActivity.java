@@ -546,23 +546,13 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn2 = (Button) view2.findViewById(R.id.stateBtn2);
 		staBtn3 = (Button) view2.findViewById(R.id.stateBtn3);
 		staBtn4 = (Button) view2.findViewById(R.id.stateBtn4);
-
-		view2.getRootView().setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (typePopupWindow != null && typePopupWindow.isShowing()) {
-					typePopupWindow.dismiss();
-					cloudAccountView.setVisibility(View.VISIBLE);
-				}
-			}
-		});
+		
 	}
 
 	private void initTimePopupWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.time_dialog, null);
-		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		View view2 = timePopupWindow.getContentView();
 
 		year = (WheelView) view2.findViewById(R.id.year);

@@ -142,13 +142,14 @@ public class PlaybackActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				mTimebar.reset();
+				closeRemoteSocket();
 				Intent intent = new Intent();
 				intent.setClass(ctx, TimeSettingActivity.class);
 				startActivityForResult(intent, TIMESETTING);
 			}
 		});
 	}
-
+	
 	/** 设置新的时间显示条 **/
 	private void setNewTimeBar(ArrayList<TLV_V_RecordInfo> list) {
 		if (list != null) {
@@ -397,12 +398,12 @@ public class PlaybackActivity extends BaseActivity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		super.onKeyDown(keyCode, event);
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-			socketClose();
+			closeRemoteSocket();
 		}
 		return true;
 	}
 	
-	private void socketClose(){
+	private void closeRemoteSocket(){
 		if (pbcTask != null) {
 			pbcTask.exit();
 		}

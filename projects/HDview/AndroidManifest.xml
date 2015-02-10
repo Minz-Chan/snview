@@ -183,7 +183,7 @@
             android:name="com.starnet.snview.playback.PlayBackChannelListViewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/channel_listview_titlebarstyle" /> <!-- android:theme="@android:style/Theme.Dialog" -->
+            android:theme="@style/channel_listview_titlebarstyle" />
 
         <receiver android:name="com.starnet.snview.alarmmanager.OnAlarmMessageArrivedReceiver" >
             <intent-filter>
