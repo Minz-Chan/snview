@@ -18,9 +18,13 @@ public class PlaybackControllTaskUtils {
 	private static final int LOGIN_SUC = 41;
 	private static final int LOGIN_FAIL = 42;
 	private static final int RECORDINFORS = 32;
+	private static final int PLAYRECORDREQ_SUCC = 43;
+	private static final int PLAYRECORDREQ_FAIL = 44;
 
-	private static boolean stop = false; 
 	public static boolean isCanPlay;
+	private static boolean stop = false; 
+	private static boolean isPauseSuc = false;
+	private static boolean isReusmeSuc = false;
 
 	private static DataProcessService service;
 
@@ -172,9 +176,15 @@ public class PlaybackControllTaskUtils {
 					isCanPlay = false;
 					break;
 				} else if (result == RECORDINFORS){
+					break;
+				}else if(result == PLAYRECORDREQ_SUCC){//成功时，则通知线程停止，否则，继续发送
+					
+					break;
+				}else if(result == PLAYRECORDREQ_FAIL){
 					
 					break;
 				}
+				
 				do {
 					for (int i = 0; i < 8; i++) {/* 数据重置 */
 						packetHeaderBuf[i] = 0;
@@ -284,13 +294,11 @@ public class PlaybackControllTaskUtils {
 	private static byte[] makesureBufferEnough(byte[] buffer, int realSize) {
 		byte[] result = buffer;
 		int size = buffer.length;
-
 		if (size < realSize) {
 			buffer = null;
 			buffer = new byte[(int) (realSize * 1.2)];
 			result = buffer;
 		}
-
 		return result;
 	}
 

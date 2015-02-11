@@ -20,6 +20,7 @@ import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.playback.PlaybackActivity;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.media.AudioFormat;
 import android.os.Message;
@@ -32,13 +33,16 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private String conn_name;
 	private final int LOGIN_SUC = 41;
 	private final int LOGIN_FAIL = 42;
+	private static final int PLAYRECORDREQ_SUCC = 43;
+	private static final int PLAYRECORDREQ_FAIL = 44;
 
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
 	private IoBuffer oneIFrameBuffer;
 	private int oneIFrameDataSize;
-
+	
 	private AudioPlayer audioPlayer;
+	private static final int UPDATINGTIMEBAR = 0x0010;
 
 	public DataProcessServiceImpl(Context context, String conn_name) {
 		super();
@@ -102,13 +106,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_PFRAME_DATA");
-				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
-						TLV_V_VideoData.class, data, flag,
-						tlv_Header.getTlv_len());
+				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(TLV_V_VideoData.class, data, flag,tlv_Header.getTlv_len());
 				int result = 0;
 				try {
-					result = h264.decodePacket(tmp, tmp.length,
-							playbackVideo.retrievetDisplayBuffer());
+					result = h264.decodePacket(tmp, tmp.length,playbackVideo.retrievetDisplayBuffer());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -136,9 +137,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 				) {
 					int result = 0;
 					try {
-						result = h264.decodePacket(oneIFrameBuffer.array(),
-								oneIFrameBuffer.position(),
-								playbackVideo.retrievetDisplayBuffer());
+						result = h264.decodePacket(oneIFrameBuffer.array(),oneIFrameBuffer.position(),playbackVideo.retrievetDisplayBuffer());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -219,19 +218,26 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_PLAY_RECORD_RSP) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_PLAY_RECORD_RSP");
-				/*
-				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object
-						.convert2Object(TLV_V_PlayRecordResponse.class, data,
-								flag, OWSP_LEN.TLV_V_PlayRecordResponse);*/
+				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
+				int result = prr.getResult();
+				if (result == 1) {//表示请求成功
+					if (isPause) {
+						returnValue = PLAYRECORDREQ_SUCC;
+						break;
+					}
+				}else {
+					if (isPause) {
+						returnValue = PLAYRECORDREQ_FAIL;
+						break;
+					}
+				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");
 				returnValue = -1;
 				break;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {// 登陆认证信息时
 				TLV_V_LoginResponse loginRSP;
-				loginRSP = (TLV_V_LoginResponse) ByteArray2Object
-						.convert2Object(TLV_V_LoginResponse.class, data, flag,
-								OWSP_LEN.TLV_V_LoginResponse);
+				loginRSP = (TLV_V_LoginResponse) ByteArray2Object.convert2Object(TLV_V_LoginResponse.class, data, flag,OWSP_LEN.TLV_V_LoginResponse);
 				int result = loginRSP.getResult();
 				if (result == 1) {
 					PlaybackControllTaskUtils.isCanPlay = true;
@@ -241,29 +247,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 				break;
 
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
-				TLV_V_SearchRecordResponse srr;
-				srr = (TLV_V_SearchRecordResponse) ByteArray2Object
-						.convert2Object(TLV_V_SearchRecordResponse.class, data,
-								flag, OWSP_LEN.TLV_V_SearchFileResponse);
-				int count = srr.getCount();
-				int result = srr.getResult();
-				if (count < 0) {
-					count = count + 256;
-				}
-				if ((count > 0) && (result == 1)) {
-
-				}
+				TLV_V_SearchRecordResponse srr = (TLV_V_SearchRecordResponse) ByteArray2Object.convert2Object(TLV_V_SearchRecordResponse.class, data,flag, OWSP_LEN.TLV_V_SearchFileResponse);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
-				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object
-						.convert2Object(TLV_V_RecordInfo.class, data, flag,
-								OWSP_LEN.TLV_V_RECORDINFO);
+				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object.convert2Object(TLV_V_RecordInfo.class, data, flag,OWSP_LEN.TLV_V_RECORDINFO);
 				recordInfoList.add(info);
 				returnValue = RECORDINFORS;
-				// 通知远程回放的进行界面更刷新
 			}
-
 			lastType = tlv_Header.getTlv_type();
-
 			nLeft -= tlv_Header.getTlv_len();
 			flag += tlv_Header.getTlv_len();
 		}
@@ -281,6 +271,18 @@ public class DataProcessServiceImpl implements DataProcessService {
 	/** 更新播放时的进度时间轴 **/
 	private void updatePlaybackUIMessage(Message msg) {
 		Handler handler = ((PlaybackActivity) context).getHandler();
+		Bundle data = new Bundle();
+		msg.setData(data);
+		msg.what = UPDATINGTIMEBAR;
 		handler.sendMessage(msg);
+	}
+
+	private boolean isPause;
+	private boolean isResume;
+	public void setPause(boolean isPause){
+		this.isPause = isPause;
+	}
+	public void setReusme(boolean isResume){
+		this.isResume = isResume;
 	}
 }

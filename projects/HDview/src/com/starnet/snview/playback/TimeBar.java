@@ -339,4 +339,9 @@ public class TimeBar extends View {
 	public static abstract interface TimePickedCallBack {
 		public abstract void onTimePickedCallback(Calendar c);
 	}
+	
+	//更新矩形条
+	public void updateFileRect(){
+		updateFileListPos();
+	}
 }

@@ -295,5 +295,7 @@
     <string name="playback_netvist_datanull">未请求到回放数据,请稍后再试&#8230;</string>
     <string name="playback_content_null">还没有选择，预览设备，请选择后,进行查看</string>
     <string name="playback_extend3days_time">选择的回放时间不能超过3天,请重新选择</string>
+    <string name="playback_not_open_play">网络未打开，请打开后再进行远程回放&#8230;</string>
+    <string name="playback_not_remoteinfo">没有远程回放信息，请获取回放信息后，再进行播放与暂停&#8230;</string>
 
 </resources>

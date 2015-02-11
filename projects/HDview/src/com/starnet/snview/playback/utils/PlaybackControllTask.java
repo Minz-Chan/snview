@@ -29,6 +29,10 @@ public class PlaybackControllTask {
 	private boolean isTimeOut = false;
 	private boolean isOnSocketWork = false;
 	
+	private final int ONLY_AUDIO = 1;
+	private final int ONLY_VIDEO = 0;
+	private final int AUDIAO_VIDEO = 2;
+	
 	protected Context ctx;
 	private Socket client;
 	private Handler mHandler;
@@ -38,13 +42,16 @@ public class PlaybackControllTask {
 	private boolean isConnected;
 	private final int TIMEOUT = 80;
 	private Thread firstPlayThread;
+	private Thread socketPauseThread;
+	private Thread socketResumeThread;
 	private OWSPDateTime playStartTime;
 	private LoginDeviceItem visitDevItem;
 	private TLV_V_SearchRecordRequest srr;
+	private static PlaybackControllTask instance;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
-
+	
 	protected PlaybackControllTask() {
 
 	}
@@ -53,7 +60,7 @@ public class PlaybackControllTask {
 		this.mHandler = mHandler;
 	}
 
-	private static PlaybackControllTask instance;
+	
 
 	public static PlaybackControllTask getInstance(Context ctx,
 			Handler mHandler, TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
@@ -108,6 +115,26 @@ public class PlaybackControllTask {
 				}
 			}
 		};
+		
+		socketPauseThread = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				while (!isPauseSuc&&!isCancel) {
+					//执行暂停操作
+				}
+			}
+		};
+		
+		socketResumeThread = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				while (!isResumeSuc&&!isCancel) {
+					//执行继续操作
+				}
+			}
+		};
 	}
 
 	protected void onTimeOutWork() {// 超时处理
@@ -151,11 +178,9 @@ public class PlaybackControllTask {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
 		infoList = PlaybackControllTaskUtils.getRecordInfos();
-//		infoList = PlaybackControllTaskUtils.parseResponsePacketFromSocket(receiver);// 解析数据返回包，首先需要解包头，其次，需要解析包的TLV部分；
 		if (infoList != null) {
 			playStartTime = infoList.get(0).getStartTime();
 			isCanLogin = true;
-//			isCanLogin = PlaybackControllTaskUtils.isCanPlay;
 		}else {
 			isCanLogin = false;
 		}
@@ -205,15 +230,7 @@ public class PlaybackControllTask {
 
 	private void playRecordRequesWork() {
 		try {
-
-//			OWSPDateTime time = new OWSPDateTime();
-//			time.setYear(6);
-//			time.setMonth(1);
-//			time.setDay(29);
-//			time.setHour(18);
-//			time.setMinute(17);
-//			time.setSecond(40);
-
+			
 			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 
 			prr.setDeviceId(0);
@@ -226,9 +243,6 @@ public class PlaybackControllTask {
 			sender.write(prr);
 			sender.write(new OwspEnd());
 
-			// PlaybackControllTaskUtils.parseVideoAndAudioRsp(receiver);
-//			DataProcessService serv = new DataProcessServiceImpl(ctx, "conn");
-//			PlaybackControllTaskUtils.setService(serv);
 			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
 
 		} catch (Exception e) {
@@ -249,9 +263,9 @@ public class PlaybackControllTask {
 			l.setDeviceId(0);
 			l.setFlag(1);
 			l.setChannel(srr.getChannel());
-			// l.setChannel(1);
-			l.setDataType(2);
-			// l.setDataType(2);// 0:只包含视频；1只包含音频；2 音频和视频都包含
+//			l.setDataType(ONLY_AUDIO);
+//			l.setDataType(ONLY_VIDEO);
+			l.setDataType(AUDIAO_VIDEO);// 0:只包含视频；1只包含音频；2 音频和视频都包含
 			l.setStreamMode(3);// 录像类型
 
 			sender.write(new OwspBegin());
@@ -305,55 +319,52 @@ public class PlaybackControllTask {
 	}
 
 	/** 继续播放 **/
-	public void resume() {
+	public void resume(OWSPDateTime startTime) {//需要开启时间线程
 		try {
+			while (!isResumeSuc&&!isCancel) {
+				TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
+				prr.setDeviceId(0);
+				prr.setStartTime(startTime);//重新设置继续播放时间？？？？
+				prr.setCommand(PlayCommandResume);
+				prr.setReserve(0);
+				prr.setChannel(srr.getChannel());
 
-			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-			prr.setDeviceId(0);
-			prr.setStartTime(srr.getStartTime());
-			prr.setCommand(PlayCommandResume);
-			prr.setReserve(0);
-			prr.setChannel(srr.getChannel());
+				sender.write(new OwspBegin());
+				sender.write(prr);
+				sender.write(new OwspEnd());
 
-			sender.write(new OwspBegin());
-			sender.write(prr);
-			sender.write(new OwspEnd());
-
-			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 	}
 
 	/** 暂停播放 **/
-	public void pause() {
+	public void pause(OWSPDateTime startTime) {
 		try {
-
-			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-			prr.setDeviceId(0);
-			prr.setStartTime(srr.getStartTime());
-			prr.setCommand(PlayCommandPause);
-			prr.setReserve(0);
-			prr.setChannel(srr.getChannel());
-			sender.write(new OwspBegin());
-			sender.write(prr);
-			sender.write(new OwspEnd());
-
-			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+			while (!isPauseSuc&&!isCancel) {
+				TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
+				prr.setDeviceId(0);
+				prr.setStartTime(startTime);
+				prr.setCommand(PlayCommandPause);
+				prr.setReserve(0);
+				prr.setChannel(srr.getChannel());
+				sender.write(new OwspBegin());
+				sender.write(prr);
+				sender.write(new OwspEnd());
+				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
+			}			
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
-	}
-
-	/** 开始播放 **/
-	public void startPlay() {
-
 	}
 
 	public void exit() {
 		try {
-			if (!client.isClosed()) {
+			if (client != null && !client.isClosed() && client.isConnected()) {
 				client.close();
+				client = null;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -362,6 +373,26 @@ public class PlaybackControllTask {
 
 	public void setCancel(boolean isCancel) {
 		this.isCancel = isCancel;
+	}
+	/**新的暂停接口**/
+	public void pauseWork(){
+		timeThread.start();
+		socketPauseThread.start();
+	}
+	/**新的继续播放接口**/
+	public void resumeWork(){
+		timeThread.start();
+		socketResumeThread.start();
+	}
+	
+	private boolean isPauseSuc;
+	private boolean isResumeSuc;
+	public void setPause(boolean isPauseSuc){
+		this.isPauseSuc = isPauseSuc;
+	}
+	
+	public void setReume(boolean isResumeSuc){
+		this.isResumeSuc = isResumeSuc;
 	}
 
 }

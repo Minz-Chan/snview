@@ -27,8 +27,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	private CloudAccount clickUser;
 	private DeviceItem clickDItem;
 
-	public AccountsPlayBackExpanableAdapter(Context ctx,
-			List<CloudAccount> users) {
+	public AccountsPlayBackExpanableAdapter(Context ctx,List<CloudAccount> users) {
 		this.ctx = ctx;
 		this.users = users;
 	}
@@ -92,8 +91,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(ctx).inflate(
-					R.layout.playback_cloudaccount_preview_item, null);
+			convertView = LayoutInflater.from(ctx).inflate(R.layout.playback_cloudaccount_preview_item, null);
 		}
 
 		ProgressBar prg = (ProgressBar) convertView.findViewById(R.id.prgBar);

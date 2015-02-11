@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.Toolbar;
+import com.starnet.snview.component.Toolbar.ACTION_ENUM;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.devicemanager.DeviceItem;
@@ -32,6 +33,7 @@ import com.starnet.snview.playback.utils.PlaybackControllTaskUtils;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
+import com.starnet.snview.util.NetWorkUtils;
 
 public class PlaybackActivity extends BaseActivity {
 	private static final String TAG = "PlaybackActivity";
@@ -45,6 +47,7 @@ public class PlaybackActivity extends BaseActivity {
 
 	private final int TIMESETTING = 0x0007;
 	private final int REQUESTCODE_DOG = 0x0005;
+	private static final int UPDATINGTIMEBAR = 0x0010;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
@@ -69,10 +72,12 @@ public class PlaybackActivity extends BaseActivity {
 				Bundle data = msg.getData();
 				ArrayList<TLV_V_RecordInfo> list = data.getParcelableArrayList("srres");
 				if (list == null) {
+					isPlaying = false;
 					hasContent = false;
 					String content = getString(R.string.playback_remote_record_null);
 					showTostContent(content);
 				} else {
+					isPlaying = true;
 					hasContent = true;
 					setNewTimeBar(list);
 				}
@@ -90,6 +95,10 @@ public class PlaybackActivity extends BaseActivity {
 				hasContent = false;
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
+			case UPDATINGTIMEBAR://update timebar 更新时间轴
+				Bundle bundle = msg.getData();
+				updateTimeBar(bundle);
+				break;
 			default:
 				break;
 			}
@@ -101,11 +110,17 @@ public class PlaybackActivity extends BaseActivity {
 		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.playback_activity);
-		// setBackPressedExitEventValid(true);
 		initView();
 		setListenersForWadgets();
-	}
+	}// setBackPressedExitEventValid(true);
 
+	/**更新时间轴**/
+	private void updateTimeBar(Bundle bundle){
+		String time = bundle.getString("time");
+		Calendar c = Calendar.getInstance();
+		mTimebar.setCurrentTime(c);
+	}
+	
 	protected void dismissPrg() {
 		if (prg != null && prg.isShowing()) {
 			prg.dismiss();
@@ -133,8 +148,7 @@ public class PlaybackActivity extends BaseActivity {
 		FrameLayout playbackVideoRegion = (FrameLayout) findViewById(R.id.playback_video_region);
 		mVideoContainer = new PlaybackLiveViewItemContainer(this);
 		mVideoContainer.findSubViews();
-		playbackVideoRegion.addView(mVideoContainer, 
-				new FrameLayout.LayoutParams(screenWidth, screenWidth));
+		playbackVideoRegion.addView(mVideoContainer,new FrameLayout.LayoutParams(screenWidth, screenWidth));
 	}
 
 	public void setListenersForWadgets() {
@@ -166,6 +180,7 @@ public class PlaybackActivity extends BaseActivity {
 				OWSPDateTime endTime = rcdInfo.getEndTime();
 				showTimeBar(starTime, endTime);
 			}
+			mTimebar.updateFileRect();
 		}
 	}
 
@@ -264,21 +279,7 @@ public class PlaybackActivity extends BaseActivity {
 				} else {
 					String curTime = mTimebar.getCurrentTime();
 					OWSPDateTime startTime = PlaybackUtils.getOWSPDateTime(curTime);
-					if (!isPlaying) {// 如果正在进行播放,单击按钮进行暂停
-						if (hasContent) {
-							isPlaying = false;
-							pause(startTime);
-						}else {
-							showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
-						}
-					} else {
-						if (hasContent) {
-							isPlaying = true;
-							resume(startTime);
-						}else {
-							showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
-						}
-					}
+					playOrPause(startTime);
 				}
 				break;
 			case PICTURE:
@@ -290,6 +291,32 @@ public class PlaybackActivity extends BaseActivity {
 			}
 		}
 	};
+	
+	private void playOrPause(OWSPDateTime startTime){
+		
+		boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+		if (isOpen) {
+			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
+				if (hasContent) {
+					isPlaying = false;
+					pause(startTime);
+				}else {
+					showTostContent(getString(R.string.playback_not_remoteinfo));
+				}
+			} else {
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
+				if (hasContent) {
+					isPlaying = true;
+					resume(startTime);
+				}else {
+					showTostContent(getString(R.string.playback_not_remoteinfo));
+				}
+			}
+		}else {
+			showTostContent(getString(R.string.playback_not_open_play));
+		}
+	}
 
 	private void showTostContent(String content) {
 		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
@@ -297,16 +324,16 @@ public class PlaybackActivity extends BaseActivity {
 
 	protected void resume(OWSPDateTime startTime) {
 		PlaybackControllTaskUtils.setStop(false);
-		srr.setStartTime(startTime);// 需要重新获取时间
-		pbcTask.setSearchRecord(srr);
-		pbcTask.resume();
+//		srr.setStartTime(startTime);// 需要重新获取时间
+//		pbcTask.setSearchRecord(srr);
+		pbcTask.resume(startTime);
 	}
 
 	protected void pause(OWSPDateTime startTime) {
 		PlaybackControllTaskUtils.setStop(true);
-		srr.setStartTime(startTime);// ？？？需要重新获取时间
-		pbcTask.setSearchRecord(srr);
-		pbcTask.pause();
+//		srr.setStartTime(startTime);// ？？？需要重新获取时间
+//		pbcTask.setSearchRecord(srr);
+		pbcTask.pause(startTime);
 	}
 
 	@Override
@@ -316,7 +343,7 @@ public class PlaybackActivity extends BaseActivity {
 			if (data != null) {
 				isFirstIn = false;
 				Bundle bundle = data.getExtras();
-				TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
 				if (loginItem != null) {
 					startPlayTaskWithLoginItem(srr, loginItem);

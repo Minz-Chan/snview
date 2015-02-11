@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:background="#FFFFFF"
-    android:orientation="vertical" >
+    android:gravity="center_vertical" >
 
     <!-- android:background="#FFFFFF" -->
 
@@ -15,7 +15,9 @@
         android:id="@+id/input_starttime_view"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
-        android:background="@drawable/liveview_extend_bar" >
+        android:background="@drawable/liveview_extend_bar"
+        android:layout_gravity="center"
+        android:paddingLeft="38.0dip" >
 
         <TextView
             android:id="@+id/start_time"
@@ -39,14 +41,14 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
+        <!-- android:layout_marginLeft="48dp" -->
+
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/start_time"
             android:layout_alignParentLeft="true"
-            android:layout_alignTop="@+id/start_time"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="48dp"
             android:contentDescription="@string/nothing"
             android:src="@drawable/channel_listview_account_sel" />
     </RelativeLayout>
@@ -94,9 +96,10 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/divider"
         android:layout_centerVertical="true"
-        android:background="@drawable/liveview_extend_bar" >
+        android:background="@drawable/liveview_extend_bar"
+        android:paddingLeft="38.0dip" >
 
-        <!-- android:src="@drawable/playback_clock" -->
+        <!-- android:src="@drawable/playback_clock"  -->
 
         <TextView
             android:id="@+id/end_time"
@@ -126,10 +129,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="48dp"
             android:contentDescription="@string/nothing"
             android:src="@drawable/channel_listview_account_sel" />
     </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/divider2"
         android:layout_width="fill_parent"
@@ -138,7 +141,7 @@
         android:background="@color/black"
         android:orientation="horizontal" >
     </LinearLayout>
-    
+
     <RelativeLayout
         android:id="@+id/input_remote_type"
         android:layout_width="match_parent"
@@ -146,9 +149,10 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/divider2"
         android:layout_centerVertical="true"
-        android:background="@drawable/liveview_extend_bar" >
+        android:background="@drawable/liveview_extend_bar"
+        android:paddingLeft="38.0dip" >
 
-        <!-- android:src="@drawable/playback_clock" -->
+        <!-- android:src="@drawable/playback_clock"  -->
 
         <TextView
             android:id="@+id/type_endtime3"
@@ -178,7 +182,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="48dp"
             android:contentDescription="@string/nothing"
             android:src="@drawable/channel_listview_account_sel" />
     </RelativeLayout>

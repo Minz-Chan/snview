@@ -35,8 +35,7 @@ public class SDCardUtils {
 			path = ExternalStorage.getAllStorageLocations().get(
 					ExternalStorage.EXTERNAL_SD_CARD); // external sdcard
 		} else {
-			path = ExternalStorage.getAllStorageLocations().get(
-					ExternalStorage.SD_CARD); // internal sdcard
+			path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.SD_CARD); // internal sdcard
 		}
 
 		// File path =
@@ -55,8 +54,7 @@ public class SDCardUtils {
 
 	/** 获取内置SDCard的路径 **/
 	public static String getInternalSDCardPath() {
-		File path = ExternalStorage.getAllStorageLocations().get(
-				ExternalStorage.SD_CARD);
+		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.SD_CARD);
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		return absPath;
@@ -64,8 +62,7 @@ public class SDCardUtils {
 
 	/** 获取外置SDCard的路径 ；如果不可用，则返回为空 **/
 	public static String getExternalSDCardPath() {
-		File path = ExternalStorage.getAllStorageLocations().get(
-				ExternalStorage.EXTERNAL_SD_CARD);
+		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		return absPath;
@@ -74,8 +71,10 @@ public class SDCardUtils {
 	/** 判断外置SDCard是否可用 **/
 	public static boolean isAvailableForExternalSDCard() {
 		boolean isAvailable = false;
-		File path = ExternalStorage.getAllStorageLocations().get(
-				ExternalStorage.EXTERNAL_SD_CARD);
+		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
+		if (path == null) {
+			return false;
+		}
 		String appName = GlobalApplication.getInstance().getAppName();
 		String absPath = path.getAbsolutePath();
 		String pat = absPath + File.separator + appName;
@@ -84,6 +83,14 @@ public class SDCardUtils {
 			isAvailable = true;
 		}
 		return isAvailable;
+	}
+	
+	public static boolean existSDCard() {  
+		if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
