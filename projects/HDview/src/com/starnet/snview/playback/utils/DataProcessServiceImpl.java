@@ -9,10 +9,10 @@
  */
 package com.starnet.snview.playback.utils;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileOutputStream;
+//import java.io.IOException;
+//import java.io.OutputStream;
 import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -53,8 +53,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private Handler handler;
 	
 	private AudioCodec audioCodec;
-	private OutputStream audioWriter;
-	private int count = 0;
+//	private OutputStream audioWriter;
+//	private int count = 0;
 
 	public DataProcessServiceImpl(Context context, String conn_name) {
 		super();
@@ -120,6 +120,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						.convert2Object(TLV_V_VideoFrameInfo.class, data, flag,
 								OWSP_LEN.TLV_V_VideoFrameInfo);*/
 				oneIFrameDataSize = -1;
+				oneIFrameBuffer.clear();
+				if (oneIFrameBuffer.remaining() < 0xFFFF) {
+					oneIFrameBuffer.expand(0xFFFF);
+				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_PFRAME_DATA) {
 				// 若第1帧接到的不是I帧，则后续的P帧不处理
 				if (!isIFrameFinished) {
@@ -209,6 +213,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 				
 				count++;*/
+
 				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_STREAM_FORMAT_INFO");
@@ -238,7 +243,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						}
 						
 						audioPlayer = new AudioPlayer(sampleRate,
-								AudioFormat.CHANNEL_CONFIGURATION_STEREO,
+								AudioFormat.CHANNEL_CONFIGURATION_MONO,
 								AudioFormat.ENCODING_PCM_16BIT);
 						audioPlayer.init();
 					}
