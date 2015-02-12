@@ -1,13 +1,7 @@
 package com.starnet.snview.playback.utils;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-
-import com.starnet.snview.protocol.message.LoginResponse;
-import com.starnet.snview.protocol.message.OWSPDateTime;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -18,138 +12,16 @@ public class PlaybackControllTaskUtils {
 	private static final int LOGIN_SUC = 41;
 	private static final int LOGIN_FAIL = 42;
 	private static final int RECORDINFORS = 32;
-	private static final int PLAYRECORDREQ_SUCC = 43;
-	private static final int PLAYRECORDREQ_FAIL = 44;
+	private static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
+	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
+	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
+	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
 
 	public static boolean isCanPlay;
-	private static boolean stop = false; 
+	private static boolean pause = false;
+	private static DataProcessService service;
 	private static boolean isPauseSuc = false;
 	private static boolean isReusmeSuc = false;
-
-	private static DataProcessService service;
-
-	@SuppressWarnings("static-access")
-	public static ArrayList<TLV_V_RecordInfo> parseResponsePacketFromSocket(InputStream receiver) {// , Handler mHandler
-		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
-		TLV_V_SearchRecordResponse srr = new TLV_V_SearchRecordResponse();
-		byte[] head = new byte[8];
-		try {
-			receiver.read(head);
-			ByteBuffer headBuffer = ByteBuffer.allocate(8).wrap(head);
-			headBuffer = headBuffer.order(ByteOrder.BIG_ENDIAN);
-			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
-			Log.i("packetLen", "packetLen:" + packetLen);
-			byte[] tBuf = new byte[7];
-			receiver.read(tBuf);
-			ByteBuffer tu = ByteBuffer.wrap(tBuf).order(ByteOrder.LITTLE_ENDIAN);
-			int type = tu.getShort();
-			int length = tu.getShort();
-			byte tempresult = tu.get(4);
-			byte tempcount = tu.get(5);
-			byte tempreserve = tu.get(6);
-
-			Log.i(TAG, "type:" + type + "length:" + length);
-			int reserve;
-			if (tempreserve < 0) {
-				reserve = PlaybackControllTaskUtils.getIntFromByte(tempreserve);
-			} else {
-				reserve = tempreserve;
-			}
-
-			int count;
-			if (tempcount < 0) {
-				count = PlaybackControllTaskUtils.getIntFromByte(tempcount);
-			} else {
-				count = tempcount;
-			}
-
-			int result;
-			if (tempresult < 0) {
-				result = PlaybackControllTaskUtils.getIntFromByte(tempresult);
-			} else {
-				result = tempresult;
-			}
-			if (result == 1) {// 表示成
-				isCanPlay = true;
-				byte[] recordInfoDataBuffer = new byte[26*count];
-				receiver.read(recordInfoDataBuffer);
-				ByteBuffer riBuffers = ByteBuffer.wrap(recordInfoDataBuffer).order(ByteOrder.LITTLE_ENDIAN);
-				
-				if (count > 0) {
-					for (int i = 0; i < count; i++) {
-						TLV_V_RecordInfo recordInfo = new TLV_V_RecordInfo();
-						int t = riBuffers.getShort();
-						int l = riBuffers.getShort();
-						
-						Log.i(TAG, "ri type:" + t + ", length:" + l);
-						riBuffers.getShort();
-						riBuffers.getShort();
-						int deviceID = riBuffers.getInt();
-						// 解析时间
-						int startyear = riBuffers.getShort();
-						int startMonth = riBuffers.get();
-						int startDay = riBuffers.get();
-						int starthour = riBuffers.get();
-						int startminute = riBuffers.get();
-						int startsecond = riBuffers.get();
-
-						OWSPDateTime startTime = new OWSPDateTime();
-						startTime.setYear(startyear + 2009);
-						startTime.setMonth(startMonth);
-						startTime.setDay(startDay);
-						startTime.setHour(starthour);
-						startTime.setMinute(startminute);
-						startTime.setSecond(startsecond);
-
-						int endyear = riBuffers.getShort();
-						int endMonth = riBuffers.get();
-						int endDay = riBuffers.get();
-						int endhour = riBuffers.get();
-						int endminute = riBuffers.get();
-						int endsecond = riBuffers.get();
-
-						OWSPDateTime endTime = new OWSPDateTime();
-						endTime.setYear(endyear + 2009);
-						endTime.setMonth(endMonth);
-						endTime.setDay(endDay);
-						endTime.setHour(endhour);
-						endTime.setMinute(endminute);
-						endTime.setSecond(endsecond);
-
-						int channel = riBuffers.get();
-						int recordTypeMask = riBuffers.get();
-						int reserve1 = riBuffers.get();
-						int reserve2 = riBuffers.get();
-						int reserv[] = { reserve1, reserve2 };
-
-						recordInfo.setChannel(channel);
-						recordInfo.setDeviceid(deviceID);
-						recordInfo.setStartTime(startTime);
-						recordInfo.setEndTime(endTime);
-						recordInfo.setRecordTypeMask(recordTypeMask);
-						recordInfo.setReserve(reserv);
-
-						infoList.add(recordInfo);
-					}
-				} else {// 没有数据
-					isCanPlay = false;
-					return null;
-				}
-			} else {
-				isCanPlay = false;
-				return null;
-			}
-			srr.setReserve(reserve);
-			srr.setCount(count);
-			srr.setResult(result);
-
-			return infoList;
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 
 	@SuppressWarnings("resource")
 	public static void newParseVideoAndAudioRsp(InputStream receiver) {// 需要一直从Socket中接收数据，直到接收完毕
@@ -165,7 +37,7 @@ public class PlaybackControllTaskUtils {
 			byte[] tlvContent = new byte[655350]; // 1 * 1024 * 1024
 			tlvContent = makesureBufferEnough(tlvContent,(int) owspPacketHeader.getPacket_length() - 4);
 			sockIn.read(tlvContent, 0,(int) owspPacketHeader.getPacket_length() - 4);
-			while (!tlvContent.equals("") && !stop) {
+			while (!tlvContent.equals("")) {// && !stop
 				int result = service.process(tlvContent,(int) owspPacketHeader.getPacket_length());
 				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
 					break;
@@ -177,10 +49,12 @@ public class PlaybackControllTaskUtils {
 					break;
 				} else if (result == RECORDINFORS){
 					break;
-				}else if(result == PLAYRECORDREQ_SUCC){//成功时，则通知线程停止，否则，继续发送
+				}else if(result == RESUME_PLAYRECORDREQ_SUCC){//成功时，则通知线程停止，否则，继续发送
+					
+				}else if(result == RESUME_PLAYRECORDREQ_FAIL){
 					
 					break;
-				}else if(result == PLAYRECORDREQ_FAIL){
+				}else if(result == PAUSE_PLAYRECORDREQ_FAIL){
 					
 					break;
 				}
@@ -203,48 +77,6 @@ public class PlaybackControllTaskUtils {
 
 	public static ArrayList<TLV_V_RecordInfo> getRecordInfos(){
 		return service.getRecordInfos();
-	}
-	
-	private static void printTypeAndLength(int type, int length) {
-		Log.i(TAG, "(type,length):" + "(" + type + "," + length + ")");
-	}
-
-	/** 解析登陆返回数据 **/
-	public static boolean parseLoginRsp(InputStream receiver) {
-		boolean isSuccess = false;
-		LoginResponse lr = new LoginResponse();
-		byte[] head = new byte[8];
-		try {
-			receiver.read(head);
-			ByteBuffer headBuffer = ByteBuffer.wrap(head).order(ByteOrder.BIG_ENDIAN);
-			int packetLen = headBuffer.getInt() - 4;// TLV的总长度
-			Log.i(TAG, "packetLen:" + packetLen);
-			byte[] temp = new byte[8];
-			receiver.read(temp);
-			ByteBuffer tuBf = ByteBuffer.wrap(temp).order(ByteOrder.LITTLE_ENDIAN);
-
-			int type1 = tuBf.getShort();
-			int leng1 = tuBf.getShort();
-			printTypeAndLength(type1,leng1);
-
-			short result = tuBf.getShort();
-			short reserve = tuBf.getShort();
-
-			if (result == 1) {// 表示成功????????????
-				isCanPlay = true;
-				isSuccess = true;
-			} else {// 表示成功
-				isCanPlay = false;
-				isSuccess = false;
-			}
-
-			lr.setReserve(reserve);
-			lr.setResult(result);
-			return isSuccess;
-		} catch (IOException e) {
-			return false;
-		}
-		// return lr;
 	}
 
 	/** 字节数组转化为字符串 **/
@@ -317,7 +149,7 @@ public class PlaybackControllTaskUtils {
 		return ip;
 	}
 	
-	public static void setStop(boolean isStop ){
-		stop = isStop;
+	public static void setPause(boolean isPause ){
+		pause = isPause;
 	}
 }

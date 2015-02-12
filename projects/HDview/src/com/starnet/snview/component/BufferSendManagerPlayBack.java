@@ -39,6 +39,10 @@ public class BufferSendManagerPlayBack {
 	public void setOutStream(OutputStream out) {
 		this.out = out;
 	}
+	
+	public OutputStream getOutputStream() {
+		return out;
+	}
 
 	public void write(Object message) {
 		if (out == null) {

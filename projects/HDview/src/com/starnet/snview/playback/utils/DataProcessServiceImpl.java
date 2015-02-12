@@ -33,9 +33,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private String conn_name;
 	private final int LOGIN_SUC = 41;
 	private final int LOGIN_FAIL = 42;
-	private static final int PLAYRECORDREQ_SUCC = 43;
-	private static final int PLAYRECORDREQ_FAIL = 44;
-
+	private static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
+	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
+	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
+	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
+	
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
 	private IoBuffer oneIFrameBuffer;
@@ -43,6 +45,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 	
 	private AudioPlayer audioPlayer;
 	private static final int UPDATINGTIMEBAR = 0x0010;
+	private Handler handler;
 
 	public DataProcessServiceImpl(Context context, String conn_name) {
 		super();
@@ -52,6 +55,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 		h264.init(352, 288);
 
 		oneIFrameBuffer = IoBuffer.allocate(65536);
+		handler = ((PlaybackActivity) context).getHandler();
 		// oneIFrameBuffer.setAutoExpand(true);
 	}
 
@@ -221,13 +225,24 @@ public class DataProcessServiceImpl implements DataProcessService {
 				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 				int result = prr.getResult();
 				if (result == 1) {//表示请求成功
-					if (isPause) {
-						returnValue = PLAYRECORDREQ_SUCC;
+					if (isPauseFlag) {//通知PlaybackActivity的变化
+						returnValue = PAUSE_PLAYRECORDREQ_SUCC;
+						sendMsgToPlayActivity(PAUSE_PLAYRECORDREQ_SUCC);
 						break;
 					}
-				}else {
-					if (isPause) {
-						returnValue = PLAYRECORDREQ_FAIL;
+					if(isResumeFlag){
+						returnValue = RESUME_PLAYRECORDREQ_SUCC;
+						sendMsgToPlayActivity(RESUME_PLAYRECORDREQ_SUCC);
+					}
+				}else {//表示暂停失败
+					if (isPauseFlag) {
+						returnValue = PAUSE_PLAYRECORDREQ_FAIL;
+						sendMsgToPlayActivity(PAUSE_PLAYRECORDREQ_FAIL);
+						break;
+					}
+					if (isResumeFlag) {
+						returnValue = RESUME_PLAYRECORDREQ_FAIL;
+						sendMsgToPlayActivity(RESUME_PLAYRECORDREQ_FAIL);
 						break;
 					}
 				}
@@ -245,7 +260,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 					PlaybackControllTaskUtils.isCanPlay = false;
 				}
 				break;
-
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
 				TLV_V_SearchRecordResponse srr = (TLV_V_SearchRecordResponse) ByteArray2Object.convert2Object(TLV_V_SearchRecordResponse.class, data,flag, OWSP_LEN.TLV_V_SearchFileResponse);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
@@ -270,19 +284,24 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 	/** 更新播放时的进度时间轴 **/
 	private void updatePlaybackUIMessage(Message msg) {
-		Handler handler = ((PlaybackActivity) context).getHandler();
 		Bundle data = new Bundle();
 		msg.setData(data);
 		msg.what = UPDATINGTIMEBAR;
 		handler.sendMessage(msg);
 	}
-
-	private boolean isPause;
-	private boolean isResume;
-	public void setPause(boolean isPause){
-		this.isPause = isPause;
+	
+	private void sendMsgToPlayActivity(int flag){
+		Message msg = new Message();
+		msg.what = flag;
+		handler.sendMessage(msg);
 	}
-	public void setReusme(boolean isResume){
-		this.isResume = isResume;
+	
+	private boolean isPauseFlag;
+	private boolean isResumeFlag;
+	public void setPause(boolean isPause){
+		this.isPauseFlag = isPause;
+	}
+	public void setResume(boolean isResume){
+		this.isResumeFlag = isResume;
 	}
 }

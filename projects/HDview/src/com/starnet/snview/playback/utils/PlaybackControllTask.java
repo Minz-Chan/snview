@@ -2,6 +2,7 @@ package com.starnet.snview.playback.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -15,15 +16,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class PlaybackControllTask {
 
 	protected final String TAG = "PlaybackControllTask";
 
-	private final int PlayCommandStart = 1; // 播放
-	private final int PlayCommandPause = 2; // 暂停
-	private final int PlayCommandResume = 3; // 继续
-	private final int PlayCommandStop = 4; // 停止
+	private PlaybackController controller;
 
 	private boolean isCancel = false;
 	private boolean isTimeOut = false;
@@ -40,7 +39,7 @@ public class PlaybackControllTask {
 	private boolean isCanPlay;
 	private boolean isCanLogin;
 	private boolean isConnected;
-	private final int TIMEOUT = 80;
+	private final int TIMEOUT = 8;//超时时间设置
 	private Thread firstPlayThread;
 	private Thread socketPauseThread;
 	private Thread socketResumeThread;
@@ -59,9 +58,7 @@ public class PlaybackControllTask {
 	public PlaybackControllTask(Handler mHandler) {
 		this.mHandler = mHandler;
 	}
-
 	
-
 	public static PlaybackControllTask getInstance(Context ctx,
 			Handler mHandler, TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
 		if (instance == null) {
@@ -70,13 +67,12 @@ public class PlaybackControllTask {
 		return instance;
 	}
 
-
-
 	public PlaybackControllTask(Context ctx, Handler mHandler,TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
 		this.ctx = ctx;
 		this.srr = srr;
 		this.mHandler = mHandler;
 		this.visitDevItem = dItem;
+		serv = new DataProcessServiceImpl(ctx, "conn");
 		firstPlayThread = new Thread() {
 			@Override
 			public void run() {
@@ -115,26 +111,6 @@ public class PlaybackControllTask {
 				}
 			}
 		};
-		
-		socketPauseThread = new Thread(){
-			@Override
-			public void run() {
-				super.run();
-				while (!isPauseSuc&&!isCancel) {
-					//执行暂停操作
-				}
-			}
-		};
-		
-		socketResumeThread = new Thread(){
-			@Override
-			public void run() {
-				super.run();
-				while (!isResumeSuc&&!isCancel) {
-					//执行继续操作
-				}
-			}
-		};
 	}
 
 	protected void onTimeOutWork() {// 超时处理
@@ -142,7 +118,6 @@ public class PlaybackControllTask {
 		isOnSocketWork = true;
 		sendMessageToActivity(NOTIFYREMOTEUIFRESH_TMOUT);
 	}
-	
 	
 	protected void onClientWrongWork() {// 无法连接网络
 		isTimeOut = true;
@@ -156,7 +131,6 @@ public class PlaybackControllTask {
 		msg.what = notifyID;
 		mHandler.sendMessage(msg);
 	}
-
 
 	protected void searchRecordFile() {
 		try {
@@ -173,7 +147,6 @@ public class PlaybackControllTask {
 	}
 
 	/** 获取记录设备的返回列表，并且通知远程回放界面渲染时间轴 **/
-	// 首先判断是否返回成功，如果不成功，则不需要渲染时间轴
 	private void parseSearchRecordResponse() throws IOException {
 		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
 		PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
@@ -184,7 +157,6 @@ public class PlaybackControllTask {
 		}else {
 			isCanLogin = false;
 		}
-
 		if (!isOnSocketWork && !isCancel) {
 			isTimeOut = true;
 			Bundle data = new Bundle();
@@ -196,12 +168,12 @@ public class PlaybackControllTask {
 		}
 	}
 
+	private DataProcessService serv;
 	private InputStream receiver = null;
 	private BufferSendManagerPlayBack sender = null;
 
 	private void initClient() {
 		try {
-			DataProcessService serv = new DataProcessServiceImpl(ctx, "conn");
 			PlaybackControllTaskUtils.setService(serv);
 			String[] ips = visitDevItem.getSvrIP();
 			String host = PlaybackControllTaskUtils.getIP(ips);
@@ -230,21 +202,16 @@ public class PlaybackControllTask {
 
 	private void playRecordRequesWork() {
 		try {
-			
 			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-
 			prr.setDeviceId(0);
 			prr.setStartTime(playStartTime);
-			prr.setCommand(PlayCommandStart);
+			prr.setCommand(PlaybackCommand.START);
 			prr.setReserve(0);
 			prr.setChannel(srr.getChannel());
-
 			sender.write(new OwspBegin());
 			sender.write(prr);
 			sender.write(new OwspEnd());
-
 			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -252,11 +219,9 @@ public class PlaybackControllTask {
 
 	private void loginRequestWork() {
 		try {
-
 			VersionInfoRequest v = new VersionInfoRequest();
 			v.setVersionMajor(0x534E);
 			v.setVersionMinor(0x0000);
-
 			TLV_V_LoginInfoRequest l = new TLV_V_LoginInfoRequest();
 			l.setUserName(visitDevItem.getLoginUser());
 			l.setPassword(visitDevItem.getLoginPass());
@@ -267,15 +232,12 @@ public class PlaybackControllTask {
 //			l.setDataType(ONLY_VIDEO);
 			l.setDataType(AUDIAO_VIDEO);// 0:只包含视频；1只包含音频；2 音频和视频都包含
 			l.setStreamMode(3);// 录像类型
-
 			sender.write(new OwspBegin());
 			sender.write(v);
 			sender.write(l);
 			sender.write(new OwspEnd());
-
 			PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
 			isCanPlay = PlaybackControllTaskUtils.isCanPlay;
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			isCanPlay = false;
@@ -291,70 +253,18 @@ public class PlaybackControllTask {
 	}
 
 	public void start() {
-
+		serv.setPause(false);
+		serv.setResume(false);
 		timeThread.start();
 		firstPlayThread.start();
-
 	}
 
 	/** 停止播放 **/
-	public void stop() {
-
+	public void stop(OWSPDateTime time) {
 		try {
-			TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-			prr.setDeviceId(0);
-			prr.setStartTime(srr.getStartTime());
-			prr.setCommand(PlayCommandStop);
-			prr.setReserve(0);
-			prr.setChannel(srr.getChannel());
-
-			sender.write(new OwspBegin());
-			sender.write(prr);
-			sender.write(new OwspEnd());
-
-		} catch (Exception e) {
-
-		}
-
-	}
-
-	/** 继续播放 **/
-	public void resume(OWSPDateTime startTime) {//需要开启时间线程
-		try {
-			while (!isResumeSuc&&!isCancel) {
-				TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-				prr.setDeviceId(0);
-				prr.setStartTime(startTime);//重新设置继续播放时间？？？？
-				prr.setCommand(PlayCommandResume);
-				prr.setReserve(0);
-				prr.setChannel(srr.getChannel());
-
-				sender.write(new OwspBegin());
-				sender.write(prr);
-				sender.write(new OwspEnd());
-
-				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/** 暂停播放 **/
-	public void pause(OWSPDateTime startTime) {
-		try {
-			while (!isPauseSuc&&!isCancel) {
-				TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
-				prr.setDeviceId(0);
-				prr.setStartTime(startTime);
-				prr.setCommand(PlayCommandPause);
-				prr.setReserve(0);
-				prr.setChannel(srr.getChannel());
-				sender.write(new OwspBegin());
-				sender.write(prr);
-				sender.write(new OwspEnd());
-				PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-			}			
+			controller = new PlaybackController();
+			controller.setChannel(srr.getChannel());
+			controller.requestStop(time);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -375,24 +285,80 @@ public class PlaybackControllTask {
 		this.isCancel = isCancel;
 	}
 	/**新的暂停接口**/
-	public void pauseWork(){
-		timeThread.start();
-		socketPauseThread.start();
+	public void pauseWork(OWSPDateTime startTime){
+//		timeThread.start();
+		final OWSPDateTime sTime = startTime;
+		controller = new PlaybackController();
+		controller.setChannel(srr.getChannel());
+		controller.requestPause(sTime);
+		serv.setPause(true);
+		serv.setResume(false);
 	}
 	/**新的继续播放接口**/
-	public void resumeWork(){
-		timeThread.start();
-		socketResumeThread.start();
+	public void resumeWork(OWSPDateTime startTime){
+//		timeThread.start();
+		final OWSPDateTime sTime = startTime;
+		controller = new PlaybackController();
+		controller.setChannel(srr.getChannel());
+		controller.requestResume(sTime);
+		serv.setPause(false);
+		serv.setResume(true);
 	}
 	
-	private boolean isPauseSuc;
-	private boolean isResumeSuc;
-	public void setPause(boolean isPauseSuc){
-		this.isPauseSuc = isPauseSuc;
+	private class PlaybackCommand {
+		public static final int START = 1; 
+		public static final int PAUSE = 2; 
+		public static final int RESUME = 3; 
+		public static final int STOP = 4; 
 	}
 	
-	public void setReume(boolean isResumeSuc){
-		this.isResumeSuc = isResumeSuc;
+	private class PlaybackController {
+		private static final int INVALID_CHANNEL = -1;
+		private int channel = INVALID_CHANNEL;
+		
+		public PlaybackController() {
+			
+		}
+		
+		public void setChannel(int channel) {
+			this.channel = channel;
+		}
+		
+		public void requestStart(final OWSPDateTime startTime) {
+			sendCommand(PlaybackCommand.START, startTime);
+		}
+		
+		public void requestResume(final OWSPDateTime startTime) {
+			sendCommand(PlaybackCommand.RESUME, startTime);
+		}
+		
+		public void requestPause(final OWSPDateTime startTime) {
+			sendCommand(PlaybackCommand.PAUSE, startTime);
+		}
+		
+		public void requestStop(final OWSPDateTime startTime) {
+			sendCommand(PlaybackCommand.STOP, startTime);
+		}
+		
+		private void sendCommand(final int cmdCode, final OWSPDateTime startTime) {
+			(new Thread() {
+				@Override
+				public void run() {
+					Log.i(TAG, "========Thread start========");
+					if (sender != null && channel != -1) {
+						TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
+						prr.setDeviceId(0);
+						prr.setStartTime(startTime);
+						prr.setCommand(cmdCode);
+						prr.setReserve(0);
+						prr.setChannel(channel);
+						sender.write(new OwspBegin());
+						sender.write(prr);
+						sender.write(new OwspEnd());
+					}
+				}
+			}).start();
+			Log.i(TAG, "========Thread end========");
+		}
 	}
-
 }

@@ -51,6 +51,12 @@ public class PlaybackActivity extends BaseActivity {
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
+	
+	private OWSPDateTime playOrPauseStartTime;
+	private static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
+	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
+	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
+	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
 
 	private ProgressDialog prg;
 	private boolean hasContent = false;
@@ -62,6 +68,7 @@ public class PlaybackActivity extends BaseActivity {
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
+		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -80,6 +87,7 @@ public class PlaybackActivity extends BaseActivity {
 					isPlaying = true;
 					hasContent = true;
 					setNewTimeBar(list);
+					mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 				}
 				break;
 			case NOTIFYREMOTEUIFRESH_EXCEPTION:
@@ -98,6 +106,36 @@ public class PlaybackActivity extends BaseActivity {
 			case UPDATINGTIMEBAR://update timebar 更新时间轴
 				Bundle bundle = msg.getData();
 				updateTimeBar(bundle);
+				break;
+			case PAUSE_PLAYRECORDREQ_SUCC://更新图标
+				dismissPrg();
+				isPlaying = false;
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
+				break;
+			case PAUSE_PLAYRECORDREQ_FAIL:
+				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+				if (isOpen) {
+					showDialog(REQUESTCODE_DOG);
+					pause(playOrPauseStartTime);
+				}else {
+					showTostContent(getString(R.string.playback_not_remoteinfo));
+				}
+				break;
+			case RESUME_PLAYRECORDREQ_SUCC://更新图标
+				dismissPrg();
+				isPlaying = true;
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
+				
+				break;
+			case RESUME_PLAYRECORDREQ_FAIL:
+				//不更新图标
+				boolean isOpen2 = NetWorkUtils.checkNetConnection(ctx);
+				if (isOpen2) {
+					showDialog(REQUESTCODE_DOG);
+					resume(playOrPauseStartTime);
+				}else {
+					showTostContent(getString(R.string.playback_not_remoteinfo));
+				}
 				break;
 			default:
 				break;
@@ -268,7 +306,7 @@ public class PlaybackActivity extends BaseActivity {
 
 		mTimebar.reset();
 	}
-
+	
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
 		@Override
 		public void onItemClick(ActionImageButton imgBtn) {
@@ -278,8 +316,8 @@ public class PlaybackActivity extends BaseActivity {
 					showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
 				} else {
 					String curTime = mTimebar.getCurrentTime();
-					OWSPDateTime startTime = PlaybackUtils.getOWSPDateTime(curTime);
-					playOrPause(startTime);
+					playOrPauseStartTime = PlaybackUtils.getOWSPDateTime(curTime);
+					playOrPause(playOrPauseStartTime);
 				}
 				break;
 			case PICTURE:
@@ -297,17 +335,17 @@ public class PlaybackActivity extends BaseActivity {
 		boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
+				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 				if (hasContent) {
-					isPlaying = false;
+					//isPlaying = false;
 					pause(startTime);
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 			} else {
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
+				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
 				if (hasContent) {
-					isPlaying = true;
+					//isPlaying = true;
 					resume(startTime);
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
@@ -323,17 +361,13 @@ public class PlaybackActivity extends BaseActivity {
 	}
 
 	protected void resume(OWSPDateTime startTime) {
-		PlaybackControllTaskUtils.setStop(false);
-//		srr.setStartTime(startTime);// 需要重新获取时间
-//		pbcTask.setSearchRecord(srr);
-		pbcTask.resume(startTime);
+		PlaybackControllTaskUtils.setPause(false);
+		pbcTask.resumeWork(startTime);
 	}
 
 	protected void pause(OWSPDateTime startTime) {
-		PlaybackControllTaskUtils.setStop(true);
-//		srr.setStartTime(startTime);// ？？？需要重新获取时间
-//		pbcTask.setSearchRecord(srr);
-		pbcTask.pause(startTime);
+		PlaybackControllTaskUtils.setPause(true);
+		pbcTask.pauseWork(startTime);
 	}
 
 	@Override
