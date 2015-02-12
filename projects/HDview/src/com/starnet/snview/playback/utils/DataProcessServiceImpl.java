@@ -181,10 +181,18 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_INFO");
-				/*
 				TLV_V_AudioInfo audioInfo = (TLV_V_AudioInfo) ByteArray2Object
 						.convert2Object(TLV_V_AudioInfo.class, data, flag,
-								OWSP_LEN.TLV_V_AudioInfo);*/
+								OWSP_LEN.TLV_V_AudioInfo);
+				
+				long time = audioInfo.getTime();
+				int day = (int) (time / (1000*60*60*24));
+				int hour = (int) ((time / (1000*60*60)) % 24);
+				int minute = (int) ((time / (1000*60)) % 60);
+				int second = (int) ((time / (1000) % 60));
+				int millisecond = (int) (time % 1000);
+				
+				Log.i(TAG, "audio time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_DATA");
 				byte[] alawData = (byte[]) ByteArray2Object.convert2Object(
