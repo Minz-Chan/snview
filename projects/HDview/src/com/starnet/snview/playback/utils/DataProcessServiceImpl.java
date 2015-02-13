@@ -17,8 +17,7 @@ import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
-import com.starnet.snview.component.audio.AudioCodec;
-import com.starnet.snview.component.audio.AudioPlayer;
+import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
@@ -27,7 +26,7 @@ import com.starnet.snview.playback.PlaybackActivity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.media.AudioFormat;
+
 import android.os.Message;
 import android.util.Log;
 
@@ -48,22 +47,23 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private IoBuffer oneIFrameBuffer;
 	private int oneIFrameDataSize;
 	
-	private AudioPlayer audioPlayer;
 	private static final int UPDATINGTIMEBAR = 0x0010;
 	private Handler handler;
 	
-	private AudioCodec audioCodec;
 //	private OutputStream audioWriter;
 //	private int count = 0;
 
-	public DataProcessServiceImpl(Context context, String conn_name) {
+	
+	private AudioHandler aHandler;
+	
+	public DataProcessServiceImpl(Context context, AudioHandler audioHandler) {
 		super();
 		this.context = context;
 		this.conn_name = conn_name;
+		this.aHandler = audioHandler;
 		h264 = getPlaybackContainer().getH264Decoder();
 		h264.init(352, 288);
 
-		audioCodec = new AudioCodec();
 		
 		oneIFrameBuffer = IoBuffer.allocate(65536);
 		handler = ((PlaybackActivity) context).getHandler();
@@ -94,7 +94,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 	@Override
 	public int process(byte[] data, int length) {
-		// VideoView v = ViewManager.getInstance().getVideoView();
 		PlaybackLiveView playbackVideo = getPlaybackLiveView();
 		int returnValue = 0;
 		int nLeft = length - 4; // 未处理的字节数
@@ -148,8 +147,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				try {
 					long t1 = System.currentTimeMillis();
 					
-					result = h264.decodePacket(tmp, tmp.length,
-							playbackVideo.retrievetDisplayBuffer());
+//					result = h264.decodePacket(tmp, tmp.length,
+//							playbackVideo.retrievetDisplayBuffer());
 					
 					Log.i(TAG, "$$$PFramedecode consume: " + (System.currentTimeMillis()-t1));
 				} catch (Exception e) {
@@ -182,9 +181,9 @@ public class DataProcessServiceImpl implements DataProcessService {
 					int result = 0;
 					try {
 						long t1 = System.currentTimeMillis();
-						result = h264.decodePacket(oneIFrameBuffer.array(),
-								oneIFrameBuffer.position(),
-								playbackVideo.retrievetDisplayBuffer());
+//						result = h264.decodePacket(oneIFrameBuffer.array(),
+//								oneIFrameBuffer.position(),
+//								playbackVideo.retrievetDisplayBuffer());
 						Log.i(TAG, "$$$IFramedecode consume: " + (System.currentTimeMillis()-t1));
 
 					} catch (Exception e) {
@@ -218,10 +217,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 				byte[] alawData = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
-				byte[] pcmData = new byte[alawData.length*2];
-
-				audioCodec.g711aDecode(alawData, alawData.length, pcmData, pcmData.length);
-				audioPlayer.playAudioTrack(pcmData, 0, pcmData.length);
+				
+				aHandler.getBufferQueue().write(alawData);
+//				getPlaybackContainer().getAudioBufferQueue().write(alawData);
+//				byte[] pcmData = new byte[alawData.length*2];
+//
+//				audioCodec.g711aDecode(alawData, alawData.length, pcmData, pcmData.length);
+//				getAudioPlayer().playAudioTrack(pcmData, 0, pcmData.length);
 				
 				/*
 				if (count < 800) {
@@ -269,14 +271,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						playbackVideo.init(width, height);
 					}
 					if (sampleRate > 0) {
-						if (audioPlayer != null) {
-							audioPlayer.release();
-						}
-						
-						audioPlayer = new AudioPlayer(sampleRate,
-								AudioFormat.CHANNEL_CONFIGURATION_MONO,
-								AudioFormat.ENCODING_PCM_16BIT);
-						audioPlayer.init();
+						Message msg = Message.obtain();
+						msg.what = AudioHandler.MSG_AUDIOPLAYER_INIT;
+						msg.arg1 = sampleRate;
+						aHandler.sendMessage(msg);
 					}
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//TLV_T_LOGIN_ANSWER

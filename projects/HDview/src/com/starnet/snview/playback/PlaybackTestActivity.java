@@ -33,7 +33,7 @@ public class PlaybackTestActivity extends Activity {
 		setContentView(R.layout.playback_test_activity);
 		
 		initView();
-		dataProcessService = new DataProcessServiceImpl(this, "PlaybackTestActivity");
+//		dataProcessService = new DataProcessServiceImpl(this, "PlaybackTestActivity");
 	}
 	
 	

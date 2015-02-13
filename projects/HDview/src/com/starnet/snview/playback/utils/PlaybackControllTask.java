@@ -7,14 +7,23 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import com.starnet.snview.component.BufferSendManagerPlayBack;
+import com.starnet.snview.component.audio.AudioBufferQueue;
+import com.starnet.snview.component.audio.AudioCodec;
+import com.starnet.snview.component.audio.AudioHandler;
+import com.starnet.snview.component.audio.AudioPlayer;
+import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 
 import android.content.Context;
+import android.media.AudioFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -74,7 +83,8 @@ public class PlaybackControllTask {
 		this.mHandler = mHandler;
 		this.visitDevItem = dItem;
 		PlaybackControllTaskUtils.mHandler = mHandler;
-		serv = new DataProcessServiceImpl(ctx, "conn");
+//		serv = new DataProcessServiceImpl(ctx, "conn");
+
 		firstPlayThread = new Thread() {
 			@Override
 			public void run() {
@@ -93,6 +103,7 @@ public class PlaybackControllTask {
 				}
 			}
 		};
+		
 		timeThread = new Thread() {
 			@Override
 			public void run() {
@@ -113,6 +124,12 @@ public class PlaybackControllTask {
 				}
 			}
 		};
+		
+		// Audio play thread
+		HandlerThread audioPlayThread = new HandlerThread("audioPlayThread");
+		audioPlayThread.start();
+		AudioHandler audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
+		serv = new DataProcessServiceImpl(ctx, audioPlayHandler);
 	}
 
 	protected void onTimeOutWork() {// 超时处理

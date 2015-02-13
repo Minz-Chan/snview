@@ -389,23 +389,23 @@ public class PlaybackActivity extends BaseActivity {
 			/*
 			 * FOR TESTING ...
 			 */
-			testStartPlayTask(null, null);
+//			testStartPlayTask(null, null);
 			
 			/*
 			 * REAL CODE
 			 */
-//			if (data != null) {
-//				isFirstIn = false;
-//				Bundle bundle = data.getExtras();
-//				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
-//				loginItem = bundle.getParcelable("loginItem");
-//				if (loginItem != null) {
-//					startPlayTaskWithLoginItem(srr, loginItem);
-//					
-//				}else{
-//					testStartPlayTask(srr, loginItem);
-//				}
-//			}
+			if (data != null) {
+				isFirstIn = false;
+				Bundle bundle = data.getExtras();
+				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+				loginItem = bundle.getParcelable("loginItem");
+				if (loginItem != null) {
+					startPlayTaskWithLoginItem(srr, loginItem);
+					
+				}else{
+					testStartPlayTask(srr, loginItem);
+				}
+			}
 		}
 	}
 	

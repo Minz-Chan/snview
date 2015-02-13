@@ -3,6 +3,8 @@ package com.starnet.snview.component.liveview;
 import java.io.File;
 
 import com.starnet.snview.R;
+import com.starnet.snview.component.audio.AudioBufferQueue;
+import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.protocol.Connection;
@@ -28,15 +30,10 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	
 	private Context mContext;
 	
-	/**
-	 * Whether current view is used
-	 */
-//	private boolean isValid = true;
 	
 	private int mItemIndex;
 	private String mDeviceRecordName;
 	private PreviewDeviceItem mPreviewItem;
-//	private Connection mConnection; // Connection associated with view
 	private StatusListener mConnectionStatusListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
@@ -53,15 +50,13 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	private RelativeLayout mArrowSubFrame;
 	private ImageView[] mSubFocalLengthArray = new ImageView[4];
 	
-//	private boolean mIsResponseError;
-//	private boolean mIsManualStop;
-	
 	private String mRecordFileName;
 	private int mFramerate;	// 帧率
 	
 	private Paint mPaint = new Paint();	
 	
 	private H264DecodeUtil mH264decoder;
+
 	
 	
 	public PlaybackLiveViewItemContainer(Context context, AttributeSet attrs) {
@@ -69,6 +64,7 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		mContext = context;
 		mPaint.setColor(Color.RED);
 		mH264decoder = new H264DecodeUtil(String.valueOf(this.hashCode()));
+		
 	}
 	public PlaybackLiveViewItemContainer(Context context) {
 		super(context);
