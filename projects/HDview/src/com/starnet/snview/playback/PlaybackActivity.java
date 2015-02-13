@@ -374,15 +374,26 @@ public class PlaybackActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING) {
-			if (data != null) {
-				isFirstIn = false;
-				Bundle bundle = data.getExtras();
-				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
-				loginItem = bundle.getParcelable("loginItem");
-				if (loginItem != null) {
-					startPlayTaskWithLoginItem(srr, loginItem);
-				}
-			}
+			/*
+			 * FOR TESTING ...
+			 */
+			testStartPlayTask(null, null);
+			
+			/*
+			 * REAL CODE
+			 */
+//			if (data != null) {
+//				isFirstIn = false;
+//				Bundle bundle = data.getExtras();
+//				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+//				loginItem = bundle.getParcelable("loginItem");
+//				if (loginItem != null) {
+//					startPlayTaskWithLoginItem(srr, loginItem);
+//					
+//				}else{
+//					testStartPlayTask(srr, loginItem);
+//				}
+//			}
 		}
 	}
 	
@@ -397,31 +408,30 @@ public class PlaybackActivity extends BaseActivity {
 		pbcTask.start();
 	}
 
-	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, DeviceItem dItem1) {
-		DeviceItem dItem = new DeviceItem();
+	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, LoginDeviceItem dItem1) {
+		LoginDeviceItem dItem = new LoginDeviceItem();
 		// dItem.setSvrIp("61.131.16.27");
-		dItem.setSvrIp("192.168.87.10");
+		String ips[] = {"192","168","87","10"};
+		dItem.setSvrIP(ips);
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");
 		dItem.setLoginUser("admin");
-		dItem.setLoginPass("1");
-		dItem.setDefaultChannel(1);
-		dItem.setDeviceName("ewrte");
+		dItem.setLoginPass("");
 //		//
 		srr = new TLV_V_SearchRecordRequest();
 		OWSPDateTime stTime = new OWSPDateTime();
 		stTime.setYear(2015 - 2009);
 		stTime.setMonth(2);
-		stTime.setDay(5);
-		stTime.setHour(13);
-		stTime.setMinute(5);
-		stTime.setSecond(1);
+		stTime.setDay(12);
+		stTime.setHour(14);
+		stTime.setMinute(0);
+		stTime.setSecond(0);
 		srr.setStartTime(stTime);
 
 		OWSPDateTime endTime = new OWSPDateTime();
 		endTime.setYear(2015 - 2009);
 		endTime.setMonth(2);
-		endTime.setDay(5);
+		endTime.setDay(14);
 		endTime.setHour(13);
 		endTime.setMinute(21);
 		endTime.setSecond(2);
@@ -431,6 +441,13 @@ public class PlaybackActivity extends BaseActivity {
 		srr.setRecordType(8);
 		srr.setDeviceId(0);
 		srr.setChannel(1);
+		
+		if (pbcTask != null) {
+			pbcTask.exit();
+			pbcTask = null;
+		}
+		pbcTask = PlaybackControllTask.getInstance(ctx, mHandler, srr, dItem);
+		pbcTask.start();
 	}
 
 	@Override

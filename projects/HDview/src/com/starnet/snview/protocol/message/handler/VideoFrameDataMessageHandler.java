@@ -5,6 +5,8 @@ import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
 
+import android.util.Log;
+
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.LiveView;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
@@ -15,7 +17,9 @@ import com.starnet.snview.protocol.message.VideoFrameData;
 import com.starnet.snview.protocol.message.VideoIFrameData;
 
 public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameData> {
-//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
+private static final String TAG = null;
+
+	//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
 //	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
 //	private final AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
 //	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
@@ -29,7 +33,7 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 	
 	@Override
 	public void handleMessage(IoSession session, VideoFrameData message) throws Exception {
-		
+		Log.i(TAG, "decode VideoFrameDataMessageHandler");
 		if (connection == null) {
 			connection = (Connection) session.getAttribute(CONNECTION);
 		}
@@ -69,8 +73,13 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 		} else {
 			//System.out.println("$$$VideoPFrameData is arrvied...");
 		}
+		
+		long t1 = System.currentTimeMillis();
+		
 		h264.decodePacket(message.getData(), message.getData().length,
 				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());		
+		
+		Log.i(TAG, "decode consume: " + (System.currentTimeMillis()-t1));
 		
 		// 更新视频显示
 		if (liveViewChangedListener != null && !connection.getLiveViewItemContainer().isManualStop()) {

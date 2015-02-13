@@ -9,6 +9,8 @@
  */
 package com.starnet.snview.component.h264;
 
+import android.util.Log;
+
 
 
 /**
@@ -132,9 +134,13 @@ public class H264DecodeUtil {
 					} else if (bFirst == true) {
 						bFirst = false;
 					}
+					
+					long t1 = System.currentTimeMillis();
 					// decode nal unit when there exists a complete NAL unit in NalBuf
 					// the second parameter is the length of NAL unit
 					iTemp = decoder.decode(mInstanceId, NalBuf, NalBufUsed - 4, byteBitmap);   
+					
+					Log.i("H264DecodeUtil", "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1) + ", data size:" + (NalBufUsed - 4));
 					
 					// pack h264 stream data into mp4 file
 					if (mStartRecord && mSpsCount >= 0) {

@@ -115,10 +115,20 @@ public class DataProcessServiceImpl implements DataProcessService {
 			// 处理TLV的V部分
 			if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_FRAME_INFO");
-				/*
+				
 				TLV_V_VideoFrameInfo tlv_V_VideoFrameInfo = (TLV_V_VideoFrameInfo) ByteArray2Object
 						.convert2Object(TLV_V_VideoFrameInfo.class, data, flag,
-								OWSP_LEN.TLV_V_VideoFrameInfo);*/
+								OWSP_LEN.TLV_V_VideoFrameInfo);
+				
+				long time = tlv_V_VideoFrameInfo.getTime();
+				int day = (int) (time / (1000*60*60*24));
+				int hour = (int) ((time / (1000*60*60)) % 24);
+				int minute = (int) ((time / (1000*60)) % 60);
+				int second = (int) ((time / (1000) % 60));
+				int millisecond = (int) (time % 1000);
+				
+				Log.i(TAG, "video time: "  + time);
+				Log.i(TAG, "video time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
 				oneIFrameDataSize = -1;
 				oneIFrameBuffer.clear();
 				if (oneIFrameBuffer.remaining() < 0xFFFF) {
@@ -136,8 +146,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 						tlv_Header.getTlv_len());
 				int result = 0;
 				try {
+					long t1 = System.currentTimeMillis();
+					
 					result = h264.decodePacket(tmp, tmp.length,
 							playbackVideo.retrievetDisplayBuffer());
+					
+					Log.i(TAG, "$$$PFramedecode consume: " + (System.currentTimeMillis()-t1));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -160,14 +174,19 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 				oneIFrameBuffer.put(tmp);
 
+				Log.i(TAG, "$$$oneIFrameDataSize:" + oneIFrameDataSize + ", remaining:" + oneIFrameBuffer.remaining() + ", pos:" + oneIFrameBuffer.position());
 				if (oneIFrameDataSize == -1 // The data size of I Frame is less than 65536
-						|| !oneIFrameBuffer.hasRemaining() // The all I Frame data has been collected
+						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
+					Log.i(TAG, "$$$IFrame decode start");
 					int result = 0;
 					try {
+						long t1 = System.currentTimeMillis();
 						result = h264.decodePacket(oneIFrameBuffer.array(),
 								oneIFrameBuffer.position(),
 								playbackVideo.retrievetDisplayBuffer());
+						Log.i(TAG, "$$$IFramedecode consume: " + (System.currentTimeMillis()-t1));
+
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -192,6 +211,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
 				
+				Log.i(TAG, "audio time: "  + time);
 				Log.i(TAG, "audio time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_DATA");
