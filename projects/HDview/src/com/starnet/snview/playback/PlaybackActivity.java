@@ -25,7 +25,6 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.Toolbar.ACTION_ENUM;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
-import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.playback.utils.LoginDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
