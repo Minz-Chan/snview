@@ -88,8 +88,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	}
 
 	@Override
-	public View getGroupView(int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
+	public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = LayoutInflater.from(ctx).inflate(R.layout.playback_cloudaccount_preview_item, null);
 		}
@@ -107,6 +106,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		} else {
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
+		
 		return convertView;
 	}
 

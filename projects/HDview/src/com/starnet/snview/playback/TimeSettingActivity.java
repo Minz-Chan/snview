@@ -1,22 +1,18 @@
 package com.starnet.snview.playback;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,14 +34,23 @@ import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.playback.utils.LoginDeviceItem;
-import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
+import com.starnet.snview.playback.utils.TimeSettingUtils;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
 @SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
+	
+	private final String TAG = "TimeSettingActivity";
+
+//	private ViewTreeObserver vto;
+//	private RelativeLayout endView;
+//	private RelativeLayout typeView;
+//	private RelativeLayout startView;
+//	private int windowWidth;//屏幕的宽
+//	private boolean hasMesured = false;
 
 	private int dayNum;
 	private int curyear;
@@ -89,7 +94,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private LoginDeviceItem loginItem;
 	private DeviceItem visitDevItem;
 	private Button startScanBtn;
-	private ProgressDialog prg;
 	
 	private boolean endFlag = false;
 	private boolean startFlag = false;
@@ -100,10 +104,6 @@ public class TimeSettingActivity extends BaseActivity {
 	private List<CloudAccount> originCAs;
 	private final int REQUESTCODE = 0x0005;
 	private final int TIMESETTING = 0x0007;
-	private final int REQUESTCODE_DOG = 0x0005;
-	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
-	private final int NOTIFYREMOTEUIFRESH_FAIL = 0x0009;
-	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
@@ -142,7 +142,6 @@ public class TimeSettingActivity extends BaseActivity {
 				}
 				break;
 			case LOADFAI:
-				
 				msgD = msg.getData();
 				int posit = msgD.getInt("position");
 				CloudAccount netCA2 = (CloudAccount) msgD.getSerializable("netCA");
@@ -151,25 +150,6 @@ public class TimeSettingActivity extends BaseActivity {
 				netCA2.setRotate(true);
 				originCAs.set(posit, netCA2);
 				actsAdapter.notifyDataSetChanged();
-				break;
-			case NOTIFYREMOTEUIFRESH_SUC:
-				dismissPRGDialog();
-				Bundle bundle = msg.getData();
-				ArrayList<TLV_V_RecordInfo> srres = bundle.getParcelableArrayList("srres");
-				Intent data = new Intent();
-				Bundle bu = new Bundle();
-				bu.putParcelableArrayList("srres", srres);
-				data.putExtras(bu);
-				setResult(TIMESETTING, data);
-				TimeSettingActivity.this.finish();
-				break;
-			case NOTIFYREMOTEUIFRESH_FAIL:
-				dismissPRGDialog();
-				showContentToast(getString(R.string.playback_netvist_datanull));
-				break;
-			case NOTIFYREMOTEUIFRESH_TMOUT:
-				dismissPRGDialog();
-				showContentToast(getString(R.string.playback_netvist_timeout));
 				break;
 			default:
 				break;
@@ -180,16 +160,10 @@ public class TimeSettingActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.playback_time_setting_activity);
+		setContentView(R.layout.playback_time_setting_activity);//playback_time_setting_activity_copy
 		initViews();
 		setExtPandableListview();
 		setListenersForWadgets();
-	}
-
-	private void dismissPRGDialog() {
-		if (prg != null && prg.isShowing()) {
-			prg.dismiss();
-		}
 	}
 
 	/** 为用户添加设备数据 **/
@@ -199,7 +173,7 @@ public class TimeSettingActivity extends BaseActivity {
 		cloudAccountView.setAdapter(actsAdapter);
 	}
 
-	/** 加载新的数据 **/
+	/** 加载星云平台用户数据 **/
 	private List<CloudAccount> downloadDatas() {
 		List<CloudAccount> accounts = PlaybackUtils.getCloudAccounts();
 		if (accounts != null) {
@@ -267,6 +241,8 @@ public class TimeSettingActivity extends BaseActivity {
 				}
 				startFlag = true;
 				endFlag = false;
+				String time = startTimeTxt.getText().toString();
+				setWheelViewPosition(time);
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
 				} else {
@@ -287,6 +263,8 @@ public class TimeSettingActivity extends BaseActivity {
 				}
 				endFlag = true;
 				startFlag = false;
+				String time = endtimeTxt.getText().toString();
+				setWheelViewPosition(time);
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
 				} else {
@@ -311,10 +289,10 @@ public class TimeSettingActivity extends BaseActivity {
 					cloudAccountView.setVisibility(View.VISIBLE);
 				} else {
 					cloudAccountView.setVisibility(View.GONE);
-						typePopupWindow.showAsDropDown(v);
-						typePopupWindow.setFocusable(false);
-//						typePopupWindow.setOutsideTouchable(true);
-						typePopupWindow.update();
+					typePopupWindow.showAsDropDown(v);
+					typePopupWindow.setFocusable(false);
+					typePopupWindow.setOutsideTouchable(true);
+					typePopupWindow.update();
 				}
 			}
 		});
@@ -426,10 +404,10 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void setDataToPlayActivity() {
-		dismissPRGDialog();
+		
 		Bundle bundle = new Bundle();
 		Intent data = new Intent();
-		srr = getRequestInfo();
+		srr = getSearchRecordRequestInfo();
 		loginItem = new LoginDeviceItem();
 		if (visitDevItem!=null) {
 			String svrIp = visitDevItem.getSvrIp();
@@ -455,7 +433,7 @@ public class TimeSettingActivity extends BaseActivity {
 		TimeSettingActivity.this.finish();
 	}
 
-	private TLV_V_SearchRecordRequest getRequestInfo() {
+	private TLV_V_SearchRecordRequest getSearchRecordRequestInfo() {
 		TLV_V_SearchRecordRequest srr = new TLV_V_SearchRecordRequest();
 		String startTime = (String) startTimeTxt.getText();
 		String endTime = (String) endtimeTxt.getText();
@@ -468,7 +446,7 @@ public class TimeSettingActivity extends BaseActivity {
 		setRecordTypeAcc(vType);
 		int channel = 0;
 		if (visitDevItem != null) {
-			channel = PlaybackUtils.getScanChannel(visitDevItem.getChannelList());
+			channel = TimeSettingUtils.getScanChannel(visitDevItem.getChannelList());
 		}
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
@@ -565,7 +543,6 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void setWheelView() {
-		Calendar c1 = Calendar.getInstance();
 		Calendar c = Calendar.getInstance();
 		curyear = c.get(Calendar.YEAR);
 		curMonth = c.get(Calendar.MONTH);
@@ -573,7 +550,7 @@ public class TimeSettingActivity extends BaseActivity {
 		curHour = c.get(Calendar.HOUR_OF_DAY);
 		curMint = c.get(Calendar.MINUTE);
 
-		yearAdapter = new NumericWheelAdapter(2009, c1.get(Calendar.YEAR));
+		yearAdapter = new NumericWheelAdapter(2009, Calendar.getInstance().get(Calendar.YEAR));
 		year.setAdapter(yearAdapter);
 		year.setLabel(null);
 		year.setCyclic(true);
@@ -599,12 +576,6 @@ public class TimeSettingActivity extends BaseActivity {
 		minute.setAdapter(minuteAdapter);
 		minute.setLabel(null);
 		minute.setCyclic(true);
-
-//		year.setCurrentItem(curyear + 2);
-//		month.setCurrentItem(curMonth + 1);
-//		day.setCurrentItem(curDate + 1);
-//		hour.setCurrentItem(curHour + 2);
-//		minute.setCurrentItem(curMint + 2);
 		
 		year.setCurrentItem(curyear);
 		month.setCurrentItem(curMonth - 1);
@@ -723,161 +694,46 @@ public class TimeSettingActivity extends BaseActivity {
 			String dayTime = getDayTime(yNum,moNum,day);
 			String hourTime = getTime(hour);
 			String minTime = getTime(minute);
-
 			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
 			String contentHm = hourTime + ":" + minTime;
 			String content = contentDate + " " + contentHm;
-
 			if (startFlag) {
+				startTimeTxt.setText(content);
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
-				String eTime[] = endTime.split(" ");
-				String sTime[] = startTime.split(" ");
-				startTimeTxt.setText(content);
-				int dayTimeNum = Integer.valueOf(dayTime);
-				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
-				String newContDate = setDate(isLeaapYear, dayTimeNum, yearNum,moNum, monNums);
-				content = newContDate + " " + contentHm;
-				endtimeTxt.setText(content);
-				 if (sTime[0].equals(eTime[0])) {// 日期相同
-				 //允许修改小时和分钟
-				 } else {// 日期不同
-				 }
+				try {
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
+					if (dayDif <= 0 || (dayDif >= 3)) {//结束时间不变
+						int dayTimeNum = Integer.valueOf(dayTime);
+						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+						String newContDate = TimeSettingUtils.setStartDate(isLeaapYear, dayTimeNum, yearNum,moNum, monNums);
+						content = newContDate + " " + contentHm;
+						endtimeTxt.setText(content);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			} else if (endFlag) {
-				String newContDate = "";
 				endtimeTxt.setText(content);
-				int dayTimeNum = Integer.valueOf(dayTime);
-				boolean isLeaapYear = PlaybackUtils.isLeapYear(yNum);
-				if (isLeaapYear) {
-					if (moNum == 2) {
-						if (dayTimeNum > 3) {
-							String data = "";
-							if ((dayTimeNum - 3) < 10) {
-								data = "0" + (dayTimeNum - 3);
-							} else {
-								data = "" + (dayTimeNum - 3);
-							}
-							newContDate = yearNum + "-" + monNums + "-" + data;
-						} else {
-							newContDate = yearNum + "-" + monNums + "-" + "01";
-						}
+				String endTime = endtimeTxt.getText().toString();
+				String startTime = startTimeTxt.getText().toString();
+				try {
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
+					if (dayDif <= 0 || (dayDif >= 3)) {//结束时间不变
+						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+						String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+						content = newContDate + " " + contentHm;
+						startTimeTxt.setText(content);
 					}
-				} else {
-					if (moNum == 2) {
-						if (dayTimeNum > 3) {
-							String data = "";
-							if ((dayTimeNum - 3) < 10) {
-								data = "0" + (dayTimeNum - 3);
-							} else {
-								data = "" + (dayTimeNum - 3);
-							}
-							newContDate = yearNum + "-" + monNums + "-" + data;
-						} else {
-							newContDate = yearNum + "-" + monNums + "-" + "01";
-						}
-					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				if ((moNum == 4) || (moNum == 6) || (moNum == 9)
-						|| (moNum == 11)) {
-					if (dayTimeNum > 3) {
-						String data = "";
-						if ((dayTimeNum - 3) < 10) {
-							data = "0" + (dayTimeNum - 3);
-						} else {
-							data = "" + (dayTimeNum - 3);
-						}
-						newContDate = yearNum + "-" + monNums + "-" + data;
-					} else {
-						newContDate = yearNum + "-" + monNums + "-01";
-					}
-				} else if ((moNum != 2)) {
-					if (dayTimeNum > 3) {
-						String data = "";
-						if ((dayTimeNum - 3) < 10) {
-							data = "0" + (dayTimeNum - 3);
-						} else {
-							data = "" + (dayTimeNum - 3);
-						}
-						newContDate = yearNum + "-" + monNums + "-" + data;
-					} else {
-						newContDate = yearNum + "-" + monNums + "-01";
-					}
-				}
-				content = newContDate + " " + contentHm;
-				startTimeTxt.setText(content);
 			}
 		}
 	};
-
-	private String setDate(boolean isLeaapYear, int dayTimeNum, String yearNum,
-			int moNum, String monNums) {
-		String newContDate = "";
-		if (isLeaapYear) {
-			if (moNum == 2) {
-				if (dayTimeNum < 27) {
-					String data = "";
-					if ((dayTimeNum + 3) < 10) {
-						data = "0" + (dayTimeNum + 3);
-					} else {
-						data = "" + (dayTimeNum + 3);
-					}
-					newContDate = yearNum + "-" + monNums + "-" + data;
-				} else {
-					newContDate = yearNum + "-" + monNums + "-" + 29;
-				}
-			}
-		} else {
-			if (moNum == 2) {
-				if (dayTimeNum < 26) {
-					String data = "";
-					if ((dayTimeNum + 3) < 10) {
-						data = "0" + (dayTimeNum + 3);
-					} else {
-						data = "" + (dayTimeNum + 3);
-					}
-					newContDate = yearNum + "-" + monNums + "-" + data;
-				} else {
-					newContDate = yearNum + "-" + monNums + "-" + 28;
-				}
-			}
-		}
-		if ((moNum == 4) || (moNum == 6) || (moNum == 9) || (moNum == 11)) {
-			if (dayTimeNum < 28) {
-				String data = "";
-				if ((dayTimeNum + 3) < 10) {
-					data = "0" + (dayTimeNum + 3);
-				} else {
-					data = "" + (dayTimeNum + 3);
-				}
-				newContDate = yearNum + "-" + monNums + "-" + data;
-			} else {
-				newContDate = yearNum + "-" + monNums + "-" + 30;
-			}
-		} else if ((moNum != 2)) {
-			if (dayTimeNum < 29) {
-				String data = "";
-				if ((dayTimeNum + 3) < 10) {
-					data = "0" + (dayTimeNum + 3);
-				} else {
-					data = "" + (dayTimeNum + 3);
-				}
-				newContDate = yearNum + "-" + monNums + "-" + data;
-			} else {
-				newContDate = yearNum + "-" + monNums + "-" + 31;
-			}
-		}
-
-		return newContDate;
-	}
-
+	
 	private String getTime(WheelView wv) {
 		int hourPos = wv.getCurrentItem();
-//		int hourCount = wv.getAdapter().getItemsCount();
-//		if (hourPos >= 2) {
-//			hourPos = hourPos - 2;
-//		} else {
-//			hourPos = hourPos + hourCount - 2;
-//		}
 		String time = wv.getAdapter().getItem(hourPos);
 		return time;
 	}
@@ -898,25 +754,18 @@ public class TimeSettingActivity extends BaseActivity {
 		String time = wv.getAdapter().getItem(pos);
 		return time;
 	}
-
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case REQUESTCODE_DOG:
-			prg = new ProgressDialog(this);
-			prg.setMessage(getString(R.string.playback_timesetting_reqinfo));
-			prg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			prg.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					if (prg != null && prg.isShowing()) {
-						prg.dismiss();
-					}
-				}
-			});
-			return prg;
-		default:
-			return null;
-		}
+	
+	private void setWheelViewPosition(String time) {//
+		int []pos = PlaybackUtils.getValidateTime(time);
+		int yearPos = pos[0]-2009;
+		int montPos = pos[1];
+		int daysPos = pos[2];
+		int hourPos = pos[3];
+		int minuPos = pos[4];
+		year.setCurrentItem(yearPos);
+		month.setCurrentItem(montPos-1);
+		day.setCurrentItem(daysPos-1);
+		hour.setCurrentItem(hourPos);
+		minute.setCurrentItem(minuPos);
 	}
 }

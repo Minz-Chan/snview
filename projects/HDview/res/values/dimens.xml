@@ -77,4 +77,9 @@
     <dimen name="system_setting_pushset_alarm_mtop">10.0dip</dimen>
     <dimen name="system_setting_pushset_alarm_info_mtop">6.0dip</dimen>
     
+    <dimen name="playback_timesetting_txt_img_distance">10.0dip</dimen>
+    <dimen name="playback_timesetting_txt_txt_distance">12.0dip</dimen>
+    <dimen name="playback_timesetting_account_item_width">25.0dip</dimen>
+    <dimen name="playback_timesetting_account_item_height">50.0dip</dimen>
+    
 </resources>

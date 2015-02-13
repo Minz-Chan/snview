@@ -47,6 +47,7 @@ public class PlaybackActivity extends BaseActivity {
 
 	private final int TIMESETTING = 0x0007;
 	private final int REQUESTCODE_DOG = 0x0005;
+	private final int PAUSE_RESUME_TIMEOUT = 0x0002;
 	private static final int UPDATINGTIMEBAR = 0x0010;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
@@ -110,6 +111,7 @@ public class PlaybackActivity extends BaseActivity {
 			case PAUSE_PLAYRECORDREQ_SUCC://更新图标
 				dismissPrg();
 				isPlaying = false;
+				pbcTask.setTimePickerThreadOver(true);
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
 				break;
 			case PAUSE_PLAYRECORDREQ_FAIL:
@@ -124,8 +126,8 @@ public class PlaybackActivity extends BaseActivity {
 			case RESUME_PLAYRECORDREQ_SUCC://更新图标
 				dismissPrg();
 				isPlaying = true;
+				pbcTask.setTimePickerThreadOver(true);
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
-				
 				break;
 			case RESUME_PLAYRECORDREQ_FAIL:
 				//不更新图标
@@ -136,6 +138,13 @@ public class PlaybackActivity extends BaseActivity {
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
+				break;
+			case PAUSE_RESUME_TIMEOUT:
+				dismissPrg();
+				showTostContent(getString(R.string.playback_netvisit_timeout));
+				pbcTask.setPause(true);
+				pbcTask.setResume(true);
+				pbcTask.setTimePickerThreadOver(true);
 				break;
 			default:
 				break;
@@ -281,6 +290,8 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar.addFileInfo(1, c3, c4);
 
 		Calendar c5 = Calendar.getInstance();
+		long time = c5.getTimeInMillis();
+		
 		c5.add(Calendar.MINUTE, 130);
 		c5.set(c5.get(Calendar.YEAR), c5.get(Calendar.MONTH),
 				c5.get(Calendar.DAY_OF_MONTH), c5.get(Calendar.HOUR_OF_DAY),
@@ -330,14 +341,14 @@ public class PlaybackActivity extends BaseActivity {
 		}
 	};
 	
+	@SuppressWarnings("deprecation")
 	private void playOrPause(OWSPDateTime startTime){
-		
 		boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 				if (hasContent) {
-					//isPlaying = false;
+					showDialog(REQUESTCODE_DOG);
 					pause(startTime);
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
@@ -345,7 +356,7 @@ public class PlaybackActivity extends BaseActivity {
 			} else {
 				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
 				if (hasContent) {
-					//isPlaying = true;
+					showDialog(REQUESTCODE_DOG);
 					resume(startTime);
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
@@ -362,11 +373,13 @@ public class PlaybackActivity extends BaseActivity {
 
 	protected void resume(OWSPDateTime startTime) {
 		PlaybackControllTaskUtils.setPause(false);
+		pbcTask.setTimePickerThreadOver(false);
 		pbcTask.resumeWork(startTime);
 	}
 
 	protected void pause(OWSPDateTime startTime) {
 		PlaybackControllTaskUtils.setPause(true);
+		pbcTask.setTimePickerThreadOver(false);
 		pbcTask.pauseWork(startTime);
 	}
 

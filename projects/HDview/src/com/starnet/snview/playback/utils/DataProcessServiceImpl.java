@@ -165,6 +165,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
+//				PlaybackControllTaskUtils.saveBytesToFile(tmp);//Test 
+				
 				audioPlayer.playAudioTrack(tmp, 0, tmp.length);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_STREAM_FORMAT_INFO");
@@ -197,7 +199,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						audioPlayer.init();
 					}
 				}
-			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {
+			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//TLV_T_LOGIN_ANSWER
 				Log.i(TAG, "######TLV TYPE: TLV_T_LOGIN_ANSWER");
 				TLV_V_LoginResponse tlv_V_LoginResponse;
 				tlv_V_LoginResponse = (TLV_V_LoginResponse) ByteArray2Object
@@ -206,8 +208,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int result = tlv_V_LoginResponse.getResult();
 				if (result == 1) {
 					returnValue = LOGIN_SUC;
+					PlaybackControllTaskUtils.isCanPlay = true;
 				} else {
 					returnValue = LOGIN_FAIL;
+					PlaybackControllTaskUtils.isCanPlay = false;
 				}
 				return returnValue;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX) {
@@ -250,17 +254,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");
 				returnValue = -1;
 				break;
-			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {// 登陆认证信息时
-				TLV_V_LoginResponse loginRSP;
-				loginRSP = (TLV_V_LoginResponse) ByteArray2Object.convert2Object(TLV_V_LoginResponse.class, data, flag,OWSP_LEN.TLV_V_LoginResponse);
-				int result = loginRSP.getResult();
-				if (result == 1) {
-					PlaybackControllTaskUtils.isCanPlay = true;
-				} else {
-					PlaybackControllTaskUtils.isCanPlay = false;
-				}
-				break;
-			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
+			}  else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
 				TLV_V_SearchRecordResponse srr = (TLV_V_SearchRecordResponse) ByteArray2Object.convert2Object(TLV_V_SearchRecordResponse.class, data,flag, OWSP_LEN.TLV_V_SearchFileResponse);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
 				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object.convert2Object(TLV_V_RecordInfo.class, data, flag,OWSP_LEN.TLV_V_RECORDINFO);
@@ -304,4 +298,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 	public void setResume(boolean isResume){
 		this.isResumeFlag = isResume;
 	}
+	
+	
 }

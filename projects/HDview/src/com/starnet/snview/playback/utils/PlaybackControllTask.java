@@ -31,6 +31,7 @@ public class PlaybackControllTask {
 	private final int ONLY_AUDIO = 1;
 	private final int ONLY_VIDEO = 0;
 	private final int AUDIAO_VIDEO = 2;
+	private static final int COMMANDTIMEOUT = 15;
 	
 	protected Context ctx;
 	private Socket client;
@@ -41,12 +42,12 @@ public class PlaybackControllTask {
 	private boolean isConnected;
 	private final int TIMEOUT = 8;//超时时间设置
 	private Thread firstPlayThread;
-	private Thread socketPauseThread;
-	private Thread socketResumeThread;
 	private OWSPDateTime playStartTime;
 	private LoginDeviceItem visitDevItem;
 	private TLV_V_SearchRecordRequest srr;
 	private static PlaybackControllTask instance;
+
+	private final int PAUSE_RESUME_TIMEOUT = 0x0002;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
 	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
@@ -72,6 +73,7 @@ public class PlaybackControllTask {
 		this.srr = srr;
 		this.mHandler = mHandler;
 		this.visitDevItem = dItem;
+		PlaybackControllTaskUtils.mHandler = mHandler;
 		serv = new DataProcessServiceImpl(ctx, "conn");
 		firstPlayThread = new Thread() {
 			@Override
@@ -255,6 +257,7 @@ public class PlaybackControllTask {
 	public void start() {
 		serv.setPause(false);
 		serv.setResume(false);
+		PlaybackControllTaskUtils.setPause(false);
 		timeThread.start();
 		firstPlayThread.start();
 	}
@@ -286,23 +289,26 @@ public class PlaybackControllTask {
 	}
 	/**新的暂停接口**/
 	public void pauseWork(OWSPDateTime startTime){
-//		timeThread.start();
-		final OWSPDateTime sTime = startTime;
-		controller = new PlaybackController();
-		controller.setChannel(srr.getChannel());
-		controller.requestPause(sTime);
-		serv.setPause(true);
-		serv.setResume(false);
+//		if (!isCancel && !isPause) {
+			serv.setPause(true);
+			serv.setResume(false);
+			final OWSPDateTime sTime = startTime;
+			controller = new PlaybackController();
+			controller.setChannel(srr.getChannel());
+			controller.requestPause(sTime);
+//		}
 	}
 	/**新的继续播放接口**/
 	public void resumeWork(OWSPDateTime startTime){
-//		timeThread.start();
-		final OWSPDateTime sTime = startTime;
-		controller = new PlaybackController();
-		controller.setChannel(srr.getChannel());
-		controller.requestResume(sTime);
-		serv.setPause(false);
-		serv.setResume(true);
+//		if (!isCancel && !isResume) {
+			serv.setPause(false);
+			serv.setResume(true);
+			PlaybackControllTaskUtils.setPause(false);
+			final OWSPDateTime sTime = startTime;
+			controller = new PlaybackController();
+			controller.setChannel(srr.getChannel());
+			controller.requestResume(sTime);
+//		}
 	}
 	
 	private class PlaybackCommand {
@@ -358,7 +364,47 @@ public class PlaybackControllTask {
 					}
 				}
 			}).start();
+			
+			Thread timePickerThread = new Thread(){
+				@Override
+				public void run() {
+					boolean canRun  = true;
+					int timeCount = 0 ;
+					while(canRun&&!timePickerThreadOver){
+						try {
+							Thread.sleep(1000);
+							timeCount++;
+							if (timeCount == COMMANDTIMEOUT) {
+								canRun = false;
+								if (!timePickerThreadOver) {
+									Message msg = new Message();
+									msg.what = PAUSE_RESUME_TIMEOUT;
+									mHandler.sendMessage(msg);
+								}
+							}
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			};
+			timePickerThread.start();
 			Log.i(TAG, "========Thread end========");
 		}
+	}
+	
+	private boolean timePickerThreadOver = false;
+	
+	private boolean isResume = false;
+	private boolean isPause = false;
+	
+	public void setResume(boolean isResume){
+		this.isResume = isResume;
+	}
+	public void setPause(boolean isPause){
+		this.isPause = isPause;
+	}
+	public void setTimePickerThreadOver(boolean isOver){
+		this.timePickerThreadOver = isOver;
 	}
 }
