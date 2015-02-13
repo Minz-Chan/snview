@@ -1,9 +1,13 @@
 package com.starnet.snview.playback.utils;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
 import android.util.Log;
 
 public class PlaybackControllTaskUtils {
@@ -17,6 +21,7 @@ public class PlaybackControllTaskUtils {
 	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
 	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
 
+	public static Handler mHandler;
 	public static boolean isCanPlay;
 	private static boolean pause = false;
 	private static DataProcessService service;
@@ -37,7 +42,7 @@ public class PlaybackControllTaskUtils {
 			byte[] tlvContent = new byte[655350]; // 1 * 1024 * 1024
 			tlvContent = makesureBufferEnough(tlvContent,(int) owspPacketHeader.getPacket_length() - 4);
 			sockIn.read(tlvContent, 0,(int) owspPacketHeader.getPacket_length() - 4);
-			while (!tlvContent.equals("")) {// && !stop
+			while (!tlvContent.equals("")) {// && !stop&&!pause
 				int result = service.process(tlvContent,(int) owspPacketHeader.getPacket_length());
 				if (result == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
 					break;
@@ -56,6 +61,9 @@ public class PlaybackControllTaskUtils {
 					break;
 				}else if(result == PAUSE_PLAYRECORDREQ_FAIL){
 					
+					break;
+				}else if(result == PAUSE_PLAYRECORDREQ_SUCC) {//暂停成功，通知停止解析
+					Log.i(TAG,"--------PAUSE_PLAYRECORDREQ_SUCC---------");
 					break;
 				}
 				
@@ -151,5 +159,27 @@ public class PlaybackControllTaskUtils {
 	
 	public static void setPause(boolean isPause ){
 		pause = isPause;
+	}
+	
+	private static final String fileName = "/mnt/sdcard/audio_vedio_datas.txt";
+
+	/** 保存byte数据到指定的文件中 **/
+	protected static void saveBytesToFile(byte[] b) {
+		OutputStream fout = null;
+		try {
+			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
+			fout = new FileOutputStream(fileName, true);
+			fout.write(b);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (fout != null) {
+					fout.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

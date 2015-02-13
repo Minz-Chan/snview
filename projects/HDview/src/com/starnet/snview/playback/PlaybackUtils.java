@@ -38,16 +38,6 @@ public class PlaybackUtils {
 		return timeData;
 	}
 
-	/** 判断年份是否为闰年 **/
-	public static boolean isLeapYear(int year) {
-		boolean isLeapYear = false;
-		if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
-			isLeapYear = true;
-		} else {
-			isLeapYear = false;
-		}
-		return isLeapYear;
-	}
 	
 	public static OWSPDateTime getOWSPDateTime(String time) {
 		OWSPDateTime owspTime = new OWSPDateTime();
@@ -83,19 +73,6 @@ public class PlaybackUtils {
 			}
 		}
 		return count;
-	}
-	
-	public static int getScanChannel(List<Channel> chanList) {
-		int no = 0;
-		int size = chanList.size();
-		for (int i = 0; i < size; i++) {
-			Channel channel = chanList.get(i);
-			if (channel.isSelected()) {
-				no = i;
-				break;
-			}
-		}
-		return no;
 	}
 
 	private static int[] getIntHMSData(String ymdTemp) {

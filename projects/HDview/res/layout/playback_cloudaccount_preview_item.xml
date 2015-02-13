@@ -9,8 +9,8 @@
     android:weightSum="10.0" >
 
     <LinearLayout
-        android:layout_width="@dimen/channel_listview_account_item_height"
-        android:layout_height="@dimen/channel_listview_account_item_height" >
+        android:layout_width="@dimen/playback_timesetting_account_item_width"
+        android:layout_height="@dimen/playback_timesetting_account_item_width" >
 
         <!-- android:layout_weight="1.0" -->
 
@@ -26,10 +26,10 @@
         android:id="@+id/image_dist_pgb"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="5.0dip"
-        android:gravity="center" >
+        android:gravity="center"
+        android:layout_gravity="center_vertical" >
 
-        <!-- android:layout_weight="1.0" -->
+        <!-- android:layout_weight="1.0" android:layout_marginLeft="5.0dip" -->
 
         <ImageView
             android:id="@+id/item_icon"
@@ -49,10 +49,11 @@
         <TextView
             android:id="@+id/account_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20.0dp"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="@dimen/playback_timesetting_txt_img_distance"
             android:text="@string/system_setting_cloudaccount_username"
             android:textColor="@color/black"
+            android:gravity="center_vertical"
             android:textSize="@dimen/common_textsize_small_18sp" />
     </LinearLayout>
 
