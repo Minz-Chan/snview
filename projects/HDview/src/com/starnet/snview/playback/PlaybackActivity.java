@@ -202,7 +202,7 @@ public class PlaybackActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				mTimebar.reset();
-				closeRemoteSocket();
+//				closeRemoteSocket();
 				Intent intent = new Intent();
 				intent.setClass(ctx, TimeSettingActivity.class);
 				startActivityForResult(intent, TIMESETTING);
@@ -483,12 +483,18 @@ public class PlaybackActivity extends BaseActivity {
 			return null;
 		}
 	}
+	
+	@Override
+	public void onPause(){
+		super.onPause();
+		closeRemoteSocket();
+	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		super.onKeyDown(keyCode, event);
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-			closeRemoteSocket();
+//			closeRemoteSocket();
 		}
 		return true;
 	}

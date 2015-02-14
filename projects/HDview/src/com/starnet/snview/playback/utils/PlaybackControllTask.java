@@ -56,6 +56,9 @@ public class PlaybackControllTask {
 	private LoginDeviceItem visitDevItem;
 	private TLV_V_SearchRecordRequest srr;
 	private static PlaybackControllTask instance;
+	
+	private HandlerThread videoPlayThread;
+	private HandlerThread audioPlayThread;
 
 	private final int PAUSE_RESUME_TIMEOUT = 0x0002;
 	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
@@ -127,12 +130,12 @@ public class PlaybackControllTask {
 		};
 		
 		// Audio play thread
-		HandlerThread audioPlayThread = new HandlerThread("audioPlayThread");
+		audioPlayThread = new HandlerThread("audioPlayThread");
 		audioPlayThread.start();
 		AudioHandler audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
 		
 		// Video play thread
-		HandlerThread videoPlayThread = new HandlerThread("videoPlayThread");
+		videoPlayThread = new HandlerThread("videoPlayThread");
 		videoPlayThread.start();
 		VideoHandler videoPlayHandler = new VideoHandler(videoPlayThread.getLooper(), 
 				((PlaybackActivity)ctx).getVideoContainer().getSurfaceView());
@@ -300,6 +303,13 @@ public class PlaybackControllTask {
 
 	public void exit() {
 		try {
+			if ((audioPlayThread!=null)&&audioPlayThread.isAlive()) {
+				audioPlayThread.quit();
+			}
+			if ((videoPlayThread!=null)&&videoPlayThread.isAlive()) {
+				videoPlayThread.quit();
+			}
+			
 			if (client != null && !client.isClosed() && client.isConnected()) {
 				client.close();
 				client = null;
