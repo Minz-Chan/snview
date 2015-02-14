@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,13 +43,6 @@ import com.starnet.snview.util.NetWorkUtils;
 public class TimeSettingActivity extends BaseActivity {
 	
 	private final String TAG = "TimeSettingActivity";
-
-//	private ViewTreeObserver vto;
-//	private RelativeLayout endView;
-//	private RelativeLayout typeView;
-//	private RelativeLayout startView;
-//	private int windowWidth;//屏幕的宽
-//	private boolean hasMesured = false;
 
 	private int dayNum;
 	private int curyear;
@@ -319,69 +311,119 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void setVideoTypeOnClick() {
-
+		
+		((View) staBtn0.getParent()).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setStateForAll();
+			}
+		});
+		
 		staBtn0.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				videoType.setText(typeAll);
-				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
-				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
-
+				setStateForAll();
 			}
 		});
 
+		((View) staBtn1.getParent()).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setStateForHand();
+			}
+		});
 		staBtn1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				videoType.setText(typeSD);
-				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
-				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
-
+				setStateForHand();
 			}
 		});
+		
+		((View) staBtn2.getParent()).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setStateForTiming();
+			}
+		});
+		
 		staBtn2.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				videoType.setText(typeDsh);
-				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
-				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+				setStateForTiming();
+			}
+		});
+		
+		((View) staBtn3.getParent()).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setStateForMove();
 			}
 		});
 		staBtn3.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				videoType.setText(typeYDZC);
-				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
-				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+				setStateForMove();
+			}
+		});
+		
+		
+		((View) staBtn4.getParent()).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setStateForSwitch();
 			}
 		});
 		staBtn4.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				videoType.setText(typeKGLJG);
-				staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
-				staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
-				staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+				setStateForSwitch();
 			}
 		});
+	}
+
+	protected void setStateForSwitch() {
+		videoType.setText(typeKGLJG);
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+	}
+
+	protected void setStateForMove() {
+		videoType.setText(typeYDZC);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+	}
+
+	protected void setStateForTiming() {
+		videoType.setText(typeDsh);
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+	}
+
+	protected void setStateForHand() {
+		videoType.setText(typeSD);
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+	}
+
+	protected void setStateForAll() {
+		videoType.setText(typeAll);
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
 	}
 
 	private void showContentToast(String content) {
@@ -518,7 +560,7 @@ public class TimeSettingActivity extends BaseActivity {
 		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		View view2 = typePopupWindow.getContentView();
-
+				
 		staBtn0 = (Button) view2.findViewById(R.id.stateBtn0);
 		staBtn1 = (Button) view2.findViewById(R.id.stateBtn1);
 		staBtn2 = (Button) view2.findViewById(R.id.stateBtn2);

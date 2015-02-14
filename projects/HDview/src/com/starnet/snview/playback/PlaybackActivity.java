@@ -323,7 +323,7 @@ public class PlaybackActivity extends BaseActivity {
 			switch (imgBtn.getItemData().getActionID()) {
 			case PLAY_PAUSE:
 				if (isFirstIn) {
-					showTostContent("没有远程回放信息，请选择选择回放信息后，再进行播放与暂停");
+					showTostContent(getString(R.string.playback_not_remoteinfo));
 				} else {
 					String curTime = mTimebar.getCurrentTime();
 					playOrPauseStartTime = PlaybackUtils.getOWSPDateTime(curTime);
@@ -389,23 +389,23 @@ public class PlaybackActivity extends BaseActivity {
 			/*
 			 * FOR TESTING ...
 			 */
-			testStartPlayTask(null, null);
+//			testStartPlayTask(null, null);
 			
 			/*
 			 * REAL CODE
 			 */
-//			if (data != null) {
-//				isFirstIn = false;
-//				Bundle bundle = data.getExtras();
-//				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
-//				loginItem = bundle.getParcelable("loginItem");
-//				if (loginItem != null) {
-//					startPlayTaskWithLoginItem(srr, loginItem);
-//					
-//				}else{
-//					testStartPlayTask(srr, loginItem);
-//				}
-//			}
+			if (data != null) {
+				isFirstIn = false;
+				Bundle bundle = data.getExtras();
+				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+				loginItem = bundle.getParcelable("loginItem");
+				if (loginItem != null) {
+					startPlayTaskWithLoginItem(srr, loginItem);
+					
+				}else{
+					testStartPlayTask(srr, loginItem);
+				}
+			}
 		}
 	}
 	

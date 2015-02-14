@@ -68,13 +68,11 @@ public class PlayBackChannelListViewActivity extends Activity {
 			titleName = titleName.substring(4);
 		}
 
-		PlayBackChannelListViewActivity.this.getWindow().setFeatureInt(
-				Window.FEATURE_CUSTOM_TITLE, R.layout.about_titlebar_activity);
+		PlayBackChannelListViewActivity.this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.about_titlebar_activity);
 
 		TextView titleView = (TextView) findViewById(R.id.title);
 		titleView.setText(titleName);
-		((View) titleView.getParent().getParent())
-				.setBackgroundColor(Color.BLACK);
+		((View) titleView.getParent().getParent()).setBackgroundColor(Color.BLACK);
 		((View) titleView.getParent().getParent()).setPadding(0, 5, 0, 0);
 
 		PlayBackChannelListViewActivity.this.setTitle(titleName);// 设置标题栏

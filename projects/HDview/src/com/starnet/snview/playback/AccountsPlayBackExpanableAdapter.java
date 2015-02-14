@@ -120,11 +120,8 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		List<DeviceItem> list = users.get(groupPosition).getDeviceList();
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
 		txt.setText(list.get(childPosition).getDeviceName());
-		final Button stateBtn = (Button) convertView
-				.findViewById(R.id.stateBtn);
-		if ((clickDItem != null)
-				&& users.get(groupPosition).getDeviceList().get(childPosition)
-						.getDeviceName().equals(clickDItem.getDeviceName())) {
+		final Button stateBtn = (Button) convertView.findViewById(R.id.stateBtn);
+		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().equals(clickDItem.getDeviceName())) {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
