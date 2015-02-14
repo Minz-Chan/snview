@@ -9,6 +9,7 @@
         android:id="@+id/playback_timesetting_type_all"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
+        android:background="@drawable/playback_timesetting_type_all_selector"
         android:orientation="horizontal" >
 
         <TextView
@@ -40,6 +41,7 @@
         android:id="@+id/playback_timesetting_type_handmove"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
+        android:background="@drawable/playback_timesetting_type_all_selector"
         android:orientation="horizontal" >
 
         <TextView
@@ -71,6 +73,7 @@
         android:id="@+id/playback_timesetting_type_timing"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
+        android:background="@drawable/playback_timesetting_type_all_selector"
         android:orientation="horizontal" >
 
         <TextView
@@ -103,6 +106,7 @@
         android:id="@+id/playback_timesetting_type_move_sense"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
+        android:background="@drawable/playback_timesetting_type_all_selector"
         android:orientation="horizontal" >
 
         <TextView
@@ -134,6 +138,7 @@
         android:id="@+id/playback_timesetting_type_switch"
         android:layout_width="match_parent"
         android:layout_height="50.0dip"
+        android:background="@drawable/playback_timesetting_type_all_selector"
         android:orientation="horizontal" >
 
         <TextView
