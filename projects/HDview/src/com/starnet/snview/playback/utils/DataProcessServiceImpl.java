@@ -21,12 +21,12 @@ import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.os.Message;
 import android.util.Log;
 
@@ -55,12 +55,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 	
 	private AudioHandler aHandler;
+	private VideoHandler vHandler;
 	
-	public DataProcessServiceImpl(Context context, AudioHandler audioHandler) {
+	public DataProcessServiceImpl(Context context, AudioHandler audioHandler, VideoHandler videoHandler) {
 		super();
 		this.context = context;
 		this.conn_name = conn_name;
 		this.aHandler = audioHandler;
+		this.vHandler = videoHandler;
 		h264 = getPlaybackContainer().getH264Decoder();
 		h264.init(352, 288);
 
@@ -143,22 +145,24 @@ public class DataProcessServiceImpl implements DataProcessService {
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_VideoData.class, data, flag,
 						tlv_Header.getTlv_len());
-				int result = 0;
-				try {
-					long t1 = System.currentTimeMillis();
-					
+				
+				vHandler.getBufferQueue().write(tmp);
+//				int result = 0;
+//				try {
+//					long t1 = System.currentTimeMillis();
+//					
 //					result = h264.decodePacket(tmp, tmp.length,
 //							playbackVideo.retrievetDisplayBuffer());
-					
-					Log.i(TAG, "$$$PFramedecode consume: " + (System.currentTimeMillis()-t1));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				if (result == 1) {
-					Log.i(TAG, "*********************** update video: P Frame  *************************");
-					playbackVideo.onContentUpdated();					
-				}
+//					
+//					Log.i(TAG, "$$$PFramedecode consume: " + (System.currentTimeMillis()-t1));
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//
+//				if (result == 1) {
+//					Log.i(TAG, "*********************** update video: P Frame  *************************");
+//					playbackVideo.onContentUpdated();					
+//				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_IFRAME_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_IFRAME_DATA");
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
@@ -178,24 +182,26 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
-					int result = 0;
-					try {
-						long t1 = System.currentTimeMillis();
+					vHandler.getBufferQueue().write(oneIFrameBuffer.flip().array());
+					isIFrameFinished = true;
+//					int result = 0;
+//					try {
+//						long t1 = System.currentTimeMillis();
 //						result = h264.decodePacket(oneIFrameBuffer.array(),
 //								oneIFrameBuffer.position(),
 //								playbackVideo.retrievetDisplayBuffer());
-						Log.i(TAG, "$$$IFramedecode consume: " + (System.currentTimeMillis()-t1));
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					isIFrameFinished = true;
-					if (result == 1) {
-						playbackVideo.onContentUpdated();
-						Log.i(TAG,
-								"*********************** update video: I Frame  *************************");
-					}
+//						Log.i(TAG, "$$$IFramedecode consume: " + (System.currentTimeMillis()-t1));
+//
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//
+//					isIFrameFinished = true;
+//					if (result == 1) {
+//						playbackVideo.onContentUpdated();
+//						Log.i(TAG,
+//								"*********************** update video: I Frame  *************************");
+//					}
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_INFO");
@@ -267,8 +273,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 				if (tlv_V_StreamDataFormat != null) {
 					if (width > 0 && height > 0) {
-						h264.init(width, height); // 初始化视频分辨率
-						playbackVideo.init(width, height);
+//						h264.init(width, height); // 初始化视频分辨率
+//						playbackVideo.init(width, height);
+						Message msg = Message.obtain();
+						msg.what = VideoHandler.MSG_VIDEOPLAYER_INIT;
+						msg.arg1 = width;
+						msg.arg2 = height;
+						vHandler.sendMessage(msg);
 					}
 					if (sampleRate > 0) {
 						Message msg = Message.obtain();

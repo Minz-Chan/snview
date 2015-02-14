@@ -6,22 +6,10 @@ public class MP4Recorder {
         System.loadLibrary("MP4Recorder");
     }
 
-//	private static native int UpdateSPS(int instance_id, byte[] sps, int spsLen, int framerate);
     private static native long MP4CreateRecordFile(String filename, byte[] sps, int spsLen, int framerate); 
     private static native int MP4PackVideo(long fileHandle, byte[] nal, int nalLen);
     private static native int MP4CloseRecordFile(long fileHandle);
     
-    /**
-     * 更新SPS信息
-     * @param instance_id 实例ID
-     * @param sps SPS字节数组（以0x0000000167）开头
-     * @param spsLen SPS数组长度
-     * @param framerate 当包含的SPS信息无法计算framerate时，framerate默认取值
-     * @return 1，成功；0，失败
-     */
-//    public int updateSPS(int instance_id, byte[] sps, int spsLen, int framerate) {
-//    	return UpdateSPS(instance_id, sps, spsLen, framerate);
-//    }
     
     /**
      * 创建MP4文件

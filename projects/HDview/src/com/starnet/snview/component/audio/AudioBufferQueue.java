@@ -5,10 +5,11 @@ import java.util.Queue;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class AudioBufferQueue {
+	private static final String TAG = "AudioBufferQueue";
 	public static final int BUFFER_SIZE = 4160;  // 520ms, 8000Hz, 16bit PCM
-	
 	
 	private Queue<AudioBuffer> writeBufferQueue;
 	private Queue<AudioBuffer> readBufferQueue;
@@ -20,7 +21,9 @@ public class AudioBufferQueue {
 		
 		writeBufferQueue = new LinkedList<AudioBuffer>();
 		for (int i = 0; i < 5; i++) {
-			writeBufferQueue.offer(new AudioBuffer());
+			AudioBuffer a = new AudioBuffer();
+			a.id = i;
+			writeBufferQueue.offer(a);
 		}	
 		
 		readBufferQueue = new LinkedList<AudioBuffer>();
@@ -31,9 +34,11 @@ public class AudioBufferQueue {
 	}
 	
 	public int write(byte[] src, int offset, int size) {
+		Log.i(TAG, "writeBufferQueue.size():" + writeBufferQueue.size());
 		if (!writeBufferQueue.isEmpty()) {
 			AudioBuffer buf = writeBufferQueue.peek();
 			int written = buf.put(src, offset, size);
+			Log.i(TAG, "writeBufferQueue write to id " + buf.id);
 			if (buf.getState() == AudioBufferState.FULL) {
 				readBufferQueue.offer(writeBufferQueue.poll());
 				
@@ -53,9 +58,11 @@ public class AudioBufferQueue {
 	}
 	
 	public int read(byte[] des, int offset, int size) {
+		Log.i(TAG, "readBufferQueue.size():" + readBufferQueue.size());
 		if (!readBufferQueue.isEmpty()) {
 			AudioBuffer buf = readBufferQueue.peek();
-			int read = buf.read(des, offset, size);
+			int read = buf.get(des, offset, size);
+			Log.i(TAG, "readBufferQueue read from id " + buf.id);
 			if (buf.getState() == AudioBufferState.EMPTY) {
 				writeBufferQueue.offer(readBufferQueue.poll());
 			}
@@ -73,6 +80,7 @@ public class AudioBufferQueue {
 	 *
 	 */
 	private class AudioBuffer {
+		public int id;
 		private byte[] data;
 		private int position;  // Used for only one complete reading or writing process
 		private AudioBufferState state;
@@ -102,7 +110,7 @@ public class AudioBufferQueue {
 			return size;
 		}
 		
-		public int read(byte[]des, int offset, int size) {
+		public int get(byte[]des, int offset, int size) {
 			if (state ==  AudioBufferState.EMPTY) {
 				return 0;
 			} else if (position+size > BUFFER_SIZE) {
@@ -120,14 +128,6 @@ public class AudioBufferQueue {
 			
 			return size;
 		}
- 		
-//		public byte[] getData() {
-//			return data;
-//		}
-//		
-//		public int getPosition() {
-//			return position;
-//		}
 		
 		public AudioBufferState getState() {
 			return state;

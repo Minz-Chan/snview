@@ -12,6 +12,7 @@ import com.starnet.snview.component.audio.AudioCodec;
 import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.OwspBegin;
@@ -129,7 +130,14 @@ public class PlaybackControllTask {
 		HandlerThread audioPlayThread = new HandlerThread("audioPlayThread");
 		audioPlayThread.start();
 		AudioHandler audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
-		serv = new DataProcessServiceImpl(ctx, audioPlayHandler);
+		
+		// Video play thread
+		HandlerThread videoPlayThread = new HandlerThread("videoPlayThread");
+		videoPlayThread.start();
+		VideoHandler videoPlayHandler = new VideoHandler(videoPlayThread.getLooper(), 
+				((PlaybackActivity)ctx).getVideoContainer().getSurfaceView());
+		
+		serv = new DataProcessServiceImpl(ctx, audioPlayHandler, videoPlayHandler);
 	}
 
 	protected void onTimeOutWork() {// 超时处理
