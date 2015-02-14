@@ -437,6 +437,11 @@
     <item name="arrow_all_container" type="id">false</item>
 
     <item name="channel_listview_select" type="id" />
+    <item name="playback_timesetting_type_all" type="id" />
+    <item name="playback_timesetting_type_handmove" type="id" />
+    <item name="playback_timesetting_type_timing" type="id" />
+    <item name="playback_timesetting_type_move_sense" type="id" />
+    <item name="playback_timesetting_type_switch" type="id" />
     
 </resources>
 
