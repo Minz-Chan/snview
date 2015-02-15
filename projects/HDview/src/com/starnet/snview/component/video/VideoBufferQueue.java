@@ -45,15 +45,38 @@ public class VideoBufferQueue {
 			Message msg = Message.obtain();
 			msg.what = VideoHandler.MSG_BUFFER_PROCESS;
 			videoHandler.sendMessage(msg);
+			
+			return src.length;
 		}
 		
-		return src.length;
+		return 0;
 	}
+	
+//	public int write(byte[] src, int offset, int size) {
+//		Log.i(TAG, "writeBufferQueue.size():" + writeBufferQueue.size());
+//		if (!writeBufferQueue.isEmpty()) {
+//			VideoBuffer buf = writeBufferQueue.peek();
+//			byte[] vBuf = new byte[size];
+//			System.arraycopy(src, offset, vBuf, 0, size);
+//			buf.set(vBuf);
+//			Log.i(TAG, "writeBufferQueue set to id " + buf.id);
+//			readBufferQueue.offer(writeBufferQueue.poll());
+//			Message msg = Message.obtain();
+//			msg.what = VideoHandler.MSG_BUFFER_PROCESS;
+//			videoHandler.sendMessage(msg);
+//			
+//			return size;
+//		}
+//		
+//		return 0;
+//	}
 	
 	public byte[] read() {
 		Log.i(TAG, "readBufferQueue.size():" + readBufferQueue.size());
 		if (!readBufferQueue.isEmpty()) {
-			byte[] data = readBufferQueue.peek().data;
+			VideoBuffer buf = readBufferQueue.peek();
+			byte[] data = buf.get();
+			buf.set(null);
 			Log.i(TAG, "readBufferQueue read from id " + readBufferQueue.peek().id);
 			// data should be used before VideoBuffer's data is set another byte array reference
 			writeBufferQueue.offer(readBufferQueue.poll());

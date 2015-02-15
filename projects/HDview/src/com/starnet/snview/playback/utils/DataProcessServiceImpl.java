@@ -146,7 +146,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 						TLV_V_VideoData.class, data, flag,
 						tlv_Header.getTlv_len());
 				
-				vHandler.getBufferQueue().write(tmp);
+				Log.i(TAG, "$$$Frame data P:" + tmp.length);
+
+				while (vHandler.getBufferQueue().write(tmp) == 0) {
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 //				int result = 0;
 //				try {
 //					long t1 = System.currentTimeMillis();
@@ -182,7 +190,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
-					vHandler.getBufferQueue().write(oneIFrameBuffer.flip().array());
+					byte[] toBeWritten = oneIFrameBuffer.flip().array();
+					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
+						try {
+							Thread.sleep(10);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					
 					isIFrameFinished = true;
 //					int result = 0;
 //					try {

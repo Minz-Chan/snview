@@ -41,9 +41,14 @@ public class VideoHandler extends Handler {
 	private void processVideoData() {
 		long t1 = System.currentTimeMillis();
 		byte[] vData = bufferQueue.read();
+		
+		if (vData == null) {
+			return;
+		}
+		
 		int result = 0;
 		try {
-			
+			Log.i(TAG, "$$$Process video data: " + vData.length);
 			result = h264decoder.decodePacket(vData, vData.length,
 					videoView.retrievetDisplayBuffer());
 			
