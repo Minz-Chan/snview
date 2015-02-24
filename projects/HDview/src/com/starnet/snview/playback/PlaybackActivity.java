@@ -84,10 +84,17 @@ public class PlaybackActivity extends BaseActivity {
 					String content = getString(R.string.playback_remote_record_null);
 					showTostContent(content);
 				} else {
-					isPlaying = true;
-					hasContent = true;
-					setNewTimeBar(list);
-					mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
+					if (list.size()>0) {
+						isPlaying = true;
+						hasContent = true;
+						setNewTimeBar(list);
+						mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
+					}else {
+						isPlaying = false;
+						hasContent = false;
+						String content = getString(R.string.playback_remote_record_null);
+						showTostContent(content);
+					}
 				}
 				break;
 			case NOTIFYREMOTEUIFRESH_EXCEPTION:
@@ -212,7 +219,7 @@ public class PlaybackActivity extends BaseActivity {
 	
 	/** 设置新的时间显示条 **/
 	private void setNewTimeBar(ArrayList<TLV_V_RecordInfo> list) {
-		if (list != null) {
+		if (list != null&&list.size()>0) {
 			mTimebar.reset();
 			int size = list.size();
 			TLV_V_RecordInfo rcd = list.get(0);
