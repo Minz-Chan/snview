@@ -429,6 +429,7 @@
     <item name="sysconfig_help_layout" type="id">false</item>
     <item name="sysconfig_about_layout" type="id">false</item>
     <item name="date_time_picker_layout" type="id">false</item>
+    <item name="help_webview_doc" type="id"/>
     <item name="year_picker_view" type="id">false</item>
     <item name="month_picker_view" type="id">false</item>
     <item name="day_picker_view" type="id">false</item>

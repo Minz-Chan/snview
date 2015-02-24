@@ -110,6 +110,7 @@
     <string name="system_setting_cloudaccount_useable">平台账户验证通过</string>
     <string name="notify_accept_open">报警账户、星云平台账户接收推送消息</string>
     <string name="notify_accept_off">报警账户、星云平台账户不接收推送消息</string>
+    <string name="system_setting_help_titile">帮助</string>
     <string name="system_setting_cloudaccountview_delete_user">删除账户</string>
     <string name="system_setting_alarm_pushset_input_domain">请输入域名</string>
     <string name="system_setting_alarm_pushset_input_port">请输入端口号</string>

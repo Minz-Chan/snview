@@ -154,9 +154,9 @@ public class SystemSettingActivity extends BaseActivity {
 	}
 	
 	protected void gotoHelp() {
-//		Intent intent = new Intent();
-		//。。。。。
-		
+		Intent intent = new Intent();
+		intent.setClass(SystemSettingActivity.this, HelpActivity.class);
+		startActivity(intent);
 //		Toast.makeText(SystemSettingActivity.this, "第二个页面", Toast.LENGTH_SHORT).show();
 	}
 	

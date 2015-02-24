@@ -9,6 +9,8 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -99,6 +101,10 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private ExpandableListView cloudAccountView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
+	
+	private String playback_endTime;
+	private String playback_startTime;
+	private SharedPreferences preferences;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -469,6 +475,14 @@ public class TimeSettingActivity extends BaseActivity {
 			loginItem.setSvrPort(svrPort);
 			bundle.putParcelable("loginItem", loginItem);
 		}
+		
+		preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
+		Editor editor = preferences.edit();
+		editor.putBoolean("isAlreadyWrite", true);
+		editor.putString("start_time", playback_startTime);
+		editor.putString("end_time", playback_endTime);
+		editor.putInt("video_type", srr.getRecordType());
+		editor.commit();		
 		bundle.putParcelable("srr", srr);
 		data.putExtras(bundle);
 		setResult(TIMESETTING, data);
@@ -481,6 +495,8 @@ public class TimeSettingActivity extends BaseActivity {
 		String endTime = (String) endtimeTxt.getText();
 		visitDevItem = (DeviceItem) actsAdapter.getChild(clickGroup, clickChild);
 
+		playback_endTime = endTime;
+		playback_startTime = startTime;
 		OWSPDateTime sTime = PlaybackUtils.getOWSPDateTime(startTime);
 		OWSPDateTime eTime = PlaybackUtils.getOWSPDateTime(endTime);
 
