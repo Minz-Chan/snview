@@ -45,6 +45,8 @@ import com.starnet.snview.util.NetWorkUtils;
 public class TimeSettingActivity extends BaseActivity {
 	
 	private final String TAG = "TimeSettingActivity";
+	
+	public static final String PLAYBACK_TIMESETTING = "playback_timesetting";
 
 	private int dayNum;
 	private int curyear;
@@ -476,9 +478,10 @@ public class TimeSettingActivity extends BaseActivity {
 			bundle.putParcelable("loginItem", loginItem);
 		}
 		
-		preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
+		preferences = getSharedPreferences(PLAYBACK_TIMESETTING, MODE_PRIVATE);
 		Editor editor = preferences.edit();
 		editor.putBoolean("isAlreadyWrite", true);
+		editor.putString("last_query_starttime", playback_startTime + ":00");
 		editor.putString("start_time", playback_startTime);
 		editor.putString("end_time", playback_endTime);
 		editor.putInt("video_type", srr.getRecordType());

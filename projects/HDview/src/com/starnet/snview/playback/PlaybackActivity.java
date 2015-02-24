@@ -1,8 +1,9 @@
 package com.starnet.snview.playback;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -11,6 +12,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -157,16 +160,53 @@ public class PlaybackActivity extends BaseActivity {
 				break;
 			case UPDATE_MIDDLE_TIME:
 				long timestamp = msg.getData().getLong("AUDIO_TIME");
-				GregorianCalendar queryStartTime = new GregorianCalendar();
-				queryStartTime.setTimeInMillis(queryStartTime.getTimeInMillis()+timestamp);
-				mTimebar.moveToTime(queryStartTime);
+				Calendar c = getQueryStartTimeBase();
+				c.setTimeInMillis(c.getTimeInMillis()+timestamp);
+				mTimebar.setCurrentTime(c);
 				break;
 			default:
 				break;
 			}
 		}
 	};
-
+	
+	/**
+	 * 获取查询起始日时间基点
+	 * @return
+	 */
+	private Calendar getQueryStartTimeBase() {
+		Calendar c = getLastQueryStartTime();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		return c;
+	}
+	
+	/**
+	 * 获取上一次保存的起始查询时间
+	 * @return 返回上一次保存的起始查询时间，若首次进入远程回放界面，则返回null
+	 */
+	@SuppressLint("SimpleDateFormat")
+	private Calendar getLastQueryStartTime(){
+		SharedPreferences pref = getSharedPreferences(
+				TimeSettingActivity.PLAYBACK_TIMESETTING, MODE_PRIVATE);
+		String startTime = pref.getString("last_query_starttime", null);
+		
+		if (startTime != null) {
+			Calendar c = Calendar.getInstance();
+			SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+			try {
+				c.setTime(sdf.parse(startTime));
+			} catch (ParseException e) {
+				e.printStackTrace();
+				return null;
+			}
+			return c;
+		}
+		
+		return null;
+	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(true);
@@ -178,7 +218,7 @@ public class PlaybackActivity extends BaseActivity {
 
 	/**更新时间轴**/
 	private void updateTimeBar(Bundle bundle){
-		String time = bundle.getString("time");
+//		String time = bundle.getString("time");
 		Calendar c = Calendar.getInstance();
 		mTimebar.setCurrentTime(c);
 	}
@@ -271,13 +311,20 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar = (TimeBar) findViewById(R.id.timebar_control);
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
-				/** Process random play command */
 				Log.i(TAG, "Called when MOVE_UP event occurs");
+				saveLastQueryStartTime(calendar);
+				
+				// 停止当前回放
+				
+				// 按新的查询起始时间重新发送另一个回放请求
+				
 			}
 		};
 		
 		mTimebar.setTimeBarCallback(mTimeBarCallBack);
-
+		mTimebar.reset();
+		mTimebar.setCurrentTime(Calendar.getInstance());
+		/*
 		Calendar c = Calendar.getInstance();
 		Calendar c1 = Calendar.getInstance();
 		c1.add(Calendar.MINUTE, 20);
@@ -304,7 +351,6 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar.addFileInfo(1, c3, c4);
 
 		Calendar c5 = Calendar.getInstance();
-		long time = c5.getTimeInMillis();
 		
 		c5.add(Calendar.MINUTE, 130);
 		c5.set(c5.get(Calendar.YEAR), c5.get(Calendar.MONTH),
@@ -329,7 +375,17 @@ public class PlaybackActivity extends BaseActivity {
 				c8.get(Calendar.MINUTE));
 		mTimebar.addFileInfo(1, c7, c8);
 
-		mTimebar.reset();
+		mTimebar.reset();*/
+	}
+	
+	@SuppressLint("SimpleDateFormat")
+	private void saveLastQueryStartTime(Calendar c) {
+		SharedPreferences pref = getSharedPreferences(
+				TimeSettingActivity.PLAYBACK_TIMESETTING, MODE_PRIVATE);
+		SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+		Editor editor = pref.edit();	
+		editor.putString("last_query_starttime", sdf.format(c.getTime()));
+		editor.commit();
 	}
 	
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
