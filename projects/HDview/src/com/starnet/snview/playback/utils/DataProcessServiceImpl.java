@@ -41,6 +41,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
 	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
 	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
+	private static final int SEARCH_RECORD_FILE_NULL = 48;
 	
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
@@ -361,6 +362,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 				break;
 			}  else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
 				TLV_V_SearchRecordResponse srr = (TLV_V_SearchRecordResponse) ByteArray2Object.convert2Object(TLV_V_SearchRecordResponse.class, data,flag, OWSP_LEN.TLV_V_SearchFileResponse);
+			    int result = srr.getResult();
+			    int count = srr.getCount();
+			    
+			    if (result == 1 && count ==0 ) {
+			    	return SEARCH_RECORD_FILE_NULL;
+			    }
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
 				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object.convert2Object(TLV_V_RecordInfo.class, data, flag,OWSP_LEN.TLV_V_RECORDINFO);
 				recordInfoList.add(info);

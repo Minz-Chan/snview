@@ -20,6 +20,7 @@ public class PlaybackControllTaskUtils {
 	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
 	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
 	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
+	private static final int SEARCH_RECORD_FILE_NULL = 48;
 
 	public static Handler mHandler;
 	public static boolean isCanPlay;
@@ -56,14 +57,15 @@ public class PlaybackControllTaskUtils {
 					break;
 				}else if(result == RESUME_PLAYRECORDREQ_SUCC){//成功时，则通知线程停止，否则，继续发送
 					
-				}else if(result == RESUME_PLAYRECORDREQ_FAIL){
-					
+				}else if(result == RESUME_PLAYRECORDREQ_FAIL){					
 					break;
-				}else if(result == PAUSE_PLAYRECORDREQ_FAIL){
-					
+				}else if(result == PAUSE_PLAYRECORDREQ_FAIL){					
 					break;
 				}else if(result == PAUSE_PLAYRECORDREQ_SUCC) {//暂停成功，通知停止解析
 					Log.i(TAG,"--------PAUSE_PLAYRECORDREQ_SUCC---------");
+					break;
+				}else if(result == SEARCH_RECORD_FILE_NULL){
+					Log.i(TAG,"--------SEARCH_RECORD_FILE_NULL---------");
 					break;
 				}
 				

@@ -178,10 +178,10 @@ public class PlaybackControllTask {
 
 	/** 获取记录设备的返回列表，并且通知远程回放界面渲染时间轴 **/
 	private void parseSearchRecordResponse() throws IOException {
-		ArrayList<TLV_V_RecordInfo> infoList = new ArrayList<TLV_V_RecordInfo>();
+//		new ArrayList<TLV_V_RecordInfo>();
 		PlaybackControllTaskUtils.newParseVideoAndAudioRsp(receiver);
-		infoList = PlaybackControllTaskUtils.getRecordInfos();
-		if (infoList != null) {
+		ArrayList<TLV_V_RecordInfo> infoList = PlaybackControllTaskUtils.getRecordInfos();
+		if (infoList != null&&infoList.size()>0) {
 			playStartTime = infoList.get(0).getStartTime();
 			isCanLogin = true;
 		}else {
