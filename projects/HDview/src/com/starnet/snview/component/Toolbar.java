@@ -78,6 +78,7 @@ public class Toolbar extends HorizontalScrollView {
 	    
 	    Iterator<ItemData> it;
 	    
+	    this.mItemWidth = (width + 1) / this.mItemDataList.size();
 	    if (this.mItemDataList.size() > MAX_ITEMCOUNT_ONE_SHEET) {
 	      this.mItemWidth = ((width + 1) / MAX_ITEMCOUNT_ONE_SHEET);
 	    }

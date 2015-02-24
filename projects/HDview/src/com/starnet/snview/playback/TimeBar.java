@@ -106,6 +106,16 @@ public class TimeBar extends View {
 		mTouchMoved = false;
 		mTouchDownFlag = false;
 	}
+	
+	/**
+	 * 移动到时间轴指定位置
+	 * @param time
+	 */
+	public void moveToTime(GregorianCalendar time) {
+		mMiddleLineTime.setTimeInMillis(time.getTimeInMillis());
+		updateScalePos();
+		updateFileListPos();
+	}
 
 	private void UpdateDataPos(float xOffset) {
 		updateMiddleLineTime(xOffset);

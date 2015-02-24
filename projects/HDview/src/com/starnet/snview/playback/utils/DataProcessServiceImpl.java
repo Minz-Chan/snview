@@ -14,6 +14,7 @@ package com.starnet.snview.playback.utils;
 //import java.io.IOException;
 //import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
@@ -235,6 +236,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "audio time: "  + time);
 				Log.i(TAG, "audio time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
+				
+				Message msg = Message.obtain();
+				msg.what = PlaybackActivity.UPDATE_MIDDLE_TIME;
+				Bundle b = new Bundle();
+				b.putLong("AUDIO_TIME", time);
+				msg.setData(b);
+				handler.sendMessage(msg);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_DATA");
 				byte[] alawData = (byte[]) ByteArray2Object.convert2Object(

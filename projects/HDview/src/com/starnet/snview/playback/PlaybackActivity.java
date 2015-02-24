@@ -2,6 +2,7 @@ package com.starnet.snview.playback;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -13,6 +14,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -44,6 +46,7 @@ public class PlaybackActivity extends BaseActivity {
 	
 	private PlaybackLiveViewItemContainer mVideoContainer;
 
+	public static final int UPDATE_MIDDLE_TIME = 0x99990001;
 	private final int TIMESETTING = 0x0007;
 	private final int REQUESTCODE_DOG = 0x0005;
 	private final int PAUSE_RESUME_TIMEOUT = 0x0002;
@@ -152,6 +155,12 @@ public class PlaybackActivity extends BaseActivity {
 				pbcTask.setResume(true);
 				pbcTask.setTimePickerThreadOver(true);
 				break;
+			case UPDATE_MIDDLE_TIME:
+				long timestamp = msg.getData().getLong("AUDIO_TIME");
+				GregorianCalendar queryStartTime = new GregorianCalendar();
+				queryStartTime.setTimeInMillis(queryStartTime.getTimeInMillis()+timestamp);
+				mTimebar.moveToTime(queryStartTime);
+				break;
 			default:
 				break;
 			}
@@ -252,12 +261,8 @@ public class PlaybackActivity extends BaseActivity {
 		ArrayList itemList = new ArrayList();
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,R.drawable.toolbar_play_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PICTURE,R.drawable.toolbar_take_picture_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.QUALITY,R.drawable.toolbar_quality_high_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PTZ,R.drawable.toolbar_ptz_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.MICROPHONE,R.drawable.toolbar_microphone_stop_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,R.drawable.toolbar_sound_off_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.VIDEO_RECORD,R.drawable.toolbar_video_record_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.ALARM,R.drawable.toolbar_alarm_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,R.drawable.toolbar_sound_off_selector));
 		mToolbar.createToolbar(itemList, GlobalApplication.getInstance().getScreenWidth(),getResources().getDimensionPixelSize(R.dimen.toolbar_height));
 		this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
 	}
@@ -266,9 +271,12 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar = (TimeBar) findViewById(R.id.timebar_control);
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
-
+				/** Process random play command */
+				Log.i(TAG, "Called when MOVE_UP event occurs");
 			}
 		};
+		
+		mTimebar.setTimeBarCallback(mTimeBarCallBack);
 
 		Calendar c = Calendar.getInstance();
 		Calendar c1 = Calendar.getInstance();
