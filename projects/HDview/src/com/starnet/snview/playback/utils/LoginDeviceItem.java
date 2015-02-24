@@ -10,6 +10,9 @@ public class LoginDeviceItem implements Parcelable {
 	private String svrPort;
 	private String[] svrIP;
 	
+	private String platUserName;//星云平台用户名
+	private String deviceName;//星云平台设备名称
+	
 	public LoginDeviceItem(){
 		
 	}
@@ -20,6 +23,8 @@ public class LoginDeviceItem implements Parcelable {
 		this.svrPort = source.readString();
 		svrIP = new String[4];
 		source.readStringArray(svrIP);
+		this.platUserName = source.readString();
+		this.deviceName = source.readString();
 //		source.readStringList(svrIP);
 	}
 
@@ -75,6 +80,8 @@ public class LoginDeviceItem implements Parcelable {
 		dest.writeString(svrPort);
 //		dest.writeStringList(svrIP);
 		dest.writeStringArray(svrIP);
+		dest.writeString(platUserName);
+		dest.writeString(deviceName);
 		
 	}
 	
@@ -91,5 +98,21 @@ public class LoginDeviceItem implements Parcelable {
 		}
 		
 	};
+
+	public String getPlatUserName() {
+		return platUserName;
+	}
+
+	public void setPlatUserName(String platUserName) {
+		this.platUserName = platUserName;
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 
 }

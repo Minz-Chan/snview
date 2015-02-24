@@ -26,6 +26,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	private CloudAccount clickUser;
 	private DeviceItem clickDItem;
+	
+	public void setDeviceItem(DeviceItem item){
+		this.clickDItem = item;
+	}
 
 	public AccountsPlayBackExpanableAdapter(Context ctx,List<CloudAccount> users) {
 		this.ctx = ctx;
@@ -114,8 +118,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	public View getChildView(int groupPosition, int childPosition,
 			boolean isLastChild, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = LayoutInflater.from(ctx).inflate(
-					R.layout.playback_deviceitems_act, null);
+			convertView = LayoutInflater.from(ctx).inflate(R.layout.playback_deviceitems_act, null);
 		}
 		List<DeviceItem> list = users.get(groupPosition).getDeviceList();
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
@@ -142,7 +145,6 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				intent.putExtra("device", clickDItem);
 				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 				((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
-
 			}
 		});
 		return convertView;

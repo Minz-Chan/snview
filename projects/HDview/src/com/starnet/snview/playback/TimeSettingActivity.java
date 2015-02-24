@@ -134,8 +134,34 @@ public class TimeSettingActivity extends BaseActivity {
 						if ((dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
-					}
-					originCAs.set(pos, netCA);
+						String userName = preferences.getString("username", null);					
+						int channelNo = preferences.getInt("channelNo", 0);
+						if (netCA.getUsername().equals(userName)) {
+							String deviceNm = preferences.getString("deviceName", null);
+							if ((dList != null) && (dList.size() > 0)) {
+								for(int i =0 ;i<dList.size();i++){
+									if (dList.get(i).getDeviceName().equals(deviceNm)) {
+										clickChild = i;
+										List<Channel> chanelList = dList.get(i).getChannelList();
+										if (chanelList!=null&&chanelList.size()>0) {
+											for (int j = 0; j < chanelList.size(); j++) {
+												if (j == channelNo) {
+													chanelList.get(j).setSelected(true);
+													break;
+												}												
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+						okFlag = true;
+						actsAdapter.setGroup(pos);
+						actsAdapter.setChild(clickChild);
+						actsAdapter.setDeviceItem(dList.get(clickChild));
+					}					
+					originCAs.set(pos, netCA);					
 					actsAdapter.notifyDataSetChanged();
 				}
 				break;
@@ -291,6 +317,8 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.setFocusable(false);
 					typePopupWindow.setOutsideTouchable(true);
 					typePopupWindow.update();
+					
+					setTypeView(preferences.getInt("video_type", 0),true);
 				}
 			}
 		});
@@ -300,12 +328,10 @@ public class TimeSettingActivity extends BaseActivity {
 			public void onClick(View v) {
 				if (typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
-				}
-				
+				}				
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
-				}
-				
+				}				
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();
@@ -468,7 +494,8 @@ public class TimeSettingActivity extends BaseActivity {
 			bundle.putString("svrPass", svrPass);
 			bundle.putString("svrUser", svrUser);
 			bundle.putStringArray("svrIps", svrIps);
-			
+			loginItem.setDeviceName(visitDevItem.getDeviceName());
+			loginItem.setPlatUserName(visitDevItem.getPlatformUsername());
 			loginItem.setLoginUser(svrUser);
 			loginItem.setLoginPass(svrPass);
 			loginItem.setSvrIP(svrIps);
@@ -482,6 +509,9 @@ public class TimeSettingActivity extends BaseActivity {
 		editor.putString("start_time", playback_startTime);
 		editor.putString("end_time", playback_endTime);
 		editor.putInt("video_type", srr.getRecordType());
+		editor.putString("username", loginItem.getPlatUserName());
+		editor.putString("deviceName", loginItem.getDeviceName());
+		editor.putInt("channelNo", srr.getChannel());
 		editor.commit();		
 		bundle.putParcelable("srr", srr);
 		data.putExtras(bundle);
@@ -542,8 +572,19 @@ public class TimeSettingActivity extends BaseActivity {
 		typeDsh = getString(R.string.playback_alarm_type2);
 		typeYDZC = getString(R.string.playback_alarm_type3);
 		typeKGLJG = getString(R.string.playback_alarm_type4);
-
-		setCurrentTimeForTxt();
+		
+		preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
+		boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite", false);
+		if (isAlreadyWrite) {
+			String startTime = preferences.getString("start_time", null);
+			String endTime = preferences.getString("end_time", null);
+			int vType = preferences.getInt("video_type", 0);
+			endtimeTxt.setText(endTime);
+			startTimeTxt.setText(startTime);
+			setTypeView(vType,false);
+		}else {
+			setCurrentTimeForTxt();
+		}		
 		initTimePopupWindow();
 		initTypePopWindow();
 	}
@@ -734,6 +775,38 @@ public class TimeSettingActivity extends BaseActivity {
 			recordType = -1;
 		}
 		return recordType;
+	}
+	
+	private void setTypeView(int vType,boolean visible){
+		
+		String typeShAll = getString(R.string.playback_alarm_type);
+		String typeShD = getString(R.string.playback_alarm_type1);
+		String typeDsh = getString(R.string.playback_alarm_type2);
+		String typeYDZC = getString(R.string.playback_alarm_type3);
+		String typeKGLJG = getString(R.string.playback_alarm_type4);
+		
+		if(vType == 0){
+			videoType.setText(typeShAll);
+			if(visible){
+				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
+			}			
+		}else if(vType == 1){
+			videoType.setText(typeKGLJG);
+			if(visible)
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
+		}else if(vType == 2){
+			videoType.setText(typeYDZC);
+			if(visible)
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
+		}else if(vType == 4){
+			videoType.setText(typeDsh);
+			if(visible)
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
+		}else if(vType == 8){
+			videoType.setText(typeShD);
+			if(visible)
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
+		}
 	}
 
 	private OnWheelScrollListener scrollListener = new OnWheelScrollListener() {
