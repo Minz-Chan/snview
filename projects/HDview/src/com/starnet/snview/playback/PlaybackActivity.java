@@ -21,15 +21,20 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.Toolbar.ACTION_ENUM;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
@@ -48,6 +53,7 @@ public class PlaybackActivity extends BaseActivity {
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
 	
 	private PlaybackLiveViewItemContainer mVideoContainer;
+	private Animation mShotPictureAnim;
 
 	public static final int UPDATE_MIDDLE_TIME = 0x99990001;
 	private final int TIMESETTING = 0x0007;
@@ -164,6 +170,26 @@ public class PlaybackActivity extends BaseActivity {
 				c.setTimeInMillis(c.getTimeInMillis()+timestamp);
 				mTimebar.setCurrentTime(c);
 				break;
+			case Constants.TAKE_PICTURE:
+				String imgPath = (String) msg.getData().get("PICTURE_FULL_PATH");
+				
+				// 播放声音
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						SnapshotSound s = new SnapshotSound(PlaybackActivity.this);
+						s.playSound();
+					}	
+				}).start();
+				
+				mVideoContainer.startAnimation(mShotPictureAnim);
+				
+				Toast t = Toast.makeText(PlaybackActivity.this, "", Toast.LENGTH_LONG);
+				ToastTextView txt = new ToastTextView(PlaybackActivity.this);
+				txt.setText(PlaybackActivity.this.getString(R.string.realplay_toast_take_pic) + imgPath);
+				t.setView(txt);
+				t.show();
+				break;
 			default:
 				break;
 			}
@@ -212,6 +238,8 @@ public class PlaybackActivity extends BaseActivity {
 		setContainerMenuDrawer(true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.playback_activity);
+		
+		GlobalApplication.getInstance().setPlaybackHandler(mHandler);
 		initView();
 		setListenersForWadgets();
 	}// setBackPressedExitEventValid(true);
@@ -251,6 +279,8 @@ public class PlaybackActivity extends BaseActivity {
 		mVideoContainer = new PlaybackLiveViewItemContainer(this);
 		mVideoContainer.findSubViews();
 		playbackVideoRegion.addView(mVideoContainer,new FrameLayout.LayoutParams(screenWidth, screenWidth));
+		
+		mShotPictureAnim = AnimationUtils.loadAnimation(PlaybackActivity.this, R.anim.shot_picture);
 	}
 
 	public void setListenersForWadgets() {
@@ -420,6 +450,7 @@ public class PlaybackActivity extends BaseActivity {
 				}
 				break;
 			case PICTURE:
+				mVideoContainer.takePicture();
 				showTostContent("单击了拍照按钮");
 				break;
 			default:

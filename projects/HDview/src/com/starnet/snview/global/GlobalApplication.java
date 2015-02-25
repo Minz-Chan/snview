@@ -32,7 +32,8 @@ public class GlobalApplication extends FrontiaApplication {
 	
 	private boolean mIsFullscreenMode;
 	
-	private Handler handler;
+	private Handler mHandler;
+	private Handler mPlaybackHandler;
 
 	public static GlobalApplication getInstance() {
 		return singleton;
@@ -140,11 +141,19 @@ public class GlobalApplication extends FrontiaApplication {
 	}
 
 	public Handler getHandler() {
-		return handler;
+		return mHandler;
 	}
 
 	public void setHandler(Handler handler) {
-		this.handler = handler;
+		this.mHandler = handler;
+	}
+	
+	public Handler getPlaybackHandler() {
+		return mPlaybackHandler;
+	}
+
+	public void setPlaybackHandler(Handler playbackHandler) {
+		this.mPlaybackHandler = playbackHandler;
 	}
 
 	public String getAppName() {

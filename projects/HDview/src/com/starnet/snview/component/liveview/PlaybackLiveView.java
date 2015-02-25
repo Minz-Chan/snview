@@ -302,7 +302,7 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 		}
 		
 		// 通知主界面
-		Handler h = GlobalApplication.getInstance().getHandler();
+		Handler h = GlobalApplication.getInstance().getPlaybackHandler();
 		if (h != null && result) {
 			Bundle b = new Bundle();
 			b.putString("PICTURE_FULL_PATH", imgPath);
