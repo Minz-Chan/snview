@@ -34,7 +34,7 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.playback.utils.LoginDeviceItem;
+import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.playback.utils.TimeSettingUtils;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -87,7 +87,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private String typeKGLJG;
 
 	private TLV_V_SearchRecordRequest srr;
-	private LoginDeviceItem loginItem;
+	private PlaybackDeviceItem loginItem;
 	private DeviceItem visitDevItem;
 	private Button startScanBtn;
 	
@@ -484,23 +484,27 @@ public class TimeSettingActivity extends BaseActivity {
 		Bundle bundle = new Bundle();
 		Intent data = new Intent();
 		srr = getSearchRecordRequestInfo();
-		loginItem = new LoginDeviceItem();
+		loginItem = new PlaybackDeviceItem();
 		if (visitDevItem!=null) {
 			String svrIp = visitDevItem.getSvrIp();
 			String svrPort = visitDevItem.getSvrPort();
 			String svrPass = visitDevItem.getLoginPass();
 			String svrUser = visitDevItem.getLoginUser();
+			
+//			svrIp = svrIp.replaceAll("", "\\.");
+			
+			String ip = "13.25.10.128";
 
-			String svrIps[] = svrIp.split("\\.");
+//			String svrIps[] = svrIp.split("\\.");
 			bundle.putString("svrPort", svrPort);
 			bundle.putString("svrPass", svrPass);
-			bundle.putString("svrUser", svrUser);
-			bundle.putStringArray("svrIps", svrIps);
-			loginItem.setDeviceName(visitDevItem.getDeviceName());
-			loginItem.setPlatUserName(visitDevItem.getPlatformUsername());
+			bundle.putString("svrUser", svrUser);			
+			
+			loginItem.setDeviceRecordName(visitDevItem.getDeviceName());
+			loginItem.setPlatformUsername(visitDevItem.getPlatformUsername());
 			loginItem.setLoginUser(svrUser);
 			loginItem.setLoginPass(svrPass);
-			loginItem.setSvrIP(svrIps);
+			loginItem.setSvrIp(visitDevItem.getSvrIp());
 			loginItem.setSvrPort(svrPort);
 			bundle.putParcelable("loginItem", loginItem);
 		}
@@ -512,8 +516,8 @@ public class TimeSettingActivity extends BaseActivity {
 		editor.putString("start_time", playback_startTime);
 		editor.putString("end_time", playback_endTime);
 		editor.putInt("video_type", srr.getRecordType());
-		editor.putString("username", loginItem.getPlatUserName());
-		editor.putString("deviceName", loginItem.getDeviceName());
+		editor.putString("username", loginItem.getPlatformUsername());
+		editor.putString("deviceName", loginItem.getDeviceRecordName());
 		editor.putInt("channelNo", srr.getChannel());
 		editor.commit();		
 		bundle.putParcelable("srr", srr);

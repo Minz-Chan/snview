@@ -31,7 +31,7 @@ import com.starnet.snview.component.Toolbar.ACTION_ENUM;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.global.GlobalApplication;
-import com.starnet.snview.playback.utils.LoginDeviceItem;
+import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
 import com.starnet.snview.playback.utils.PlaybackControllTaskUtils;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
@@ -67,7 +67,7 @@ public class PlaybackActivity extends BaseActivity {
 	private ProgressDialog prg;
 	private boolean hasContent = false;
 	private boolean isFirstIn = false;
-	private LoginDeviceItem loginItem;
+	private PlaybackDeviceItem loginItem;
 	private PlaybackControllTask pbcTask;
 	private TLV_V_SearchRecordRequest srr;
 	private static boolean isPlaying = false;// 是否是正在进行播放
@@ -317,7 +317,8 @@ public class PlaybackActivity extends BaseActivity {
 				// 停止当前回放
 				
 				// 按新的查询起始时间重新发送另一个回放请求
-				
+//				calendar.get(Calendar.YEAR);
+				resumePlay(calendar);
 			}
 		};
 		
@@ -378,6 +379,23 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar.reset();*/
 	}
 	
+	protected void resumePlay(Calendar calendar) {
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH)+1;
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
+		int second = calendar.get(Calendar.SECOND);
+		OWSPDateTime startTime = new OWSPDateTime();
+		startTime.setDay(day);
+		startTime.setYear(year-2009);
+		startTime.setMonth(month);
+		startTime.setHour(hour);
+		startTime.setMinute(minute);
+		startTime.setSecond(second);
+		resume(startTime);		
+	}
+
 	@SuppressLint("SimpleDateFormat")
 	private void saveLastQueryStartTime(Calendar c) {
 		SharedPreferences pref = getSharedPreferences(
@@ -470,6 +488,11 @@ public class PlaybackActivity extends BaseActivity {
 				Bundle bundle = data.getExtras();
 				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
+				
+				String ips = bundle.getString("ips");
+				String ip = bundle.getString("ip");
+				String port = bundle.getString("port");
+				
 				if (loginItem != null) {
 					startPlayTaskWithLoginItem(srr, loginItem);
 					
@@ -481,7 +504,7 @@ public class PlaybackActivity extends BaseActivity {
 	}
 	
 	@SuppressWarnings("deprecation")
-	private void startPlayTaskWithLoginItem(TLV_V_SearchRecordRequest srr,LoginDeviceItem lItem){
+	private void startPlayTaskWithLoginItem(TLV_V_SearchRecordRequest srr,PlaybackDeviceItem lItem){
 		showDialog(REQUESTCODE_DOG);
 		if (pbcTask != null) {
 			pbcTask.exit();
@@ -491,11 +514,11 @@ public class PlaybackActivity extends BaseActivity {
 		pbcTask.start();
 	}
 
-	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, LoginDeviceItem dItem1) {
-		LoginDeviceItem dItem = new LoginDeviceItem();
+	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, PlaybackDeviceItem dItem1) {
+		PlaybackDeviceItem dItem = new PlaybackDeviceItem();
 		// dItem.setSvrIp("61.131.16.27");
-		String ips[] = {"192","168","87","10"};
-		dItem.setSvrIP(ips);
+		String ips = "192.168.87.10";
+		dItem.setSvrIp(ips);
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");
 		dItem.setLoginUser("admin");

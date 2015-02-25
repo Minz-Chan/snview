@@ -137,6 +137,7 @@ public class TLV_V_SearchRecordRequest implements Parcelable {
 
 		this.startTime = sTime;
 		this.endTime = eTime;
+		source.readIntArray(reserve);
 
 	}
 

@@ -53,7 +53,7 @@ public class PlaybackControllTask {
 	private final int TIMEOUT = 8;//超时时间设置
 	private Thread firstPlayThread;
 	private OWSPDateTime playStartTime;
-	private LoginDeviceItem visitDevItem;
+	private PlaybackDeviceItem visitDevItem;
 	private TLV_V_SearchRecordRequest srr;
 	private static PlaybackControllTask instance;
 	
@@ -74,14 +74,14 @@ public class PlaybackControllTask {
 	}
 	
 	public static PlaybackControllTask getInstance(Context ctx,
-			Handler mHandler, TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
+			Handler mHandler, TLV_V_SearchRecordRequest srr, PlaybackDeviceItem dItem) {
 		if (instance == null) {
 			return new PlaybackControllTask(ctx, mHandler, srr, dItem);
 		}
 		return instance;
 	}
 
-	public PlaybackControllTask(Context ctx, Handler mHandler,TLV_V_SearchRecordRequest srr, LoginDeviceItem dItem) {
+	public PlaybackControllTask(Context ctx, Handler mHandler,TLV_V_SearchRecordRequest srr, PlaybackDeviceItem dItem) {
 		this.ctx = ctx;
 		this.srr = srr;
 		this.mHandler = mHandler;
@@ -205,8 +205,8 @@ public class PlaybackControllTask {
 	private void initClient() {
 		try {
 			PlaybackControllTaskUtils.setService(serv);
-			String[] ips = visitDevItem.getSvrIP();
-			String host = PlaybackControllTaskUtils.getIP(ips);
+			String host = visitDevItem.getSvrIp();
+//			String host = PlaybackControllTaskUtils.getIP(ips);
 			int port = Integer.valueOf(visitDevItem.getSvrPort());
 			client = new Socket(host, port);
 //			client.setSoTimeout(TIMEOUT * 1000);
@@ -274,7 +274,7 @@ public class PlaybackControllTask {
 		}
 	}
 
-	public void setDeviceItem(LoginDeviceItem visitDevItem) {
+	public void setDeviceItem(PlaybackDeviceItem visitDevItem) {
 		this.visitDevItem = visitDevItem;
 	}
 
