@@ -7,6 +7,7 @@ import com.starnet.snview.component.audio.AudioBufferQueue;
 import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.images.LocalFileUtils;
+import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -33,7 +34,7 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	
 	private int mItemIndex;
 	private String mDeviceRecordName;
-	private PreviewDeviceItem mPreviewItem;
+	private PlaybackDeviceItem mPreviewItem;
 	private StatusListener mConnectionStatusListener;
 	private OnRefreshButtonClickListener mRefreshButtonClickListener;
 	
@@ -170,12 +171,12 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		this.mFramerate = framerate;
 	}
 	
-	public PreviewDeviceItem getPreviewItem() {
+	public PlaybackDeviceItem getPlaybackItem() {
 		return mPreviewItem;
 	}
 	
-	public void setPreviewItem(PreviewDeviceItem previewItem) {
-		this.mPreviewItem = previewItem;
+	public void setPlaybackItem(PlaybackDeviceItem playbackItem) {
+		this.mPreviewItem = playbackItem;
 	}
 	
 	public void setRefreshButtonClickListener(
@@ -507,7 +508,7 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	public void startMP4Record() {
 		if (isConnected()) {
 			String fileName = LocalFileUtils.getFormatedFileName(
-					getPreviewItem().getDeviceRecordName(), getPreviewItem()
+					getPlaybackItem().getDeviceRecordName(), getPlaybackItem()
 							.getChannel());
 			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
 			

@@ -272,8 +272,8 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 		
 		if (SDCardUtils.IS_MOUNTED) { // SDcard可用
 			// 获取拍照截图及其缩略图完整路径
-			String fileName = LocalFileUtils.getFormatedFileName(c.getPreviewItem()
-					.getDeviceRecordName(), c.getPreviewItem().getChannel());
+			String fileName = LocalFileUtils.getFormatedFileName(c.getPlaybackItem()
+					.getDeviceRecordName(), c.getPlaybackItem().getChannel());
 			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
 			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
 			

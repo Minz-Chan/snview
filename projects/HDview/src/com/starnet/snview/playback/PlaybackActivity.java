@@ -519,10 +519,7 @@ public class PlaybackActivity extends BaseActivity {
 				Bundle bundle = data.getExtras();
 				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
-				
-				String ips = bundle.getString("ips");
-				String ip = bundle.getString("ip");
-				String port = bundle.getString("port");
+				mVideoContainer.setPlaybackItem(loginItem);
 				
 				if (loginItem != null) {
 					startPlayTaskWithLoginItem(srr, loginItem);
