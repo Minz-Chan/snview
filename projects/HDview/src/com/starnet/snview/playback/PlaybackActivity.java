@@ -36,9 +36,9 @@ import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.utils.PlaybackControllTask.PlaybackRequest;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
-import com.starnet.snview.playback.utils.PlaybackControllTaskUtils;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -54,29 +54,34 @@ public class PlaybackActivity extends BaseActivity {
 	
 	private PlaybackLiveViewItemContainer mVideoContainer;
 	private Animation mShotPictureAnim;
+	
+	private final int PLAYBACK_REQ_DIALOG = 0x0005;
 
 	public static final int UPDATE_MIDDLE_TIME = 0x99990001;
-	private final int TIMESETTING = 0x0007;
-	private final int REQUESTCODE_DOG = 0x0005;
-	private final int PAUSE_RESUME_TIMEOUT = 0x0002;
-	private static final int UPDATINGTIMEBAR = 0x0010;
-	private final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
-	private final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
-	private final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
+	public static  final int TIMESETTING_RTN_CODE = 0x0007;
 	
-	private OWSPDateTime playOrPauseStartTime;
-	private static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
-	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
-	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
-	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
+	public static  final int PAUSE_RESUME_TIMEOUT = 0x0002;
+	
+	public static final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
+	public static  final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
+	public static  final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
+	
+	public static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
+	public static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
+	public static final int RESUME_PLAYRECORDREQ_SUCC = 43;
+	public static final int RESUME_PLAYRECORDREQ_FAIL = 44;
 
+	private OWSPDateTime playOrPauseStartTime;
 	private ProgressDialog prg;
-	private boolean hasContent = false;
-	private boolean isFirstIn = false;
+	
 	private PlaybackDeviceItem loginItem;
 	private PlaybackControllTask pbcTask;
 	private TLV_V_SearchRecordRequest srr;
-	private static boolean isPlaying = false;// 是否是正在进行播放
+	
+	private boolean isPlaying = false;// 是否是正在进行播放
+	private boolean isFirstIn = false;  // 是否第一次进行远程回放界面
+	private boolean isOnPlayControl = false; // 是否正在进行播放控制（暂停、继续）
+	private boolean hasRecordFile = false;
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -86,83 +91,79 @@ public class PlaybackActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case NOTIFYREMOTEUIFRESH_SUC:
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				isFirstIn = false;
 				Bundle data = msg.getData();
 				ArrayList<TLV_V_RecordInfo> list = data.getParcelableArrayList("srres");
 				if (list == null) {
 					isPlaying = false;
-					hasContent = false;
+					hasRecordFile = false;
 					String content = getString(R.string.playback_remote_record_null);
 					showTostContent(content);
 				} else {
 					if (list.size()>0) {
 						isPlaying = true;
-						hasContent = true;
+						hasRecordFile = true;
 						setNewTimeBar(list);
 						mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 					}else {
 						isPlaying = false;
-						hasContent = false;
+						hasRecordFile = false;
 						String content = getString(R.string.playback_remote_record_null);
 						showTostContent(content);
 					}
 				}
 				break;
 			case NOTIFYREMOTEUIFRESH_EXCEPTION:
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				isFirstIn = false;
-				hasContent = false;
+				hasRecordFile = false;
 				String content = getString(R.string.playback_netvisit_fail);
 				showTostContent(content);
 				break;
 			case NOTIFYREMOTEUIFRESH_TMOUT:
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				isFirstIn = false;
-				hasContent = false;
+				hasRecordFile = false;
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
-			case UPDATINGTIMEBAR://update timebar 更新时间轴
-				Bundle bundle = msg.getData();
-				updateTimeBar(bundle);
-				break;
 			case PAUSE_PLAYRECORDREQ_SUCC://更新图标
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				isPlaying = false;
-				pbcTask.setTimePickerThreadOver(true);
+//				pbcTask.setTimePickerThreadOver(true);
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
 				break;
 			case PAUSE_PLAYRECORDREQ_FAIL:
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
-					showDialog(REQUESTCODE_DOG);
-					pause(playOrPauseStartTime);
+					showDialog(PLAYBACK_REQ_DIALOG);
+					pause();
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 				break;
 			case RESUME_PLAYRECORDREQ_SUCC://更新图标
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				isPlaying = true;
-				pbcTask.setTimePickerThreadOver(true);
+//				pbcTask.setTimePickerThreadOver(true);
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 				break;
 			case RESUME_PLAYRECORDREQ_FAIL:
 				//不更新图标
 				boolean isOpen2 = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen2) {
-					showDialog(REQUESTCODE_DOG);
-					resume(playOrPauseStartTime);
+					showDialog(PLAYBACK_REQ_DIALOG);
+					resume();
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 				break;
 			case PAUSE_RESUME_TIMEOUT:
-				dismissPrg();
+				dismissPlaybackReqDialog();
 				showTostContent(getString(R.string.playback_netvisit_timeout));
-				pbcTask.setPause(true);
-				pbcTask.setResume(true);
-				pbcTask.setTimePickerThreadOver(true);
+//				pbcTask.setPause(true);
+//				pbcTask.setResume(true);
+//				pbcTask.setTimePickerThreadOver(true);
 				break;
 			case UPDATE_MIDDLE_TIME:
 				long timestamp = msg.getData().getLong("AUDIO_TIME");
@@ -233,6 +234,7 @@ public class PlaybackActivity extends BaseActivity {
 		
 		return null;
 	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(true);
@@ -241,17 +243,9 @@ public class PlaybackActivity extends BaseActivity {
 		
 		GlobalApplication.getInstance().setPlaybackHandler(mHandler);
 		initView();
-		setListenersForWadgets();
-	}// setBackPressedExitEventValid(true);
-
-	/**更新时间轴**/
-	private void updateTimeBar(Bundle bundle){
-//		String time = bundle.getString("time");
-		Calendar c = Calendar.getInstance();
-		mTimebar.setCurrentTime(c);
 	}
 	
-	protected void dismissPrg() {
+	protected void dismissPlaybackReqDialog() {
 		if (prg != null && prg.isShowing()) {
 			prg.dismiss();
 		}
@@ -266,11 +260,22 @@ public class PlaybackActivity extends BaseActivity {
 	}
 
 	private void initView() {
+		isFirstIn = true;
+		ctx = PlaybackActivity.this;
+		
 		super.setTitleViewText(getString(R.string.navigation_title_remote_playback));
 		super.hideExtendButton();
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
-		isFirstIn = true;
-		ctx = PlaybackActivity.this;
+		super.getRightButton().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mTimebar.reset();
+				Intent intent = new Intent();
+				intent.setClass(ctx, TimeSettingActivity.class);
+				startActivityForResult(intent, TIMESETTING_RTN_CODE);
+			}
+		});
+		
 		initToolbar();
 		initTimebar();
 		
@@ -281,19 +286,6 @@ public class PlaybackActivity extends BaseActivity {
 		playbackVideoRegion.addView(mVideoContainer,new FrameLayout.LayoutParams(screenWidth, screenWidth));
 		
 		mShotPictureAnim = AnimationUtils.loadAnimation(PlaybackActivity.this, R.anim.shot_picture);
-	}
-
-	public void setListenersForWadgets() {
-		super.getRightButton().setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mTimebar.reset();
-//				closeRemoteSocket();
-				Intent intent = new Intent();
-				intent.setClass(ctx, TimeSettingActivity.class);
-				startActivityForResult(intent, TIMESETTING);
-			}
-		});
 	}
 	
 	/** 设置新的时间显示条 **/
@@ -347,8 +339,7 @@ public class PlaybackActivity extends BaseActivity {
 				// 停止当前回放
 				
 				// 按新的查询起始时间重新发送另一个回放请求
-//				calendar.get(Calendar.YEAR);
-				resumePlay(calendar);
+				randomPlay(calendar);
 			}
 		};
 		
@@ -409,13 +400,16 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar.reset();*/
 	}
 	
-	protected void resumePlay(Calendar calendar) {
+	protected void randomPlay(Calendar calendar) {
 		int year = calendar.get(Calendar.YEAR);
 		int month = calendar.get(Calendar.MONTH)+1;
 		int day = calendar.get(Calendar.DAY_OF_MONTH);
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		int minute = calendar.get(Calendar.MINUTE);
 		int second = calendar.get(Calendar.SECOND);
+		
+		Log.i(TAG, "random play, time:" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second);
+		
 		OWSPDateTime startTime = new OWSPDateTime();
 		startTime.setDay(day);
 		startTime.setYear(year-2009);
@@ -423,7 +417,10 @@ public class PlaybackActivity extends BaseActivity {
 		startTime.setHour(hour);
 		startTime.setMinute(minute);
 		startTime.setSecond(second);
-		resume(startTime);		
+		
+//		stop();
+		pause();
+		start(startTime);		
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -466,17 +463,17 @@ public class PlaybackActivity extends BaseActivity {
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
-				if (hasContent) {
-					showDialog(REQUESTCODE_DOG);
-					pause(startTime);
+				if (hasRecordFile) {
+					showDialog(PLAYBACK_REQ_DIALOG);
+					pause();
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 			} else {
 				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
-				if (hasContent) {
-					showDialog(REQUESTCODE_DOG);
-					resume(startTime);
+				if (hasRecordFile) {
+					showDialog(PLAYBACK_REQ_DIALOG);
+					resume();
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
@@ -489,23 +486,47 @@ public class PlaybackActivity extends BaseActivity {
 	private void showTostContent(String content) {
 		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
-
-	protected void resume(OWSPDateTime startTime) {
-		PlaybackControllTaskUtils.setPause(false);
-		pbcTask.setTimePickerThreadOver(false);
-		pbcTask.resumeWork(startTime);
+	
+	public boolean isFirstPlay() {
+		return isFirstIn;
+	} 
+	
+	public boolean isPlaying() {
+		return isPlaying;
+	}
+	
+	public boolean isOnPlayControl() {
+		return isOnPlayControl;
 	}
 
-	protected void pause(OWSPDateTime startTime) {
-		PlaybackControllTaskUtils.setPause(true);
-		pbcTask.setTimePickerThreadOver(false);
-		pbcTask.pauseWork(startTime);
+	private void resume() {
+//		PlaybackControllTaskUtils.setPause(false);
+//		pbcTask.setTimePickerThreadOver(false);
+		isOnPlayControl = true;
+		pbcTask.resume();
+	}
+
+	private void pause() {
+//		PlaybackControllTaskUtils.setPause(true);
+//		pbcTask.setTimePickerThreadOver(false);
+		isOnPlayControl = true;
+		pbcTask.pause();
+	}
+	
+	private void stop() {
+//		pbcTask.setTimePickerThreadOver(false);
+		pbcTask.stop();
+	}
+	
+	private void start(OWSPDateTime startTime) {
+//		pbcTask.setTimePickerThreadOver(false);
+		pbcTask.start(startTime);
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == TIMESETTING) {
+		if (requestCode == TIMESETTING_RTN_CODE) {
 			/*
 			 * FOR TESTING ...
 			 */
@@ -516,6 +537,7 @@ public class PlaybackActivity extends BaseActivity {
 			 */
 			if (data != null) {
 				isFirstIn = false;
+				isOnPlayControl = false;
 				Bundle bundle = data.getExtras();
 				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
@@ -533,12 +555,15 @@ public class PlaybackActivity extends BaseActivity {
 	
 	@SuppressWarnings("deprecation")
 	private void startPlayTaskWithLoginItem(TLV_V_SearchRecordRequest srr,PlaybackDeviceItem lItem){
-		showDialog(REQUESTCODE_DOG);
+		showDialog(PLAYBACK_REQ_DIALOG);
 		if (pbcTask != null) {
 			pbcTask.exit();
 			pbcTask = null;
 		}
-		pbcTask = PlaybackControllTask.getInstance(ctx, mHandler, srr, lItem);
+		PlaybackRequest pr = new PlaybackRequest();
+		pr.setSearchRecordRequestInfo(srr);
+		pr.setDeviceInfo(lItem);
+		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
 		pbcTask.start();
 	}
 
@@ -590,14 +615,18 @@ public class PlaybackActivity extends BaseActivity {
 			pbcTask.exit();
 			pbcTask = null;
 		}
-		pbcTask = PlaybackControllTask.getInstance(ctx, mHandler, srr, dItem);
+		
+		PlaybackRequest pr = new PlaybackRequest();
+		pr.setSearchRecordRequestInfo(srr);
+		pr.setDeviceInfo(dItem);
+		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
 		pbcTask.start();
 	}
 
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
-		case REQUESTCODE_DOG:
+		case PLAYBACK_REQ_DIALOG:
 			prg = new ProgressDialog(this);
 			prg.setMessage(getString(R.string.playback_timesetting_reqinfo));
 			prg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -620,15 +649,6 @@ public class PlaybackActivity extends BaseActivity {
 	public void onPause(){
 		super.onPause();
 		closeRemoteSocket();
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		super.onKeyDown(keyCode, event);
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-//			closeRemoteSocket();
-		}
-		return true;
 	}
 	
 	private void closeRemoteSocket(){

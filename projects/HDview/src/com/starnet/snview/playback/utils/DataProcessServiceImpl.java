@@ -1,18 +1,6 @@
-/*
- * FileName:DataProcessServiceImpl.java
- * 
- * Package:com.starsecurity.service.impl
- * 
- * Date:2013-04-15
- * 
- * Copyright: Copyright (c) 2013 Minz.Chan
- */
 package com.starnet.snview.playback.utils;
 
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.io.OutputStream;
+
 import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -35,24 +23,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private String TAG = "DataProcessServiceImpl";
 	private Context context;
 	private String conn_name;
-	private final int LOGIN_SUC = 41;
-	private final int LOGIN_FAIL = 42;
-	private static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
-	private static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
-	private static final int RESUME_PLAYRECORDREQ_SUCC = 43;
-	private static final int RESUME_PLAYRECORDREQ_FAIL = 44;
-	private static final int SEARCH_RECORD_FILE_NULL = 48;
 	
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
 	private IoBuffer oneIFrameBuffer;
 	private int oneIFrameDataSize;
 	
-	private static final int UPDATINGTIMEBAR = 0x0010;
 	private Handler handler;
-	
-//	private OutputStream audioWriter;
-//	private int count = 0;
 
 	private int oldSecond;
 	
@@ -62,7 +39,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 	public DataProcessServiceImpl(Context context, AudioHandler audioHandler, VideoHandler videoHandler) {
 		super();
 		this.context = context;
-		this.conn_name = conn_name;
+//		this.conn_name = conn_name;
 		this.aHandler = audioHandler;
 		this.vHandler = videoHandler;
 		h264 = getPlaybackContainer().getH264Decoder();
@@ -78,6 +55,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}*/
+	}
+	
+	private boolean isPlaying() {
+		return getPlaybackActivity().isPlaying();
+	}
+	
+	private boolean isOnPlayControl() {
+		return getPlaybackActivity().isOnPlayControl();
 	}
 
 	private PlaybackLiveView getPlaybackLiveView() {
@@ -96,9 +81,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return (PlaybackActivity) context;
 	}
 
+	/**
+	 * TLV解析
+	 * @param data TLV字节数组
+	 * @param length TLV数据长度
+	 * @return 
+	 */
 	@Override
 	public int process(byte[] data, int length) {
-		PlaybackLiveView playbackVideo = getPlaybackLiveView();
+//		PlaybackLiveView playbackVideo = getPlaybackLiveView();
 		int returnValue = 0;
 		int nLeft = length - 4; // 未处理的字节数
 		int nLen_hdr = OWSP_LEN.TLV_HEADER;
@@ -326,11 +317,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 								OWSP_LEN.TLV_V_LoginResponse);
 				int result = tlv_V_LoginResponse.getResult();
 				if (result == 1) {
-					returnValue = LOGIN_SUC;
-					PlaybackControllTaskUtils.isCanPlay = true;
+					returnValue = PlaybackControllTask.LOGIN_SUC;
+//					PlaybackControllTaskUtils.isCanPlay = true;
 				} else {
-					returnValue = LOGIN_FAIL;
-					PlaybackControllTaskUtils.isCanPlay = false;
+					returnValue = PlaybackControllTask.LOGIN_FAIL;
+//					PlaybackControllTaskUtils.isCanPlay = false;
 				}
 				return returnValue;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX) {
@@ -347,31 +338,32 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "######TLV TYPE: TLV_T_PLAY_RECORD_RSP");
 				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 				int result = prr.getResult();
-				if (result == 1) {//表示请求成功
-					if (isPauseFlag) {//通知PlaybackActivity的变化
-						returnValue = PAUSE_PLAYRECORDREQ_SUCC;
-						sendMsgToPlayActivity(PAUSE_PLAYRECORDREQ_SUCC);
-						break;
-					}
-					if(isResumeFlag){
-						returnValue = RESUME_PLAYRECORDREQ_SUCC;
-						sendMsgToPlayActivity(RESUME_PLAYRECORDREQ_SUCC);
-					}
-				}else {//表示暂停失败
-					if (isPauseFlag) {
-						returnValue = PAUSE_PLAYRECORDREQ_FAIL;
-						sendMsgToPlayActivity(PAUSE_PLAYRECORDREQ_FAIL);
-						break;
-					}
-					if (isResumeFlag) {
-						returnValue = RESUME_PLAYRECORDREQ_FAIL;
-						sendMsgToPlayActivity(RESUME_PLAYRECORDREQ_FAIL);
-						break;
+				if (isOnPlayControl()) {
+					if (result == 1) {//表示请求成功
+						if (isPlaying()) {//通知PlaybackActivity的变化
+							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC);
+							break;
+						} else {
+							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC);
+						}
+					}else {//表示暂停失败
+						if (isPlaying()) {
+							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL);
+							break;
+						} else {
+							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL);
+							break;
+						}
 					}
 				}
+				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");
-				returnValue = -1;
+				returnValue = PlaybackControllTask.RECORD_EOF;
 				break;
 			}  else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_SEARCHRECORD) {
 				TLV_V_SearchRecordResponse srr = (TLV_V_SearchRecordResponse) ByteArray2Object.convert2Object(TLV_V_SearchRecordResponse.class, data,flag, OWSP_LEN.TLV_V_SearchFileResponse);
@@ -379,12 +371,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 			    int count = srr.getCount();
 			    
 			    if (result == 1 && count ==0 ) {
-			    	return SEARCH_RECORD_FILE_NULL;
+			    	return PlaybackControllTask.SEARCH_RECORD_FILE_NULL;
 			    }
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
 				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object.convert2Object(TLV_V_RecordInfo.class, data, flag,OWSP_LEN.TLV_V_RECORDINFO);
 				recordInfoList.add(info);
-				returnValue = RECORDINFORS;
+				returnValue = PlaybackControllTask.RECORDINFORS;
 			}
 			lastType = tlv_Header.getTlv_type();
 			nLeft -= tlv_Header.getTlv_len();
@@ -393,7 +385,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return returnValue;
 	}
 
-	private static final int RECORDINFORS = 32;
+	
 	private ArrayList<TLV_V_RecordInfo> recordInfoList = new ArrayList<TLV_V_RecordInfo>();
 
 	@Override
@@ -401,13 +393,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return recordInfoList;
 	}
 
-	/** 更新播放时的进度时间轴 **/
-	private void updatePlaybackUIMessage(Message msg) {
-		Bundle data = new Bundle();
-		msg.setData(data);
-		msg.what = UPDATINGTIMEBAR;
-		handler.sendMessage(msg);
-	}
 	
 	private void sendMsgToPlayActivity(int flag){
 		Message msg = new Message();
@@ -415,14 +400,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 		handler.sendMessage(msg);
 	}
 	
-	private boolean isPauseFlag;
-	private boolean isResumeFlag;
-	public void setPause(boolean isPause){
-		this.isPauseFlag = isPause;
-	}
-	public void setResume(boolean isResume){
-		this.isResumeFlag = isResume;
-	}
+//	private boolean isPauseFlag;
+//	private boolean isResumeFlag;
+//	public void setPause(boolean isPause){
+//		this.isPauseFlag = isPause;
+//	}
+//	public void setResume(boolean isResume){
+//		this.isResumeFlag = isResume;
+//	}
 	
 	
 }

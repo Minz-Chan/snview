@@ -500,7 +500,7 @@ public class TimeSettingActivity extends BaseActivity {
 			bundle.putString("svrPass", svrPass);
 			bundle.putString("svrUser", svrUser);			
 			
-			loginItem.setDeviceRecordName(visitDevItem.getDeviceName());
+			loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
 			loginItem.setPlatformUsername(visitDevItem.getPlatformUsername());
 			loginItem.setLoginUser(svrUser);
 			loginItem.setLoginPass(svrPass);
