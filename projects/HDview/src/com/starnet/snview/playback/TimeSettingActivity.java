@@ -138,30 +138,44 @@ public class TimeSettingActivity extends BaseActivity {
 						}
 						String userName = preferences.getString("username", null);					
 						int channelNo = preferences.getInt("channelNo", 0);
+						for(int i =0 ;i<dList.size();i++){							
+							List<Channel> chList = dList.get(i).getChannelList();
+							if (chList!=null&&chList.size()>0) {
+								for (int j = 0; j < chList.size(); j++) {
+									chList.get(j).setSelected(false);
+								}
+							}
+						}
+						
 						if (netCA.getUsername().equals(userName)) {
 							String deviceNm = preferences.getString("deviceName", null);
 							if ((dList != null) && (dList.size() > 0)) {
+																
 								for(int i =0 ;i<dList.size();i++){
-									if (dList.get(i).getDeviceName().equals(deviceNm)) {
-										clickChild = i;
+									
+									if (dList.get(i).getDeviceName().substring(4).equals(deviceNm)) {
+										
 										List<Channel> chanelList = dList.get(i).getChannelList();
 										if (chanelList!=null&&chanelList.size()>0) {
+																						
 											for (int j = 0; j < chanelList.size(); j++) {
 												if (j == channelNo) {
+													clickGroup = pos;
+													clickChild = i;
 													chanelList.get(j).setSelected(true);
+													okFlag = true;
+													actsAdapter.setGroup(pos);
+													actsAdapter.setChild(clickChild);
+													actsAdapter.setDeviceItem(dList.get(clickChild));
 													break;
-												}												
+												}											
 											}
 										}
 										break;
 									}
 								}
 							}
-						}
-						okFlag = true;
-						actsAdapter.setGroup(pos);
-						actsAdapter.setChild(clickChild);
-						actsAdapter.setDeviceItem(dList.get(clickChild));
+						}						
 					}					
 					originCAs.set(pos, netCA);					
 					actsAdapter.notifyDataSetChanged();
@@ -249,10 +263,12 @@ public class TimeSettingActivity extends BaseActivity {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
 				CloudAccount cA = (CloudAccount) parent.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
-				if (cA.isExpanded()) {// 判断列表是否已经展开
-					cA.setExpanded(false);
-				} else {
-					cA.setExpanded(true);
+				if (cA.isRotate()) {
+					if (cA.isExpanded()) {// 判断列表是否已经展开
+						cA.setExpanded(false);
+					} else {
+						cA.setExpanded(true);
+					}
 				}
 				return false;
 			}
@@ -486,26 +502,12 @@ public class TimeSettingActivity extends BaseActivity {
 		srr = getSearchRecordRequestInfo();
 		loginItem = new PlaybackDeviceItem();
 		if (visitDevItem!=null) {
-			String svrIp = visitDevItem.getSvrIp();
-			String svrPort = visitDevItem.getSvrPort();
-			String svrPass = visitDevItem.getLoginPass();
-			String svrUser = visitDevItem.getLoginUser();
-			
-//			svrIp = svrIp.replaceAll("", "\\.");
-			
-			String ip = "13.25.10.128";
-
-//			String svrIps[] = svrIp.split("\\.");
-			bundle.putString("svrPort", svrPort);
-			bundle.putString("svrPass", svrPass);
-			bundle.putString("svrUser", svrUser);			
-			
 			loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
 			loginItem.setPlatformUsername(visitDevItem.getPlatformUsername());
-			loginItem.setLoginUser(svrUser);
-			loginItem.setLoginPass(svrPass);
+			loginItem.setLoginUser(visitDevItem.getLoginUser());
+			loginItem.setLoginPass(visitDevItem.getLoginPass());
 			loginItem.setSvrIp(visitDevItem.getSvrIp());
-			loginItem.setSvrPort(svrPort);
+			loginItem.setSvrPort(visitDevItem.getSvrPort());
 			bundle.putParcelable("loginItem", loginItem);
 		}
 		
@@ -740,7 +742,24 @@ public class TimeSettingActivity extends BaseActivity {
 		if (requestCode == REQUESTCODE) {
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
-				if (okFlag) {
+				if (okFlag) {					
+					for (int i = 0; i < actsAdapter.getGroupCount(); i++) {
+						CloudAccount account = (CloudAccount)actsAdapter.getGroup(i);
+						if (account!=null) {
+							List<DeviceItem> deviceItems = account.getDeviceList();
+							if (deviceItems!=null&&deviceItems.size()>0) {
+								for (int j = 0; j < deviceItems.size(); j++) {
+									DeviceItem item = deviceItems.get(j);
+									List<Channel> cList = item.getChannelList();
+									if (cList!=null&&cList.size()>0) {
+										for (Channel channel : cList) {
+											channel.setSelected(false);
+										}
+									}
+								}
+							}							
+						}
+					}					
 					actsAdapter.setOkFlag(true);
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
@@ -857,11 +876,19 @@ public class TimeSettingActivity extends BaseActivity {
 				String startTime = startTimeTxt.getText().toString();
 				try {
 					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
-					if (dayDif <= 0 || (dayDif >= 3)) {//结束时间不变
+					if (dayDif < 0 || (dayDif >= 3)) {
 						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
 						String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
 						content = newContDate + " " + contentHm;
 						startTimeTxt.setText(content);
+					}else if(dayDif == 0){
+						long hourDif = TimeSettingUtils.getBetweenHours(startTime, endTime);
+						if (hourDif<=0) {
+							boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+							String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+							content = newContDate + " " + contentHm;
+							startTimeTxt.setText(content);
+						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();

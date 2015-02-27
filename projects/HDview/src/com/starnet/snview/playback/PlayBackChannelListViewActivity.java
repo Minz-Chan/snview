@@ -23,6 +23,8 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class PlayBackChannelListViewActivity extends Activity {
+	
+	private DeviceItem lastClickDeviceItem;
 
 	private PlaybackChannelListViewAdapter adapter = null;// ListView的适配器
 	private ListView myListView = null; // 显示列表listview

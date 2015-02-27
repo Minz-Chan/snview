@@ -3,6 +3,7 @@ package com.starnet.snview.playback;
 import java.util.List;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
@@ -124,7 +125,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
 		txt.setText(list.get(childPosition).getDeviceName());
 		final Button stateBtn = (Button) convertView.findViewById(R.id.stateBtn);
-		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().equals(clickDItem.getDeviceName())) {
+		DeviceItem item = users.get(groupPosition).getDeviceList().get(childPosition);
+		boolean isSelected = judgeChannelIsSelected(item);
+//		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().contains(clickDItem.getDeviceName())) {
+		if(isSelected){
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -148,6 +152,22 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 			}
 		});
 		return convertView;
+	}
+
+	private boolean judgeChannelIsSelected(DeviceItem item) {
+		boolean isSelected = false;
+		if (item != null ) {
+			List<Channel> chList = item.getChannelList();
+			if (chList!=null&&chList.size()>0) {
+				for (Channel channel : chList) {
+					if (channel.isSelected()) {
+						isSelected = true;
+						break;
+					}
+				}
+			}
+		}
+		return isSelected;
 	}
 
 	@Override
