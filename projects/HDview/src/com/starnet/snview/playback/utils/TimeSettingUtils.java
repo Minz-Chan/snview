@@ -21,6 +21,24 @@ public class TimeSettingUtils {
 		return diffDays;
 	}
 	
+	public static long getBetweenHours(String dateStart, String dateStop) throws ParseException{
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Date d1 = format.parse(dateStart);
+		Date d2 = format.parse(dateStop);
+		long diff = d2.getTime() - d1.getTime();// 毫秒ms
+		long diffHours = diff / (60 * 60 * 1000) % 24;
+		return diffHours;
+	}
+	
+	public static long getBetweenMinutes(String dateStart, String dateStop) throws ParseException{
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Date d1 = format.parse(dateStart);
+		Date d2 = format.parse(dateStop);
+		long diff = d2.getTime() - d1.getTime();// 毫秒ms
+		long diffMinutes = diff / (60 * 1000) % 60;
+		return diffMinutes;
+	}
+	
 	public static int getScanChannel(List<Channel> chanList) {
 		int no = 0;
 		int size = chanList.size();
