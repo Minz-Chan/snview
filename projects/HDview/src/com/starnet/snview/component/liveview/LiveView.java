@@ -244,8 +244,11 @@ public class LiveView extends SurfaceView implements OnLiveViewChangedListener {
         		canTakePicture = false;
         	}
         	if (canStartRecord) {
-        		Connection conn = parent.getConnection();
-        		if (conn != null && conn.getH264decoder().isInRecording()) {
+//        		Connection conn = parent.getConnection();
+//        		if (conn != null && conn.getH264decoder().isInRecording()) {
+//        			canvas.drawCircle(20, 20, 10, mPaint);
+//        		}
+        		if (parent.isInRecording()) {
         			canvas.drawCircle(20, 20, 10, mPaint);
         		}
         	}

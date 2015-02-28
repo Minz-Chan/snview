@@ -74,7 +74,45 @@ public class H264Decoder {
      *        param[5] num_ref_frames       
      * @return 成功返回1，失败返回0
      */
-    public int probe_sps(byte[] in, int insize, byte[] param) {
+    public static int probeSps(byte[] in, int insize, byte[] param) {
     	return ProbeSPS(in, insize, param);
     }
+    
+    /**
+     * 提取SPS（包含起始码 00 00 00 01）
+     * @param IFrameData 完整的I帧
+     * @param size 帧长度
+     * @return 包含起始码的SPS数据
+     */
+    public static byte[] extractSps(byte[] IFrameData, int size) {
+		if (size < 5) {
+			return null;
+		}
+		
+		byte[] p = IFrameData;
+		int pos1, pos2;
+		
+		// find first sps start position
+		pos1 = 0;
+		while (!(p[pos1 + 0] == 0x00 && p[pos1 + 1] == 0x00
+				&& p[pos1 + 2] == 0x00 && p[pos1 + 3] == 0x01
+				&& p[pos1 + 4] == 0x67)) {
+			pos1++;
+		}
+		
+		// find next nal unit start position
+		pos2 = pos1+1;
+		while (!(p[pos2 + 0] == 0x00 && p[pos2 + 1] == 0x00
+				&& p[pos2 + 2] == 0x00 && p[pos2 + 3] == 0x01)) {
+			pos2++;
+		}
+		
+		if (pos2 < size) {
+			byte[] sps = new byte[pos2-pos1];
+			System.arraycopy(IFrameData, pos1, sps, 0, pos2-pos1);
+			return sps;
+		}
+		
+		return null;
+	}
 }

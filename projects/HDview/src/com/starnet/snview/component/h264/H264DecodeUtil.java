@@ -103,7 +103,7 @@ public class H264DecodeUtil {
 						if ((NalBuf[4] & 0x1F) == 7) { // if sps
 							bFindPPS = false;
 							
-							if (decoder.probe_sps(NalBuf, NalBufUsed - 4, param) == 1) { // 根据得到的参数判断分辨率信息是否发生变化
+							if (H264Decoder.probeSps(NalBuf, NalBufUsed - 4, param) == 1) { // 根据得到的参数判断分辨率信息是否发生变化
 								//System.out.println("->H264DecodeUtil->probe_sps");
 //								VideoView v = ViewManager.getInstance().getVideoView();
 //								int realWidth = ((param[2] + 1) * 16);
@@ -120,6 +120,9 @@ public class H264DecodeUtil {
 							} else {
 								//System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
 							}
+							
+//							System.arraycopy(NalBuf, 4, AVConfig.Video.sps, 0, (NalBufUsed - 4) - 4);
+//							AVConfig.Video.spsLen = (NalBufUsed - 4) - 4;
 							
 						} else {				// if NAL unit sequence is not 'sps, pps, ...', reread from buffer
 			   				NalBuf[0] = 0;
@@ -143,18 +146,18 @@ public class H264DecodeUtil {
 					Log.i("H264DecodeUtil", "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1) + ", data size:" + (NalBufUsed - 4));
 					
 					// pack h264 stream data into mp4 file
-					if (mStartRecord && mSpsCount >= 0) {
-						if (NalBuf[4] == 0x67 && mSpsCount == 0) { // first sps
-							mSpsCount++;
-							mInRecording = true;
-							//mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, mPlayFPS);
-							mMP4FileHanlde = mp4recorder.createRecordFile(mMp4RecordFileName, NalBuf, NalBufUsed - 4, mPlayFPS);
-							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
-						} else if (mSpsCount > 0) {
-							if (NalBuf[4] == 0x67) mSpsCount++;
-							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
-						}
-					}
+//					if (mStartRecord && mSpsCount >= 0) {
+//						if (NalBuf[4] == 0x67 && mSpsCount == 0) { // first sps
+//							mSpsCount++;
+//							mInRecording = true;
+//							//mp4recorder.updateSPS(mInstanceId, NalBuf, NalBufUsed - 4, mPlayFPS);
+//							mMP4FileHanlde = mp4recorder.createRecordFile(mMp4RecordFileName, NalBuf, NalBufUsed - 4, mPlayFPS);
+//							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
+//						} else if (mSpsCount > 0) {
+//							if (NalBuf[4] == 0x67) mSpsCount++;
+//							mp4recorder.packVideo(mMP4FileHanlde, NalBuf, NalBufUsed - 4);
+//						}
+//					}
 					
 		            if(iTemp > 0) {
 		            	result = 1;

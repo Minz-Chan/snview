@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.apache.mina.core.buffer.IoBuffer;
 
 import com.starnet.snview.component.audio.AudioHandler;
+import com.starnet.snview.component.h264.AVConfig;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
@@ -293,9 +294,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "sampleRate: " + sampleRate);
 
 				if (tlv_V_StreamDataFormat != null) {
+//					AVConfig.Video.framerate = framerate;
 					if (width > 0 && height > 0) {
 //						h264.init(width, height); // 初始化视频分辨率
 //						playbackVideo.init(width, height);
+						
+//						AVConfig.Video.width = width;
+//						AVConfig.Video.height = height;
+						
 						Message msg = Message.obtain();
 						msg.what = VideoHandler.MSG_VIDEOPLAYER_INIT;
 						msg.arg1 = width;

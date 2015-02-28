@@ -3,6 +3,8 @@ package com.starnet.snview.component.liveview;
 import java.io.File;
 
 import com.starnet.snview.R;
+import com.starnet.snview.component.h264.AVConfig;
+import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.protocol.Connection;
 import com.starnet.snview.protocol.Connection.StatusListener;
@@ -56,7 +58,11 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private boolean mIsManualStop;
 	
 	private String mRecordFileName;
+	private long mRecordFileHandler;
+	private boolean mCanStartRecord;
 	private int mFramerate;	// 帧率
+	
+	private AVConfig.Video mVideoConfig = new AVConfig.Video();
 	
 	private Paint mPaint = new Paint();	
 	
@@ -171,6 +177,22 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public void setPreviewItem(PreviewDeviceItem previewItem) {
 		this.mPreviewItem = previewItem;
+	}
+	
+	public boolean canStartRecord() {
+		return mCanStartRecord;
+	}
+	
+	public void setCanStartRecord(boolean canStartRecord) {
+		this.mCanStartRecord = canStartRecord;
+	}
+	
+	public long getRecordFileHandler() {
+		return mRecordFileHandler;
+	}
+	
+	public AVConfig.Video getVideoConfig() {
+		return mVideoConfig;
 	}
 	
 	public void setRefreshButtonClickListener(
@@ -572,18 +594,26 @@ public class LiveViewItemContainer extends RelativeLayout {
 			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
 			
 			mRecordFileName = fileName;
+			mCanStartRecord = false;
 			mSurfaceView.setStartRecord(true);
 			mSurfaceView.makeVideoSnapshot(fileName);
-			mConnection.getH264decoder().setPlayFPS(mFramerate);
-			mConnection.getH264decoder().startMP4Record(fullRecPath);
+//			mConnection.getH264decoder().setPlayFPS(mFramerate);
+//			mConnection.getH264decoder().startMP4Record(fullRecPath);
+			mRecordFileHandler = MP4Recorder.createRecordFile(fullRecPath,
+					mVideoConfig.getWidth(), mVideoConfig.getHeight(),
+					mVideoConfig.getFramerate(), mVideoConfig.getSps()[1],
+					mVideoConfig.getSps()[2], mVideoConfig.getSps()[3]);
+			
 			invalidate();
 		}
 	}
 	
 	public void stopMP4Record() {
 		if (mConnection != null) {
+			mCanStartRecord = false;
 			mSurfaceView.setStartRecord(false);
-			mConnection.getH264decoder().stopMP4Record();
+//			mConnection.getH264decoder().stopMP4Record();
+			MP4Recorder.closeRecordFile(mRecordFileHandler);
 			invalidate();
 			
 			if (mRecordFileName != null) {
@@ -606,6 +636,10 @@ public class LiveViewItemContainer extends RelativeLayout {
 				}
 			}
 		}
+	}
+	
+	public boolean isInRecording() {
+		return MP4Recorder.isInRecording(mRecordFileHandler);
 	}
 	
 	private String getString(int resId) {

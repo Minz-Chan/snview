@@ -37,11 +37,14 @@ public class StreamDataFormatMessageHandler implements
 		
 		// 获取帧率
 		lvContainer.setFramerate(message.getVideoDataFormat().getFramerate());
-		
+		lvContainer.getVideoConfig().setFramerate(message.getVideoDataFormat().getFramerate());
 		
 		System.out.println("StreamDataFormat is arrived...");
 		int width = message.getVideoDataFormat().getWidth();
 		int height = message.getVideoDataFormat().getHeight();
+		
+		lvContainer.getVideoConfig().setWidth(width);
+		lvContainer.getVideoConfig().setHeight(height);
 		
 		if (width > 0 && height > 0) {
 			lvContainer.getSurfaceView().init(width, height);
