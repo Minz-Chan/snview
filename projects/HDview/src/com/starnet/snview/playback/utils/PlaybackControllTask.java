@@ -34,7 +34,7 @@ public class PlaybackControllTask {
 	public static final int RECORDINFORS = 32;
 	public static final int SEARCH_RECORD_FILE_NULL = 48;
 	
-	private final int TIMEOUT = 8;//超时时间设置
+	private final int TIMEOUT = 8; //超时时间设置
 
 	private PlaybackController controller;
 
@@ -67,14 +67,6 @@ public class PlaybackControllTask {
 	public PlaybackControllTask(Handler mHandler) {
 		this.mHandler = mHandler;
 	}
-	
-//	public static PlaybackControllTask getInstance(Context ctx,
-//			Handler mHandler, PlaybackRequest playbackRequest) {
-//		if (instance == null) {
-//			return new PlaybackControllTask(ctx, mHandler, playbackRequest);
-//		}
-//		return instance;
-//	}
 
 	public PlaybackControllTask(Context context, Handler mHandler, PlaybackRequest playbackRequest) {
 		this.context = context;
@@ -133,6 +125,7 @@ public class PlaybackControllTask {
 				((PlaybackActivity)context).getVideoContainer().getSurfaceView());
 		
 		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
+		controller = new PlaybackController();
 	}
 
 	protected void onTimeOutWork() {// 超时处理
@@ -226,6 +219,9 @@ public class PlaybackControllTask {
 			sender.write(new OwspBegin());
 			sender.write(prr);
 			sender.write(new OwspEnd());
+			
+			breakDataProcess = false;
+			resumePlay = true;
 			recvAndProcessData(receiver);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -249,6 +245,9 @@ public class PlaybackControllTask {
 			sender.write(v);
 			sender.write(l);
 			sender.write(new OwspEnd());
+			
+			breakDataProcess = false;
+			resumePlay = true;
 			recvAndProcessData(receiver);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -273,6 +272,9 @@ public class PlaybackControllTask {
 				client.close();
 				client = null;
 			}
+			
+			breakDataProcess = true;  // quit data receive and process thread
+			isTimeOut = true; // quit timeout thread
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -282,26 +284,43 @@ public class PlaybackControllTask {
 		this.isCancel = isCancel;
 	}
 		
+	private boolean resumePlay = true;
+	private boolean breakDataProcess = false;
+	
 	/**
 	 * 接收并处理服务器返回的数据
 	 * @param receiver
 	 */
 	public void recvAndProcessData(InputStream receiver) {// 需要一直从Socket中接收数据，直到接收完毕
+		SocketInputStream sockIn = new SocketInputStream(receiver);
+		byte[] packetHeaderBuf = new byte[8];
+		byte[] tlvContent = new byte[655350];
+		long packetLength;
+		
 		try {
-			SocketInputStream sockIn = new SocketInputStream(receiver);
-			byte[] packetHeaderBuf = new byte[8];
-			byte[] tlvContent = new byte[655350];
-			long packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
-			while (!tlvContent.equals("")) {
-				int result = service.process(tlvContent, (int)packetLength);
-				if (decideWhether2RecvData(result)) {
-					break;
+WAIT_TO_RESUME:
+			while(!breakDataProcess) {
+				Thread.sleep(10);
+				if (resumePlay) {
+					packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
+					while (!tlvContent.equals("")) {
+						int result = service.process(tlvContent, (int)packetLength);
+						if (decideWhether2RecvData(result)) {
+							resumePlay = false;
+							continue WAIT_TO_RESUME;
+						}
+						packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
+					}
 				}
-				packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void resumePlay() {
+		resumePlay = true;
 	}
 	
 	/**
@@ -359,12 +378,14 @@ public class PlaybackControllTask {
 		switch (parsedResult) {
 		case RECORD_EOF:
 		case RECORDINFORS: // 接收录像文件数据之后，数据用于渲染时间轴，暂时退出接收过程
-		case PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL:
-		case PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL:
-		case PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC:
-		case SEARCH_RECORD_FILE_NULL:
+			breakDataProcess = true;
 			result = true;
+			break;
+		case PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC:
+			result = true;
+			break;			
 		case LOGIN_SUC:
+			breakDataProcess = true;
 			isCanPlay = true;
 			result = true;
 			break;
@@ -372,6 +393,9 @@ public class PlaybackControllTask {
 			isCanPlay = false;
 			result = true;
 			break;
+		case SEARCH_RECORD_FILE_NULL:
+		case PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL:
+		case PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL:
 		case PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC:
 		default:
 				break;
@@ -400,42 +424,35 @@ public class PlaybackControllTask {
 		}
 		return result;
 	}
-	/**暂停接口**/
-	public void pause(){
-		controller = new PlaybackController();
-		controller.setChannel(getPlaybackChannel());
-		controller.requestPause();
-	}
-	/**继续播放接口**/
-	public void resume(){
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
-		controller.setChannel(getPlaybackChannel());
-		controller.requestResume();
-	}
-	
-	public void stop() {
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
-		controller.setChannel(getPlaybackChannel());
-		controller.requestStop();
-	}
 	
 	public void start(OWSPDateTime startTime) {
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStart(startTime);
+		resumePlay = true;
+		breakDataProcess = false;
 	}
 	
 	public void start() {
-//		service.setPause(false);
-//		service.setResume(false);
 		timeThread.start();
 		recvThread.start();
+		resumePlay = true;
+		breakDataProcess = false;
+	}
+
+	public void pause(){
+		controller.setChannel(getPlaybackChannel());
+		controller.requestPause();
+	}
+
+	public void resume(){
+		controller.setChannel(getPlaybackChannel());
+		controller.requestResume();
+		resumePlay();
+	}
+	
+	public void stop() {
+		controller.setChannel(getPlaybackChannel());
+		controller.requestStop();
 	}
 	
 	private interface STREAM_DATA_TYPE {
@@ -537,7 +554,6 @@ public class PlaybackControllTask {
 //						stTime.setSecond(0);
 						
 						prr.setStartTime(startTime);
-//						prr.setStartTime(stTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
 						prr.setChannel(channel);

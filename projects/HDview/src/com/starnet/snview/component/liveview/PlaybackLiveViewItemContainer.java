@@ -5,7 +5,9 @@ import java.io.File;
 import com.starnet.snview.R;
 import com.starnet.snview.component.audio.AudioBufferQueue;
 import com.starnet.snview.component.audio.AudioPlayer;
+import com.starnet.snview.component.h264.AVConfig;
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.protocol.Connection;
@@ -31,7 +33,6 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	
 	private Context mContext;
 	
-	
 	private int mItemIndex;
 	private String mDeviceRecordName;
 	private PlaybackDeviceItem mPreviewItem;
@@ -52,7 +53,9 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	private ImageView[] mSubFocalLengthArray = new ImageView[4];
 	
 	private String mRecordFileName;
-	private int mFramerate;	// 帧率
+	private long mRecordFileHandler;
+	private boolean mCanStartRecord;
+	private AVConfig.Video mVideoConfig = new AVConfig.Video();
 	
 	private Paint mPaint = new Paint();	
 	
@@ -163,20 +166,28 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		this.mDeviceRecordName = deviceRecordName;
 	}
 	
-	public int getFramerate() {
-		return mFramerate;
-	}
-	
-	public void setFramerate(int framerate) {
-		this.mFramerate = framerate;
-	}
-	
 	public PlaybackDeviceItem getPlaybackItem() {
 		return mPreviewItem;
 	}
 	
 	public void setPlaybackItem(PlaybackDeviceItem playbackItem) {
 		this.mPreviewItem = playbackItem;
+	}
+	
+	public boolean canStartRecord() {
+		return mCanStartRecord;
+	}
+	
+	public void setCanStartRecord(boolean canStartRecord) {
+		this.mCanStartRecord = canStartRecord;
+	}
+	
+	public long getRecordFileHandler() {
+		return mRecordFileHandler;
+	}
+	
+	public AVConfig.Video getVideoConfig() {
+		return mVideoConfig;
 	}
 	
 	public void setRefreshButtonClickListener(
@@ -506,25 +517,29 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	}
 	
 	public void startMP4Record() {
-		if (isConnected()) {
+//		if (isConnected()) {
 			String fileName = LocalFileUtils.getFormatedFileName(
 					getPlaybackItem().getDeviceRecordName(), getPlaybackItem()
 							.getChannel());
 			String fullRecPath = LocalFileUtils.getRecordFileFullPath(fileName, true);
 			
 			mRecordFileName = fileName;
+			mCanStartRecord = false;
 			mSurfaceView.setStartRecord(true);
 			mSurfaceView.makeVideoSnapshot(fileName);
-			getH264Decoder().setPlayFPS(mFramerate);
-			getH264Decoder().startMP4Record(fullRecPath);
+			mRecordFileHandler = MP4Recorder.createRecordFile(fullRecPath,
+					mVideoConfig.getWidth(), mVideoConfig.getHeight(),
+					mVideoConfig.getFramerate(), mVideoConfig.getSps()[1],
+					mVideoConfig.getSps()[2], mVideoConfig.getSps()[3]);
 			invalidate();
-		}
+//		}
 	}
 	
 	public void stopMP4Record() {
-		if (isConnected()) {
+//		if (isConnected()) {
+			mCanStartRecord = false;
 			mSurfaceView.setStartRecord(false);
-			getH264Decoder().stopMP4Record();
+			MP4Recorder.closeRecordFile(mRecordFileHandler);
 			invalidate();
 			
 			if (mRecordFileName != null) {
@@ -546,7 +561,11 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 					
 				}
 			}
-		}
+//		}
+	}
+	
+	public boolean isInRecording() {
+		return MP4Recorder.isInRecording(mRecordFileHandler);
 	}
 	
 	/**

@@ -8,6 +8,8 @@ import org.apache.mina.core.buffer.IoBuffer;
 import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.h264.AVConfig;
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.h264.H264Decoder;
+import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
@@ -142,6 +144,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "$$$Frame data P:" + tmp.length);
 
+				
+				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+					MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), tmp, tmp.length);
+				} 
+				
 				while (vHandler.getBufferQueue().write(tmp) == 0) {
 					try {
 						Thread.sleep(10);
@@ -175,6 +182,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| lastType == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO) {
 					h264.setbFirst(true);
 					h264.setbFindPPS(true);
+					
+					byte[] _sps = H264Decoder.extractSps(tmp, tmp.length);
+					byte[] sps = getPlaybackContainer().getVideoConfig().getSps();
+					System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
+					getPlaybackContainer().getVideoConfig().setSpsLen(_sps.length-4);
+					
+					if (getPlaybackContainer().isInRecording()) {
+						getPlaybackContainer().setCanStartRecord(true);
+					}
 				}
 
 				oneIFrameBuffer.put(tmp);
@@ -185,6 +201,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
 					byte[] toBeWritten = oneIFrameBuffer.flip().array();
+					
+					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
+					} 
+					
 					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
 						try {
 							Thread.sleep(10);
@@ -246,6 +267,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
 				
+				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
+				} 
+				
 				aHandler.getBufferQueue().write(alawData);
 //				getPlaybackContainer().getAudioBufferQueue().write(alawData);
 //				byte[] pcmData = new byte[alawData.length*2];
@@ -294,13 +319,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "sampleRate: " + sampleRate);
 
 				if (tlv_V_StreamDataFormat != null) {
-//					AVConfig.Video.framerate = framerate;
 					if (width > 0 && height > 0) {
 //						h264.init(width, height); // 初始化视频分辨率
 //						playbackVideo.init(width, height);
 						
-//						AVConfig.Video.width = width;
-//						AVConfig.Video.height = height;
+						getPlaybackContainer().getVideoConfig().setFramerate(framerate);
+						getPlaybackContainer().getVideoConfig().setWidth(width);
+						getPlaybackContainer().getVideoConfig().setHeight(height);
 						
 						Message msg = Message.obtain();
 						msg.what = VideoHandler.MSG_VIDEOPLAYER_INIT;
@@ -382,6 +407,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_V_RECORDINFO) {
 				TLV_V_RecordInfo info = (TLV_V_RecordInfo) ByteArray2Object.convert2Object(TLV_V_RecordInfo.class, data, flag,OWSP_LEN.TLV_V_RECORDINFO);
 				recordInfoList.add(info);
+				Log.i(TAG, "record info: " + info.getStartTime() + "~" + info.getEndTime());
 				returnValue = PlaybackControllTask.RECORDINFORS;
 			}
 			lastType = tlv_Header.getTlv_type();

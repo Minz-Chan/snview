@@ -82,6 +82,8 @@ public class PlaybackActivity extends BaseActivity {
 	private boolean isFirstIn = false;  // 是否第一次进行远程回放界面
 	private boolean isOnPlayControl = false; // 是否正在进行播放控制（暂停、继续）
 	private boolean hasRecordFile = false;
+	
+	private boolean bVideoRecordPressed; // 是否正在录像
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -128,7 +130,7 @@ public class PlaybackActivity extends BaseActivity {
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
 			case PAUSE_PLAYRECORDREQ_SUCC://更新图标
-				dismissPlaybackReqDialog();
+//				dismissPlaybackReqDialog();
 				isPlaying = false;
 //				pbcTask.setTimePickerThreadOver(true);
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_play_selector);
@@ -167,7 +169,9 @@ public class PlaybackActivity extends BaseActivity {
 				break;
 			case UPDATE_MIDDLE_TIME:
 				long timestamp = msg.getData().getLong("AUDIO_TIME");
-				Calendar c = getQueryStartTimeBase();
+//				Calendar c = getQueryStartTimeBase();
+				Calendar c = Calendar.getInstance();
+				c.set(2015, 2, 1, 0, 0, 0);
 				c.setTimeInMillis(c.getTimeInMillis()+timestamp);
 				mTimebar.setCurrentTime(c);
 				break;
@@ -410,17 +414,16 @@ public class PlaybackActivity extends BaseActivity {
 		
 		Log.i(TAG, "random play, time:" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second);
 		
-		OWSPDateTime startTime = new OWSPDateTime();
-		startTime.setDay(day);
-		startTime.setYear(year-2009);
-		startTime.setMonth(month);
-		startTime.setHour(hour);
-		startTime.setMinute(minute);
-		startTime.setSecond(second);
+		final OWSPDateTime startTime = new OWSPDateTime();
+		startTime.setDay(1);
+		startTime.setYear(2015-2009);
+		startTime.setMonth(3);
+		startTime.setHour(13);
+		startTime.setMinute(58);
+		startTime.setSecond(0);
 		
-//		stop();
-		pause();
-		start(startTime);		
+		start(startTime);
+		pbcTask.resumePlay();
 	}
 
 	@SuppressLint("SimpleDateFormat")
@@ -450,6 +453,9 @@ public class PlaybackActivity extends BaseActivity {
 				mVideoContainer.takePicture();
 				showTostContent("单击了拍照按钮");
 				break;
+			case VIDEO_RECORD:
+				processVideoRecord();
+				break;
 			default:
 				showTostContent("单击了其他按钮");
 				break;
@@ -464,7 +470,7 @@ public class PlaybackActivity extends BaseActivity {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				//mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE, R.drawable.toolbar_pause_selector);
 				if (hasRecordFile) {
-					showDialog(PLAYBACK_REQ_DIALOG);
+//					showDialog(PLAYBACK_REQ_DIALOG);
 					pause();
 				}else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
@@ -480,6 +486,28 @@ public class PlaybackActivity extends BaseActivity {
 			}
 		}else {
 			showTostContent(getString(R.string.playback_not_open_play));
+		}
+	}
+	
+	private void processVideoRecord() {
+		Log.i(TAG, "processVideoRecord");
+		if (!isPlaying) {
+			bVideoRecordPressed = false;
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			return; 
+		}
+		
+		bVideoRecordPressed = !bVideoRecordPressed;
+		
+		if (bVideoRecordPressed) { // 开启录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+			mVideoContainer.startMP4Record();
+		} else { // 关闭录像
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			mVideoContainer.stopMP4Record();
 		}
 	}
 
@@ -527,21 +555,39 @@ public class PlaybackActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING_RTN_CODE) {
-			if (data != null) {
-				isFirstIn = false;
-				isOnPlayControl = false;
-				Bundle bundle = data.getExtras();
-				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
-				loginItem = bundle.getParcelable("loginItem");
-				mVideoContainer.setPlaybackItem(loginItem);				
-				if (loginItem != null) {
-					startPlayTaskWithLoginItem(srr, loginItem);		/* REAL CODE */			
-				}else{
-					testStartPlayTask(srr, loginItem);/*  FOR TESTING ... */
-				}
-			}else{
-				testStartPlayTask(null, null);/*  FOR TESTING ... */
-			}
+			/*
+			 * FOR TESTING ...
+			 */
+			
+			
+			isFirstIn = false;
+			isOnPlayControl = false;
+			
+			PlaybackDeviceItem item = new PlaybackDeviceItem();
+			item.setDeviceRecordName("test");
+			item.setChannel(3);
+			mVideoContainer.setPlaybackItem(item);
+			mVideoContainer.setWindowInfoText(mVideoContainer.getDeviceRecordName());
+			
+			testStartPlayTask(srr, item);
+			
+			
+			/*
+			 * REAL CODE
+			 */
+//			if (data != null) {
+//				isFirstIn = false;
+//				isOnPlayControl = false;
+//				Bundle bundle = data.getExtras();
+//				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+//				loginItem = bundle.getParcelable("loginItem");
+//				mVideoContainer.setPlaybackItem(loginItem);				
+//				if (loginItem != null) {
+//					startPlayTaskWithLoginItem(srr, loginItem);					
+//				}else{
+//					testStartPlayTask(srr, loginItem);
+//				}
+//			}
 		}
 	}
 	
@@ -562,12 +608,12 @@ public class PlaybackActivity extends BaseActivity {
 	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1, PlaybackDeviceItem dItem1) {
 		PlaybackDeviceItem dItem = new PlaybackDeviceItem();
 		// dItem.setSvrIp("61.131.16.27");
-		String ips = "192.168.87.10";
+		String ips = "10.18.72.222";
 		dItem.setSvrIp(ips);
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");
 		dItem.setLoginUser("admin");
-		dItem.setLoginPass("1");
+		dItem.setLoginPass("");
 //		//
 		srr = new TLV_V_SearchRecordRequest();
 		OWSPDateTime stTime = new OWSPDateTime();
@@ -585,7 +631,7 @@ public class PlaybackActivity extends BaseActivity {
 		stTime.setMonth(3);
 		stTime.setDay(1);
 		stTime.setHour(13);
-		stTime.setMinute(55);
+		stTime.setMinute(50);
 		stTime.setSecond(0);
 		srr.setStartTime(stTime);
 
@@ -594,14 +640,14 @@ public class PlaybackActivity extends BaseActivity {
 		endTime.setMonth(3);
 		endTime.setDay(1);
 		endTime.setHour(14);
-		endTime.setMinute(4);
+		endTime.setMinute(10);
 		endTime.setSecond(0);
 		srr.setEndTime(endTime);
 
-		srr.setDeviceId(0);
 		srr.setCount(255);
-		srr.setRecordType(4); //记录类型（8：手动录像；4：定时录像；2：移动侦测录像；1：开关量警告录像；0:全部）
-		srr.setChannel(3);    //通道号
+		srr.setRecordType(4);
+		srr.setDeviceId(0);
+		srr.setChannel(3);    
 		
 		if (pbcTask != null) {
 			pbcTask.exit();

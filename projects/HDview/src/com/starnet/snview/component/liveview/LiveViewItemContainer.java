@@ -60,8 +60,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 	private String mRecordFileName;
 	private long mRecordFileHandler;
 	private boolean mCanStartRecord;
-	private int mFramerate;	// 帧率
-	
 	private AVConfig.Video mVideoConfig = new AVConfig.Video();
 	
 	private Paint mPaint = new Paint();	
@@ -161,14 +159,6 @@ public class LiveViewItemContainer extends RelativeLayout {
 	
 	public void setDeviceRecordName(String deviceRecordName) {
 		this.mDeviceRecordName = deviceRecordName;
-	}
-	
-	public int getFramerate() {
-		return mFramerate;
-	}
-	
-	public void setFramerate(int framerate) {
-		this.mFramerate = framerate;
 	}
 	
 	public PreviewDeviceItem getPreviewItem() {

@@ -217,7 +217,7 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
         		canTakePicture = false;
         	}
         	if (canStartRecord) {
-        		if (parent != null && parent.getH264Decoder().isInRecording()) {
+        		if (parent.canStartRecord()) {
         			canvas.drawCircle(20, 20, 10, mPaint);
         		}
         	}

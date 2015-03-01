@@ -101,4 +101,16 @@ public class OWSPDateTime implements Parcelable {/**
 		dest.writeInt(minute);
 		dest.writeInt(second);
 	}
+
+	@Override
+	public String toString() {
+		StringBuffer t = new StringBuffer();
+		t.append(year).append("-").append(month).append("-").append(day)
+				.append(" ").append(hour).append(":").append(minute)
+				.append(":").append(second);
+		
+		return t.toString();
+	}
+	
+	
 }

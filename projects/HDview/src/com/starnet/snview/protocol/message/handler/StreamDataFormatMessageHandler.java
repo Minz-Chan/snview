@@ -36,7 +36,7 @@ public class StreamDataFormatMessageHandler implements
 		}
 		
 		// 获取帧率
-		lvContainer.setFramerate(message.getVideoDataFormat().getFramerate());
+//		lvContainer.setFramerate(message.getVideoDataFormat().getFramerate());
 		lvContainer.getVideoConfig().setFramerate(message.getVideoDataFormat().getFramerate());
 		
 		System.out.println("StreamDataFormat is arrived...");
