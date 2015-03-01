@@ -527,14 +527,6 @@ public class PlaybackActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == TIMESETTING_RTN_CODE) {
-			/*
-			 * FOR TESTING ...
-			 */
-//			testStartPlayTask(null, null);
-			
-			/*
-			 * REAL CODE
-			 */
 			if (data != null) {
 				isFirstIn = false;
 				isOnPlayControl = false;
@@ -543,10 +535,12 @@ public class PlaybackActivity extends BaseActivity {
 				loginItem = bundle.getParcelable("loginItem");
 				mVideoContainer.setPlaybackItem(loginItem);				
 				if (loginItem != null) {
-					startPlayTaskWithLoginItem(srr, loginItem);					
+					startPlayTaskWithLoginItem(srr, loginItem);		/* REAL CODE */			
 				}else{
-					testStartPlayTask(srr, loginItem);
+					testStartPlayTask(srr, loginItem);/*  FOR TESTING ... */
 				}
+			}else{
+				testStartPlayTask(null, null);/*  FOR TESTING ... */
 			}
 		}
 	}
@@ -573,7 +567,7 @@ public class PlaybackActivity extends BaseActivity {
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");
 		dItem.setLoginUser("admin");
-		dItem.setLoginPass("");
+		dItem.setLoginPass("1");
 //		//
 		srr = new TLV_V_SearchRecordRequest();
 		OWSPDateTime stTime = new OWSPDateTime();
@@ -588,26 +582,26 @@ public class PlaybackActivity extends BaseActivity {
 		
 		// channel 2, 2.12 12:00 1280x960
 		stTime.setYear(2015 - 2009);
-		stTime.setMonth(2);
-		stTime.setDay(12);
-		stTime.setHour(12);
-		stTime.setMinute(0);
+		stTime.setMonth(3);
+		stTime.setDay(1);
+		stTime.setHour(13);
+		stTime.setMinute(55);
 		stTime.setSecond(0);
 		srr.setStartTime(stTime);
 
 		OWSPDateTime endTime = new OWSPDateTime();
 		endTime.setYear(2015 - 2009);
-		endTime.setMonth(2);
-		endTime.setDay(14);
-		endTime.setHour(13);
-		endTime.setMinute(21);
-		endTime.setSecond(2);
+		endTime.setMonth(3);
+		endTime.setDay(1);
+		endTime.setHour(14);
+		endTime.setMinute(4);
+		endTime.setSecond(0);
 		srr.setEndTime(endTime);
 
-		srr.setCount(255);
-		srr.setRecordType(8);
 		srr.setDeviceId(0);
-		srr.setChannel(1);
+		srr.setCount(255);
+		srr.setRecordType(4); //记录类型（8：手动录像；4：定时录像；2：移动侦测录像；1：开关量警告录像；0:全部）
+		srr.setChannel(3);    //通道号
 		
 		if (pbcTask != null) {
 			pbcTask.exit();
@@ -624,6 +618,7 @@ public class PlaybackActivity extends BaseActivity {
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
+		
 		case PLAYBACK_REQ_DIALOG:
 			prg = new ProgressDialog(this);
 			prg.setMessage(getString(R.string.playback_timesetting_reqinfo));

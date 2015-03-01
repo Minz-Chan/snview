@@ -2,16 +2,11 @@ package com.starnet.snview.playback.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
 import com.starnet.snview.component.BufferSendManagerPlayBack;
-import com.starnet.snview.component.audio.AudioBufferQueue;
-import com.starnet.snview.component.audio.AudioCodec;
 import com.starnet.snview.component.audio.AudioHandler;
-import com.starnet.snview.component.audio.AudioPlayer;
-import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -20,11 +15,9 @@ import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 
 import android.content.Context;
-import android.media.AudioFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -32,8 +25,6 @@ public class PlaybackControllTask {
 	
 	private final static String TAG = "PlaybackControllTask";
 	
-//	private static final int LOGIN_DEVICEID = 0;
-//	private static final int LOGIN_FLAG = 1;
 	private static final int VERSION_MAJOR = 0x534E;
 	private static final int VERSION_MINOR = 0x0000;
 
@@ -44,10 +35,6 @@ public class PlaybackControllTask {
 	public static final int SEARCH_RECORD_FILE_NULL = 48;
 	
 	private final int TIMEOUT = 8;//超时时间设置
-
-	
-	
-//	private static PlaybackControllTask instance;
 
 	private PlaybackController controller;
 
@@ -71,6 +58,10 @@ public class PlaybackControllTask {
 	private HandlerThread videoPlayThread;
 	private HandlerThread audioPlayThread;
 
+	private DataProcessService service;
+	private InputStream receiver = null;
+	private BufferSendManagerPlayBack sender = null;
+	
 	public PlaybackControllTask() { }
 
 	public PlaybackControllTask(Handler mHandler) {
@@ -84,8 +75,6 @@ public class PlaybackControllTask {
 //		}
 //		return instance;
 //	}
-	
-	
 
 	public PlaybackControllTask(Context context, Handler mHandler, PlaybackRequest playbackRequest) {
 		this.context = context;
@@ -200,10 +189,6 @@ public class PlaybackControllTask {
 		}
 	}
 
-	private DataProcessService service;
-	private InputStream receiver = null;
-	private BufferSendManagerPlayBack sender = null;
-
 	private void initClient() {
 		try {
 			String host = playbackRequest.getDeviceInfo().getSvrIp();
@@ -248,7 +233,6 @@ public class PlaybackControllTask {
 	}
 
 	private void loginRequestWork() {
-//		boolean result = false;
 		try {
 			VersionInfoRequest v = new VersionInfoRequest();
 			v.setVersionMajor(VERSION_MAJOR);
@@ -266,7 +250,6 @@ public class PlaybackControllTask {
 			sender.write(l);
 			sender.write(new OwspEnd());
 			recvAndProcessData(receiver);
-//			isCanPlay = PlaybackControllTaskUtils.isCanPlay;
 		} catch (Exception e) {
 			e.printStackTrace();
 			isCanPlay = false;
@@ -276,11 +259,7 @@ public class PlaybackControllTask {
 	private int getPlaybackChannel() {
 		return playbackRequest.getSearchRecordRequestInfo().getChannel();
 	}
-
-
-
-
-
+	
 	public void exit() {
 		try {
 			if ((audioPlayThread!=null)&&audioPlayThread.isAlive()) {
@@ -307,7 +286,6 @@ public class PlaybackControllTask {
 	 * 接收并处理服务器返回的数据
 	 * @param receiver
 	 */
-	@SuppressWarnings("resource")
 	public void recvAndProcessData(InputStream receiver) {// 需要一直从Socket中接收数据，直到接收完毕
 		try {
 			SocketInputStream sockIn = new SocketInputStream(receiver);
@@ -316,11 +294,9 @@ public class PlaybackControllTask {
 			long packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
 			while (!tlvContent.equals("")) {
 				int result = service.process(tlvContent, (int)packetLength);
-				
 				if (decideWhether2RecvData(result)) {
 					break;
 				}
-				
 				packetLength = recvOnePacket(sockIn, packetHeaderBuf, tlvContent);
 			}
 		} catch (Exception e) {
@@ -373,7 +349,6 @@ public class PlaybackControllTask {
 		
 	}
 	
-	
 	/**
 	 * 根据解析结果决定是否停止接收数据
 	 * @param parsedResult
@@ -401,30 +376,6 @@ public class PlaybackControllTask {
 		default:
 				break;
 		}
-//		if (parsedResult == -1) {/* 表示读到了TLV_T_RECORD_EOF包,则需要退出 */
-//			break;
-//		} else if (parsedResult == LOGIN_SUC) {// 表示登陆成功
-//			isCanPlay = true;
-//			break;
-//		} else if (parsedResult == LOGIN_FAIL) {// 表示登陆失败
-//			isCanPlay = false;
-//			break;
-//		} else if (parsedResult == RECORDINFORS) {
-//			break;
-//		} else if (parsedResult == PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC) {// 成功时，则通知线程停止，否则，继续发送
-//
-//		} else if (parsedResult == PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL) {
-//			break;
-//		} else if (parsedResult == PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL) {
-//			break;
-//		} else if (parsedResult == PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC) {// 暂停成功，通知停止解析
-//			Log.i(TAG, "--------PAUSE_PLAYRECORDREQ_SUCC---------");
-//			break;
-//		} else if (parsedResult == SEARCH_RECORD_FILE_NULL) {
-//			Log.i(TAG, "--------SEARCH_RECORD_FILE_NULL---------");
-//			break;
-//		}
-		
 		return result;
 	}
 
@@ -449,37 +400,33 @@ public class PlaybackControllTask {
 		}
 		return result;
 	}
-	
-	/**新的暂停接口**/
+	/**暂停接口**/
 	public void pause(){
-//		if (!isCancel && !isPause) {
-//			service.setPause(true);
-//			service.setResume(false);
-			controller = new PlaybackController();
-			controller.setChannel(getPlaybackChannel());
-			controller.requestPause();
-//		}
+		controller = new PlaybackController();
+		controller.setChannel(getPlaybackChannel());
+		controller.requestPause();
 	}
-	/**新的继续播放接口**/
+	/**继续播放接口**/
 	public void resume(){
-//		if (!isCancel && !isResume) {
-//			service.setPause(false);
-//			service.setResume(true);
-//			PlaybackControllTaskUtils.setPause(false);
+		if (controller == null) {
 			controller = new PlaybackController();
-			controller.setChannel(getPlaybackChannel());
-			controller.requestResume();
-//		}
+		}
+		controller.setChannel(getPlaybackChannel());
+		controller.requestResume();
 	}
 	
 	public void stop() {
-		controller = new PlaybackController();
+		if (controller == null) {
+			controller = new PlaybackController();
+		}
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStop();
 	}
 	
 	public void start(OWSPDateTime startTime) {
-		controller = new PlaybackController();
+		if (controller == null) {
+			controller = new PlaybackController();
+		}
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStart(startTime);
 	}
@@ -571,7 +518,7 @@ public class PlaybackControllTask {
 						TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 						prr.setDeviceId(0);
 						
-						OWSPDateTime stTime = new OWSPDateTime();
+//						OWSPDateTime stTime = new OWSPDateTime();
 						
 						// channel 4, 2.12 14:50 CIF  2.12 15:00 D1
 //						stTime.setYear(2015 - 2009);
@@ -582,14 +529,15 @@ public class PlaybackControllTask {
 //						stTime.setSecond(0);
 						
 						// channel 2, 2.12 12:00 1280x960
-						stTime.setYear(2015 - 2009);
-						stTime.setMonth(2);
-						stTime.setDay(21);
-						stTime.setHour(22);
-						stTime.setMinute(30);
-						stTime.setSecond(0);
+//						stTime.setYear(2015 - 2009);
+//						stTime.setMonth(2);
+//						stTime.setDay(21);
+//						stTime.setHour(22);
+//						stTime.setMinute(30);
+//						stTime.setSecond(0);
 						
-						prr.setStartTime(stTime);
+						prr.setStartTime(startTime);
+//						prr.setStartTime(stTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
 						prr.setChannel(channel);
