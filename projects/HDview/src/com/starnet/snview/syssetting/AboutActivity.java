@@ -1,25 +1,20 @@
 package com.starnet.snview.syssetting;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageView;
+//import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
-	@SuppressWarnings("unused")
-	private static final String TAG = "AboutActivity";
 	
-	private String version ;
 	private TextView about_version_txt;
-	ImageView about_version_img;
+//	private ImageView about_version_img;
 	
-	String mIntroductionContent;
+//	String mIntroductionContent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +23,12 @@ public class AboutActivity extends BaseActivity {
 		
 		initView();
 		setListeners();
-		setContentsForWagets();
+//		setContentsForWagets();
 	}
 	
-	protected void setContentsForWagets(){
-		mIntroductionContent = "";
-	}
+//	private void setContentsForWagets(){
+//		mIntroductionContent = "";
+//	}
 	
 	private void initView() {
 		super.setTitleViewText(getString(R.string.navigation_title_system_setting_about));
@@ -42,16 +37,10 @@ public class AboutActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		
-		about_version_img = (ImageView) findViewById(R.id.introduction_img);
+//		about_version_img = (ImageView) findViewById(R.id.introduction_img);
 		about_version_txt = (TextView) findViewById(R.id.introduction_txt);
+		about_version_txt.setText(getString(R.string.system_setting_about_build));
 		
-		try {
-			PackageInfo mPackageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-			version = mPackageInfo.versionName;
-			about_version_txt.setText("Version "+version+" "+getString(R.string.system_setting_about_build_time));
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	private void setListeners() {
