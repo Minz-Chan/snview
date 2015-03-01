@@ -261,10 +261,10 @@ public class PlaybackControllTask {
 	
 	public void exit() {
 		try {
-			if ((audioPlayThread!=null)&&audioPlayThread.isAlive()) {
+			if ((audioPlayThread != null) && audioPlayThread.isAlive()) {
 				audioPlayThread.quit();
 			}
-			if ((videoPlayThread!=null)&&videoPlayThread.isAlive()) {
+			if ((videoPlayThread != null) && videoPlayThread.isAlive()) {
 				videoPlayThread.quit();
 			}
 			
@@ -274,6 +274,8 @@ public class PlaybackControllTask {
 			}
 			
 			breakDataProcess = true;  // quit data receive and process thread
+			resumePlay = false;
+			
 			isTimeOut = true; // quit timeout thread
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -394,6 +396,9 @@ WAIT_TO_RESUME:
 			result = true;
 			break;
 		case SEARCH_RECORD_FILE_NULL:
+			breakDataProcess = true;
+			result = true;
+			break;
 		case PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL:
 		case PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL:
 		case PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC:

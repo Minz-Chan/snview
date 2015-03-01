@@ -339,6 +339,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						msg.arg1 = sampleRate;
 						aHandler.sendMessage(msg);
 					}
+					
+					Message msg = Message.obtain();
+					msg.what = PlaybackActivity.RECV_STREAM_DATA_FORMAT;
+					handler.sendMessage(msg);
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//TLV_T_LOGIN_ANSWER
 				Log.i(TAG, "######TLV TYPE: TLV_T_LOGIN_ANSWER");
