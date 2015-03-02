@@ -66,12 +66,15 @@ public class PlaybackActivity extends BaseActivity {
 	public static final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
 	public static final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
 
-	public static final int PAUSE_PLAYRECORDREQ_SUCC = 45;
-	public static final int PAUSE_PLAYRECORDREQ_FAIL = 46;
-	public static final int RESUME_PLAYRECORDREQ_SUCC = 43;
-	public static final int RESUME_PLAYRECORDREQ_FAIL = 44;
+	public static final int ACTION_PLAY_SUCC = 0x11250000;
+	public static final int ACTION_PAUSE_SUCC = 0x11250001;
+	public static final int ACTION_PAUSE_FAIL = 0x11250002;
+	public static final int ACTION_RESUME_SUCC = 0x11250003;
+	public static final int ACTION_RESUME_FAIL = 0x11250004;
+	public static final int ACTION_RANDOM_SUCC = 0x11250005;
+	public static final int ACTION_STOP_SUCC = 0x11250006;
 
-	private OWSPDateTime playOrPauseStartTime;
+	private OWSPDateTime firstRecordFileStarttime;
 	private ProgressDialog prg;
 
 	private PlaybackDeviceItem loginItem;
@@ -80,10 +83,13 @@ public class PlaybackActivity extends BaseActivity {
 
 	private boolean isPlaying = false;// 是否是正在进行播放
 	private boolean isFirstIn = false; // 是否第一次进行远程回放界面
-	private boolean isOnPlayControl = false; // 是否正在进行播放控制（暂停、继续）
+//	private boolean isOnPlayControl = false; // 是否正在进行播放控制（暂停、继续）
+//	private boolean isInRandomPlay = false;
 	private boolean hasRecordFile = false;
 
 	private boolean bVideoRecordPressed; // 是否正在录像
+	
+	private PlaybackControlAction action;
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -110,6 +116,7 @@ public class PlaybackActivity extends BaseActivity {
 					if (list.size() > 0) {
 						isPlaying = true;
 						hasRecordFile = true;
+						firstRecordFileStarttime = list.get(0).getStartTime();
 						setNewTimeBar(list);
 						mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
 								R.drawable.toolbar_pause_selector);
@@ -133,14 +140,19 @@ public class PlaybackActivity extends BaseActivity {
 				hasRecordFile = false;
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
-			case PAUSE_PLAYRECORDREQ_SUCC:// 更新图标
+			case ACTION_PLAY_SUCC:
+				isPlaying = true;
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
+						R.drawable.toolbar_pause_selector);
+				break;
+			case ACTION_PAUSE_SUCC:// 更新图标
 				mVideoContainer
 						.setWindowInfoContent(getString(R.string.playback_status_pause));
 				isPlaying = false;
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
 						R.drawable.toolbar_play_selector);
 				break;
-			case PAUSE_PLAYRECORDREQ_FAIL:
+			case ACTION_PAUSE_FAIL:
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					pause();
@@ -148,13 +160,15 @@ public class PlaybackActivity extends BaseActivity {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 				break;
-			case RESUME_PLAYRECORDREQ_SUCC:// 更新图标
-				dismissPlaybackReqDialog();
+			case ACTION_RESUME_SUCC:// 更新图标
+				//dismissPlaybackReqDialog();
 				isPlaying = true;
+				mVideoContainer.setWindowInfoText(mVideoContainer
+						.getPlaybackItem().getDeviceRecordName());
 				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
 						R.drawable.toolbar_pause_selector);
 				break;
-			case RESUME_PLAYRECORDREQ_FAIL:
+			case ACTION_RESUME_FAIL:
 				// 不更新图标
 				boolean isOpen2 = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen2) {
@@ -163,6 +177,20 @@ public class PlaybackActivity extends BaseActivity {
 				} else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
+				break;
+			case ACTION_RANDOM_SUCC:
+				isPlaying = true;
+				mVideoContainer.setWindowInfoText(mVideoContainer
+						.getPlaybackItem().getDeviceRecordName());
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
+						R.drawable.toolbar_pause_selector);
+				break;
+			case ACTION_STOP_SUCC:
+				mVideoContainer.setWindowInfoContent("停止");
+				isPlaying = false;
+				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
+						R.drawable.toolbar_play_selector);
+				mTimebar.setCurrentTime(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
 				break;
 			case PAUSE_RESUME_TIMEOUT:
 				dismissPlaybackReqDialog();
@@ -252,6 +280,37 @@ public class PlaybackActivity extends BaseActivity {
 		}
 
 		return null;
+	}
+	
+	private OWSPDateTime getLastQueryStartTime1() {
+		Calendar c = getLastQueryStartTime();
+		if (c != null) {
+			return convertCalendar2OWSPDateTime(c);
+		}
+		return null;
+	}
+	
+	private OWSPDateTime convertCalendar2OWSPDateTime(Calendar c) {
+		OWSPDateTime t = new OWSPDateTime();
+		t.setYear(c.get(Calendar.YEAR)-2009);
+		t.setMonth(c.get(Calendar.MONTH)+1);
+		t.setDay(c.get(Calendar.DAY_OF_MONTH));
+		t.setHour(c.get(Calendar.HOUR_OF_DAY));
+		t.setMinute(c.get(Calendar.MINUTE));
+		t.setSecond(c.get(Calendar.SECOND));
+		return t;
+	}
+	
+	private Calendar convertOWSPDateTime2Calendar(OWSPDateTime t) {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.YEAR, t.getYear()+2009);
+		c.set(Calendar.MONTH, t.getMonth()-1);
+		c.set(Calendar.DAY_OF_MONTH, t.getDay());
+		c.set(Calendar.HOUR_OF_DAY, t.getHour());
+		c.set(Calendar.MINUTE, t.getMinute());
+		c.set(Calendar.SECOND, t.getSecond());
+		
+		return c;
 	}
 
 	@Override
@@ -357,6 +416,8 @@ public class PlaybackActivity extends BaseActivity {
 				R.drawable.toolbar_video_record_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,
 				R.drawable.toolbar_sound_off_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.STOP,
+				R.drawable.toolbar_stop_selector)); 
 		mToolbar.createToolbar(itemList, GlobalApplication.getInstance()
 				.getScreenWidth(),
 				getResources().getDimensionPixelSize(R.dimen.toolbar_height));
@@ -368,12 +429,12 @@ public class PlaybackActivity extends BaseActivity {
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
-				saveLastQueryStartTime(calendar);
+				//saveLastQueryStartTime(calendar);
 
 				// 停止当前回放
 
 				// 按新的查询起始时间重新发送另一个回放请求
-				randomPlay(calendar);
+				random(calendar);
 			}
 		};
 
@@ -423,28 +484,7 @@ public class PlaybackActivity extends BaseActivity {
 		 */
 	}
 
-	protected void randomPlay(Calendar calendar) {
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH) + 1;
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		int minute = calendar.get(Calendar.MINUTE);
-		int second = calendar.get(Calendar.SECOND);
-
-		Log.i(TAG, "random play, time:" + year + "-" + month + "-" + day + " "
-				+ hour + ":" + minute + ":" + second);
-
-		final OWSPDateTime startTime = new OWSPDateTime();
-		startTime.setDay(1);
-		startTime.setYear(2015 - 2009);
-		startTime.setMonth(3);
-		startTime.setHour(13);
-		startTime.setMinute(58);
-		startTime.setSecond(0);
-
-		start(startTime);
-		pbcTask.resumePlay();
-	}
+	
 
 	@SuppressLint("SimpleDateFormat")
 	private void saveLastQueryStartTime(Calendar c) {
@@ -465,9 +505,7 @@ public class PlaybackActivity extends BaseActivity {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				} else {
 					String curTime = mTimebar.getCurrentTime();
-					playOrPauseStartTime = PlaybackUtils
-							.getOWSPDateTime(curTime);
-					playOrPause(playOrPauseStartTime);
+					playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
 				}
 				break;
 			case PICTURE:
@@ -477,6 +515,8 @@ public class PlaybackActivity extends BaseActivity {
 				processVideoRecord();
 				break;
 			default:
+			case STOP:
+				stop();
 				break;
 			}
 		}
@@ -488,17 +528,19 @@ public class PlaybackActivity extends BaseActivity {
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				if (hasRecordFile) {
-					mVideoContainer
-							.setWindowInfoContent(getString(R.string.playback_status_pause_requesting));
 					pause();
 				} else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
 			} else {
 				if (hasRecordFile) {
-					mVideoContainer
-							.setWindowInfoContent(getString(R.string.playback_status_resume_requesting));
-					resume();
+					if (action == PlaybackControlAction.PAUSE
+							|| action == PlaybackControlAction.RANDOM_PLAY) {
+						resume();
+					} else if (action == PlaybackControlAction.STOP) {
+						start(startTime);
+					}
+					
 				} else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
 				}
@@ -541,27 +583,68 @@ public class PlaybackActivity extends BaseActivity {
 	public boolean isPlaying() {
 		return isPlaying;
 	}
-
-	public boolean isOnPlayControl() {
-		return isOnPlayControl;
+	
+	public PlaybackControlAction getAction() {
+		return action;
+	}
+	
+	private void start() {
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
+		action = PlaybackControlAction.PLAY;
+		pbcTask.start();
+	}
+	
+	private void start(OWSPDateTime startTime) {
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
+		action = PlaybackControlAction.PLAY;
+		pbcTask.start(startTime);
 	}
 
 	private void resume() {
-		isOnPlayControl = true;
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_resume_requesting));
+		action = PlaybackControlAction.RESUME;
 		pbcTask.resume();
 	}
 
 	private void pause() {
-		isOnPlayControl = true;
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_pause_requesting));
+		action = PlaybackControlAction.PAUSE;
 		pbcTask.pause();
 	}
 
 	private void stop() {
+		mVideoContainer.setWindowInfoContent("请求停止中...");
+		action = PlaybackControlAction.STOP;
 		pbcTask.stop();
 	}
+	
+	protected void random(Calendar calendar) {
+		
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH) + 1;
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
+		int second = calendar.get(Calendar.SECOND);
 
-	private void start(OWSPDateTime startTime) {
-		pbcTask.start(startTime);
+		Log.i(TAG, "random play, time:" + year + "-" + month + "-" + day + " "
+				+ hour + ":" + minute + ":" + second);
+
+		final OWSPDateTime startTime = new OWSPDateTime();
+		startTime.setDay(1);
+		startTime.setYear(2015 - 2009);
+		startTime.setMonth(3);
+		startTime.setHour(13);
+		startTime.setMinute(58);
+		startTime.setSecond(0);
+		
+		action = PlaybackControlAction.RANDOM_PLAY;
+		pbcTask.random(startTime);
+		pbcTask.resumePlay();
+//		if (/*action != PlaybackControlAction.PAUSE
+//				&& */action != PlaybackControlAction.STOP) {
+//			
+//		}
 	}
 
 	@Override
@@ -573,15 +656,13 @@ public class PlaybackActivity extends BaseActivity {
 			 */
 
 			isFirstIn = false;
-			isOnPlayControl = false;
+//			isOnPlayControl = false;
 
 			PlaybackDeviceItem item = new PlaybackDeviceItem();
 			item.setDeviceRecordName("test");
 			item.setChannel(3);
 			mVideoContainer.setPlaybackItem(item);
 			mVideoContainer.setDeviceRecordName(item.getDeviceRecordName());
-			mVideoContainer
-					.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
 
 			testStartPlayTask(srr, item);
 
@@ -609,8 +690,7 @@ public class PlaybackActivity extends BaseActivity {
 			PlaybackDeviceItem playbackItem) {
 		mVideoContainer.setPlaybackItem(playbackItem);
 		mVideoContainer.setDeviceRecordName(playbackItem.getDeviceRecordName());
-		mVideoContainer
-				.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
+		
 		if (pbcTask != null) {
 			pbcTask.exit();
 			pbcTask = null;
@@ -619,14 +699,14 @@ public class PlaybackActivity extends BaseActivity {
 		pr.setSearchRecordRequestInfo(srr);
 		pr.setDeviceInfo(playbackItem);
 		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
-		pbcTask.start();
+		start();
 	}
 
 	protected void testStartPlayTask(TLV_V_SearchRecordRequest srr1,
 			PlaybackDeviceItem dItem1) {
 		PlaybackDeviceItem dItem = new PlaybackDeviceItem();
 		// dItem.setSvrIp("61.131.16.27");
-		String ips = "10.18.72.222";
+		String ips = "192.168.87.10";
 		dItem.setSvrIp(ips);
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");

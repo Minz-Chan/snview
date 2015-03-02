@@ -383,9 +383,12 @@ WAIT_TO_RESUME:
 			breakDataProcess = true;
 			result = true;
 			break;
-		case PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC:
+		case PlaybackActivity.ACTION_PAUSE_SUCC:
 			result = true;
-			break;			
+			break;	
+		case PlaybackActivity.ACTION_RANDOM_SUCC:
+			resumePlay = true;
+			break;
 		case LOGIN_SUC:
 			breakDataProcess = true;
 			isCanPlay = true;
@@ -399,9 +402,9 @@ WAIT_TO_RESUME:
 			breakDataProcess = true;
 			result = true;
 			break;
-		case PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL:
-		case PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL:
-		case PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC:
+		case PlaybackActivity.ACTION_RESUME_FAIL:
+		case PlaybackActivity.ACTION_PAUSE_FAIL:
+		case PlaybackActivity.ACTION_RESUME_SUCC:
 		default:
 				break;
 		}
@@ -430,18 +433,16 @@ WAIT_TO_RESUME:
 		return result;
 	}
 	
-	public void start(OWSPDateTime startTime) {
-		controller.setChannel(getPlaybackChannel());
-		controller.requestStart(startTime);
-		resumePlay = true;
-		breakDataProcess = false;
-	}
-	
 	public void start() {
 		timeThread.start();
 		recvThread.start();
 		resumePlay = true;
 		breakDataProcess = false;
+	}
+	
+	public void start(OWSPDateTime startTime) {
+		controller.setChannel(getPlaybackChannel());
+		controller.requestStart(startTime);
 	}
 
 	public void pause(){
@@ -452,12 +453,17 @@ WAIT_TO_RESUME:
 	public void resume(){
 		controller.setChannel(getPlaybackChannel());
 		controller.requestResume();
-		resumePlay();
+		resumePlay = true;
 	}
 	
 	public void stop() {
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStop();
+	}
+	
+	public void random(OWSPDateTime startTime) {
+		controller.setChannel(getPlaybackChannel());
+		controller.requestRandom(startTime);
 	}
 	
 	private interface STREAM_DATA_TYPE {
@@ -529,6 +535,10 @@ WAIT_TO_RESUME:
 		public void requestStop() {
 			OWSPDateTime startTime = new OWSPDateTime();
 			sendCommand(PlaybackCommand.STOP, startTime);
+		}
+		
+		public void requestRandom(final OWSPDateTime startTime) {
+			requestStart(startTime);
 		}
 		
 		private void sendCommand(final int cmdCode, final OWSPDateTime startTime) {

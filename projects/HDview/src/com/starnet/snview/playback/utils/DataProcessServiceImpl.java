@@ -14,6 +14,7 @@ import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
+import com.starnet.snview.playback.PlaybackControlAction;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -64,8 +65,16 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return getPlaybackActivity().isPlaying();
 	}
 	
-	private boolean isOnPlayControl() {
-		return getPlaybackActivity().isOnPlayControl();
+//	private boolean isOnPlayControl() {
+//		return getPlaybackActivity().isOnPlayControl();
+//	}
+//	
+//	private boolean isInRandomPlay() {
+//		return getPlaybackActivity().isInRandomPlay();
+//	}
+	
+	private PlaybackControlAction getAction() {
+		return getPlaybackActivity().getAction();
 	}
 
 	private PlaybackLiveView getPlaybackLiveView() {
@@ -149,9 +158,18 @@ public class DataProcessServiceImpl implements DataProcessService {
 					MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), tmp, tmp.length);
 				} 
 				
+				int count = 0;
 				while (vHandler.getBufferQueue().write(tmp) == 0) {
+					if (count == 5) {
+						count = 0;
+						Message msg = Message.obtain();
+						msg.what = AudioHandler.MSG_BUFFER_FULL;
+						aHandler.sendMessage(msg);
+					}
+					
 					try {
 						Thread.sleep(10);
+						count++;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -206,9 +224,17 @@ public class DataProcessServiceImpl implements DataProcessService {
 						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
 					} 
 					
+					int count = 0;
 					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
+						if (count == 5) {
+							count = 0;
+							Message msg = Message.obtain();
+							msg.what = AudioHandler.MSG_BUFFER_FULL;
+							aHandler.sendMessage(msg);
+						}
 						try {
 							Thread.sleep(10);
+							count++;
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -373,28 +399,52 @@ public class DataProcessServiceImpl implements DataProcessService {
 				Log.i(TAG, "######TLV TYPE: TLV_T_PLAY_RECORD_RSP");
 				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 				int result = prr.getResult();
-				if (isOnPlayControl()) {
+				PlaybackControlAction action = getAction();
+//				if (isOnPlayControl()) {
 					if (result == 1) {//表示请求成功
-						if (isPlaying()) {//通知PlaybackActivity的变化
-							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC);
+						if (action == PlaybackControlAction.PLAY) {
+							returnValue = PlaybackActivity.ACTION_PLAY_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_SUCC);
+						} else if (action == PlaybackControlAction.PAUSE) {
+							returnValue = PlaybackActivity.ACTION_PAUSE_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_SUCC);
 							break;
-						} else {
-							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC);
+						} else if (action == PlaybackControlAction.RESUME) {
+							returnValue = PlaybackActivity.ACTION_RESUME_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_SUCC);
+						} else if (action == PlaybackControlAction.RANDOM_PLAY) {
+							returnValue = PlaybackActivity.ACTION_RANDOM_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_SUCC);
+						} else if (action == PlaybackControlAction.STOP) {
+							returnValue = PlaybackActivity.ACTION_STOP_SUCC;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_SUCC);
 						}
+//						if (isInRandomPlay()) {
+//							returnValue = PlaybackActivity.RANDOM_PLAYRECORDREQ_SUCC;
+//							sendMsgToPlayActivity(PlaybackActivity.RANDOM_PLAYRECORDREQ_SUCC);
+//							break;
+//						}
+						
+//						if (isPlaying()) {//通知PlaybackActivity的变化
+//							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC;
+//							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC);
+//							break;
+//						} else {
+//							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC;
+//							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC);
+//						}
 					}else {//表示暂停失败
 						if (isPlaying()) {
-							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_FAIL);
+							returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
 							break;
 						} else {
-							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_FAIL);
+							returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
 							break;
 						}
 					}
-				}
+//				}
 				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");

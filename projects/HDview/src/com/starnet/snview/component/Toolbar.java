@@ -206,7 +206,8 @@ public class Toolbar extends HorizontalScrollView {
 		SOUND,
 		VIDEO_RECORD,
 		ALARM,
-		PTZ
+		PTZ,
+		STOP
 	}
 	
 	

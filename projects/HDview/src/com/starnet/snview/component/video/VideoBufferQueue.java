@@ -75,13 +75,14 @@ public class VideoBufferQueue {
 		Log.i(TAG, "readBufferQueue.size():" + readBufferQueue.size());
 		if (!readBufferQueue.isEmpty()) {
 			VideoBuffer buf = readBufferQueue.peek();
-			byte[] data = buf.get();
-			buf.set(null);
-			Log.i(TAG, "readBufferQueue read from id " + readBufferQueue.peek().id);
-			// data should be used before VideoBuffer's data is set another byte array reference
-			writeBufferQueue.offer(readBufferQueue.poll());
-			
-			return data;
+			if (buf != null) {
+				byte[] data = buf.get();
+				buf.set(null);
+				Log.i(TAG, "readBufferQueue read from id " + readBufferQueue.peek().id);
+				// data should be used before VideoBuffer's data is set another byte array reference
+				writeBufferQueue.offer(readBufferQueue.poll());
+				return data;
+			}
 		}
 		
 		return null;
