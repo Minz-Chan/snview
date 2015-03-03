@@ -10,7 +10,7 @@
 	<RelativeLayout android:id="@id/playback_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/playback_controlbar" android:layout_alignParentTop="true">
 <!-- 		<ImageView android:background="@drawable/demo_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/> -->
 		<FrameLayout android:id="@+id/playback_video_region" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_alignParentTop="true" />
-	
+		<include android:id="@id/playback_landscape_pop_frame" layout="@layout/playback_landscape_controlbar_frame" />
 	</RelativeLayout>
 
 </RelativeLayout>

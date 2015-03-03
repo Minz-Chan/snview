@@ -42,7 +42,7 @@ public class TimeBar extends View {
 	 */
 	private GregorianCalendar mMiddleLineTime = new GregorianCalendar();
 	private static final SimpleDateFormat mTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 中线时间格式
-	private static final int mMiddleTimeColor = 0xfff15a24; // 中线时间文字颜色
+	private int mMiddleTimeColor = 0xfff15a24; // 中线时间文字颜色
 	private static final Typeface mMiddleTimefont = Typeface.create(
 			Typeface.SANS_SERIF, 1); // 中线时间文字字体
 	private static int mMiddleTimeFontSize = 18; // 中线时间文字字体大小
@@ -55,7 +55,7 @@ public class TimeBar extends View {
 	 * 刻度(Scale)相关
 	 */
 	private List<ScaleInfo> mScaleInfoList = new LinkedList<ScaleInfo>(); // 刻度信息列表
-	private static final int mScaleColor = Color.BLACK; // 刻度线颜色
+	private int mScaleColor = Color.BLACK; // 刻度线颜色
 	private static int mScaleTimeFontSize = 12; // 刻度时间字体大小（单位px）
 	private static final float mScaleTimeFontSizeInSp = 9.0F; // 刻度时间字体大小（单位sp）
 
@@ -85,6 +85,14 @@ public class TimeBar extends View {
 		mTouchDownFlag = true;
 	}
 
+	public void setMiddleTimeColor(int color) {
+		mMiddleTimeColor = color;
+	}
+	
+	public void setScaleColor(int color) {
+		mScaleColor = color;
+	}
+	
 	private void OnActionMove(MotionEvent e) {
 		float moveOffsetOnX = e.getX() - mLastTouchX;
 

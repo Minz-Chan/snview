@@ -14,19 +14,25 @@ import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.component.LandscapeToolbar.LandControlbarClickListener;
+import com.starnet.snview.component.PlaybackLandscapeToolbar;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
@@ -41,13 +47,19 @@ import com.starnet.snview.playback.utils.PlaybackControllTask;
 import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
+import com.starnet.snview.util.ActivityUtility;
 import com.starnet.snview.util.NetWorkUtils;
 
 public class PlaybackActivity extends BaseActivity {
 	private static final String TAG = "PlaybackActivity";
 
-	private Context ctx;
+	private Context context;
+	private FrameLayout mControlbar;
 	private Toolbar mToolbar;
+	
+	private RelativeLayout mLandscapePopFrame;
+	private PlaybackLandscapeToolbar mPlaybackLandscapeToolbar;
+	
 	private TimeBar mTimebar;
 	private TimeBar.TimePickedCallBack mTimeBarCallBack;
 
@@ -90,6 +102,10 @@ public class PlaybackActivity extends BaseActivity {
 	private boolean bVideoRecordPressed; // 是否正在录像
 	
 	private PlaybackControlAction action;
+	
+	
+	private int screenWidth;
+	private int screenHeight;
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -117,9 +133,9 @@ public class PlaybackActivity extends BaseActivity {
 						isPlaying = true;
 						hasRecordFile = true;
 						firstRecordFileStarttime = list.get(0).getStartTime();
-						setNewTimeBar(list);
-						mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-								R.drawable.toolbar_pause_selector);
+						setNewTimeBar(mTimebar, list);
+						setNewTimeBar(mPlaybackLandscapeToolbar.getTimeBar(), list);
+						setButtonToPause();
 					} else {
 						isPlaying = false;
 						hasRecordFile = false;
@@ -142,18 +158,16 @@ public class PlaybackActivity extends BaseActivity {
 				break;
 			case ACTION_PLAY_SUCC:
 				isPlaying = true;
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-						R.drawable.toolbar_pause_selector);
+				setButtonToPause();
 				break;
 			case ACTION_PAUSE_SUCC:// 更新图标
 				mVideoContainer
 						.setWindowInfoContent(getString(R.string.playback_status_pause));
 				isPlaying = false;
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-						R.drawable.toolbar_play_selector);
+				setButtonToPlay();
 				break;
 			case ACTION_PAUSE_FAIL:
-				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+				boolean isOpen = NetWorkUtils.checkNetConnection(context);
 				if (isOpen) {
 					pause();
 				} else {
@@ -165,12 +179,11 @@ public class PlaybackActivity extends BaseActivity {
 				isPlaying = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
 						.getPlaybackItem().getDeviceRecordName());
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-						R.drawable.toolbar_pause_selector);
+				setButtonToPause();
 				break;
 			case ACTION_RESUME_FAIL:
 				// 不更新图标
-				boolean isOpen2 = NetWorkUtils.checkNetConnection(ctx);
+				boolean isOpen2 = NetWorkUtils.checkNetConnection(context);
 				if (isOpen2) {
 					showDialog(PLAYBACK_REQ_DIALOG);
 					resume();
@@ -182,15 +195,13 @@ public class PlaybackActivity extends BaseActivity {
 				isPlaying = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
 						.getPlaybackItem().getDeviceRecordName());
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-						R.drawable.toolbar_pause_selector);
+				setButtonToPause();
 				break;
 			case ACTION_STOP_SUCC:
 				mVideoContainer.setWindowInfoContent("停止");
 				isPlaying = false;
-				mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
-						R.drawable.toolbar_play_selector);
-				mTimebar.setCurrentTime(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
+				setButtonToPlay();
+				updateTimebar(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
 				break;
 			case PAUSE_RESUME_TIMEOUT:
 				dismissPlaybackReqDialog();
@@ -206,7 +217,7 @@ public class PlaybackActivity extends BaseActivity {
 				Calendar c = Calendar.getInstance();
 				c.set(2015, 2, 1, 0, 0, 0);
 				c.setTimeInMillis(c.getTimeInMillis() + timestamp);
-				mTimebar.setCurrentTime(c);
+				updateTimebar(c);
 
 				break;
 			case Constants.TAKE_PICTURE:
@@ -239,6 +250,12 @@ public class PlaybackActivity extends BaseActivity {
 		}
 	};
 
+	
+	private void updateTimebar(Calendar c) {
+		mTimebar.setCurrentTime(c);
+		mPlaybackLandscapeToolbar.getTimeBar().setCurrentTime(c);
+	}
+	
 	/**
 	 * 获取查询起始日时间基点
 	 * 
@@ -339,60 +356,63 @@ public class PlaybackActivity extends BaseActivity {
 
 	private void initView() {
 		isFirstIn = true;
-		ctx = PlaybackActivity.this;
+		context = PlaybackActivity.this;
+		
+		screenWidth = getApp().getScreenWidth();
+		screenHeight = getApp().getScreenHeight();
 
+		mControlbar = (FrameLayout) findViewById(R.id.playback_controlbar);
+		mLandscapePopFrame = (RelativeLayout) findViewById(R.id.playback_landscape_pop_frame);
+		
 		super.setTitleViewText(getString(R.string.navigation_title_remote_playback));
 		super.hideExtendButton();
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
 		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mTimebar.reset();
+				resetTimebar();
 				Intent intent = new Intent();
-				intent.setClass(ctx, TimeSettingActivity.class);
+				intent.setClass(context, TimeSettingActivity.class);
 				startActivityForResult(intent, TIMESETTING_RTN_CODE);
 			}
 		});
 
 		initToolbar();
 		initTimebar();
-
-		final int screenWidth = getApp().getScreenWidth();
-		FrameLayout playbackVideoRegion = (FrameLayout) findViewById(R.id.playback_video_region);
-		mVideoContainer = new PlaybackLiveViewItemContainer(this);
-		mVideoContainer.findSubViews();
-		playbackVideoRegion.addView(mVideoContainer,
-				new FrameLayout.LayoutParams(screenWidth, screenWidth));
-
-		mShotPictureAnim = AnimationUtils.loadAnimation(PlaybackActivity.this,
-				R.anim.shot_picture);
+		initLandscapeToolbar();
+		initVideoContainer();
+	}
+	
+	private void resetTimebar() {
+		mTimebar.reset();
+		mPlaybackLandscapeToolbar.getTimeBar().reset();
 	}
 
 	/** 设置新的时间显示条 **/
-	private void setNewTimeBar(ArrayList<TLV_V_RecordInfo> list) {
+	private void setNewTimeBar(TimeBar tb, ArrayList<TLV_V_RecordInfo> list) {
 		if (list != null && list.size() > 0) {
-			mTimebar.reset();
+			tb.reset();
 			int size = list.size();
 			TLV_V_RecordInfo rcd = list.get(0);
 			OWSPDateTime sT = rcd.getStartTime();
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(sT.getYear(), sT.getMonth() - 1, sT.getDay(),
 					sT.getHour(), sT.getMinute(), sT.getSecond());
-			mTimebar.setCurrentTime(calendar);
+			tb.setCurrentTime(calendar);
 			for (int i = 0; i < size; i++) {
 				TLV_V_RecordInfo rcdInfo = list.get(i);
 				OWSPDateTime starTime = rcdInfo.getStartTime();
 				OWSPDateTime endTime = rcdInfo.getEndTime();
-				addRecordFileRegion(starTime, endTime);
+				addRecordFileRegion(tb, starTime, endTime);
 			}
-			mTimebar.updateFileRect();
+			tb.updateFileRect();
 		}
 	}
 
 	/**
 	 * 根据录像文件起始时间添加时间工具上的录像区块信息
 	 */
-	private void addRecordFileRegion(OWSPDateTime startTime,
+	private void addRecordFileRegion(TimeBar tb, OWSPDateTime startTime,
 			OWSPDateTime endTime) {
 		Calendar t1 = Calendar.getInstance();
 		t1.set(startTime.getYear(), startTime.getMonth() - 1,
@@ -401,19 +421,19 @@ public class PlaybackActivity extends BaseActivity {
 		Calendar t2 = Calendar.getInstance();
 		t2.set(endTime.getYear(), endTime.getMonth() - 1, endTime.getDay(),
 				endTime.getHour(), endTime.getMinute());
-		mTimebar.addFileInfo(1, t1, t2);
+		tb.addFileInfo(1, t1, t2);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void initToolbar() {
 		mToolbar = super.getBaseToolbar();
 		ArrayList itemList = new ArrayList();
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,
-				R.drawable.toolbar_play_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PICTURE,
 				R.drawable.toolbar_take_picture_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.VIDEO_RECORD,
 				R.drawable.toolbar_video_record_selector));
+		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,
+				R.drawable.toolbar_play_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,
 				R.drawable.toolbar_sound_off_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.STOP,
@@ -429,11 +449,6 @@ public class PlaybackActivity extends BaseActivity {
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
-				//saveLastQueryStartTime(calendar);
-
-				// 停止当前回放
-
-				// 按新的查询起始时间重新发送另一个回放请求
 				random(calendar);
 			}
 		};
@@ -441,50 +456,56 @@ public class PlaybackActivity extends BaseActivity {
 		mTimebar.setTimeBarCallback(mTimeBarCallBack);
 		mTimebar.reset();
 		mTimebar.setCurrentTime(Calendar.getInstance());
-		/*
-		 * Calendar c = Calendar.getInstance(); Calendar c1 =
-		 * Calendar.getInstance(); c1.add(Calendar.MINUTE, 20);
-		 * c1.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH),
-		 * c1.get(Calendar.DAY_OF_MONTH), c1.get(Calendar.HOUR_OF_DAY),
-		 * c1.get(Calendar.MINUTE)); Calendar c2 = Calendar.getInstance();
-		 * c2.add(Calendar.MINUTE, 50); c2.set(c2.get(Calendar.YEAR),
-		 * c2.get(Calendar.MONTH), c2.get(Calendar.DAY_OF_MONTH),
-		 * c2.get(Calendar.HOUR_OF_DAY), c2.get(Calendar.MINUTE));
-		 * mTimebar.addFileInfo(1, c1, c2);
-		 * 
-		 * Calendar c3 = Calendar.getInstance(); c3.add(Calendar.MINUTE, 70);
-		 * c3.set(c3.get(Calendar.YEAR), c3.get(Calendar.MONTH),
-		 * c3.get(Calendar.DAY_OF_MONTH), c3.get(Calendar.HOUR_OF_DAY),
-		 * c3.get(Calendar.MINUTE)); Calendar c4 = Calendar.getInstance();
-		 * c4.add(Calendar.MINUTE, 110); c4.set(c4.get(Calendar.YEAR),
-		 * c4.get(Calendar.MONTH), c4.get(Calendar.DAY_OF_MONTH),
-		 * c4.get(Calendar.HOUR_OF_DAY), c4.get(Calendar.MINUTE));
-		 * mTimebar.addFileInfo(1, c3, c4);
-		 * 
-		 * Calendar c5 = Calendar.getInstance();
-		 * 
-		 * c5.add(Calendar.MINUTE, 130); c5.set(c5.get(Calendar.YEAR),
-		 * c5.get(Calendar.MONTH), c5.get(Calendar.DAY_OF_MONTH),
-		 * c5.get(Calendar.HOUR_OF_DAY), c5.get(Calendar.MINUTE)); Calendar c6 =
-		 * Calendar.getInstance(); c6.add(Calendar.MINUTE, 200);
-		 * c6.set(c6.get(Calendar.YEAR), c6.get(Calendar.MONTH),
-		 * c6.get(Calendar.DAY_OF_MONTH), c6.get(Calendar.HOUR_OF_DAY),
-		 * c6.get(Calendar.MINUTE)); mTimebar.addFileInfo(1, c5, c6);
-		 * 
-		 * Calendar c7 = Calendar.getInstance(); c7.add(Calendar.MINUTE, 220);
-		 * c7.set(c7.get(Calendar.YEAR), c7.get(Calendar.MONTH),
-		 * c7.get(Calendar.DAY_OF_MONTH), c7.get(Calendar.HOUR_OF_DAY),
-		 * c7.get(Calendar.MINUTE)); Calendar c8 = Calendar.getInstance();
-		 * c8.add(Calendar.MINUTE, 260); c8.set(c8.get(Calendar.YEAR),
-		 * c8.get(Calendar.MONTH), c8.get(Calendar.DAY_OF_MONTH),
-		 * c8.get(Calendar.HOUR_OF_DAY), c8.get(Calendar.MINUTE));
-		 * mTimebar.addFileInfo(1, c7, c8);
-		 * 
-		 * mTimebar.reset();
-		 */
+		
 	}
 
+	private void initLandscapeToolbar() {
+		mPlaybackLandscapeToolbar = (PlaybackLandscapeToolbar) findViewById(R.id.playback_landscape_toolbar);
+		mPlaybackLandscapeToolbar.findViews();
+		
+		mPlaybackLandscapeToolbar.setOnLandControlbarListener(mPlaybackLandToolbarClickListener);
+		
+		mPlaybackLandscapeToolbar.getTimeBar().setTimeBarCallback(mTimeBarCallBack);
+		mPlaybackLandscapeToolbar.getTimeBar().reset();
+		mPlaybackLandscapeToolbar.getTimeBar().setCurrentTime(Calendar.getInstance());
+	}
 	
+	private void initLandscapeToolbarPosition() {
+		int w = getApp().getScreenWidth();
+		int h = getApp().getScreenHeight();
+		LinearLayout landTimebarFrame = (LinearLayout) mPlaybackLandscapeToolbar
+				.findViewById(R.id.playback_landscape_timebar_frame);
+		LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) landTimebarFrame
+				.getLayoutParams();
+		lp.width = mPlaybackLandscapeToolbar.getTimeBarWidth();
+		landTimebarFrame.setLayoutParams(lp);
+		RelativeLayout.LayoutParams lpLandToolbar = (RelativeLayout.LayoutParams) mPlaybackLandscapeToolbar
+				.getLayoutParams();
+		int landscapeWidth = mPlaybackLandscapeToolbar.getLandscapeWidth();
+		if (landscapeWidth > 0) {
+			lpLandToolbar.leftMargin = ((w - landscapeWidth) / 2);
+		}
+		lpLandToolbar.topMargin = h * 2 / 3;
+		mPlaybackLandscapeToolbar.setLayoutParams(lpLandToolbar);
+	}
+	
+	
+	private void initVideoContainer() {
+		FrameLayout playbackVideoRegion = (FrameLayout) findViewById(R.id.playback_video_region);
+		mVideoContainer = new PlaybackLiveViewItemContainer(this);
+		mVideoContainer.findSubViews();
+		mVideoContainer.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mPlaybackLandscapeToolbar.controlLandscapeToolbarShowOrHide();
+			}
+		});
+		playbackVideoRegion.addView(mVideoContainer,
+				new FrameLayout.LayoutParams(screenWidth, screenWidth));
+
+		mShotPictureAnim = AnimationUtils.loadAnimation(PlaybackActivity.this,
+				R.anim.shot_picture);
+	}
 
 	@SuppressLint("SimpleDateFormat")
 	private void saveLastQueryStartTime(Calendar c) {
@@ -514,17 +535,48 @@ public class PlaybackActivity extends BaseActivity {
 			case VIDEO_RECORD:
 				processVideoRecord();
 				break;
-			default:
 			case STOP:
 				stop();
 				break;
+			default:
+				break;
 			}
+		}
+	};
+	
+	private LandControlbarClickListener mPlaybackLandToolbarClickListener = new LandControlbarClickListener() {
+		@Override
+		public void landControlbarClick(View v) {
+			switch (v.getId()) {
+			case R.id.playback_landscape_capture_button:
+				mVideoContainer.takePicture();
+				break;
+			case R.id.playback_landscape_record_button:
+				processVideoRecord();
+				break;
+			case R.id.playback_landscape_pause_play_button:
+				if (isFirstIn) {
+					showTostContent(getString(R.string.playback_not_remoteinfo));
+				} else {
+					String curTime = mPlaybackLandscapeToolbar.getTimeBar().getCurrentTime();
+					playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
+				}
+				break;
+			case R.id.playback_landscape_sound_button:
+				break;
+			case R.id.playback_landscape_stop_button:
+				stop();
+				break;
+			default:
+				break;
+			}
+			
 		}
 	};
 
 	@SuppressWarnings("deprecation")
 	private void playOrPause(OWSPDateTime startTime) {
-		boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+		boolean isOpen = NetWorkUtils.checkNetConnection(context);
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				if (hasRecordFile) {
@@ -549,31 +601,52 @@ public class PlaybackActivity extends BaseActivity {
 			showTostContent(getString(R.string.playback_not_open_play));
 		}
 	}
+	
+	private void setButtonToPlay() {
+		mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
+				R.drawable.toolbar_play_selector);
+		mPlaybackLandscapeToolbar.getPausePlayButton().setSelected(true);
+	}	
+	
+	private void setButtonToPause() {
+		mToolbar.setActionImageButtonBg(ACTION_ENUM.PLAY_PAUSE,
+				R.drawable.toolbar_pause_selector);
+		mPlaybackLandscapeToolbar.getPausePlayButton().setSelected(false);
+	}
 
 	private void processVideoRecord() {
 		Log.i(TAG, "processVideoRecord");
 		if (!isPlaying) {
 			bVideoRecordPressed = false;
-			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+			setRecordButtonSelected(false);
 			return;
 		}
 
 		bVideoRecordPressed = !bVideoRecordPressed;
 
 		if (bVideoRecordPressed) { // 开启录像
-			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+			setRecordButtonSelected(true);
 			mVideoContainer.startMP4Record();
 		} else { // 关闭录像
+			setRecordButtonSelected(false);
+			mVideoContainer.stopMP4Record();
+		}
+	}
+	
+	private void setRecordButtonSelected(boolean selected) {
+		if (selected) {
+			mToolbar.setActionImageButtonSelected(
+					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+			mPlaybackLandscapeToolbar.getRecordButton().setSelected(true);
+		} else {
 			mToolbar.setActionImageButtonSelected(
 					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
-			mVideoContainer.stopMP4Record();
+			mPlaybackLandscapeToolbar.getRecordButton().setSelected(false);
 		}
 	}
 
 	private void showTostContent(String content) {
-		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
 	}
 
 	public boolean isFirstPlay() {
@@ -698,7 +771,7 @@ public class PlaybackActivity extends BaseActivity {
 		PlaybackRequest pr = new PlaybackRequest();
 		pr.setSearchRecordRequestInfo(srr);
 		pr.setDeviceInfo(playbackItem);
-		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
+		pbcTask = new PlaybackControllTask(context, mHandler, pr);
 		start();
 	}
 
@@ -755,7 +828,7 @@ public class PlaybackActivity extends BaseActivity {
 		PlaybackRequest pr = new PlaybackRequest();
 		pr.setSearchRecordRequestInfo(srr);
 		pr.setDeviceInfo(dItem);
-		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
+		pbcTask = new PlaybackControllTask(context, mHandler, pr);
 		start();
 	}
 
@@ -792,6 +865,50 @@ public class PlaybackActivity extends BaseActivity {
 		if (pbcTask != null) {
 			pbcTask.exit();
 		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		int screenWidth = ActivityUtility.getScreenSize(this).x;
+		int screenHeight = ActivityUtility.getScreenSize(this).y;
+		getApp().setScreenWidth(screenWidth);
+		getApp().setScreenHeight(screenHeight);
+		
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			Log.i(TAG, "onConfigurationChanged ==> ORIENTATION_LANDSCAPE");
+			super.setMenuEnabled(false);
+			super.getNavbarContainer().setVisibility(View.GONE);
+			super.getToolbarContainer().setVisibility(View.GONE);
+			mControlbar.setVisibility(View.GONE);
+			getApp().setFullscreenMode(true);
+			this.getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			mVideoContainer.setLayoutParams(new FrameLayout.LayoutParams(
+					screenWidth, screenHeight));
+
+			mLandscapePopFrame.setVisibility(View.VISIBLE);
+			initLandscapeToolbarPosition();
+			mPlaybackLandscapeToolbar.showLandscapeToolbar();			
+		} else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+			Log.i(TAG, "onConfigurationChanged ==> ORIENTATION_PORTRAIT");
+			super.setMenuEnabled(true);
+			super.getNavbarContainer().setVisibility(View.VISIBLE);
+			super.getToolbarContainer().setVisibility(View.VISIBLE);
+			mControlbar.setVisibility(View.VISIBLE);
+			getApp().setFullscreenMode(false);
+			this.getWindow().setFlags(
+					WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+					WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			mVideoContainer.setLayoutParams(new FrameLayout.LayoutParams(
+					screenWidth, screenWidth));
+			
+			mLandscapePopFrame.setVisibility(View.GONE);
+			mPlaybackLandscapeToolbar.hideLandscapeToolbar();
+		}
+		
+		
+		super.onConfigurationChanged(newConfig);
 	}
 
 	public Handler getHandler() {

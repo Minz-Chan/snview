@@ -341,6 +341,7 @@
     <item name="playback_landscape_toolbar" type="id"/>
     <item name="playback_landscape_toolbar_layout" type="id"/>
     <item name="playback_landscape_pause_play_button" type="id"/>
+    <item name="playback_landscape_stop_button" type="id"/>
     <item name="playback_landscape_capture_button" type="id"/>
     <item name="playback_landscape_record_button" type="id"/>
     <item name="playback_landscape_delete_all_button" type="id"/>
