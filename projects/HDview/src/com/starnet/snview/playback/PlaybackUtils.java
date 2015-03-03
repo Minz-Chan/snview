@@ -46,7 +46,7 @@ public class PlaybackUtils {
 		String hmsTemp = sumTime[1];
 		int[] ymd = getIntYMDData(ymdTemp);
 		int[] hms = getIntHMSData(hmsTemp);
-		owspTime.setYear(ymd[0] - 2009);
+		owspTime.setYear(ymd[0]);
 		owspTime.setMonth(ymd[1]);
 		owspTime.setDay(ymd[2]);
 		owspTime.setHour(hms[0]);

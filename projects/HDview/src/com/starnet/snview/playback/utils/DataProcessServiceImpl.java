@@ -160,11 +160,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				int count = 0;
 				while (vHandler.getBufferQueue().write(tmp) == 0) {
+					Log.i(TAG, "video write queue full111...");
 					if (count == 5) {
 						count = 0;
 						Message msg = Message.obtain();
-						msg.what = AudioHandler.MSG_BUFFER_FULL;
-						aHandler.sendMessage(msg);
+						msg.what =VideoHandler.MSG_BUFFER_PROCESS;
+						vHandler.sendMessage(msg);
 					}
 					
 					try {
@@ -226,11 +227,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 					
 					int count = 0;
 					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
+						Log.i(TAG, "video write queue full222...");
 						if (count == 5) {
 							count = 0;
 							Message msg = Message.obtain();
-							msg.what = AudioHandler.MSG_BUFFER_FULL;
-							aHandler.sendMessage(msg);
+							msg.what = VideoHandler.MSG_BUFFER_PROCESS;
+							vHandler.sendMessage(msg);
 						}
 						try {
 							Thread.sleep(10);

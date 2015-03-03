@@ -292,7 +292,7 @@ public class PlaybackActivity extends BaseActivity {
 	
 	private OWSPDateTime convertCalendar2OWSPDateTime(Calendar c) {
 		OWSPDateTime t = new OWSPDateTime();
-		t.setYear(c.get(Calendar.YEAR)-2009);
+		t.setYear(c.get(Calendar.YEAR));
 		t.setMonth(c.get(Calendar.MONTH)+1);
 		t.setDay(c.get(Calendar.DAY_OF_MONTH));
 		t.setHour(c.get(Calendar.HOUR_OF_DAY));
@@ -303,7 +303,7 @@ public class PlaybackActivity extends BaseActivity {
 	
 	private Calendar convertOWSPDateTime2Calendar(OWSPDateTime t) {
 		Calendar c = Calendar.getInstance();
-		c.set(Calendar.YEAR, t.getYear()+2009);
+		c.set(Calendar.YEAR, t.getYear());
 		c.set(Calendar.MONTH, t.getMonth()-1);
 		c.set(Calendar.DAY_OF_MONTH, t.getDay());
 		c.set(Calendar.HOUR_OF_DAY, t.getHour());
@@ -632,7 +632,7 @@ public class PlaybackActivity extends BaseActivity {
 
 		final OWSPDateTime startTime = new OWSPDateTime();
 		startTime.setDay(1);
-		startTime.setYear(2015 - 2009);
+		startTime.setYear(2015);
 		startTime.setMonth(3);
 		startTime.setHour(13);
 		startTime.setMinute(58);
@@ -706,7 +706,7 @@ public class PlaybackActivity extends BaseActivity {
 			PlaybackDeviceItem dItem1) {
 		PlaybackDeviceItem dItem = new PlaybackDeviceItem();
 		// dItem.setSvrIp("61.131.16.27");
-		String ips = "192.168.87.10";
+		String ips = "10.18.72.222";
 		dItem.setSvrIp(ips);
 		dItem.setSvrPort("8080");
 		// dItem.setSvrPort("9509");
@@ -736,16 +736,16 @@ public class PlaybackActivity extends BaseActivity {
 		OWSPDateTime endTime = new OWSPDateTime();
 		endTime.setYear(2015 - 2009);
 		endTime.setMonth(3);
-		endTime.setDay(1);
+		endTime.setDay(2);
 		endTime.setHour(14);
 		endTime.setMinute(10);
 		endTime.setSecond(0);
 		srr.setEndTime(endTime);
 
 		srr.setCount(255);
-		srr.setRecordType(4);
+		srr.setRecordType(0);
 		srr.setDeviceId(0);
-		srr.setChannel(3);
+		srr.setChannel(2);
 
 		if (pbcTask != null) {
 			pbcTask.exit();
@@ -756,7 +756,7 @@ public class PlaybackActivity extends BaseActivity {
 		pr.setSearchRecordRequestInfo(srr);
 		pr.setDeviceInfo(dItem);
 		pbcTask = new PlaybackControllTask(ctx, mHandler, pr);
-		pbcTask.start();
+		start();
 	}
 
 	@Override

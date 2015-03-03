@@ -549,25 +549,7 @@ WAIT_TO_RESUME:
 					if (sender != null && channel != -1) {
 						TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 						prr.setDeviceId(0);
-						
-//						OWSPDateTime stTime = new OWSPDateTime();
-						
-						// channel 4, 2.12 14:50 CIF  2.12 15:00 D1
-//						stTime.setYear(2015 - 2009);
-//						stTime.setMonth(2);
-//						stTime.setDay(12);
-//						stTime.setHour(14);
-//						stTime.setMinute(50);
-//						stTime.setSecond(0);
-						
-						// channel 2, 2.12 12:00 1280x960
-//						stTime.setYear(2015 - 2009);
-//						stTime.setMonth(2);
-//						stTime.setDay(21);
-//						stTime.setHour(22);
-//						stTime.setMinute(30);
-//						stTime.setSecond(0);
-						
+						startTime.setYear(startTime.getYear()-2009);
 						prr.setStartTime(startTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
