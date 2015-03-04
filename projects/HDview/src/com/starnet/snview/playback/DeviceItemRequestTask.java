@@ -217,6 +217,7 @@ public class DeviceItemRequestTask {
 		cloudAccount.setUsername(username);
 		cloudAccount.setPassword(password);
 		cloudAccount.setExpanded(false);// 暂时设置
+		cloudAccount.setEnabled(true);
 		int dvrDeviceSize = dvrDevices.size();
 		List<DeviceItem> deviceList = new ArrayList<DeviceItem>();
 		for (int i = 0; i < dvrDeviceSize; i++) {

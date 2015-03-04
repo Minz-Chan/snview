@@ -39,7 +39,6 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.playback.utils.DeviceItemsTask;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.playback.utils.TimeSettingUtils;
@@ -139,17 +138,15 @@ public class TimeSettingActivity extends BaseActivity {
 				String suc = msgD.getString("success");
 				if (suc.equals("Yes")) {
 					final int pos = Integer.valueOf(posi);
-					final CloudAccount netCA = (CloudAccount) msgD
-							.getSerializable("netCA");
+					final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 					netCA.setRotate(true);
 					if (netCA != null) {
 						List<DeviceItem> dList = netCA.getDeviceList();
 						if ((dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
-						String userName = preferences.getString("username",
-								null);
-						int channelNo = preferences.getInt("channelNo", 0);
+						String userName = preferences.getString("username",null);
+						int channelNo = preferences.getInt("channelNo", 1);
 						for (int i = 0; i < dList.size(); i++) {
 							DeviceItem de = dList.get(i);
 							if (posi != 0 ) {
@@ -163,34 +160,23 @@ public class TimeSettingActivity extends BaseActivity {
 							}
 						}
 						if (netCA.getUsername().equals(userName)) {
-							String deviceNm = preferences.getString(
-									"deviceName", null);
+							String deviceNm = preferences.getString("deviceName", null);
 							if ((dList != null) && (dList.size() > 0)) {
 								for (int i = 0; i < dList.size(); i++) {
-									if ((netCA.isEnabled() && dList.get(i)
-											.getDeviceName().substring(4)
-											.equals(deviceNm))
-											|| (!netCA.isEnabled() && dList
-													.get(i).getDeviceName()
-													.equals(deviceNm))) {
-										List<Channel> chanelList = dList.get(i)
-												.getChannelList();
-										if (chanelList != null
-												&& chanelList.size() > 0) {
-											for (int j = 0; j < chanelList
-													.size(); j++) {
+									DeviceItem dItem = dList.get(i);
+									if ((netCA.isEnabled() && dItem.getDeviceName().substring(4).equals(deviceNm))
+											|| ((posi==0) && dItem.getDeviceName().equals(deviceNm))) {
+										List<Channel> chanelList = dList.get(i).getChannelList();
+										if (chanelList != null && chanelList.size() > 0) {
+											for (int j = 0; j < chanelList .size(); j++) {
 												if (j == channelNo) {
 													clickGroup = pos;
 													clickChild = i;
-													chanelList.get(j)
-															.setSelected(true);
+													chanelList.get(j) .setSelected(true);
 													okFlag = true;
 													actsAdapter.setGroup(pos);
-													actsAdapter
-															.setChild(clickChild);
-													actsAdapter
-															.setDeviceItem(dList
-																	.get(clickChild));
+													actsAdapter .setChild(clickChild);
+													actsAdapter .setDeviceItem(dList.get(clickChild));
 													break;
 												}
 											}
@@ -572,7 +558,12 @@ public class TimeSettingActivity extends BaseActivity {
 		srr = getSearchRecordRequestInfo();
 		loginItem = new PlaybackDeviceItem();
 		if (visitDevItem!=null) {
-			loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
+			if (visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_online_en))||
+					visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_offline_en))) {
+				loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
+			}else {
+				loginItem.setDeviceRecordName(visitDevItem.getDeviceName());
+			}
 			loginItem.setPlatformUsername(visitDevItem.getPlatformUsername());
 			loginItem.setLoginUser(visitDevItem.getLoginUser());
 			loginItem.setLoginPass(visitDevItem.getLoginPass());
@@ -618,7 +609,7 @@ public class TimeSettingActivity extends BaseActivity {
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
 		srr.setCount(255);
-		srr.setChannel(channel);
+		srr.setChannel(channel+1);
 		srr.setDeviceId(0);
 		srr.setRecordType(recordType);
 		srr.setReserve(new int[] { 0, 0, 0 });

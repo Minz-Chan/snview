@@ -156,7 +156,7 @@ public class BufferSendManagerPlayBack {
 
 			TLV_V_SearchRecordRequest srr = (TLV_V_SearchRecordRequest) msg;
 			outBuffer.putUnsignedInt(srr.getDeviceId());
-			outBuffer.put((byte) (srr.getChannel()));//srr.getChannel()-1
+			outBuffer.put((byte) (srr.getChannel() - 1));
 			outBuffer.put((byte) srr.getRecordType());
 			outBuffer.put((byte) srr.getCount());
 			

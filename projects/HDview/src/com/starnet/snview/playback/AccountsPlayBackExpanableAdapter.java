@@ -135,7 +135,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		DeviceItem item = users.get(groupPosition).getDeviceList().get(childPosition);
 		boolean isSelected = judgeChannelIsSelected(item);
 //		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().contains(clickDItem.getDeviceName())) {
-		if(isSelected && item.isConnPass()){
+		if(isSelected){//  && item.isConnPass() 
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
