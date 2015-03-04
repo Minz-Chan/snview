@@ -408,25 +408,29 @@ public class PlaybackControllTask {
 	}
 	/**继续播放接口**/
 	public void resume(){
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
+//		if (controller == null) {
+//			controller = new PlaybackController();
+//		}
+		controller = new PlaybackController();
 		controller.setChannel(getPlaybackChannel());
 		controller.requestResume();
+		recvAndProcessData(receiver);
 	}
 	
 	public void stop() {
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
+//		if (controller == null) {
+//			controller = new PlaybackController();
+//		}
+		controller = new PlaybackController();
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStop();
 	}
 	
 	public void start(OWSPDateTime startTime) {
-		if (controller == null) {
-			controller = new PlaybackController();
-		}
+//		if (controller == null) {
+//			controller = new PlaybackController();
+//		}
+		controller = new PlaybackController();
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStart(startTime);
 	}
@@ -497,6 +501,7 @@ public class PlaybackControllTask {
 		public void requestResume() {
 			OWSPDateTime startTime = new OWSPDateTime();
 			sendCommand(PlaybackCommand.RESUME, startTime);
+//			recvAndProcessData(receiver);
 		}
 		
 		public void requestPause() {
@@ -517,9 +522,7 @@ public class PlaybackControllTask {
 					if (sender != null && channel != -1) {
 						TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 						prr.setDeviceId(0);
-						
 //						OWSPDateTime stTime = new OWSPDateTime();
-						
 						// channel 4, 2.12 14:50 CIF  2.12 15:00 D1
 //						stTime.setYear(2015 - 2009);
 //						stTime.setMonth(2);
@@ -527,7 +530,6 @@ public class PlaybackControllTask {
 //						stTime.setHour(14);
 //						stTime.setMinute(50);
 //						stTime.setSecond(0);
-						
 						// channel 2, 2.12 12:00 1280x960
 //						stTime.setYear(2015 - 2009);
 //						stTime.setMonth(2);
@@ -535,9 +537,8 @@ public class PlaybackControllTask {
 //						stTime.setHour(22);
 //						stTime.setMinute(30);
 //						stTime.setSecond(0);
-						
-						prr.setStartTime(startTime);
 //						prr.setStartTime(stTime);
+						prr.setStartTime(startTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
 						prr.setChannel(channel);

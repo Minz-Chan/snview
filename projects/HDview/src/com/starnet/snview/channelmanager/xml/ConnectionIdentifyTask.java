@@ -96,13 +96,13 @@ public class ConnectionIdentifyTask {
 						startConnectionIdentify();
 					} else {// 连接不正常的处理，有时候比较耗时
 						isOnWorkdUnknwnHost = true;
-						shouldTimeOutOver = true;
 						isConnectedOver = true;
 						isOnWorkdIOErr = true;
 						if (!isCanceled && !shouldTimeOutOver
 								&& !isConnectedOver && !isOnConnectionWrong) {
 							onConnectionWrong();
 						}
+						shouldTimeOutOver = true;
 					}
 				}
 			}
@@ -363,6 +363,10 @@ public class ConnectionIdentifyTask {
 
 	public void setContext(Context context) {
 		this.context = context;
+	}
+	
+	public void setCancel(boolean isCanceled){
+		this.isCanceled = isCanceled;
 	}
 
 	public void setCanceled(boolean isCanceled) {
