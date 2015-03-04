@@ -202,7 +202,7 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 	}
 
 	public int getTimeBarWidth() {
-		return ActivityUtility.dip2px(mContext, 275);
+		return ActivityUtility.dip2px(mContext, 250);
 	}
 	
 	

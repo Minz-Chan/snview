@@ -433,7 +433,7 @@ public class PlaybackActivity extends BaseActivity {
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PICTURE,
 				R.drawable.toolbar_take_picture_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.VIDEO_RECORD,
-				R.drawable.toolbar_video_record_selector));
+				R.drawable.toolbar_video_cut_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PLAY_PAUSE,
 				R.drawable.toolbar_play_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,
@@ -730,6 +730,7 @@ public class PlaybackActivity extends BaseActivity {
 	}
 	
 	protected void random(Calendar calendar) {
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
 		int year = calendar.get(Calendar.YEAR);
 		int month = calendar.get(Calendar.MONTH) + 1;
 		int day = calendar.get(Calendar.DAY_OF_MONTH);
