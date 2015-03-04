@@ -146,7 +146,7 @@ public class TimeSettingActivity extends BaseActivity {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
 						String userName = preferences.getString("username",null);
-						int channelNo = preferences.getInt("channelNo", 1);
+						int channelNo = preferences.getInt("channelNo", 1) - 1;
 						for (int i = 0; i < dList.size(); i++) {
 							DeviceItem de = dList.get(i);
 							if (posi != 0 ) {
