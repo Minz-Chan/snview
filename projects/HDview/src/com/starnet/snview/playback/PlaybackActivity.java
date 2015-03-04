@@ -209,6 +209,7 @@ public class PlaybackActivity extends BaseActivity {
 				break;
 			case UPDATE_MIDDLE_TIME:
 				long timestamp = msg.getData().getLong("AUDIO_TIME");
+
 				// Calendar c = getQueryStartTimeBase();
 				// if (c != null) {
 				// c.setTimeInMillis(c.getTimeInMillis()+timestamp);
@@ -506,6 +507,32 @@ public class PlaybackActivity extends BaseActivity {
 		mShotPictureAnim = AnimationUtils.loadAnimation(PlaybackActivity.this,
 				R.anim.shot_picture);
 	}
+	protected void randomPlay(Calendar calendar) {
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH)+1;
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
+		int second = calendar.get(Calendar.SECOND);
+		
+		Log.i(TAG, "random play, time:" + year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second);
+		
+		OWSPDateTime startTime = new OWSPDateTime();
+		startTime.setDay(1);
+		startTime.setYear(6);
+		startTime.setMonth(3);
+		startTime.setHour(14);
+		startTime.setMinute(0);
+		startTime.setSecond(24);
+		
+//		startTime.setDay(day);
+//		startTime.setYear(year-2009);
+//		startTime.setMonth(month);
+//		startTime.setHour(hour);
+//		startTime.setMinute(minute);
+//		startTime.setSecond(second);
+		start(startTime);
+	}
 
 	@SuppressLint("SimpleDateFormat")
 	private void saveLastQueryStartTime(Calendar c) {
@@ -755,6 +782,21 @@ public class PlaybackActivity extends BaseActivity {
 			// testStartPlayTask(srr, loginItem);
 			// }
 			// }
+			if (data != null) {
+				isFirstIn = false;
+//				isOnPlayControl = false;
+				Bundle bundle = data.getExtras();
+				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
+				loginItem = bundle.getParcelable("loginItem");
+				mVideoContainer.setPlaybackItem(loginItem);				
+				if (loginItem != null) {
+					startPlayTaskWithLoginItem(srr, loginItem);		/* REAL CODE */			
+				}else{
+//					testStartPlayTask(srr, loginItem);/*  FOR TESTING ... */
+				}
+			}else{
+//				testStartPlayTask(null, null);/*  FOR TESTING ... */
+			}
 		}
 	}
 
@@ -785,7 +827,6 @@ public class PlaybackActivity extends BaseActivity {
 		// dItem.setSvrPort("9509");
 		dItem.setLoginUser("admin");
 		dItem.setLoginPass("");
-		// //
 		srr = new TLV_V_SearchRecordRequest();
 		OWSPDateTime stTime = new OWSPDateTime();
 
@@ -802,16 +843,16 @@ public class PlaybackActivity extends BaseActivity {
 		stTime.setMonth(3);
 		stTime.setDay(1);
 		stTime.setHour(13);
-		stTime.setMinute(50);
+		stTime.setMinute(45);
 		stTime.setSecond(0);
 		srr.setStartTime(stTime);
 
 		OWSPDateTime endTime = new OWSPDateTime();
 		endTime.setYear(2015 - 2009);
 		endTime.setMonth(3);
-		endTime.setDay(2);
-		endTime.setHour(14);
-		endTime.setMinute(10);
+		endTime.setDay(1);
+		endTime.setHour(16);
+		endTime.setMinute(42);
 		endTime.setSecond(0);
 		srr.setEndTime(endTime);
 

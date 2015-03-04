@@ -22,6 +22,8 @@
     <string name="common_last_devicelist_path">/data/data/com.starnet.snview/LastDevicesList.xml</string>
     <string name="channel_listview_device_layout_ok">确定</string>
     <string name="channel_listview_device_layout_cancel">取消</string>
+    <string name="channel_manager_connect_timeout">连接验证超时</string>
+    <string name="channel_manager_connect_wrong">连接验证错误，请检查信息</string>
     <string name="channel_manager_channellistview_search">请输入查找内容</string>
     <string name="channel_manager_channellistview_netnotopen">网络未打开，请打开网络</string>
     <string name="channel_manager_channellistview_loadfail">用户设备数据尚未加载成功,请等待</string>

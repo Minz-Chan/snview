@@ -37,18 +37,21 @@ public class DeviceItemRequestTask {
 	private final int LOADSUC = 0x0003;
 	private final int LOADFAI = 0x0004;
 
-	public DeviceItemRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, int pos) {
+	public DeviceItemRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, final int pos) {
 		this.pos = pos;
 		this.ctx = ctx;
 		this.reqCA = reqCA;
 		this.mHandler = mHandler;
 		workThread = new Thread() {
-
 			@Override
 			public void run() {
 				super.run();
 				try {
-					onStartWorkRequest();
+					if (pos == 0) {//第一个为收藏设备，直接发送到UI界面进行更新即可...
+						sendMessageToUiFresh();
+					}else {
+						onStartWorkRequest();
+					}
 				} catch (IOException e) {
 					onRequestTimeOut();
 				} catch (DocumentException e) {
@@ -76,6 +79,22 @@ public class DeviceItemRequestTask {
 				}
 			}
 		};
+	}
+
+	protected void sendMessageToUiFresh() {
+		isDocumentOpt = true;
+		isTimeThreadOver = true;
+		isRequestTimeOut = true;
+		isTimeThreadOver = true;
+		isStartWorkRequest = true;
+		Message msg = new Message();
+		Bundle data = new Bundle();
+		msg.what = LOADSUC;
+		data.putInt("position", pos);
+		data.putString("success", "Yes");
+		data.putSerializable("netCA", this.reqCA);
+		msg.setData(data);
+		mHandler.sendMessage(msg);
 	}
 
 	private void onDocumentOpt() {
@@ -118,12 +137,10 @@ public class DeviceItemRequestTask {
 		String port = reqCA.getPort();
 		String username = reqCA.getUsername();
 		String password = reqCA.getPassword();
-		Document doc = ReadWriteXmlUtils.SendURLPost(domain, port, username,
-				password, "");
+		Document doc = ReadWriteXmlUtils.SendURLPost(domain, port, username,password, "");
 		String result = ReadWriteXmlUtils.readXmlStatus(doc);
 		if (result == null) {
-			ArrayList<DVRDevice> dList = (ArrayList<DVRDevice>) ReadWriteXmlUtils
-					.readXmlDVRDevices(doc);
+			ArrayList<DVRDevice> dList = (ArrayList<DVRDevice>) ReadWriteXmlUtils.readXmlDVRDevices(doc);
 			if (!isCanceled && !isStartWorkRequest) {
 				Message msg = new Message();
 				Bundle data = new Bundle();

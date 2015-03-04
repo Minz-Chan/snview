@@ -94,7 +94,7 @@ public class ChannelListActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_WRONG:
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					showToast("连接验证错误，请检查信息");
+					showToast(getString(R.string.channel_manager_connect_wrong));
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
 				}
@@ -102,7 +102,7 @@ public class ChannelListActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					showToast("连接验证超时");
+					showToast(getString(R.string.channel_manager_connect_timeout));
 					gotoChannelListViewActivity(msg);
 					chExpandableListAdapter.notifyDataSetChanged();
 				}

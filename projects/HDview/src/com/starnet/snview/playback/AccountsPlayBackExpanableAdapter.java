@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.xml.ConnectionIdentifyTask;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,16 +27,21 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	private List<CloudAccount> users;// 星云账户
 	private final int REQ = 0x0005;
 
+	private Handler mHandler;
 	private CloudAccount clickUser;
 	private DeviceItem clickDItem;
 	
+	public void setHandler(Handler handler){
+		this.mHandler = handler;
+	}
 	public void setDeviceItem(DeviceItem item){
 		this.clickDItem = item;
 	}
 
-	public AccountsPlayBackExpanableAdapter(Context ctx,List<CloudAccount> users) {
+	public AccountsPlayBackExpanableAdapter(Handler handler,Context ctx,List<CloudAccount> users) {
 		this.ctx = ctx;
 		this.users = users;
+		this.mHandler = handler;
 	}
 
 	@Override
@@ -128,14 +135,15 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		DeviceItem item = users.get(groupPosition).getDeviceList().get(childPosition);
 		boolean isSelected = judgeChannelIsSelected(item);
 //		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().contains(clickDItem.getDeviceName())) {
-		if(isSelected){
+		if(isSelected && item.isConnPass()){
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
 		}
 		final int group = groupPosition;
 		final int child = childPosition;
-		stateBtn.setOnClickListener(new OnClickListener() {
+		stateBtn.setOnClickListener(new OnClickListener() {//考虑收藏设备的联网验证情形
+			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(View v) {
 				clickChild = child;
@@ -147,12 +155,27 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				intent.putExtra("group", clickGroup);
 				intent.putExtra("child", clickChild);
 				intent.putExtra("device", clickDItem);
-				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
-				((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
+				if (clickGroup == 0) {
+					if (clickDItem.isConnPass()) {
+						intent.setClass(ctx, PlayBackChannelListViewActivity.class);
+						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
+					}else {//进行联网验证
+						((TimeSettingActivity)ctx).showDialog(TimeSettingActivity.CONNECTIDENTIFY_PROGRESSBAR);
+						task = new ConnectionIdentifyTask(mHandler,clickUser,clickDItem,clickGroup,clickChild);
+						task.setContext(ctx);
+						task.setCancel(false);
+						task.start();
+					}
+				}else {
+					intent.setClass(ctx, PlayBackChannelListViewActivity.class);
+					((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
+				}
 			}
 		});
 		return convertView;
 	}
+	
+	
 
 	private boolean judgeChannelIsSelected(DeviceItem item) {
 		boolean isSelected = false;
@@ -173,6 +196,59 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
 		return false;
+	}
+	
+	private ConnectionIdentifyTask task;
+	
+	public void setCancel(boolean isCancel){
+		task.setCanceled(isCancel);
+	}
+	
+//	private class ConnectIdentifyTask extends AsyncTask<Void,String,String>{
+//		
+//		private DeviceItem devItem;
+//		private boolean isCancel;
+//		
+//		public ConnectIdentifyTask(DeviceItem item){
+//			this.devItem = item;
+//		};
+//		
+//		public void setCancel(boolean isCancel){
+//			this.isCancel = isCancel;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(String result) {
+//			super.onPostExecute(result);
+//			if (!isCancel) {
+//				String ip = devItem.getSvrIp();
+//				String port = devItem.getSvrPort();
+//				String username = devItem.getLoginUser();
+//				String pswd = devItem.getLoginPass();
+//				String dName = devItem.getDeviceName();
+//				try {
+//					Document doc = ReadWriteXmlUtils.SendURLPost(ip, port, username, pswd, dName);
+//					String status = ReadWriteXmlUtils.readXmlStatus(doc);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				} catch (DocumentException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//
+//		@Override
+//		protected String doInBackground(Void... params) {
+//			if (!isCancel) {//执行后台访问
+//				
+//			}
+//			return null;
+//		}
+//	};
+	
+	private ProgressBar prg;
+	public void setIdentifyProgressBar(ProgressBar progressBar){
+		this.prg = progressBar;
 	}
 
 	private static int clickGroup;

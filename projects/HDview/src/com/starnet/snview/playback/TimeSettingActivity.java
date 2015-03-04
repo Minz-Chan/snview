@@ -1,15 +1,20 @@
 package com.starnet.snview.playback;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +39,7 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.playback.utils.DeviceItemsTask;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.playback.utils.TimeSettingUtils;
@@ -43,8 +49,6 @@ import com.starnet.snview.util.NetWorkUtils;
 
 @SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
-	
-	private final String TAG = "TimeSettingActivity";
 	
 	public static final String PLAYBACK_TIMESETTING = "playback_timesetting";
 
@@ -107,6 +111,12 @@ public class TimeSettingActivity extends BaseActivity {
 	private String playback_endTime;
 	private String playback_startTime;
 	private SharedPreferences preferences;
+	
+	private ProgressDialog connectIdentifyPrg = null;
+	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
+	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
+	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	public static final int CONNECTIDENTIFY_PROGRESSBAR = 0x11220033;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -129,55 +139,69 @@ public class TimeSettingActivity extends BaseActivity {
 				String suc = msgD.getString("success");
 				if (suc.equals("Yes")) {
 					final int pos = Integer.valueOf(posi);
-					final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
+					final CloudAccount netCA = (CloudAccount) msgD
+							.getSerializable("netCA");
 					netCA.setRotate(true);
 					if (netCA != null) {
 						List<DeviceItem> dList = netCA.getDeviceList();
 						if ((dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
-						String userName = preferences.getString("username", null);					
+						String userName = preferences.getString("username",
+								null);
 						int channelNo = preferences.getInt("channelNo", 0);
-						for(int i =0 ;i<dList.size();i++){							
-							List<Channel> chList = dList.get(i).getChannelList();
-							if (chList!=null&&chList.size()>0) {
+						for (int i = 0; i < dList.size(); i++) {
+							DeviceItem de = dList.get(i);
+							if (posi != 0 ) {
+								de.setConnPass(true);
+							}
+							List<Channel> chList = de.getChannelList();
+							if (chList != null && chList.size() > 0) {
 								for (int j = 0; j < chList.size(); j++) {
 									chList.get(j).setSelected(false);
 								}
 							}
 						}
-						
 						if (netCA.getUsername().equals(userName)) {
-							String deviceNm = preferences.getString("deviceName", null);
+							String deviceNm = preferences.getString(
+									"deviceName", null);
 							if ((dList != null) && (dList.size() > 0)) {
-																
-								for(int i =0 ;i<dList.size();i++){
-									
-									if (dList.get(i).getDeviceName().substring(4).equals(deviceNm)) {
-										
-										List<Channel> chanelList = dList.get(i).getChannelList();
-										if (chanelList!=null&&chanelList.size()>0) {
-																						
-											for (int j = 0; j < chanelList.size(); j++) {
+								for (int i = 0; i < dList.size(); i++) {
+									if ((netCA.isEnabled() && dList.get(i)
+											.getDeviceName().substring(4)
+											.equals(deviceNm))
+											|| (!netCA.isEnabled() && dList
+													.get(i).getDeviceName()
+													.equals(deviceNm))) {
+										List<Channel> chanelList = dList.get(i)
+												.getChannelList();
+										if (chanelList != null
+												&& chanelList.size() > 0) {
+											for (int j = 0; j < chanelList
+													.size(); j++) {
 												if (j == channelNo) {
 													clickGroup = pos;
 													clickChild = i;
-													chanelList.get(j).setSelected(true);
+													chanelList.get(j)
+															.setSelected(true);
 													okFlag = true;
 													actsAdapter.setGroup(pos);
-													actsAdapter.setChild(clickChild);
-													actsAdapter.setDeviceItem(dList.get(clickChild));
+													actsAdapter
+															.setChild(clickChild);
+													actsAdapter
+															.setDeviceItem(dList
+																	.get(clickChild));
 													break;
-												}											
+												}
 											}
 										}
 										break;
 									}
 								}
 							}
-						}						
-					}					
-					originCAs.set(pos, netCA);					
+						}
+					}
+					originCAs.set(pos, netCA);
 					actsAdapter.notifyDataSetChanged();
 				}
 				break;
@@ -190,6 +214,39 @@ public class TimeSettingActivity extends BaseActivity {
 				netCA2.setRotate(true);
 				originCAs.set(posit, netCA2);
 				actsAdapter.notifyDataSetChanged();
+				break;
+			case CONNECTIFYIDENTIFY_SUCCESS://连接验证成功，弹出通道列表对话框
+				dissmissIdentifyDialog();
+				Bundle bundle = msg.getData();
+				Intent intent = new Intent();
+				intent.putExtra("group", bundle.getInt("parentPos"));
+				intent.putExtra("child", bundle.getInt("childPos"));
+				intent.putExtra("device", bundle.getSerializable("identifyDeviceItem"));
+				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
+				((TimeSettingActivity) ctx).startActivityForResult(intent, REQUESTCODE);
+				break;
+			case CONNECTIFYIDENTIFY_WRONG:
+				dissmissIdentifyDialog();
+				showToast(getString(R.string.channel_manager_connect_wrong));
+				break;
+			case CONNECTIFYIDENTIFY_TIMEOUT:
+				dissmissIdentifyDialog();
+				showToast(getString(R.string.channel_manager_connect_timeout));
+//				Bundle bundle2 = msg.getData();
+//				Intent intent2 = new Intent();
+//				intent2.putExtra("group", bundle2.getInt("parentPos"));
+//				intent2.putExtra("child", bundle2.getInt("childPos"));
+//				DeviceItem deviceItem = (DeviceItem) bundle2.getSerializable("identifyDeviceItem");
+//				List<Channel> channelList = new ArrayList<Channel>();
+//				Channel chanel = new Channel();
+//				chanel.setChannelName("通道1");
+//				chanel.setSelected(false);
+//				chanel.setChannelNo(0);
+//				channelList.add(chanel);
+//				deviceItem.setChannelList(channelList);
+//				intent2.putExtra("device", deviceItem);
+//				intent2.setClass(ctx, PlayBackChannelListViewActivity.class);
+//				((TimeSettingActivity) ctx).startActivityForResult(intent2, REQUESTCODE);
 				break;
 			default:
 				break;
@@ -205,28 +262,41 @@ public class TimeSettingActivity extends BaseActivity {
 		setExtPandableListview();
 		setListenersForWadgets();
 	}
+	
+	private void dissmissIdentifyDialog(){
+		if ((connectIdentifyPrg != null) &&(connectIdentifyPrg.isShowing())) {
+			connectIdentifyPrg.dismiss();
+		}
+	}
 
 	/** 为用户添加设备数据 **/
 	private void setExtPandableListview() {
 		originCAs = downloadDatas();
-		actsAdapter = new AccountsPlayBackExpanableAdapter(ctx, originCAs);
+		actsAdapter = new AccountsPlayBackExpanableAdapter(mHandler,ctx, originCAs);
 		cloudAccountView.setAdapter(actsAdapter);
 	}
 
 	/** 加载星云平台用户数据 **/
 	private List<CloudAccount> downloadDatas() {
-		List<CloudAccount> accounts = PlaybackUtils.getCloudAccounts();
+		
+		//获取收藏设备，将收藏设备添加进远程回放中
+		List<CloudAccount> accounts = new ArrayList<CloudAccount>();
+		CloudAccount collectCA = PlaybackUtils.getCollectCloudAccount(getString(R.string.device_manager_collect_device));
+		accounts.add(collectCA);
+		List<CloudAccount> netAccounts = PlaybackUtils.getCloudAccounts();
+		for (CloudAccount ca : netAccounts) {
+			accounts.add(ca);
+		}
 		if (accounts != null) {
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
-			int enableSize = PlaybackUtils.getEnableCACount(accounts);
-			tasks = new DeviceItemRequestTask[enableSize];
+			int enableSize = PlaybackUtils.getEnableCACount(netAccounts);
+			tasks = new DeviceItemRequestTask[enableSize+1];
 			if (isOpen) {
 				int j = 0;
 				for (int i = 0; i < accounts.size(); i++) {
 					CloudAccount c = accounts.get(i);
 					if (c.isEnabled()) {
-						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler,
-								i);
+						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler, i);
 						tasks[j].start();
 						j++;
 					}
@@ -354,7 +424,7 @@ public class TimeSettingActivity extends BaseActivity {
 				if (isOpen) {
 					startPlayBack();
 				} else {
-					showContentToast(getString(R.string.playback_network_not_open));
+					showToast(getString(R.string.playback_network_not_open));
 				}
 			}
 		});
@@ -476,19 +546,19 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
 	}
 
-	private void showContentToast(String content) {
-		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
-	}
+//	private void showContentToast(String content) {
+//		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
+//	}
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
 		if (!okFlag) {// if (!okFlag) {
-			showContentToast(ctx.getString(R.string.playback_content_null));
+			showToast(ctx.getString(R.string.playback_content_null));
 		} else {
 			String vType = videoType.getText().toString();
 			int rTyPe = setRecordTypeAcc(vType);
 			if (rTyPe == -1) {
-				showContentToast(ctx.getString(R.string.playback_videotype_null));
+				showToast(ctx.getString(R.string.playback_videotype_null));
 			} else {
 				setDataToPlayActivity();
 			}
@@ -737,8 +807,11 @@ public class TimeSettingActivity extends BaseActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
 		super.onActivityResult(requestCode, resultCode, data);
+//		CloudAccount act = (CloudAccount)actsAdapter.getGroup(1);
+//		DeviceItemsTask task = new DeviceItemsTask();
+//		task.setCloudAccount(act);
+//		task.execute();
 		if (requestCode == REQUESTCODE) {
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
@@ -933,4 +1006,24 @@ public class TimeSettingActivity extends BaseActivity {
 		hour.setCurrentItem(hourPos);
 		minute.setCurrentItem(minuPos);
 	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case CONNECTIDENTIFY_PROGRESSBAR:
+			connectIdentifyPrg = ProgressDialog.show(this, "", getString(R.string.device_manager_conn_iden), true, true);
+			connectIdentifyPrg.setOnCancelListener(new OnCancelListener() {
+				@SuppressWarnings("deprecation")
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dismissDialog(CONNECTIDENTIFY_PROGRESSBAR);
+				}
+			});
+			return connectIdentifyPrg;
+		default:
+			return null;
+		}
+	}
+	
+	
 }

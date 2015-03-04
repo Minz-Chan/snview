@@ -449,7 +449,7 @@ WAIT_TO_RESUME:
 		controller.setChannel(getPlaybackChannel());
 		controller.requestPause();
 	}
-
+	
 	public void resume(){
 		controller.setChannel(getPlaybackChannel());
 		controller.requestResume();
@@ -525,6 +525,7 @@ WAIT_TO_RESUME:
 		public void requestResume() {
 			OWSPDateTime startTime = new OWSPDateTime();
 			sendCommand(PlaybackCommand.RESUME, startTime);
+//			recvAndProcessData(receiver);
 		}
 		
 		public void requestPause() {
@@ -550,6 +551,7 @@ WAIT_TO_RESUME:
 						TLV_V_PlayRecordRequest prr = new TLV_V_PlayRecordRequest();
 						prr.setDeviceId(0);
 						startTime.setYear(startTime.getYear()-2009);
+						prr.setStartTime(startTime);
 						prr.setStartTime(startTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
