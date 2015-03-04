@@ -198,7 +198,7 @@ public class PlaybackActivity extends BaseActivity {
 				setButtonToPause();
 				break;
 			case ACTION_STOP_SUCC:
-				mVideoContainer.setWindowInfoContent("停止");
+				mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_stop));
 				isPlaying = false;
 				setButtonToPlay();
 				updateTimebar(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
@@ -209,17 +209,14 @@ public class PlaybackActivity extends BaseActivity {
 				break;
 			case UPDATE_MIDDLE_TIME:
 				long timestamp = msg.getData().getLong("AUDIO_TIME");
-
-				// Calendar c = getQueryStartTimeBase();
-				// if (c != null) {
-				// c.setTimeInMillis(c.getTimeInMillis()+timestamp);
-				// mTimebar.setCurrentTime(c);
-				// }
-				Calendar c = Calendar.getInstance();
-				c.set(2015, 2, 1, 0, 0, 0);
-				c.setTimeInMillis(c.getTimeInMillis() + timestamp);
-				updateTimebar(c);
-
+				Calendar c = getQueryStartTimeBase();
+				if (c != null) {
+					c.setTimeInMillis(c.getTimeInMillis()+timestamp);
+					updateTimebar(c);
+				}
+//				Calendar c = Calendar.getInstance();
+//				c.set(2015, 2, 1, 0, 0, 0);
+//				c.setTimeInMillis(c.getTimeInMillis() + timestamp);
 				break;
 			case Constants.TAKE_PICTURE:
 				String imgPath = (String) msg.getData()
@@ -450,7 +447,9 @@ public class PlaybackActivity extends BaseActivity {
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
-				random(calendar);
+				if (pbcTask != null) {
+					random(calendar);
+				}
 			}
 		};
 
@@ -547,6 +546,10 @@ public class PlaybackActivity extends BaseActivity {
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
 		@Override
 		public void onItemClick(ActionImageButton imgBtn) {
+			if (pbcTask == null) {
+				return;
+			}
+			
 			switch (imgBtn.getItemData().getActionID()) {
 			case PLAY_PAUSE:
 				if (isFirstIn) {
@@ -574,6 +577,10 @@ public class PlaybackActivity extends BaseActivity {
 	private LandControlbarClickListener mPlaybackLandToolbarClickListener = new LandControlbarClickListener() {
 		@Override
 		public void landControlbarClick(View v) {
+			if (pbcTask == null) {
+				return;
+			}
+			
 			switch (v.getId()) {
 			case R.id.playback_landscape_capture_button:
 				mVideoContainer.takePicture();
@@ -713,13 +720,12 @@ public class PlaybackActivity extends BaseActivity {
 	}
 
 	private void stop() {
-		mVideoContainer.setWindowInfoContent("请求停止中...");
+		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_stop_requesting));
 		action = PlaybackControlAction.STOP;
 		pbcTask.stop();
 	}
 	
 	protected void random(Calendar calendar) {
-		
 		int year = calendar.get(Calendar.YEAR);
 		int month = calendar.get(Calendar.MONTH) + 1;
 		int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -731,12 +737,18 @@ public class PlaybackActivity extends BaseActivity {
 				+ hour + ":" + minute + ":" + second);
 
 		final OWSPDateTime startTime = new OWSPDateTime();
-		startTime.setDay(1);
-		startTime.setYear(2015);
-		startTime.setMonth(3);
-		startTime.setHour(13);
-		startTime.setMinute(58);
-		startTime.setSecond(0);
+		startTime.setYear(year);
+		startTime.setMonth(month);
+		startTime.setDay(day);
+		startTime.setHour(hour);
+		startTime.setMinute(minute);
+		startTime.setSecond(second);
+//		startTime.setDay(1);
+//		startTime.setYear(2015);
+//		startTime.setMonth(3);
+//		startTime.setHour(13);
+//		startTime.setMinute(58);
+//		startTime.setSecond(0);
 		
 		action = PlaybackControlAction.RANDOM_PLAY;
 		pbcTask.random(startTime);
@@ -755,47 +767,30 @@ public class PlaybackActivity extends BaseActivity {
 			 * FOR TESTING ...
 			 */
 
-			isFirstIn = false;
-//			isOnPlayControl = false;
-
-			PlaybackDeviceItem item = new PlaybackDeviceItem();
-			item.setDeviceRecordName("test");
-			item.setChannel(3);
-			mVideoContainer.setPlaybackItem(item);
-			mVideoContainer.setDeviceRecordName(item.getDeviceRecordName());
-
-			testStartPlayTask(srr, item);
+//			isFirstIn = false;
+//			PlaybackDeviceItem item = new PlaybackDeviceItem();
+//			item.setDeviceRecordName("test");
+//			item.setChannel(3);
+//			mVideoContainer.setPlaybackItem(item);
+//			mVideoContainer.setDeviceRecordName(item.getDeviceRecordName());
+//
+//			testStartPlayTask(srr, item);
 
 			/*
 			 * REAL CODE
 			 */
-			// if (data != null) {
-			// isFirstIn = false;
-			// isOnPlayControl = false;
-			// Bundle bundle = data.getExtras();
-			// srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
-			// loginItem = bundle.getParcelable("loginItem");
-			// mVideoContainer.setPlaybackItem(loginItem);
-			// if (loginItem != null) {
-			// startPlayTaskWithLoginItem(srr, loginItem);
-			// }else{
-			// testStartPlayTask(srr, loginItem);
-			// }
-			// }
 			if (data != null) {
 				isFirstIn = false;
-//				isOnPlayControl = false;
 				Bundle bundle = data.getExtras();
 				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
-				mVideoContainer.setPlaybackItem(loginItem);				
+				mVideoContainer.setPlaybackItem(loginItem);
+				mVideoContainer.setDeviceRecordName(loginItem.getDeviceRecordName());
 				if (loginItem != null) {
-					startPlayTaskWithLoginItem(srr, loginItem);		/* REAL CODE */			
-				}else{
-//					testStartPlayTask(srr, loginItem);/*  FOR TESTING ... */
+					startPlayTaskWithLoginItem(srr, loginItem);
+				} else {
+					testStartPlayTask(srr, loginItem);
 				}
-			}else{
-//				testStartPlayTask(null, null);/*  FOR TESTING ... */
 			}
 		}
 	}
