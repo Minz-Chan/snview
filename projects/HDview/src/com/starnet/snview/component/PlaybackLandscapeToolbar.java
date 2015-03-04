@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import com.starnet.snview.R;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.playback.TimeBar;
+import com.starnet.snview.playback.TimeBar.OnActionMoveCallback;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.content.Context;
@@ -176,6 +177,16 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 		mPausePlayButton.setSelected(true);
 		mTimeBar.setMiddleTimeColor(Color.YELLOW);
 		mTimeBar.setScaleColor(Color.LTGRAY);
+		mTimeBar.setOnActionMoveCallback(new OnActionMoveCallback() {
+			@Override
+			public void onActionMove(MotionEvent e) {
+				onTimeBarActionMove(e);
+			}
+		});
+	}
+	
+	private void onTimeBarActionMove(MotionEvent e) {
+		scheduleLandbarAutoDismiss();
 	}
 
 	public int getLandscapeWidth() {
@@ -317,6 +328,8 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 			lp.leftMargin = newLeft;
 			lp.topMargin = newTop;
 			setLayoutParams(lp);
+			
+			scheduleLandbarAutoDismiss();
 
 			requestLayout();
 
@@ -368,13 +381,18 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 
 	private boolean isLandscapeShow;
 	private Timer mTimer = new Timer();
+	private static final int AUTO_DISMISS_TIME = 12;
+	
 	private TimerTask mLandscapeBarAutoDismissTask;
-	private static final int AUTO_DISMISS_TIME = 8;
 
 	public void showLandscapeToolbar() {
 		isLandscapeShow = true;
 		mControlBarContent.setVisibility(View.VISIBLE);
 
+		scheduleLandbarAutoDismiss();
+	}
+	
+	private void scheduleLandbarAutoDismiss() {
 		if (mLandscapeBarAutoDismissTask != null) {
 			mLandscapeBarAutoDismissTask.cancel();
 		}

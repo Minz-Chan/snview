@@ -22,6 +22,7 @@ public class TimeBar extends View {
 
 	private Calendar mPickedTime = new GregorianCalendar();
 	private TimePickedCallBack mTimePickCallback;
+	private OnActionMoveCallback mOnActionMoveCallback;
 	private boolean mIsFrozen = false;
 	private float mLastTouchX = 0.0F;
 	private boolean mTouchDownFlag = false;
@@ -100,6 +101,7 @@ public class TimeBar extends View {
 			mLastTouchX = e.getX();
 			if (!mIsFrozen) {
 				mTouchMoved = true;
+				mOnActionMoveCallback.onActionMove(e);
 				UpdateDataPos(moveOffsetOnX); // 根据偏移更新中线时间、刻度位置、矩形位置
 				invalidate(); // 强制onDraw重绘
 			}
@@ -334,6 +336,10 @@ public class TimeBar extends View {
 		this.mTimePickCallback = timePickedCallBack;
 	}
 	
+	public void setOnActionMoveCallback(OnActionMoveCallback onActionMoveCallback) {
+		this.mOnActionMoveCallback = onActionMoveCallback;
+	}
+
 	private String currrentTime;
 	/**获取当前的显示时间***/
 	public String getCurrentTime(){
@@ -346,6 +352,10 @@ public class TimeBar extends View {
 
 	public static abstract interface TimePickedCallBack {
 		public abstract void onTimePickedCallback(Calendar c);
+	}
+	
+	public static abstract interface OnActionMoveCallback {
+		public abstract void onActionMove(MotionEvent e);
 	}
 	
 	//更新矩形条
