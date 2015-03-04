@@ -552,7 +552,6 @@ WAIT_TO_RESUME:
 						prr.setDeviceId(0);
 						startTime.setYear(startTime.getYear()-2009);
 						prr.setStartTime(startTime);
-						prr.setStartTime(startTime);
 						prr.setCommand(cmdCode);
 						prr.setReserve(0);
 						prr.setChannel(channel);

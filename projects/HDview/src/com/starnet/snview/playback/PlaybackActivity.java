@@ -68,16 +68,18 @@ public class PlaybackActivity extends BaseActivity {
 
 	private final int PLAYBACK_REQ_DIALOG = 0x0005;
 
-	public static final int UPDATE_MIDDLE_TIME = 0x99990001;
-	public static final int RECV_STREAM_DATA_FORMAT = 0x12342222;
+	
+	
 	public static final int TIMESETTING_RTN_CODE = 0x0007;
 
 	public static final int PAUSE_RESUME_TIMEOUT = 0x0002;
 
-	public static final int NOTIFYREMOTEUIFRESH_SUC = 0x0008;
-	public static final int NOTIFYREMOTEUIFRESH_TMOUT = 0x0006;
-	public static final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x0009;
-
+	public static final int NOTIFYREMOTEUIFRESH_SUC = 0x11240001;
+	public static final int NOTIFYREMOTEUIFRESH_TMOUT = 0x11240002;
+	public static final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x11240003;
+	public static final int RECV_STREAM_DATA_FORMAT = 0x11240004;
+	public static final int UPDATE_MIDDLE_TIME = 0x11240005;
+	
 	public static final int ACTION_PLAY_SUCC = 0x11250000;
 	public static final int ACTION_PAUSE_SUCC = 0x11250001;
 	public static final int ACTION_PAUSE_FAIL = 0x11250002;
@@ -155,6 +157,8 @@ public class PlaybackActivity extends BaseActivity {
 				isFirstIn = false;
 				hasRecordFile = false;
 				showTostContent(getString(R.string.playback_netvisit_timeout));
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_connect_fail));
 				break;
 			case ACTION_PLAY_SUCC:
 				isPlaying = true;
@@ -784,8 +788,6 @@ public class PlaybackActivity extends BaseActivity {
 				Bundle bundle = data.getExtras();
 				srr = (TLV_V_SearchRecordRequest) bundle.getParcelable("srr");
 				loginItem = bundle.getParcelable("loginItem");
-				mVideoContainer.setPlaybackItem(loginItem);
-				mVideoContainer.setDeviceRecordName(loginItem.getDeviceRecordName());
 				if (loginItem != null) {
 					startPlayTaskWithLoginItem(srr, loginItem);
 				} else {

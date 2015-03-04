@@ -160,14 +160,14 @@ public class BufferSendManagerPlayBack {
 			outBuffer.put((byte) srr.getRecordType());
 			outBuffer.put((byte) srr.getCount());
 			
-			outBuffer.putUnsignedShort((short) srr.getStartTime().getYear());
+			outBuffer.putUnsignedShort((short) srr.getStartTime().getYear()-2009);
 			outBuffer.put((byte) srr.getStartTime().getMonth());
 			outBuffer.put((byte) srr.getStartTime().getDay());
 			outBuffer.put((byte) srr.getStartTime().getHour());
 			outBuffer.put((byte) srr.getStartTime().getMinute());
 			outBuffer.put((byte) srr.getStartTime().getSecond());
 
-			outBuffer.putUnsignedShort((short) srr.getEndTime().getYear());
+			outBuffer.putUnsignedShort((short) srr.getEndTime().getYear()-2009);
 			outBuffer.put((byte) srr.getEndTime().getMonth());
 			outBuffer.put((byte) srr.getEndTime().getDay());
 			outBuffer.put((byte) srr.getEndTime().getHour());
