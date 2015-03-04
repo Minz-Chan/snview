@@ -175,7 +175,8 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 		mShowButtonCount = 5;
 		
 		mPausePlayButton.setSelected(true);
-		mTimeBar.setMiddleTimeColor(Color.YELLOW);
+		mTimeBar.setMiddleTimeColor(Color.WHITE);
+		mTimeBar.setMiddleLineColor(Color.YELLOW);
 		mTimeBar.setScaleColor(Color.LTGRAY);
 		mTimeBar.setOnActionMoveCallback(new OnActionMoveCallback() {
 			@Override

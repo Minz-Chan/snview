@@ -43,6 +43,7 @@ public class TimeBar extends View {
 	 */
 	private GregorianCalendar mMiddleLineTime = new GregorianCalendar();
 	private static final SimpleDateFormat mTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 中线时间格式
+	private int mMiddleLineColor = Color.BLUE;
 	private int mMiddleTimeColor = 0xfff15a24; // 中线时间文字颜色
 	private static final Typeface mMiddleTimefont = Typeface.create(
 			Typeface.SANS_SERIF, 1); // 中线时间文字字体
@@ -90,6 +91,10 @@ public class TimeBar extends View {
 		mMiddleTimeColor = color;
 	}
 	
+	public void setMiddleLineColor(int color) {
+		mMiddleLineColor = color;
+	}
+	
 	public void setScaleColor(int color) {
 		mScaleColor = color;
 	}
@@ -101,7 +106,9 @@ public class TimeBar extends View {
 			mLastTouchX = e.getX();
 			if (!mIsFrozen) {
 				mTouchMoved = true;
-				mOnActionMoveCallback.onActionMove(e);
+				if (mOnActionMoveCallback != null) {
+					mOnActionMoveCallback.onActionMove(e);
+				}
 				UpdateDataPos(moveOffsetOnX); // 根据偏移更新中线时间、刻度位置、矩形位置
 				invalidate(); // 强制onDraw重绘
 			}
@@ -265,7 +272,7 @@ public class TimeBar extends View {
 		}
 
 		/* 绘制中线、中线时间文字 */
-		paint.setColor(Color.BLUE);
+		paint.setColor(mMiddleLineColor);
 		canvas.drawLine(mMiddleLineX, 0.0F, mMiddleLineX, mHeight, paint);
 		String str = mTimeFormat.format(mMiddleLineTime.getTime());
 		paint.setColor(mMiddleTimeColor);

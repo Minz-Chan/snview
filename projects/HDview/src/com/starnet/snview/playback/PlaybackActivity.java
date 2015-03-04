@@ -212,7 +212,7 @@ public class PlaybackActivity extends BaseActivity {
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
 			case UPDATE_MIDDLE_TIME:
-				long timestamp = msg.getData().getLong("AUDIO_TIME");
+				long timestamp = msg.getData().getLong("VIDEO_TIME");
 				Calendar c = getQueryStartTimeBase();
 				if (c != null) {
 					c.setTimeInMillis(c.getTimeInMillis()+timestamp);

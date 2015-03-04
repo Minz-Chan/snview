@@ -133,13 +133,24 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
 				
+				// 更新时间轴
+				if (oldSecond != second) { 
+					Message msg = Message.obtain();
+					msg.what = PlaybackActivity.UPDATE_MIDDLE_TIME;
+					Bundle b = new Bundle();
+					b.putLong("VIDEO_TIME", time);
+					msg.setData(b);
+					handler.sendMessage(msg);
+				}
+				oldSecond = second;
+				
 				Log.i(TAG, "video time: "  + time);
 				Log.i(TAG, "video time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
 				oneIFrameDataSize = -1;
 				oneIFrameBuffer.clear();
 				if (oneIFrameBuffer.remaining() < 0xFFFF) {
 					oneIFrameBuffer.expand(0xFFFF);
-				}
+				}				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_PFRAME_DATA) {
 				// 若第1帧接到的不是I帧，则后续的P帧不处理
 				if (!isIFrameFinished) {
@@ -277,18 +288,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "audio time: "  + time);
 				Log.i(TAG, "audio time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
-				
-				// 更新时间轴
-				if (oldSecond != second) { 
-					Message msg = Message.obtain();
-					msg.what = PlaybackActivity.UPDATE_MIDDLE_TIME;
-					Bundle b = new Bundle();
-					b.putLong("AUDIO_TIME", time);
-					msg.setData(b);
-					handler.sendMessage(msg);
-				}
-				
-				oldSecond = second;
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_DATA");
 				byte[] alawData = (byte[]) ByteArray2Object.convert2Object(
@@ -392,6 +391,26 @@ public class DataProcessServiceImpl implements DataProcessService {
 				TLV_V_VideoFrameInfoEx tlv_V_VideoFrameInfoEx = (TLV_V_VideoFrameInfoEx) ByteArray2Object
 						.convert2Object(TLV_V_VideoFrameInfoEx.class, data,
 								flag, OWSP_LEN.TLV_V_VideoFrameInfoEX);
+				
+				
+				long time = tlv_V_VideoFrameInfoEx.getTime();
+				int day = (int) (time / (1000*60*60*24));
+				int hour = (int) ((time / (1000*60*60)) % 24);
+				int minute = (int) ((time / (1000*60)) % 60);
+				int second = (int) ((time / (1000) % 60));
+				int millisecond = (int) (time % 1000);
+				
+				// 更新时间轴
+				if (oldSecond != second) { 
+					Message msg = Message.obtain();
+					msg.what = PlaybackActivity.UPDATE_MIDDLE_TIME;
+					Bundle b = new Bundle();
+					b.putLong("VIDEO_TIME", time);
+					msg.setData(b);
+					handler.sendMessage(msg);
+				}
+				oldSecond = second;
+				
 				oneIFrameDataSize = (int) tlv_V_VideoFrameInfoEx.getDataSize();
 				oneIFrameBuffer.clear();
 				if (oneIFrameBuffer.remaining() < oneIFrameDataSize) {
@@ -473,6 +492,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return returnValue;
 	}
 
+	private void updateTimebar(int second) {
+		// 更新时间轴
+		
+	}
+	
 	
 	private ArrayList<TLV_V_RecordInfo> recordInfoList = new ArrayList<TLV_V_RecordInfo>();
 
