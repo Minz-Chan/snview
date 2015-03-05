@@ -61,8 +61,8 @@ public class TimeBar extends View {
 	private static int mScaleTimeFontSize = 12; // 刻度时间字体大小（单位px）
 	private static final float mScaleTimeFontSizeInSp = 9.0F; // 刻度时间字体大小（单位sp）
 
-	private float mScaleLineY = 45.0F; // 刻度线Y轴坐标
-	private float mScaleTimeY = 57.0F; // 时间Y轴坐标
+	private float mScaleLineY = 40.0F; // 刻度线Y轴坐标
+	private float mScaleTimeY = 52.0F; // 时间Y轴坐标
 	private float mScaleLineHeight = 6.0F; // 刻度线高度
 
 	/**
@@ -282,7 +282,7 @@ public class TimeBar extends View {
 				.measureText("0"));
 		Log.i(TAG, "time:"+str);
 		currrentTime = str;
-		canvas.drawText(str, mMiddleLineX - f, mMiddleLineTimeY, paint);
+		canvas.drawText(str, mMiddleLineX - f, mMiddleLineTimeY + sp2px(getContext(), 2), paint);
 	}
 
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
