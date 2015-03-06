@@ -159,18 +159,15 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	public View getGroupView(int groupPosition, boolean isExpanded,
 			View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = layoutInflater.inflate(
-					R.layout.channel_listview_account_item_layout_copy, null);
+			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_copy, null);
 		}
 		// 为组元素设置背景颜色...
-		ProgressBar prgBar = (ProgressBar) convertView
-				.findViewById(R.id.progressBar_net_load);
+		ProgressBar prgBar = (ProgressBar) convertView.findViewById(R.id.progressBar_net_load);
 		if (groupAccountList.get(groupPosition).isRotate() || (!isOpen)) {// 判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
 			prgBar.setVisibility(View.GONE);
 		}
 
-		TextView title = (TextView) convertView
-				.findViewById(R.id.channel_listview_account_item_name);
+		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_account_item_name);
 
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
 
@@ -178,32 +175,25 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 			if (mPreviewDeviceItems != null) {
 				int size = mPreviewDeviceItems.size();
 				for (int i = 0; i < size; i++) {
-					PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems
-							.get(i);
-					boolean isContained = checkPreviewDeviceItemFromCA(
-							previewDeviceItem, cloudAccount);
+					PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems.get(i);
+					boolean isContained = checkPreviewDeviceItemFromCA(previewDeviceItem, cloudAccount);
 					if (isContained) {
-						setCloudAccountChannelChoose(previewDeviceItem,
-								cloudAccount);// 根据PreviewDeviceItem设置用户的通道选择情况
+						setCloudAccountChannelChoose(previewDeviceItem,cloudAccount);// 根据PreviewDeviceItem设置用户的通道选择情况
 					}
 				}
 			}
 		}
 		String tileName = cloudAccount.getUsername();
 		title.setText(tileName);
-		ImageView itemIcon = (ImageView) convertView
-				.findViewById(R.id.channel_listview_account_item_icon);
-		ImageView arrow = (ImageView) convertView
-				.findViewById(R.id.channel_listview_arrow);
+		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.channel_listview_account_item_icon);
+		ImageView arrow = (ImageView) convertView.findViewById(R.id.channel_listview_arrow);
 		if (groupAccountList.get(groupPosition).isExpanded()) {// 判断组列表是否展开
-			convertView
-					.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_expanded));
 			itemIcon.setBackgroundResource(R.drawable.channel_listview_account_sel);
 			arrow.setBackgroundResource(R.drawable.channel_listview_down_arrow_sel);
 			((ExpandableListView) parent).expandGroup(groupPosition);
 		} else {
-			convertView
-					.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
+			convertView.setBackgroundColor(getColor(R.color.channel_listview_account_item_bg_collapsed));
 			itemIcon.setBackgroundResource(R.drawable.channel_listview_account);
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow);
 			((ExpandableListView) parent).collapseGroup(groupPosition);
@@ -211,8 +201,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 
 		boolean isContain = containPositon(groupPosition, colorPosList);
 		if (isContain) {
-			convertView
-					.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
 		}
 
 		final int pos = groupPosition;
@@ -277,7 +266,6 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 								.getUsername()
 								.equals(context
 										.getString(R.string.device_manager_collect_device))) {
-							final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 							final List<DeviceItem> deviceList = groupAccountList
 									.get(pos).getDeviceList();
 							final int size = deviceList.size();
@@ -287,10 +275,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 									super.run();
 									for (int i = 0; i < size; i++) {
 										try {
-											ReadWriteXmlUtils
-													.addNewDeviceItemToCollectEquipmentXML(
-															deviceList.get(i),
-															filePath);
+											ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i),ChannelListActivity.filePath);
+											//ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i),ChannelListActivity.REMOTEFILEPATH);
 										} catch (Exception e) {
 											e.printStackTrace();
 										}
@@ -302,8 +288,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					}
 				});
 
-		int number = ExpandableListViewUtils
-				.getPreviewListFromCloudAccounts(groupAccountList);// 显示数据选择情形
+		int number = ExpandableListViewUtils.getPreviewListFromCloudAccounts(groupAccountList);// 显示数据选择情形
 		if (number == 0) {
 			titleView.setText(context
 					.getString(R.string.navigation_title_channel_list));// 设置列表标题名

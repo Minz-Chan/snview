@@ -56,11 +56,11 @@ public class CloudAccountAdapter extends BaseAdapter {
 		caTitleName.setText(item.getUsername());
 		ImageView itemIcon = (ImageView) convertView.findViewById(R.id.imageView_user_photo);
 		itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-//		if (item.isEnabled()) {
-//			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-//		}else{
-//			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
-//		}
+		if (item.isEnabled()) {
+			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
+		}else{
+			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
+		}
 		return convertView;
 	}
 }

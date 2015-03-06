@@ -1,6 +1,5 @@
 package com.starnet.snview.devicemanager;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,11 +7,11 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -20,21 +19,17 @@ public class DeviceScanActivity extends BaseActivity {
 	
 	static final String TAG = "DeviceScanActivity";
 	
-	@SuppressLint("SdCardPath")
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	
 	private EditText record_et;
 	private EditText server_et;
 	private EditText port_et;
 	private EditText username_et;
 	private EditText password_et;
 	private EditText defaultChannel_et;
-	private EditText channelnumber_et;
-	
+	private EditText channelnumber_et;	
 	private DeviceItem clickDeviceItem;
 	
-	private Button editButton;
-
+	private int position;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,7 +46,7 @@ public class DeviceScanActivity extends BaseActivity {
 			}
 		});
 		
-		editButton.setOnClickListener(new OnClickListener(){//进入编辑界面。。。
+		super.getRightButton().setOnClickListener(new OnClickListener(){//进入编辑界面。。。
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
@@ -64,8 +59,6 @@ public class DeviceScanActivity extends BaseActivity {
 		});
 	}
 	
-	
-
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -73,39 +66,41 @@ public class DeviceScanActivity extends BaseActivity {
 			if (data != null) {
 				Bundle bundle = data.getExtras();
 				if (bundle != null) {
-					DeviceItem cDeviceItem = (DeviceItem) bundle.getSerializable("cDeviceItem");
+					final DeviceItem cDeviceItem = (DeviceItem) bundle.getSerializable("cDeviceItem");
 					boolean result = checkChangeableBetweenTwoItems(cDeviceItem,clickDeviceItem);
 					if (!result) {//重新显示新的信息
-						String dName = cDeviceItem.getDeviceName();
-						String lPass = cDeviceItem.getLoginPass();
-						String lUser = cDeviceItem.getLoginUser();
-						String chSum = cDeviceItem.getChannelSum();
-						
-						String dfChl = String.valueOf(cDeviceItem.getDefaultChannel());
-						String svrIp = cDeviceItem.getSvrIp();
-						String svrPt = cDeviceItem.getSvrPort();
-						
-						record_et.setText(dName);
-						server_et.setText(svrIp);
-						port_et.setText(svrPt);
-						username_et.setText(lUser);
-						password_et.setText(lPass);
-						defaultChannel_et.setText(dfChl);
-						channelnumber_et.setText(chSum);
+						record_et.setText(cDeviceItem.getDeviceName());
+						server_et.setText(cDeviceItem.getSvrIp());
+						port_et.setText(cDeviceItem.getSvrPort());
+						username_et.setText(cDeviceItem.getLoginUser());
+						password_et.setText(cDeviceItem.getLoginPass());
+						defaultChannel_et.setText(String.valueOf(cDeviceItem.getDefaultChannel()));
+						channelnumber_et.setText(cDeviceItem.getChannelSum());
 						try {
-							ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, filePath);//移除原来的设备
-							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, filePath);//添加更改后的设备
 							
+//							ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, ChannelListActivity.filePath);//移除原来的设备
+//							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, ChannelListActivity.filePath);//添加更改后的设备
+							
+							new Thread(){
+								@Override
+								public void run() {
+									try {
+										ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, position, cDeviceItem);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							}.start();
 							SharedPreferences spf = getSharedPreferences("user", Context.MODE_PRIVATE);
 							Editor editor = spf.edit();
-							editor.putString("dName", dName);
-							editor.putString("lUser", lUser);
-							editor.putString("lPass", lPass);
-							editor.putString("chSum", chSum);
+							editor.putString("dName", cDeviceItem.getDeviceName());
+							editor.putString("lUser", cDeviceItem.getLoginUser());
+							editor.putString("lPass", cDeviceItem.getLoginPass());
+							editor.putString("chSum", cDeviceItem.getChannelSum());
 							
-							editor.putString("dfChl", dfChl);
-							editor.putString("svrIp", svrIp);
-							editor.putString("svrPt", svrPt);
+							editor.putString("dfChl", String.valueOf(cDeviceItem.getDefaultChannel()));
+							editor.putString("svrIp", cDeviceItem.getSvrIp());
+							editor.putString("svrPt", cDeviceItem.getSvrPort());
 							editor.commit();
 							setResult(21, data);
 							DeviceScanActivity.this.finish();							
@@ -158,8 +153,6 @@ public class DeviceScanActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setToolbarVisiable(false);
 		
-		editButton = super.getRightButton();
-		
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
@@ -181,6 +174,7 @@ public class DeviceScanActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
+		position = bundle.getInt("position");
 		
 		String deviceName = clickDeviceItem.getDeviceName();
 		String loginPass = clickDeviceItem.getLoginPass();

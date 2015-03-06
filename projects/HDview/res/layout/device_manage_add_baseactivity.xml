@@ -317,7 +317,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_weight="2"
                 android:orientation="horizontal"
-                android:text="@string/device_manager_conn_identify"
+                android:text="@string/device_manager_usable_flag"
                 android:textColor="@color/md__defaultBackground"
                 android:textSize="16sp" />
 

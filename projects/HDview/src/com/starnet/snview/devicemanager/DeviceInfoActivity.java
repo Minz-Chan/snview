@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -20,8 +21,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 public class DeviceInfoActivity extends BaseActivity {
 
 	@SuppressWarnings("unused")
-	private static final String TAG = "DeviceInfoActivity"; 
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//用于保存收藏设备...
+	private static final String TAG = "DeviceInfoActivity";
 	private DeviceItem saveDeviceItem;
 	
 	private EditText et_device_add_record;
@@ -130,7 +130,7 @@ public class DeviceInfoActivity extends BaseActivity {
 				if (allEdit) {//已经全部输入，将输入的项保存到文档中，并且验证是否可达...
 					try {
 						//保存到文档中...
-						String status = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, filePath);
+						String status = ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(saveDeviceItem, ChannelListActivity.filePath);
 						Toast toast = Toast.makeText(DeviceInfoActivity.this, status, Toast.LENGTH_LONG);
 						toast.show();
 						SharedPreferences spf = getSharedPreferences("saveUser", Context.MODE_PRIVATE);

@@ -71,7 +71,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 						bundle.putSerializable("cloudAccount", beforeEditCA);
 						intent.putExtras(bundle);
 						intent.setClass(CloudAccountViewActivity.this,
-								CloudAccountUpdateActivity.class);
+								CloudAccountUpdatingActivity.class);
 						startActivityForResult(intent, 20);
 					}
 				});
@@ -204,8 +204,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 	protected void gotoCloudAccountAddding() {
 		Intent intent = new Intent();
-		intent.setClass(CloudAccountViewActivity.this,
-				CloudAccountAddingActivity.class);
+		intent.setClass(CloudAccountViewActivity.this,CloudAccountAddingActivity.class);
 		startActivityForResult(intent, 10);
 	}
 

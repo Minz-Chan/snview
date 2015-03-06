@@ -15,6 +15,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 
 /**
@@ -22,8 +23,6 @@ import com.starnet.snview.devicemanager.DeviceItem;
  */
 @SuppressLint("SdCardPath")
 public class CloudAccountInfoOpt {
-	
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";//收藏设备的存放地址；获取得打的数据放在ExpandableListView的第一个位置
 	
 	private final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	
@@ -120,7 +119,7 @@ public class CloudAccountInfoOpt {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
 		try{
 			CloudAccount collectDevice = new CloudAccount();
-			List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(filePath);//获取收藏设备，应该对收藏设备进行判断
+			List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);//获取收藏设备，应该对收藏设备进行判断
 			
 			List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePathOfCloudAccount);
 						

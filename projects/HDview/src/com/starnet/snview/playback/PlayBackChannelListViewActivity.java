@@ -24,8 +24,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class PlayBackChannelListViewActivity extends Activity {
 	
-	private DeviceItem lastClickDeviceItem;
-
 	private PlaybackChannelListViewAdapter adapter = null;// ListView的适配器
 	private ListView myListView = null; // 显示列表listview
 	private Context context = null;
@@ -86,7 +84,8 @@ public class PlayBackChannelListViewActivity extends Activity {
 		myListView = (ListView) findViewById(R.id.channel_sublistview);
 		button_cancel = (Button) findViewById(R.id.channel_listview_cancel);
 		button_ok = (Button) findViewById(R.id.channel_listview_ok);
-		adapter = new PlaybackChannelListViewAdapter(context, channelList);
+		
+		adapter = new PlaybackChannelListViewAdapter(context, clickDeviceItem,channelList);
 		myListView.setAdapter(adapter);
 
 		button_ok.setOnClickListener(new OnClickListener() {

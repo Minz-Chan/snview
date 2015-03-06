@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -40,12 +41,7 @@ import com.starnet.snview.util.SynObject;
 public class DeviceChooseActivity extends BaseActivity {
 
 	private final String TAG = "DeviceChooseActivity";
-	final String devicefilePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-
-	private final int RESULTCODE = 11;
-
 	private boolean is_blur_search = false;
-
 	private Button leftButton;
 	private ListView deviceListView;
 	private ArrayList<DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();
@@ -76,8 +72,7 @@ public class DeviceChooseActivity extends BaseActivity {
 			case ADD_SUCCESS:
 				dismissDialog(ADDDATESTOXMLDialog);
 				printSentence = getString(R.string.device_manager_devicechoose_adding_success);
-				Toast.makeText(DeviceChooseActivity.this, printSentence,
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(DeviceChooseActivity.this, printSentence,Toast.LENGTH_SHORT).show();
 				DeviceChooseActivity.this.finish();
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
@@ -94,7 +89,6 @@ public class DeviceChooseActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.device_manage_choose_baseactivity);
-
 		superChangeViewFromBase();
 
 		leftButton.setOnClickListener(new OnClickListener() {
@@ -163,15 +157,15 @@ public class DeviceChooseActivity extends BaseActivity {
 							}
 							clickDeviceItem.setDeviceName(dName);
 						}
+						clickDeviceItem.setUsable(true);
 						clickDeviceItem.setIdentify(true);
 						// 返回到DeviceCollectActivity.java界面
 						Intent data = new Intent();
 						Bundle extras = new Bundle();
-						extras.putSerializable("chooseDeviceItem",
-								clickDeviceItem);
-						extras.putInt("auto_flag", 2);
+						extras.putSerializable("chooseDeviceItem",clickDeviceItem);
+						extras.putInt("chooseactivity_return_flag", 2);
 						data.putExtras(extras);
-						setResult(RESULTCODE, data);
+						setResult(DeviceViewActivity.SEMI_AUTO_ADD, data);
 						DeviceChooseActivity.this.finish();
 					}
 				});
@@ -193,19 +187,15 @@ public class DeviceChooseActivity extends BaseActivity {
 		}
 
 		private Message msg = new Message();
-
 		@Override
 		public void run() {
 			super.run();
 			try {
 				// 检查重复性，若已经包含则不添加，若不包含，则添加到新的通道列表中；
-				List<DeviceItem> oldDeviceList = ReadWriteXmlUtils
-						.getCollectDeviceListFromXML(devicefilePath);
-				deviceItemList = recreateDeviceList(oldDeviceList,
-						deviceItemList);// 重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
+				List<DeviceItem> oldDeviceList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+				deviceItemList = recreateDeviceList(oldDeviceList,deviceItemList);// 重新构造列表，若原来的设备中包含列表，则不需要添加，否则，添加到deviceItemList列表中；
 				// 在线(离线)字样的删除...
-				ReadWriteXmlUtils.addDeviceItemListToXML(deviceItemList,
-						devicefilePath);
+				ReadWriteXmlUtils.addDeviceItemListToXML(deviceItemList,ChannelListActivity.filePath);
 				msg.what = ADD_SUCCESS;// 添加成功
 				handler.sendMessage(msg);
 			} catch (Exception e) {
@@ -246,6 +236,7 @@ public class DeviceChooseActivity extends BaseActivity {
 		for (int i = 0; i < size; i++) {
 			DeviceItem deviceItem = deviceItemList2.get(i);
 			String deviceName = deviceItem.getDeviceName();
+			deviceItem.setPlatformUsername(getString(R.string.device_manager_collect_device));
 			String length = getString(R.string.device_manager_off_on_line_length);
 			int len = Integer.valueOf(length);
 			int rdLen = deviceName.length();
@@ -315,7 +306,7 @@ public class DeviceChooseActivity extends BaseActivity {
 		leftButton = super.getLeftButton();
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
-		super.setTitleViewText("星云平台");
+		super.setTitleViewText(getString(R.string.system_starplatform));
 		super.hideExtendButton();
 		super.hideRightButton();
 
@@ -326,16 +317,14 @@ public class DeviceChooseActivity extends BaseActivity {
 		Bundle bundle = intent.getExtras();
 		dvrDeviceList = bundle.getParcelableArrayList("dvrDeviceList");
 		Context context = DeviceChooseActivity.this;
-		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(
-				context, dvrDeviceList);
+		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(context, dvrDeviceList);
 		deviceItemList = cloudAccount.getDeviceList();
 		for (int i = 0; i < deviceItemList.size(); i++) {
 			deviceItemList.get(i).setIdentify(true);
+			deviceItemList.get(i).setUsable(true);
 		}
-		deviceChooseAdapter = new DeviceChooseAdapter(
-				DeviceChooseActivity.this, deviceItemList);
+		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this, deviceItemList);
 		deviceListView.setAdapter(deviceChooseAdapter);
-
 	}
 
 	@Override

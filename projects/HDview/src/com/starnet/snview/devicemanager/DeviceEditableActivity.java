@@ -23,7 +23,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	protected static final String TAG = "DeviceEditableActivity";
 
 	private EditText port_et;
-	private Button saveButton;
+//	private Button saveButton;
 	private EditText record_et;
 	private EditText server_et;
 	private EditText username_et;
@@ -50,7 +50,7 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 		});
 
-		saveButton.setOnClickListener(new OnClickListener() {
+		super.getRightButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// 获取信息
@@ -65,30 +65,28 @@ public class DeviceEditableActivity extends BaseActivity {
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
 						&& !svrPt.trim().equals("") && !lUser.trim().equals("")
 						&& !dfChl.trim().equals("") && !chSum.trim().equals(""))) {// 检查信息是否为空
-					IPAndPortUtils ipAndPortUtils = new IPAndPortUtils();
-					boolean isIp = ipAndPortUtils.isIp(svrIp);
-					boolean isPort = ipAndPortUtils.isNetPort(svrPt);
+					boolean isIp = IPAndPortUtils.isIp(svrIp);
+					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 					if (isPort && isIp) {
 						int defaultChannl = Integer.valueOf(dfChl);
 						int newChannelNum = Integer.valueOf(chSum);
 						if (defaultChannl <= newChannelNum) {
+							clickDeviceItem.setSvrIp(svrIp);
+							clickDeviceItem.setSvrPort(svrPt);
+							clickDeviceItem.setLoginUser(lUser);
+							clickDeviceItem.setLoginPass(lPass);
+							clickDeviceItem.setChannelSum(chSum);
+							clickDeviceItem.setDeviceName(dName);
+							clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 							boolean isBelong = isBelongDeviceItem(clickDeviceItem, mPreviewDeviceItems);
 							// 并返回原来的界面
 							Intent data = new Intent();
 							Bundle bundle = new Bundle();
-							bundle.putSerializable("cDeviceItem",clickDeviceItem);
 							if (isBelong) {
 								HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
 								bundle.putBoolean("priviewUpdate", true);
 								bundle.putIntegerArrayList("indexes",map.get("indexs"));
 								bundle.putIntegerArrayList("channelids",map.get("channelids"));
-								clickDeviceItem.setSvrIp(svrIp);
-								clickDeviceItem.setSvrPort(svrPt);
-								clickDeviceItem.setLoginUser(lUser);
-								clickDeviceItem.setLoginPass(lPass);
-								clickDeviceItem.setChannelSum(chSum);
-								clickDeviceItem.setDeviceName(dName);
-								clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 								ArrayList<Integer> channelids = map.get("channelids");
 								ArrayList<Integer> indexs = map.get("indexs");
 								for (int i = 0; i < map.get("indexs").size(); i++) {
@@ -104,6 +102,7 @@ public class DeviceEditableActivity extends BaseActivity {
 								}
 								GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 							}
+							bundle.putSerializable("cDeviceItem",clickDeviceItem);
 							data.putExtras(bundle);
 							setResult(REQUESTCODE, data);
 							DeviceEditableActivity.this.finish();
@@ -208,7 +207,6 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 		
-		saveButton = super.getRightButton();
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
