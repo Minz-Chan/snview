@@ -154,9 +154,8 @@ public class ButtonOnTouchListener implements OnTouchListener {
 						int size = deviceList.size();
 						for (int i = 0; i < size; i++) {
 							try {
-								ReadWriteXmlUtils
-										.addNewDeviceItemToCollectEquipmentXML(
-												deviceList.get(i), filePath);
+								ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), ChannelListActivity.filePath);
+							//	ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i), ChannelListActivity.REMOTEFILEPATH);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}

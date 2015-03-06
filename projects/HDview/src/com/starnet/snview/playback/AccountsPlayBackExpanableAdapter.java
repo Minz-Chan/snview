@@ -118,7 +118,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		} else {
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
-		
+		if (!users.get(groupPosition).isEnabled()) {
+//			((View)convertView.getParent()).setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+//			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+		}
 		return convertView;
 	}
 
@@ -135,7 +138,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		DeviceItem item = users.get(groupPosition).getDeviceList().get(childPosition);
 		boolean isSelected = judgeChannelIsSelected(item);
 //		if ((clickDItem != null) && users.get(groupPosition).getDeviceList().get(childPosition).getDeviceName().contains(clickDItem.getDeviceName())) {
-		if(isSelected){//  && item.isConnPass() 
+		if(isSelected){//   && item.isConnPass()
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else {
 			stateBtn.setBackgroundResource(R.drawable.channellist_select_empty);
@@ -156,7 +159,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				intent.putExtra("child", clickChild);
 				intent.putExtra("device", clickDItem);
 				if (clickGroup == 0) {
-					if (clickDItem.isConnPass()) {
+					if (clickDItem.isIdentify()) {
 						intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
 					}else {//进行联网验证
@@ -249,6 +252,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 	private ProgressBar prg;
 	public void setIdentifyProgressBar(ProgressBar progressBar){
 		this.prg = progressBar;
+	}
+	
+	private int getColor(int resid) {
+		return ctx.getResources().getColor(resid);
 	}
 
 	private static int clickGroup;

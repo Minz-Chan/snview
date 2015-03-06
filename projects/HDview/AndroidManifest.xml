@@ -130,7 +130,7 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.CloudAccountUpdateActivity"
+            android:name="com.starnet.snview.syssetting.CloudAccountUpdatingActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity

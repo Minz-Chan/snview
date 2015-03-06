@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -16,7 +17,6 @@ public class PlaybackUtils {
 	public static boolean stateFlag = false;
 	public static boolean exapandFlag = false;
 	private static final String ACCOUNT_FILEPATH_STRING = "/data/data/com.starnet.snview/star_cloudAccount.xml";
-	private static final String COLLECT_DEVICEFILEPATH = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
 	public static int[] getValidateTime(String endTime) {
 		int timeData[] = new int[5];
@@ -63,7 +63,7 @@ public class PlaybackUtils {
 	public static CloudAccount getCollectCloudAccount(String accountName){
 		CloudAccount ca = new CloudAccount();
 		try {
-			List<DeviceItem> items = ReadWriteXmlUtils.getCollectDeviceListFromXML(COLLECT_DEVICEFILEPATH);
+			List<DeviceItem> items = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
 			ca.setEnabled(true);
 			ca.setRotate(true);
 			ca.setExpanded(false);

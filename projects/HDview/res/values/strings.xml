@@ -50,6 +50,7 @@
     <string name="toolbar_quality_menu_custom">自定义</string>
     <string name="toolbar_sub_menu_focal_length">焦距</string>
     <string name="cloudaccount_listview_item_enable">启用</string>
+    <string name="system_starplatform">星云平台</string>
     <string name="system_setting_help">帮助</string>
     <string name="system_setting_about">关于</string>
     <string name="system_setting_logout">退出</string>
@@ -109,6 +110,9 @@
     <string name="system_setting_alarm_manager_code_please">请输入密码</string>
     <string name="system_setting_cloudaccount_layout_serveName">服务器</string>
     <string name="system_setting_cloudaccount_useable">平台账户验证通过</string>
+    <string name="system_setting_cloudaccount_adding_connect_succ">验证成功</string>
+    <string name="system_setting_cloudaccount_adding_connect_fail">验证失败</string>
+    <string name="system_setting_cloudaccount_adding_connect_timeout">验证超时</string>
     <string name="notify_accept_open">报警账户、星云平台账户接收推送消息</string>
     <string name="notify_accept_off">报警账户、星云平台账户不接收推送消息</string>
     <string name="system_setting_help_titile">帮助</string>
@@ -144,6 +148,7 @@
     <string name="system_setting_pushset_saving">正在联网验证保存您的设置，请稍等&#8230;</string>
     <string name="system_setting_alarm_pushset_pswd_wrong">密码错误，请检查后再进行验证</string>
     <string name="system_setting_alarm_pushset_user_wrong">用户名错误，请检查后再进行验证</string>
+    <string name="system_setting_loading_collect_device_data">正在加载收藏设备数据，请等待</string>
     <string name="system_setting_corp_content_txt_chi">福建星网锐捷安防科技有限公司  版权所有</string>
     <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
@@ -162,7 +167,7 @@
     <string name="device_manager_save_failed">保存失败</string>
     <string name="device_manager_off_on_line_length">4</string>
     <string name="device_manager_save_success">保存成功</string>
-    <string name="device_manager_conn_identify">连接验证</string>
+    <string name="device_manager_usable_flag">启用</string>
     <string name="device_manager_deviceview_cancel">取消</string>
     <string name="device_manager_collect_device">收藏设备</string>
     <string name="device_manager_devicecollect_cancel">取消</string>

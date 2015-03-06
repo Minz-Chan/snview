@@ -45,7 +45,8 @@ public class ChannelListActivity extends BaseActivity {
 
 	private static final String TAG = "ChannelListActivity";
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	public static final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	public static final String REMOTEFILEPATH = "/data/data/com.starnet.snview/remote_deviceItem_list.xml";
 
 	private ChannelRequestTask[] tasks;
 

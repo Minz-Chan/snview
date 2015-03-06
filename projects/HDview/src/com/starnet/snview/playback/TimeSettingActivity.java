@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
@@ -45,6 +46,7 @@ import com.starnet.snview.playback.utils.TimeSettingUtils;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
@@ -205,40 +207,46 @@ public class TimeSettingActivity extends BaseActivity {
 				dissmissIdentifyDialog();
 				Bundle bundle = msg.getData();
 				Intent intent = new Intent();
-				intent.putExtra("group", bundle.getInt("parentPos"));
-				intent.putExtra("child", bundle.getInt("childPos"));
-				intent.putExtra("device", bundle.getSerializable("identifyDeviceItem"));
+				int parentPos = bundle.getInt("parentPos");
+				final int childPos = bundle.getInt("childPos");
+				final DeviceItem deviceItem = (DeviceItem) bundle.getSerializable("identifyDeviceItem");
+				intent.putExtra("group", parentPos);
+				intent.putExtra("child", childPos);
+				intent.putExtra("device", deviceItem);
 				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 				((TimeSettingActivity) ctx).startActivityForResult(intent, REQUESTCODE);
+				//开一个线程，修改保存已经验证后的设备
+				new Thread(){
+					@Override
+					public void run() {
+						try {
+							ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, deviceItem);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}.start();
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
+				//弹出一个默认通道。。。
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_wrong));
+				jumpOneChannelOnDialog(msg);
+				
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
+				//弹出一个默认通道。。。
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_timeout));
-//				Bundle bundle2 = msg.getData();
-//				Intent intent2 = new Intent();
-//				intent2.putExtra("group", bundle2.getInt("parentPos"));
-//				intent2.putExtra("child", bundle2.getInt("childPos"));
-//				DeviceItem deviceItem = (DeviceItem) bundle2.getSerializable("identifyDeviceItem");
-//				List<Channel> channelList = new ArrayList<Channel>();
-//				Channel chanel = new Channel();
-//				chanel.setChannelName("通道1");
-//				chanel.setSelected(false);
-//				chanel.setChannelNo(0);
-//				channelList.add(chanel);
-//				deviceItem.setChannelList(channelList);
-//				intent2.putExtra("device", deviceItem);
-//				intent2.setClass(ctx, PlayBackChannelListViewActivity.class);
-//				((TimeSettingActivity) ctx).startActivityForResult(intent2, REQUESTCODE);
+				jumpOneChannelOnDialog(msg);
 				break;
 			default:
 				break;
 			}
 		}
 	};
+	
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -247,6 +255,36 @@ public class TimeSettingActivity extends BaseActivity {
 		initViews();
 		setExtPandableListview();
 		setListenersForWadgets();
+	}
+	
+	private void jumpOneChannelOnDialog(Message msg){
+		Bundle bundle2 = msg.getData();
+		Intent intent2 = new Intent();
+		final int childPos = bundle2.getInt("childPos");
+		intent2.putExtra("group", bundle2.getInt("parentPos"));
+		intent2.putExtra("child", childPos);
+		final DeviceItem dItem = (DeviceItem) bundle2.getSerializable("identifyDeviceItem");
+		dItem.setIdentify(true);
+		List<Channel> channelList = new ArrayList<Channel>();
+		Channel chanel = new Channel();
+		chanel.setChannelName("通道1");
+		chanel.setSelected(false);
+		chanel.setChannelNo(0);
+		channelList.add(chanel);
+		dItem.setChannelList(channelList);
+		intent2.putExtra("device", dItem);
+		intent2.setClass(ctx, PlayBackChannelListViewActivity.class);
+		((TimeSettingActivity) ctx).startActivityForResult(intent2, REQUESTCODE);
+		new Thread(){
+			@Override
+			public void run() {
+				try {
+					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, dItem);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 	
 	private void dissmissIdentifyDialog(){
@@ -285,6 +323,8 @@ public class TimeSettingActivity extends BaseActivity {
 						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler, i);
 						tasks[j].start();
 						j++;
+					}else {
+						c.setRotate(true);
 					}
 				}
 			}

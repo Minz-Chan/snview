@@ -25,6 +25,7 @@ public class DeviceItem implements Serializable {
 	private String platformUsername;	// 所属的星云账户用户名
 	private boolean isIdentify;//是否进行验证
 	private boolean isConnPass;//验证是否通过的情形
+	private boolean isUsable;
 	
 	public List<Channel> getChannelList() {
 		return channelList;
@@ -109,6 +110,12 @@ public class DeviceItem implements Serializable {
 	}
 	public void setConnPass(boolean isConnPass) {
 		this.isConnPass = isConnPass;
+	}
+	public boolean isUsable() {
+		return isUsable;
+	}
+	public void setUsable(boolean isUsable) {
+		this.isUsable = isUsable;
 	}
 	
 	
