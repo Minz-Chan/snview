@@ -31,7 +31,7 @@ public class DeviceInfoActivity extends BaseActivity {
 	private EditText et_device_add_username;
 	private EditText et_device_add_password;
 	private EditText et_device_add_defaultChannel;
-	private EditText et_device_add_channelnumber;
+//	private EditText et_device_add_channelnumber;
 	
 	private Button identify_save_btn;//验证并保存按钮...
 	private EditText select_et;
@@ -61,7 +61,7 @@ public class DeviceInfoActivity extends BaseActivity {
 		et_device_add_username = (EditText) findViewById(R.id.et_device_add_username);
 		et_device_add_password = (EditText) findViewById(R.id.et_device_add_password);
 		et_device_add_defaultChannel = (EditText) findViewById(R.id.et_device_add_defaultChannel);
-		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
+//		et_device_add_channelnumber = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		
 		if(saveDeviceItem != null){
 			et_device_add_server.setText(saveDeviceItem.getSvrIp());
@@ -70,24 +70,23 @@ public class DeviceInfoActivity extends BaseActivity {
 			et_device_add_username.setText(saveDeviceItem.getLoginUser());
 			et_device_add_password.setText(saveDeviceItem.getLoginPass());
 			et_device_add_defaultChannel.setText(String.valueOf(saveDeviceItem.getDefaultChannel()));
-			et_device_add_channelnumber.setText(saveDeviceItem.getChannelSum());
+//			et_device_add_channelnumber.setText(saveDeviceItem.getChannelSum());
 		}		
 		String record = saveDeviceItem.getDeviceName();
 		int rdLen = record.length();
 		if (rdLen >= 4) {
 			String word1 = getString(R.string.device_manager_online_en);
-			String word2 = getString(R.string.device_manager_online_cn);
-			String word3 = getString(R.string.device_manager_offline_cn);
+//			String word2 = getString(R.string.device_manager_online_cn);
+//			String word3 = getString(R.string.device_manager_offline_cn);
 			String word4 = getString(R.string.device_manager_offline_en);
 			String recordName = record.substring(0, 4);
-			if (recordName.contains(word1)||recordName.contains(word2)
-				||recordName.contains(word3)||recordName.contains(word4)) {
+			if (recordName.contains(word1)||recordName.contains(word4)) {
 				record = record.substring(4);
 			}
 			et_device_add_record.setText(record);
 		}
 		
-		et_device_add_channelnumber.setKeyListener(null);
+//		et_device_add_channelnumber.setKeyListener(null);
 		select_et.setKeyListener(null);
 	}
 
@@ -170,23 +169,20 @@ public class DeviceInfoActivity extends BaseActivity {
 		String ddport = et_device_add_port.getText().toString();
 		String channl = et_device_add_defaultChannel.getText().toString();
 		
-		String number = et_device_add_channelnumber.getText().toString();
+//		String number = et_device_add_channelnumber.getText().toString();
 		String usname = et_device_add_username.getText().toString();
 		String lgPass = et_device_add_password.getText().toString();
 		
 		if (!server.equals("")&&!record.equals("")&&!ddport.equals("")
-			&&!channl.equals("")&&!number.equals("")&&!usname.equals("")) {
+			&&!channl.equals("")&&!usname.equals("")) {
 			allEdit = true;
 			
 			int rdLen = record.length();
 			if (rdLen >= 4) {
 				String word1 = getString(R.string.device_manager_online_en);
-				String word2 = getString(R.string.device_manager_online_cn);
-				String word3 = getString(R.string.device_manager_offline_cn);
 				String word4 = getString(R.string.device_manager_offline_en);
 				String recordName = record.substring(0, 4);
-				if (recordName.contains(word1)||recordName.contains(word2)
-					||recordName.contains(word3)||recordName.contains(word4)) {
+				if (recordName.contains(word1)||recordName.contains(word4)) {
 					record = record.substring(4);
 				}
 				saveDeviceItem.setDeviceName(record);
@@ -195,7 +191,7 @@ public class DeviceInfoActivity extends BaseActivity {
 				saveDeviceItem.setLoginUser(usname);
 				saveDeviceItem.setLoginPass(lgPass);
 				saveDeviceItem.setDefaultChannel(Integer.valueOf(channl));
-				saveDeviceItem.setChannelSum(number);
+//				saveDeviceItem.setChannelSum(number);
 			}
 		}
 		return allEdit;

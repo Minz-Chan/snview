@@ -144,15 +144,10 @@ public class DeviceChooseActivity extends BaseActivity {
 						int len = Integer.valueOf(length);
 						if ((dLen >= len)) {
 							String word1 = getString(R.string.device_manager_online_en);
-							String word2 = getString(R.string.device_manager_online_cn);
-							String word3 = getString(R.string.device_manager_offline_cn);
 							String word4 = getString(R.string.device_manager_offline_en);
 
 							String subDName = dName.substring(0, len);
-							if (subDName.contains(word1)
-									|| subDName.contains(word2)
-									|| subDName.contains(word3)
-									|| subDName.contains(word4)) {
+							if (subDName.contains(word1) || subDName.contains(word4)) {
 								dName = dName.substring(len);
 							}
 							clickDeviceItem.setDeviceName(dName);
@@ -230,8 +225,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	}
 
 	// 将新的列表添加到老的列表中；
-	public List<DeviceItem> recreateDeviceList(List<DeviceItem> oldDeviceList,
-			List<DeviceItem> deviceItemList2) {
+	public List<DeviceItem> recreateDeviceList(List<DeviceItem> oldDeviceList,List<DeviceItem> deviceItemList2) {
 		int size = deviceItemList2.size();
 		for (int i = 0; i < size; i++) {
 			DeviceItem deviceItem = deviceItemList2.get(i);
@@ -240,15 +234,14 @@ public class DeviceChooseActivity extends BaseActivity {
 			String length = getString(R.string.device_manager_off_on_line_length);
 			int len = Integer.valueOf(length);
 			int rdLen = deviceName.length();
+			deviceItem.setUsable(true);
 			if (rdLen >= len) {
 				String word1 = getString(R.string.device_manager_online_en);
-				String word2 = getString(R.string.device_manager_online_cn);
-				String word3 = getString(R.string.device_manager_offline_cn);
+//				String word2 = getString(R.string.device_manager_online_cn);
+//				String word3 = getString(R.string.device_manager_offline_cn);
 				String word4 = getString(R.string.device_manager_offline_en);
 				String recordName = deviceName.substring(0, len);
-				if (recordName.contains(word1) || recordName.contains(word2)
-						|| recordName.contains(word3)
-						|| recordName.contains(word4)) {
+				if (recordName.contains(word1) || recordName.contains(word4)) {
 					deviceName = deviceName.substring(len);
 				}
 				deviceItem.setDeviceName(deviceName);
@@ -319,9 +312,10 @@ public class DeviceChooseActivity extends BaseActivity {
 		Context context = DeviceChooseActivity.this;
 		CloudAccount cloudAccount = caUtils.getCloudAccountFromDVRDevice(context, dvrDeviceList);
 		deviceItemList = cloudAccount.getDeviceList();
-		for (int i = 0; i < deviceItemList.size(); i++) {
-			deviceItemList.get(i).setIdentify(true);
-			deviceItemList.get(i).setUsable(true);
+		
+		for (DeviceItem deviceItem : deviceItemList) {
+			deviceItem.setIdentify(true);
+			deviceItem.setUsable(true);
 		}
 		deviceChooseAdapter = new DeviceChooseAdapter(DeviceChooseActivity.this, deviceItemList);
 		deviceListView.setAdapter(deviceChooseAdapter);
@@ -331,7 +325,6 @@ public class DeviceChooseActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {// 一键添加按钮...
 		super.onOptionsItemSelected(item);
 		showAddDeviceTips();
-		Log.i(TAG, "");
 		return true;
 	}
 

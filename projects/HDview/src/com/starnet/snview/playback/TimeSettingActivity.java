@@ -98,9 +98,9 @@ public class TimeSettingActivity extends BaseActivity {
 	
 	private boolean endFlag = false;
 	private boolean startFlag = false;
-	private final int TIMEOUT = 0x0002;
-	private final int LOADSUC = 0x0003;
-	private final int LOADFAI = 0x0004;
+	private final int LOAD_COLLECT_DATA_TIMEOUT = 0x0002;
+	private final int LOAD_COLLECT_DATA_LOADSUC = 0x0003;
+	private final int LOAD_COLLECT_DATA_LOADFAI = 0x0004;
 	private DeviceItemRequestTask[] tasks;
 	private List<CloudAccount> originCAs;
 	private final int REQUESTCODE = 0x0005;
@@ -124,7 +124,7 @@ public class TimeSettingActivity extends BaseActivity {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case TIMEOUT:
+			case LOAD_COLLECT_DATA_TIMEOUT:
 				Bundle msgD = msg.getData();
 				CloudAccount netCA1 = (CloudAccount) msgD.getSerializable("netCA");
 				String reqExt = getString(R.string.playback_req_extime);
@@ -134,7 +134,7 @@ public class TimeSettingActivity extends BaseActivity {
 				originCAs.set(positi, netCA1);
 				actsAdapter.notifyDataSetChanged();
 				break;
-			case LOADSUC:
+			case LOAD_COLLECT_DATA_LOADSUC:
 				msgD = msg.getData();
 				final int posi = msgD.getInt("position");
 				String suc = msgD.getString("success");
@@ -144,20 +144,23 @@ public class TimeSettingActivity extends BaseActivity {
 					netCA.setRotate(true);
 					if (netCA != null) {
 						List<DeviceItem> dList = netCA.getDeviceList();
-						if ((dList != null) && (dList.size() > 0)) {
+						
+						if ((posi != 0) && (dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
 						String userName = preferences.getString("username",null);
 						int channelNo = preferences.getInt("channelNo", 1) - 1;
-						for (int i = 0; i < dList.size(); i++) {
-							DeviceItem de = dList.get(i);
-							if (posi != 0 ) {
-								de.setConnPass(true);
-							}
-							List<Channel> chList = de.getChannelList();
-							if (chList != null && chList.size() > 0) {
-								for (int j = 0; j < chList.size(); j++) {
-									chList.get(j).setSelected(false);
+						if ((dList != null)){
+							for (int i = 0; i < dList.size(); i++) {
+								DeviceItem de = dList.get(i);
+								if (posi != 0 ) {
+									de.setConnPass(true);
+								}
+								List<Channel> chList = de.getChannelList();
+								if (chList != null && chList.size() > 0) {
+									for (int j = 0; j < chList.size(); j++) {
+										chList.get(j).setSelected(false);
+									}
 								}
 							}
 						}
@@ -166,7 +169,7 @@ public class TimeSettingActivity extends BaseActivity {
 							if ((dList != null) && (dList.size() > 0)) {
 								for (int i = 0; i < dList.size(); i++) {
 									DeviceItem dItem = dList.get(i);
-									if ((netCA.isEnabled() && dItem.getDeviceName().substring(4).equals(deviceNm))
+									if ((netCA.isEnabled() && (posi!=0)&& dItem.getDeviceName().substring(4).equals(deviceNm))
 											|| ((posi==0) && dItem.getDeviceName().equals(deviceNm))) {
 										List<Channel> chanelList = dList.get(i).getChannelList();
 										if (chanelList != null && chanelList.size() > 0) {
@@ -193,7 +196,7 @@ public class TimeSettingActivity extends BaseActivity {
 					actsAdapter.notifyDataSetChanged();
 				}
 				break;
-			case LOADFAI:
+			case LOAD_COLLECT_DATA_LOADFAI:
 				msgD = msg.getData();
 				int posit = msgD.getInt("position");
 				CloudAccount netCA2 = (CloudAccount) msgD.getSerializable("netCA");
@@ -302,10 +305,10 @@ public class TimeSettingActivity extends BaseActivity {
 
 	/** 加载星云平台用户数据 **/
 	private List<CloudAccount> downloadDatas() {
-		
 		//获取收藏设备，将收藏设备添加进远程回放中
 		List<CloudAccount> accounts = new ArrayList<CloudAccount>();
-		CloudAccount collectCA = PlaybackUtils.getCollectCloudAccount(getString(R.string.device_manager_collect_device));
+//		CloudAccount collectCA = PlaybackUtils.getCollectCloudAccount(getString(R.string.device_manager_collect_device));
+		CloudAccount collectCA = PlaybackUtils.getFirstCollectCloudAccount(getString(R.string.device_manager_collect_device));
 		accounts.add(collectCA);
 		List<CloudAccount> netAccounts = PlaybackUtils.getCloudAccounts();
 		for (CloudAccount ca : netAccounts) {
@@ -327,6 +330,8 @@ public class TimeSettingActivity extends BaseActivity {
 						c.setRotate(true);
 					}
 				}
+			}else {
+				showToast(getString(R.string.network_not_conn));
 			}
 		}
 		return accounts;

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
@@ -25,7 +26,9 @@ public class DeviceScanActivity extends BaseActivity {
 	private EditText username_et;
 	private EditText password_et;
 	private EditText defaultChannel_et;
-	private EditText channelnumber_et;	
+//	private EditText channelnumber_et;
+	private RadioButton YesRadioButton;
+	private RadioButton NoRadioButton;
 	private DeviceItem clickDeviceItem;
 	
 	private int position;
@@ -75,12 +78,8 @@ public class DeviceScanActivity extends BaseActivity {
 						username_et.setText(cDeviceItem.getLoginUser());
 						password_et.setText(cDeviceItem.getLoginPass());
 						defaultChannel_et.setText(String.valueOf(cDeviceItem.getDefaultChannel()));
-						channelnumber_et.setText(cDeviceItem.getChannelSum());
+//						channelnumber_et.setText(cDeviceItem.getChannelSum());
 						try {
-							
-//							ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(clickDeviceItem, ChannelListActivity.filePath);//移除原来的设备
-//							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(cDeviceItem, ChannelListActivity.filePath);//添加更改后的设备
-							
 							new Thread(){
 								@Override
 								public void run() {
@@ -103,7 +102,7 @@ public class DeviceScanActivity extends BaseActivity {
 							editor.putString("svrPt", cDeviceItem.getSvrPort());
 							editor.commit();
 							setResult(21, data);
-							DeviceScanActivity.this.finish();							
+							DeviceScanActivity.this.finish();
 						}catch (Exception e) {
 							String text = "保存失败";
 							Toast toast = Toast.makeText(DeviceScanActivity.this, text, Toast.LENGTH_LONG);
@@ -160,7 +159,9 @@ public class DeviceScanActivity extends BaseActivity {
 		
 		password_et = (EditText) findViewById(R.id.et_device_add_password);
 		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
-		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
+//		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
+		NoRadioButton = (RadioButton) findViewById(R.id.isenable_no_radioBtn);
+		YesRadioButton = (RadioButton) findViewById(R.id.isenable_yes_radioBtn);
 		
 		record_et.setKeyListener(null);
 		server_et.setKeyListener(null);
@@ -169,7 +170,7 @@ public class DeviceScanActivity extends BaseActivity {
 		
 		password_et.setKeyListener(null);
 		defaultChannel_et.setKeyListener(null);
-		channelnumber_et.setKeyListener(null);
+//		channelnumber_et.setKeyListener(null);
 		
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
@@ -185,15 +186,19 @@ public class DeviceScanActivity extends BaseActivity {
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();
 		
-//		if ((deviceName.contains("(在线)")||deviceName.contains("（在线）"))&&deviceName.length() > 3) {
-//			deviceName = deviceName.substring(4);
-//		}
 		record_et.setText(deviceName);
 		server_et.setText(svrIp);
 		port_et.setText(svrPort);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
 		defaultChannel_et.setText(defaultChannel);
-		channelnumber_et.setText(channelSum);
+//		channelnumber_et.setText(channelSum);
+		if (clickDeviceItem.isUsable()) {
+			YesRadioButton.setChecked(true);
+			NoRadioButton.setChecked(false);
+		}else {
+			YesRadioButton.setChecked(false);
+			NoRadioButton.setChecked(true);
+		}
 	}
 }

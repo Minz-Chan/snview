@@ -2,6 +2,7 @@ package com.starnet.snview.channelmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -16,6 +17,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.starnet.snview.channelmanager.xml.DVRDevice;
+import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CollectDeviceParams;
@@ -24,7 +26,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint("SdCardPath")
 public class ChannelRequestTask {
 	private int pos;
-	private Context ctx;
+	private Context context;
 	private Handler mHandler;
 	private Thread timeThread;
 	private Thread workThread;
@@ -36,23 +38,27 @@ public class ChannelRequestTask {
 	private boolean isRequestTimeOut;
 	private boolean isTimeThreadOver;
 	private boolean isStartWorkRequest;
-	private final int TIMEOUT = 0x0002;
-	private final int LOADSUC = 0x0003;
-	private final int LOADFAI = 0x0004;
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 
-	public ChannelRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, int pos) {
+	public ChannelRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, final int pos) {
 		this.pos = pos;
-		this.ctx = ctx;
+		this.context = ctx;
 		this.reqCA = reqCA;
 		this.mHandler = mHandler;
 		workThread = new Thread() {
-
 			@Override
 			public void run() {
 				super.run();
 				try {
-					onStartWorkRequest();
+					if (pos == 0) {
+						try {
+							sendCollectDevicesToChannelListActivity();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}else {
+						onStartWorkRequest();
+					}
 				} catch (IOException e) {
 					onRequestTimeOut();
 				} catch (DocumentException e) {
@@ -82,6 +88,25 @@ public class ChannelRequestTask {
 		};
 	}
 
+	protected void sendCollectDevicesToChannelListActivity() throws Exception {
+		List<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
+		List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+		for (DeviceItem item : deviceItemList) {
+			if (item.isUsable()) {
+				deviceItems.add(item);
+			}
+		}
+		reqCA.setDeviceList(deviceItems);
+		Message msg = new Message();
+		msg.what = ChannelListActivity.STAR_LOADDATA_SUCCESS;
+		Bundle data = new Bundle();
+		data.putInt("position", pos);
+		data.putString("success", "Yes");
+		data.putSerializable("netCA", reqCA);
+		msg.setData(data);
+		mHandler.sendMessage(msg);
+	}
+
 	private void onDocumentOpt() {
 
 		isTimeThreadOver = true;
@@ -90,9 +115,22 @@ public class ChannelRequestTask {
 		isStartWorkRequest = true;
 
 		if (!isCanceled && !isDocumentOpt) {
+			List<DeviceItem> dList = reqCA.getDeviceList();
+			if ((dList != null) && (dList.size() > 1)) {
+				Collections.sort(dList, new PinyinComparator());
+			}
+			if ((dList != null) && (dList.size() > 0)) {
+				int dSize = dList.size();
+				for(int j = 0 ;j<dSize;j++){
+					DeviceItem d = dList.get(j);
+					d.setIdentify(true);
+					d.setConnPass(true);
+					d.setPlatformUsername(reqCA.getUsername());
+				}
+			}
 			isDocumentOpt = true;
 			Message msg = new Message();
-			msg.what = LOADFAI;
+			msg.what = ChannelListActivity.STAR_LOADDATA_LOADFAI;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -106,9 +144,22 @@ public class ChannelRequestTask {
 		isTimeThreadOver = true;
 		isStartWorkRequest = true;
 		if (!isCanceled && !isRequestTimeOut) {
+			List<DeviceItem> dList = reqCA.getDeviceList();
+			if ((dList != null) && (dList.size() > 1)) {
+				Collections.sort(dList, new PinyinComparator());
+			}
+			if ((dList != null) && (dList.size() > 0)) {
+				int dSize = dList.size();
+				for(int j = 0 ;j<dSize;j++){
+					DeviceItem d = dList.get(j);
+					d.setIdentify(true);
+					d.setConnPass(true);
+					d.setPlatformUsername(reqCA.getUsername());
+				}
+			}
 			isDocumentOpt = true;
 			Message msg = new Message();
-			msg.what = LOADFAI;
+			msg.what = ChannelListActivity.STAR_LOADDATA_LOADFAI;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -122,17 +173,15 @@ public class ChannelRequestTask {
 		String port = reqCA.getPort();
 		String username = reqCA.getUsername();
 		String password = reqCA.getPassword();
-		Document doc = ReadWriteXmlUtils.SendURLPost(domain, port, username,
-				password, "");
+		Document doc = ReadWriteXmlUtils.SendURLPost(domain, port, username,password, "");
 		String result = ReadWriteXmlUtils.readXmlStatus(doc);
 		if (result == null) {
-			ArrayList<DVRDevice> dList = (ArrayList<DVRDevice>) ReadWriteXmlUtils
-					.readXmlDVRDevices(doc);
+			ArrayList<DVRDevice> dList = (ArrayList<DVRDevice>) ReadWriteXmlUtils.readXmlDVRDevices(doc);
 			if (!isCanceled && !isStartWorkRequest) {
 				Message msg = new Message();
 				Bundle data = new Bundle();
 				CloudAccount netAct = getCloudAccountFromDVRDevice(dList);
-				sp = ctx.getSharedPreferences("isFirstWrite", Context.MODE_PRIVATE);
+				sp = context.getSharedPreferences("isFirstWrite", Context.MODE_PRIVATE);
 				boolean isFirst = sp.getBoolean(netAct.getUsername(), true);
 				if (isFirst) {
 					ReadWriteXmlUtils.writeNewCloudAccountToXML(netAct,CLOUD_ACCOUNT_PATH);// 第一次是写入，之后都是替代
@@ -147,22 +196,36 @@ public class ChannelRequestTask {
 				isRequestTimeOut = true;
 				isTimeThreadOver = true;
 				isStartWorkRequest = true;
-				msg.what = LOADSUC;
+				msg.what = ChannelListActivity.STAR_LOADDATA_SUCCESS;
 				data.putInt("position", pos);
-				data.putString("success", "Yes");
+//				data.putString("success", "Yes");
 				data.putSerializable("netCA", netAct);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
 		} else {
 			if (!isCanceled && !isStartWorkRequest) {
+				List<DeviceItem> dList = reqCA.getDeviceList();
+				if ((dList != null) && (dList.size() > 1)) {
+					Collections.sort(dList, new PinyinComparator());
+					
+				}
+				if ((dList != null) && (dList.size() > 0)) {
+					int dSize = dList.size();
+					for(int j = 0 ;j<dSize;j++){
+						DeviceItem d = dList.get(j);
+						d.setIdentify(true);
+						d.setConnPass(true);
+						d.setPlatformUsername(reqCA.getUsername());
+					}
+				}
 				isDocumentOpt = true;
 				isTimeThreadOver = true;
 				isRequestTimeOut = true;
 				isTimeThreadOver = true;
 				isStartWorkRequest = true;
 				Message msg = new Message();
-				msg.what = LOADFAI;
+				msg.what = ChannelListActivity.STAR_LOADDATA_LOADFAI;
 				Bundle data = new Bundle();
 				data.putInt("position", pos);
 				data.putSerializable("netCA", reqCA);
@@ -173,6 +236,20 @@ public class ChannelRequestTask {
 	}
 
 	private void onTimeOut() {
+		List<CloudAccount> caList1 = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
+		setCloudAccountFromLast(reqCA, caList1);
+		reqCA.setRotate(true);
+		List<DeviceItem> dList1 = reqCA.getDeviceList();
+		if(dList1!=null){
+			int dSize = dList1.size();
+			for(int j = 0 ;j<dSize;j++){
+				DeviceItem d = dList1.get(j);
+				d.setIdentify(true);
+				d.setConnPass(true);
+				d.setPlatformUsername(reqCA.getUsername());
+			}
+//			Collections.sort(dList1, new PinyinComparator());// 排序...
+		}		
 		isDocumentOpt = true;
 		isTimeThreadOver = true;
 		isRequestTimeOut = true;
@@ -180,7 +257,7 @@ public class ChannelRequestTask {
 		isStartWorkRequest = true;
 		if (!isCanceled) {
 			Message msg = new Message();
-			msg.what = TIMEOUT;
+			msg.what = ChannelListActivity.STAR_LOADDATA_TIMEOUT;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -257,7 +334,22 @@ public class ChannelRequestTask {
 			deviceItem.setChannelList(channelList);
 			deviceList.add(deviceItem);
 		}
+		if ((deviceList!=null)&&(deviceList.size()>0)) {
+			Collections.sort(deviceList, new PinyinComparator());// 排序...
+		}
 		cloudAccount.setDeviceList(deviceList);
 		return cloudAccount;
+	}
+	
+	private void setCloudAccountFromLast(CloudAccount ca, List<CloudAccount> caList) {
+		String nUser = ca.getUsername();
+		for (int i = 0; i < caList.size(); i++) {
+			CloudAccount oldCA = caList.get(i);
+			String oUser = oldCA.getUsername();
+			if (nUser.equals(oUser)) {// &&nDomn.equals(oDomn)&&nPort.equals(oPort)
+				ca.setDeviceList(oldCA.getDeviceList());
+				break;
+			}
+		}
 	}
 }

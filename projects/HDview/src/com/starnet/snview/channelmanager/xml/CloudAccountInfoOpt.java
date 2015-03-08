@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.CollectDeviceParams;
@@ -15,7 +16,6 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 
 import com.starnet.snview.channelmanager.Channel;
-import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 
 /**
@@ -115,33 +115,33 @@ public class CloudAccountInfoOpt {
 	 * 从XML文档中获取星云平台用户数据，数据内容主要包括：domain、port、username、 password、deviceName，其中星云账户的DeviceList
 	 * 为空；
 	 */
-	public List<CloudAccount> getCloudAccountInfoFromUI() {
+	public List<CloudAccount> getCloudAccountInfoFromUI(String username) {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
 		try{
-			CloudAccount collectDevice = new CloudAccount();
-			List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);//获取收藏设备，应该对收藏设备进行判断
-			
+			CloudAccount collectAccount = new CloudAccount();
+			//获取收藏设备，应该对收藏设备进行判断
 			List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(filePathOfCloudAccount);
-						
-			collectDevice.setDeviceList(deviceItemList);
-			collectDevice.setEnabled(true);
-			collectDevice.setExpanded(false);
-			collectDevice.setRotate(true);
-			collectDevice.setUsername(CollectDeviceParams.COLLECTDEVICENAME_NETTHREAD_GETCHANNELLIST);
-			collectDevice.setDomain("com");
-			collectDevice.setPort("808");
-			collectDevice.setPassword("0208");
-			accoutInfo.add(collectDevice);
+			collectAccount.setDeviceList(null);
+			collectAccount.setEnabled(true);
+			collectAccount.setExpanded(false);
+			collectAccount.setRotate(true);
+			collectAccount.setUsername(username);
+			collectAccount.setDomain("bo.com");
+			collectAccount.setPort("8080");
+			collectAccount.setPassword("4a5");
+			accoutInfo.add(collectAccount);
 			
 			int size = cloudAccountList.size();
 			for(int i =0 ;i<size;i++){
 				CloudAccount cloudAccount = cloudAccountList.get(i);
-				accoutInfo.add(cloudAccount);					
+				if (cloudAccount.isEnabled()) {
+					accoutInfo.add(cloudAccount);
+				}				
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
-			System.out.println("Read Over!");
+			Log.i("CloudAccountInfoOpt","Read Over!");
 		}
 		return accoutInfo;
 	}

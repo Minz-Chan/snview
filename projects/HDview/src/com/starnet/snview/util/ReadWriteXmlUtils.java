@@ -377,6 +377,8 @@ public class ReadWriteXmlUtils {
 						String.valueOf(item.isIdentify()));
 				sEl.setAttributeValue("isConnPass",
 						String.valueOf(item.isConnPass()));
+				sEl.setAttributeValue("isUsable",
+						String.valueOf(item.isUsable()));
 				List<Element> elList = sEl.elements();
 				for (int j = 0; j < elList.size(); j++) {
 					elList.get(j).detach();
@@ -437,6 +439,7 @@ public class ReadWriteXmlUtils {
 			sEl.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
 			sEl.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
 			sEl.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
+			sEl.addAttribute("isUsable", String.valueOf(dItem.isUsable()));
 			List<Channel> channelList = dItem.getChannelList();
 			if (channelList != null) {
 				int channelSize = channelList.size();
@@ -475,25 +478,24 @@ public class ReadWriteXmlUtils {
 		int size = subElements.size();
 		for (int i = 0; i < size; i++) {
 			Element subElement = subElements.get(i);
-
 			String deviceName = subElement.attributeValue("deviceName");
-			String channelNumber = subElement.attributeValue("channelNumber");
-			String loginUser = subElement.attributeValue("loginUser");
-			String loginPass = subElement.attributeValue("loginPass");
-			// String defaultChannel =
-			// subElement.attributeValue("defaultChannel");
-
-			String serverIP = subElement.attributeValue("serverIP");
-			String serverPort = subElement.attributeValue("serverPort");
-
-			if (deviceItem.getDeviceName().equals(deviceName)
-					&& (deviceItem.getChannelSum().equals(channelNumber))
-					&& (deviceItem.getLoginUser().equals(loginUser))
-					&& (deviceItem.getLoginPass().equals(loginPass))
-					&& (deviceItem.getSvrIp().equals(serverIP))
-					&& (deviceItem.getSvrPort().equals(serverPort))) {
+			if (deviceItem.getDeviceName().equals(deviceName)) {//
 				subElement.detach();
 			}
+			// String channelNumber =
+			// subElement.attributeValue("channelNumber");
+			// String loginUser = subElement.attributeValue("loginUser");
+			// String loginPass = subElement.attributeValue("loginPass");
+			// String serverIP = subElement.attributeValue("serverIP");
+			// String serverPort = subElement.attributeValue("serverPort");
+
+			/*
+			 * && (deviceItem.getChannelSum().equals(channelNumber)) &&
+			 * (deviceItem.getLoginUser().equals(loginUser)) &&
+			 * (deviceItem.getLoginPass().equals(loginPass)) &&
+			 * (deviceItem.getSvrIp().equals(serverIP)) &&
+			 * (deviceItem.getSvrPort().equals(serverPort))
+			 */
 		}
 
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
@@ -571,6 +573,7 @@ public class ReadWriteXmlUtils {
 			String isExpanded = subElement.attributeValue("isExpanded");
 			String isConnPass = subElement.attributeValue("isConnPass");
 			String isIdentify = subElement.attributeValue("isIdentify");
+			String isUsable = subElement.attributeValue("isUsable");
 			if ((iso == null) || (iso.equals(null))) {
 				iso = "false";
 			}
@@ -585,6 +588,11 @@ public class ReadWriteXmlUtils {
 			if ((isConnPass == null) || (isConnPass.equals(null))) {
 				isConnPass = "false";
 			}
+			
+			if ((isUsable == null) || (isUsable.equals(null))) {
+				isUsable = "false";
+			}
+			
 			dItem.setChannelSum(channelSum);
 			dItem.setDeviceName(deviceName);
 			dItem.setLoginUser(loginUser);
@@ -598,6 +606,7 @@ public class ReadWriteXmlUtils {
 			dItem.setPlatformUsername(platusername);
 			dItem.setIdentify(Boolean.valueOf(isIdentify));
 			dItem.setConnPass(Boolean.valueOf(isConnPass));
+			dItem.setUsable(Boolean.valueOf(isUsable));
 			List<Channel> channelList = new ArrayList<Channel>();
 
 			List<Element> channelElements = subElement.elements();
@@ -672,6 +681,7 @@ public class ReadWriteXmlUtils {
 		sEle.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
 		sEle.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
 		sEle.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
+		sEle.addAttribute("isUsable", String.valueOf(dItem.isUsable()));
 		List<Channel> channelList = dItem.getChannelList();
 		if (channelList != null) {
 			int channelSize = channelList.size();

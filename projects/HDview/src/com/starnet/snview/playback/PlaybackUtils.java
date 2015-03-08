@@ -1,5 +1,6 @@
 package com.starnet.snview.playback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -75,9 +76,31 @@ public class PlaybackUtils {
 		return ca;
 	}
 	
+	public static CloudAccount getFirstCollectCloudAccount(String accountName){
+		CloudAccount cloudAccount = new CloudAccount();
+		cloudAccount.setUsername(accountName);
+		cloudAccount.setEnabled(true);
+		cloudAccount.setPort("8080");
+		cloudAccount.setDomain("bo.com");
+		cloudAccount.setPassword("4a50");
+		cloudAccount.setExpanded(false);
+		cloudAccount.setRotate(true);
+		cloudAccount.setDeviceList(null);
+		return cloudAccount;
+	}
+	
 	public static List<CloudAccount> getCloudAccounts() {
 		try {
-			return ReadWriteXmlUtils.getCloudAccountList(ACCOUNT_FILEPATH_STRING);
+			List<CloudAccount> accounts = new ArrayList<CloudAccount>();
+			List<CloudAccount> cas = ReadWriteXmlUtils.getCloudAccountList(ACCOUNT_FILEPATH_STRING);
+			if ((cas != null) && (cas.size() > 0)) {
+				for (int i = 0; i < cas.size(); i++) {
+					if (cas.get(i).isEnabled()) {
+						accounts.add(cas.get(i));
+					}
+				}
+			}
+			return accounts;
 		} catch (Exception e) {
 			return null;
 		}

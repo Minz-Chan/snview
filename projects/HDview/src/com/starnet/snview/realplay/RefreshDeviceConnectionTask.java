@@ -111,14 +111,12 @@ public abstract class RefreshDeviceConnectionTask {
 	 * @return 待更新星云账户列表
 	 */
 	private List<CloudAccount> getCloudAccountToBeUpdated() {
-		List<CloudAccount> allCloudAccounts = new CloudAccountInfoOpt().getCloudAccountInfoFromUI();
+		List<CloudAccount> allCloudAccounts = new CloudAccountInfoOpt().getCloudAccountInfoFromUI(context.getString(R.string.device_manager_collect_device));
 		List<CloudAccount> cloudAccountsToBeUpdated = new ArrayList<CloudAccount>();
 		List<String> cloudAccountNamesToBeUpdated = new ArrayList<String>();
 		for (PreviewDeviceItem item : updatedDevices) {
-			if (!cloudAccountNamesToBeUpdated.contains(item
-					.getPlatformUsername())
-					&& item.getPlatformUsername() != null
-					&& !item.getPlatformUsername().equals(CollectDeviceParams.DEFAULT_COLLECTDEVICENAME_PREVIEWITEM_UPDATE)) {
+			if (!cloudAccountNamesToBeUpdated.contains(item.getPlatformUsername())
+					&& item.getPlatformUsername() != null && !item.getPlatformUsername().equals(CollectDeviceParams.DEFAULT_COLLECTDEVICENAME_PREVIEWITEM_UPDATE)) {
 				cloudAccountNamesToBeUpdated.add(item.getPlatformUsername());
 			}
 		}

@@ -8,8 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
@@ -28,8 +28,10 @@ public class DeviceEditableActivity extends BaseActivity {
 	private EditText server_et;
 	private EditText username_et;
 	private EditText password_et;
-	private EditText channelnumber_et;
+//	private EditText channelnumber_et;
 	private EditText defaultChannel_et;
+	private RadioButton noRadioButton;
+	private RadioButton yesRadioButton;
 	private DeviceItem clickDeviceItem;
 	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
@@ -59,23 +61,23 @@ public class DeviceEditableActivity extends BaseActivity {
 				String svrIp = server_et.getText().toString();
 				String lPass = password_et.getText().toString();
 				String lUser = username_et.getText().toString();
-				String chSum = channelnumber_et.getText().toString();
+//				String chSum = channelnumber_et.getText().toString();
 				String dfChl = defaultChannel_et.getText().toString();
 				String cName = DeviceEditableActivity.this.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
 						&& !svrPt.trim().equals("") && !lUser.trim().equals("")
-						&& !dfChl.trim().equals("") && !chSum.trim().equals(""))) {// 检查信息是否为空
+						&& !dfChl.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);
 					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 					if (isPort && isIp) {
-						int defaultChannl = Integer.valueOf(dfChl);
-						int newChannelNum = Integer.valueOf(chSum);
-						if (defaultChannl <= newChannelNum) {
+//						int defaultChannl = Integer.valueOf(dfChl);
+//						int newChannelNum = Integer.valueOf(chSum);
+//						if (defaultChannl <= newChannelNum) {
 							clickDeviceItem.setSvrIp(svrIp);
 							clickDeviceItem.setSvrPort(svrPt);
 							clickDeviceItem.setLoginUser(lUser);
 							clickDeviceItem.setLoginPass(lPass);
-							clickDeviceItem.setChannelSum(chSum);
+//							clickDeviceItem.setChannelSum(chSum);
 							clickDeviceItem.setDeviceName(dName);
 							clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 							boolean isBelong = isBelongDeviceItem(clickDeviceItem, mPreviewDeviceItems);
@@ -106,10 +108,10 @@ public class DeviceEditableActivity extends BaseActivity {
 							data.putExtras(bundle);
 							setResult(REQUESTCODE, data);
 							DeviceEditableActivity.this.finish();
-						} else {
-							String text = getString(R.string.defaultchannel_channelNumber_small);
-							Toast.makeText(DeviceEditableActivity.this,text,Toast.LENGTH_SHORT).show();
-						}
+//						} else {
+//							String text = getString(R.string.defaultchannel_channelNumber_small);
+//							Toast.makeText(DeviceEditableActivity.this,text,Toast.LENGTH_SHORT).show();
+//						}
 					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
 						Toast.makeText(DeviceEditableActivity.this,text,Toast.LENGTH_SHORT).show();
@@ -214,8 +216,11 @@ public class DeviceEditableActivity extends BaseActivity {
 		server_et = (EditText) findViewById(R.id.et_device_add_server);
 		password_et = (EditText) findViewById(R.id.et_device_add_password);
 		username_et = (EditText) findViewById(R.id.et_device_add_username);
-		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
+//		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+		
+		noRadioButton = (RadioButton) findViewById(R.id.isenable_noi_radioBtn);
+		yesRadioButton = (RadioButton) findViewById(R.id.isenable_yesi_radioBtn);
 		
 		Intent intent = getIntent();
 		if (intent != null) {
@@ -250,7 +255,14 @@ public class DeviceEditableActivity extends BaseActivity {
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
 		defaultChannel_et.setText(defaultChannel);
-		channelnumber_et.setText(channelSum);
-		channelnumber_et.setKeyListener(null);
+//		channelnumber_et.setText(channelSum);
+//		channelnumber_et.setKeyListener(null);
+		if (clickDeviceItem.isUsable()) {
+			yesRadioButton.setChecked(true);
+			noRadioButton.setChecked(false);
+		}else{
+			yesRadioButton.setChecked(false);
+			noRadioButton.setChecked(true);
+		}
 	}
 }

@@ -98,8 +98,7 @@ public class ConnectionIdentifyTask {
 						isOnWorkdUnknwnHost = true;
 						isConnectedOver = true;
 						isOnWorkdIOErr = true;
-						if (!isCanceled && !shouldTimeOutOver
-								&& !isConnectedOver && !isOnConnectionWrong) {
+						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver && !isOnConnectionWrong) {
 							onConnectionWrong();
 						}
 						shouldTimeOutOver = true;
@@ -285,8 +284,8 @@ public class ConnectionIdentifyTask {
 		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
 		for (int i = 0; i < channelNumber; i++) {
 			Channel channel = new Channel();
-			channel.setChannelName(chanelName + "" + (i + 1));
-			channel.setChannelNo((i + 1));
+			channel.setChannelName(chanelName + (i + 1));
+			channel.setChannelNo(i);
 			channel.setSelected(false);
 			channelList.add(channel);
 		}

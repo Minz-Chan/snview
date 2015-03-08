@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.starnet.snview.R;
-import com.starnet.snview.R.color;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 

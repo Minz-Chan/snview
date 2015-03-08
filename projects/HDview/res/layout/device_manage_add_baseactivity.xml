@@ -325,18 +325,19 @@
                 android:id="@+id/cloudaccount_setting_isenable_radioGroup"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="47dp"
                 android:layout_weight="5"
                 android:contentDescription="@string/system_setting_cloudaccount_isenable_choice"
-                android:gravity="right"
+                android:gravity="left|center"
                 android:orientation="horizontal" >
 
                 <RadioButton
                     android:id="@+id/device_manager_isenable_yes_radioBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="true"
                     android:text="@string/system_setting_cloudaccount_isenable_yes"
                     android:textColor="@color/system_setting_listview_selected"
+                    android:checked="true"
                     android:textSize="14sp" />
 
                 <RadioButton
@@ -344,7 +345,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="40dp"
-                    android:checked="true"
                     android:text="@string/system_setting_cloudaccount_isenable_no"
                     android:textColor="@color/system_setting_listview_selected"
                     android:textSize="14sp" />

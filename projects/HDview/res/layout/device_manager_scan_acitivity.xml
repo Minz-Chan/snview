@@ -31,10 +31,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
+                        android:gravity="center"
                         android:text="@string/device_manager_add_scan_edit_layout_record_name"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp"
-                        android:gravity="center" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -66,10 +66,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_gravity="center_vertical"
+                        android:gravity="center"
                         android:text="@string/device_manager_add_scan_edit_layout_server_name"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="16sp"
-                        android:gravity="center" />
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <EditText
@@ -103,10 +103,10 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
+                        android:gravity="center"
                         android:text="@string/system_setting_cloudaccount_port"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp"
-                        android:gravity="center" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -140,10 +140,10 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="fill_parent"
+                        android:gravity="center|left"
                         android:text="@string/system_setting_cloudaccount_username"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp"
-                        android:gravity="center|left" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -177,10 +177,10 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="fill_parent"
+                        android:gravity="center|left"
                         android:text="@string/system_setting_cloudaccount_password"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp"
-                        android:gravity="center|left" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -215,10 +215,10 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="fill_parent"
+                        android:gravity="center|left"
                         android:text="@string/device_manager_add_scan_edit_layout_default_channel"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp"
-                        android:gravity="center|left"  />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -238,7 +238,7 @@
                 </EditText>
             </RelativeLayout>
 
-            <RelativeLayout
+<!--             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
 
@@ -252,10 +252,10 @@
                     <TextView
                         android:layout_width="75dp"
                         android:layout_height="fill_parent"
+                        android:gravity="center|left"
                         android:text="@string/device_manager_add_scan_edit_layout_channel_number"
                         android:textColor="@color/md__defaultBackground"
-                        android:textSize="18sp" 
-                        android:gravity="center|left" />
+                        android:textSize="18sp" />
                 </LinearLayout>
 
                 <EditText
@@ -273,6 +273,59 @@
 
                     <requestFocus />
                 </EditText>
+            </RelativeLayout> -->
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+                <LinearLayout
+                    android:id="@+id/txt_device_usable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" >
+
+                    <TextView
+                        android:layout_width="75dp"
+                        android:layout_height="fill_parent"
+                        android:gravity="center|left"
+                        android:text="@string/cloudaccount_listview_item_enable"
+                        android:textColor="@color/md__defaultBackground"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <RadioGroup
+                    android:id="@+id/cloudaccount_setting_isenable_radioGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="47dp"
+                    android:layout_toRightOf="@id/txt_device_usable"
+                    android:contentDescription="@string/system_setting_cloudaccount_isenable_choice"
+                    android:gravity="right"
+                    android:orientation="horizontal" >
+
+                    <RadioButton
+                        android:id="@+id/isenable_yes_radioBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:clickable="false"
+                        android:text="@string/system_setting_cloudaccount_isenable_yes"
+                        android:textColor="@color/system_setting_listview_selected"
+                        android:textSize="14sp" />
+
+                    <RadioButton
+                        android:id="@+id/isenable_no_radioBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="40dp"
+                        android:checked="true"
+                        android:clickable="false"
+                        android:text="@string/system_setting_cloudaccount_isenable_no"
+                        android:textColor="@color/system_setting_listview_selected"
+                        android:textSize="14sp" />
+                </RadioGroup>
             </RelativeLayout>
 
             <RelativeLayout

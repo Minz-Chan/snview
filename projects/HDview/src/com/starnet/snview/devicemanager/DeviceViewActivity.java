@@ -42,6 +42,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private ProgressDialog loadDataPrg;
 	private LoadCollectDeviceItemsTask task;
 	private final int LOAD_COLLECT_DEVICEITEM = 0x0010;
+	public static final int AUTO_ADD = 0x0012;//手动界面值手动输入添加返回码
 	public static final int SEMI_AUTO_ADD = 0x0011;//手动界面值手动输入添加返回码
 
 	private ListView mListView;
@@ -68,9 +69,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private void setListeners() {
 		mListView.setOnItemClickListener(new OnItemClickListener() { // 进入该设备的信息查看界面
 					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						
+					public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 						clickPosition = position;
 						clickDeviceItem = deviceItemList.get(position);
 						Intent intent = new Intent();
@@ -95,16 +94,11 @@ public class DeviceViewActivity extends BaseActivity {
 				deletPosition = position;
 
 				String word1 = getString(R.string.device_manager_offline_en);
-				String word2 = getString(R.string.device_manager_offline_cn);
-				String word3 = getString(R.string.device_manager_online_cn);
 				String word4 = getString(R.string.device_manager_online_en);
 				String wordLen = getString(R.string.device_manager_off_on_line_length);
 				int len = Integer.valueOf(wordLen);
 
-				if ((titleName.length() > (len - 1))
-						&& ((titleName.contains(word1) || titleName
-								.contains(word2)) || (titleName.contains(word3) || titleName
-								.contains(word4)))) {
+				if ((titleName.length() > (len - 1)) && ((titleName.contains(word1) || titleName.contains(word4)))) {
 					titleName = titleName.substring(4);
 				}
 				builder.setTitle(getString(R.string.device_manager_deviceview_delete_device)
@@ -214,33 +208,22 @@ public class DeviceViewActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == ADD) {
-			if (resultCode == SEMI_AUTO_ADD) { // 从手动添加设备界面返回
 				if (data != null) {
-					Bundle bundle = data.getExtras();
-					if (bundle != null) {
-						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
-						String usernmae = getString(R.string.device_manager_collect_device);
-						svDevItem.setPlatformUsername(usernmae);
-						boolean result = checkContainDeviceItem(svDevItem,deviceItemList); // 检测列表中是否包含该DeviceItem
-						if (!result) {
-							deviceItemList.add(svDevItem);
-						} else {
+					boolean isReplace = data.getBooleanExtra("replace", false);
+					if (isReplace) {
+						Bundle bundle = data.getExtras();
+						if (bundle != null) {
+							DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
 							int index = bundle.getInt("index");
 							deviceItemList.set(index, svDevItem);
 						}
-						dLAdapter.notifyDataSetChanged();
+					}else {
+						Bundle bundle = data.getExtras();
+						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
+						deviceItemList.add(svDevItem);
 					}
 				}
-			} else {
-				// 进行文档更新，从文档中读取元素
-				try {
-					deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
-					dLAdapter = new DeviceListAdapter(this, deviceItemList);
-					mListView.setAdapter(dLAdapter);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
+			dLAdapter.notifyDataSetChanged();
 		} else if (requestCode == EDIT) {// 从查看/编辑设备界面返回后...
 			if (data != null) {
 				SharedPreferences spf = getSharedPreferences("user",Context.MODE_PRIVATE);
@@ -279,37 +262,6 @@ public class DeviceViewActivity extends BaseActivity {
 			isDefValue = true;
 		}
 		return isDefValue;
-	}
-
-	private boolean checkContainDeviceItem(DeviceItem saveDeviceItem,
-			List<DeviceItem> deviceItemList) {// 检测是否已经包含saveDeviceItem
-		boolean result = false;
-		int size = deviceItemList.size();
-		for (int i = 0; i < size; i++) {
-			DeviceItem deviceItem = deviceItemList.get(i);
-
-			String dName = deviceItem.getDeviceName();
-			String svrIp = deviceItem.getSvrIp();
-			String sPort = deviceItem.getSvrPort();
-			String lUser = deviceItem.getLoginUser();
-			String lPass = deviceItem.getLoginPass();
-
-			String saveLPass = saveDeviceItem.getLoginPass();
-			String saveLUser = saveDeviceItem.getLoginUser();
-			String saveSvrIp = saveDeviceItem.getSvrIp();
-			String saveSPort = saveDeviceItem.getSvrPort();
-			String saveDName = saveDeviceItem.getDeviceName();
-
-			if ((dName.equals(saveDName) || (dName == saveDName))
-					&& (sPort.equals(saveSPort) || (sPort == saveSPort))
-					&& (svrIp.equals(saveSvrIp) || (svrIp == saveSvrIp))
-					&& (lUser.equals(saveLUser) || (lUser == saveLUser))
-					&& (lPass.equals(saveLPass) || (lPass == saveLPass))) {
-				result = true;
-				break;
-			}
-		}
-		return result;
 	}
 
 	public class LoadCollectDeviceItemsTask extends

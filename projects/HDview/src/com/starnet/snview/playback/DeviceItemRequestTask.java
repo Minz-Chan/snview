@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -48,7 +49,11 @@ public class DeviceItemRequestTask {
 				super.run();
 				try {
 					if (pos == 0) {//第一个为收藏设备，直接发送到UI界面进行更新即可...
-						sendMessageToUiFresh();
+						try {
+							sendMessageToUiFresh();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}else {
 						onStartWorkRequest();
 					}
@@ -81,18 +86,26 @@ public class DeviceItemRequestTask {
 		};
 	}
 
-	protected void sendMessageToUiFresh() {
+	protected void sendMessageToUiFresh() throws Exception {
+		List<DeviceItem> its = new ArrayList<DeviceItem>();
+		List<DeviceItem> items = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+		for (DeviceItem item : items) {
+			if (item.isUsable()) {
+				its.add(item);
+			}
+		}
 		isDocumentOpt = true;
 		isTimeThreadOver = true;
 		isRequestTimeOut = true;
 		isTimeThreadOver = true;
 		isStartWorkRequest = true;
+		reqCA.setDeviceList(its);
 		Message msg = new Message();
 		Bundle data = new Bundle();
 		msg.what = LOADSUC;
 		data.putInt("position", pos);
 		data.putString("success", "Yes");
-		data.putSerializable("netCA", this.reqCA);
+		data.putSerializable("netCA", reqCA);
 		msg.setData(data);
 		mHandler.sendMessage(msg);
 	}

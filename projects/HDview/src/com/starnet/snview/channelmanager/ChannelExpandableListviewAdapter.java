@@ -58,14 +58,12 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 
 	private Handler handler;
 
-	public ChannelExpandableListviewAdapter(Context curContext,
-			List<CloudAccount> groupAccountList, TextView titleView) {
+	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList, TextView titleView) {
 		super();
 		this.titleView = titleView;
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
-		this.layoutInflater = ((LayoutInflater) curContext
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+		this.layoutInflater = ((LayoutInflater) curContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 		int size = groupAccountList.size();
 		for (int i = 0; i < size; i++) {
 			CloudAccount cloudAccount = groupAccountList.get(i);
@@ -75,10 +73,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		}
 		isOpen = NetWorkUtils.checkNetConnection(context);
 		ExpandableListViewUtils.context = context;
-		mPreviewDeviceItems = GlobalApplication.getInstance()
-				.getRealplayActivity().getPreviewDevices();
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		notify_number = 3;
-
 	}
 
 	public ChannelExpandableListviewAdapter(Context curContext,
@@ -156,8 +152,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 	}
 
 	@Override
-	public View getGroupView(int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
+	public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = layoutInflater.inflate(R.layout.channel_listview_account_item_layout_copy, null);
 		}
@@ -166,11 +161,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		if (groupAccountList.get(groupPosition).isRotate() || (!isOpen)) {// 判断加载框设置是否为“FALSE”，若是，则显示加载框；否则，不显示；
 			prgBar.setVisibility(View.GONE);
 		}
-
 		TextView title = (TextView) convertView.findViewById(R.id.channel_listview_account_item_name);
-
 		CloudAccount cloudAccount = groupAccountList.get(groupPosition);
-
 		if (notify_number == 3) {
 			if (mPreviewDeviceItems != null) {
 				int size = mPreviewDeviceItems.size();
@@ -301,8 +293,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		return convertView;
 	}
 
-	private void setCloudAccountChannelChoose(
-			PreviewDeviceItem previewDeviceItem, CloudAccount cloudAccount) {
+	private void setCloudAccountChannelChoose(PreviewDeviceItem previewDeviceItem, CloudAccount cloudAccount) {
 
 		String logUser = previewDeviceItem.getDeviceRecordName();
 		String on = context.getString(R.string.device_manager_online_en);
@@ -320,9 +311,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					}
 				}
 
-				if (logUser.equals(dUser)) {// dUser.contains(logUser)
-											// logUser.equals(dUser)
-											// logPass.equals(dPass)&&logUser.equals(dUser)&&logSvrIp.equals(dSvrIp)&&logSvrPot.equals(dSvrPort)
+				if (logUser.equals(dUser)) {
 					int cur_channel = previewDeviceItem.getChannel();
 					Log.v(TAG, "cur_channel:" + cur_channel);
 
@@ -330,7 +319,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					if (channelList != null) {
 						int channelSize = channelList.size();
 						for (int j = 0; j < channelSize; j++) {
-							if (cur_channel == j + 1) {
+							if (cur_channel == j ) {//cur_channel == j + 1
 								channelList.get(j).setSelected(true);
 							}
 						}
