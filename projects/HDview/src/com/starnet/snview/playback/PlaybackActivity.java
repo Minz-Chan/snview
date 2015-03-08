@@ -15,6 +15,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +39,7 @@ import com.starnet.snview.component.ToastTextView;
 import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.Toolbar.ACTION_ENUM;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
+import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
@@ -109,6 +111,9 @@ public class PlaybackActivity extends BaseActivity {
 	private int screenWidth;
 	private int screenHeight;
 
+	
+	
+	
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 		@SuppressWarnings("deprecation")
@@ -340,6 +345,10 @@ public class PlaybackActivity extends BaseActivity {
 
 		GlobalApplication.getInstance().setPlaybackHandler(mHandler);
 		initView();
+		
+		setVolumeControlStream(AudioManager.STREAM_MUSIC); // 指定系统音量键影响的音频流
+//		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+//		am.setMode(AudioManager.MODE_NORMAL);
 	}
 
 	protected void dismissPlaybackReqDialog() {
@@ -569,6 +578,9 @@ public class PlaybackActivity extends BaseActivity {
 			case VIDEO_RECORD:
 				processVideoRecord();
 				break;
+			case SOUND:
+				controlSound();
+				break;
 			case STOP:
 				stop();
 				break;
@@ -601,6 +613,7 @@ public class PlaybackActivity extends BaseActivity {
 				}
 				break;
 			case R.id.playback_landscape_sound_button:
+				controlSound();
 				break;
 			case R.id.playback_landscape_stop_button:
 				stop();
@@ -682,6 +695,55 @@ public class PlaybackActivity extends BaseActivity {
 			mPlaybackLandscapeToolbar.getRecordButton().setSelected(false);
 		}
 	}
+	
+	
+	
+	private void controlSound() {
+		AudioPlayer ap = getAudioPlayer();
+		
+		if (ap == null) {
+			return;
+		}
+		
+		if (ap.isSoundOn()) {
+			ap.turnSoundOff();
+			mToolbar.setActionImageButtonBg(ACTION_ENUM.SOUND, R.drawable.toolbar_sound_selector);
+			mPlaybackLandscapeToolbar.getSoundButton().setSelected(true);
+		} else {
+			ap.turnSoundOn();
+			mToolbar.setActionImageButtonBg(ACTION_ENUM.SOUND, R.drawable.toolbar_sound_off_selector);
+			mPlaybackLandscapeToolbar.getSoundButton().setSelected(false);
+		}
+	}
+	
+	private AudioPlayer getAudioPlayer() {
+		if (pbcTask != null) {
+			return pbcTask.getAudioPlayer();
+		}
+		
+		return null;
+	}
+	
+//	private AudioManager am;
+//	private int audioVolume;
+//	private boolean isSoundOn = true;  // 声音是否开启
+//	
+//	private void turnSoundOff() {
+//		if (am != null) {
+//			audioVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+//			am.setStreamVolume(AudioManager.STREAM_MUSIC, 0,
+//					AudioManager.FLAG_PLAY_SOUND);
+//		}
+//	}
+//
+//	private void turnSoundOn() {
+//		if (am != null && audioVolume > 0) {
+//			am.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume,
+//					AudioManager.FLAG_PLAY_SOUND);
+//		}
+//	}
+//	
+	
 
 	private void showTostContent(String content) {
 		Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
@@ -898,6 +960,17 @@ public class PlaybackActivity extends BaseActivity {
 	public void onPause() {
 		super.onPause();
 		closeRemoteSocket();
+//		if (!isSoundOn) {
+//			turnSoundOn();  // 避免影响其他应用的声音
+//		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+//		if (!isSoundOn) {
+//			turnSoundOff();  // 若离开活动前为静音状态，则还原状态
+//		}
 	}
 
 	private void closeRemoteSocket() {

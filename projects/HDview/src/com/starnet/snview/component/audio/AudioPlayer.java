@@ -8,6 +8,8 @@ public class AudioPlayer {
 	private int mChannel;	// 声道
 	private int mSampBit;	// 采样精度
 	private AudioTrack mAudioTrack;
+	
+	private boolean isSoundOn = true;
 
 	public AudioPlayer(int frequency, int channel, int sampbit) {
 		mFrequency = frequency;
@@ -47,7 +49,7 @@ public class AudioPlayer {
 	}
 
 	public void playAudioTrack(byte[] data, int offset, int length) {
-		if (data == null || data.length == 0) {
+		if (!isSoundOn || data == null || data.length == 0) {
 			return;
 		}
 		try {
@@ -61,5 +63,17 @@ public class AudioPlayer {
 		int minBufSize = AudioTrack.getMinBufferSize(mFrequency, mChannel,
 				mSampBit);
 		return minBufSize * 2;
+	}
+	
+	public boolean isSoundOn() {
+		return isSoundOn;
+	}
+	
+	public void turnSoundOn() {
+		isSoundOn = true;
+	}
+	
+	public void turnSoundOff() {
+		isSoundOn = false;
 	}
 }

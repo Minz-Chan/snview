@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.RESTART_PACKAGES" /> <!-- 关闭整个应用程序权限 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 检测网络连接的权限 -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> <!-- 系统声音权限 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 拍照权限 -->
     <!-- android推送服务权限 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />

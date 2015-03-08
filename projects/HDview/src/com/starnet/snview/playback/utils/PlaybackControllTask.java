@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import com.starnet.snview.component.BufferSendManagerPlayBack;
 import com.starnet.snview.component.audio.AudioHandler;
+import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.protocol.message.OWSPDateTime;
@@ -57,6 +58,8 @@ public class PlaybackControllTask {
 	private Thread timeThread;
 	private HandlerThread videoPlayThread;
 	private HandlerThread audioPlayThread;
+	private AudioHandler audioPlayHandler;
+	private VideoHandler videoPlayHandler;
 
 	private DataProcessService service;
 	private InputStream receiver = null;
@@ -116,16 +119,25 @@ public class PlaybackControllTask {
 		// Audio play thread
 		audioPlayThread = new HandlerThread("audioPlayThread");
 		audioPlayThread.start();
-		AudioHandler audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
+		audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
 		
 		// Video play thread
 		videoPlayThread = new HandlerThread("videoPlayThread");
 		videoPlayThread.start();
-		VideoHandler videoPlayHandler = new VideoHandler(videoPlayThread.getLooper(), 
+		videoPlayHandler = new VideoHandler(videoPlayThread.getLooper(), 
 				((PlaybackActivity)context).getVideoContainer().getSurfaceView());
 		
 		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
 		controller = new PlaybackController();
+	}
+	
+	
+	public AudioPlayer getAudioPlayer() {
+		if (audioPlayHandler != null) {
+			return audioPlayHandler.getAudioPlayer();
+		}
+		
+		return null;
 	}
 
 	protected void onTimeOutWork() {// 超时处理
