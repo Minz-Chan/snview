@@ -73,6 +73,10 @@ public class DeviceChooseActivity extends BaseActivity {
 				dismissDialog(ADDDATESTOXMLDialog);
 				printSentence = getString(R.string.device_manager_devicechoose_adding_success);
 				Toast.makeText(DeviceChooseActivity.this, printSentence,Toast.LENGTH_SHORT).show();
+//				Intent intent = new Intent();
+//				Bundle bundle = new Bundle();
+//				intent.putExtras(bundle);
+				setResult(DeviceCollectActivity.ALL_ADD);
 				DeviceChooseActivity.this.finish();
 			case ADD_FAILED:
 				dismissDialog(ADDDATESTOXMLDialog);
@@ -237,8 +241,6 @@ public class DeviceChooseActivity extends BaseActivity {
 			deviceItem.setUsable(true);
 			if (rdLen >= len) {
 				String word1 = getString(R.string.device_manager_online_en);
-//				String word2 = getString(R.string.device_manager_online_cn);
-//				String word3 = getString(R.string.device_manager_offline_cn);
 				String word4 = getString(R.string.device_manager_offline_en);
 				String recordName = deviceName.substring(0, len);
 				if (recordName.contains(word1) || recordName.contains(word4)) {

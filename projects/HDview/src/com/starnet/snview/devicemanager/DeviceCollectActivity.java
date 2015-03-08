@@ -49,6 +49,7 @@ public class DeviceCollectActivity extends BaseActivity {
 
 	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
 	private final int REQUESTCODE = 10; // 用于进入DeviceChooseActivity.java的请求码；
+	public static final int ALL_ADD = 0x0020;
 
 	private Button identifyBtn;
 	private Button chooseBtn; // 选择按钮，单击可从网络下载星云平台数据,"选择添加"
@@ -104,9 +105,11 @@ public class DeviceCollectActivity extends BaseActivity {
 				dismissDialog(LOADNETDATADIALOG);
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrDeviceList);
+				bundle.putParcelableArrayList("dvrDeviceList",
+						(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
+				intent.setClass(DeviceCollectActivity.this,
+						DeviceChooseActivity.class);
 				startActivityForResult(intent, REQUESTCODE);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
@@ -125,8 +128,10 @@ public class DeviceCollectActivity extends BaseActivity {
 				saveDeviceItem.setIdentify(true);
 				saveDeviceItem.setConnPass(true);
 				identifyDeviceItem = getIdentifyDeviceItem(msg);
-				saveDeviceItem.setChannelList(identifyDeviceItem.getChannelList());
-				saveDeviceItem.setChannelSum(identifyDeviceItem.getChannelSum());
+				saveDeviceItem.setChannelList(identifyDeviceItem
+						.getChannelList());
+				saveDeviceItem
+						.setChannelSum(identifyDeviceItem.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
@@ -159,13 +164,15 @@ public class DeviceCollectActivity extends BaseActivity {
 	}
 
 	private void showToast(String content) {
-		Toast.makeText(DeviceCollectActivity.this, content, Toast.LENGTH_SHORT).show();
+		Toast.makeText(DeviceCollectActivity.this, content, Toast.LENGTH_SHORT)
+				.show();
 	}
 
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
 		Bundle data = msg.getData();
-		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
+		DeviceItem dItem = (DeviceItem) data
+				.getSerializable("identifyDeviceItem");
 		return dItem;
 
 	}
@@ -218,7 +225,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	private int checkIfExistNull(List<String> infoList) {
 		int index = -1;
 		for (int i = 0; i < infoList.size() - 1; i++) {
-			if (infoList.get(i).trim() == null || infoList.get(i).trim().equals("")) {
+			if (infoList.get(i).trim() == null
+					|| infoList.get(i).trim().equals("")) {
 				index = i;
 				break;
 			}
@@ -240,7 +248,8 @@ public class DeviceCollectActivity extends BaseActivity {
 					DeviceItem deviceItem = getDeviceItem();
 					if (deviceItem != null) {
 						showDialog(CONNIDENTIFYDIALOG);
-						conIdenTask = new ConnectionIdentifyTask(mHandler,deviceItem);
+						conIdenTask = new ConnectionIdentifyTask(mHandler,
+								deviceItem);
 						conIdenTask.setContext(DeviceCollectActivity.this);
 						conIdenTask.start();
 					}
@@ -262,7 +271,8 @@ public class DeviceCollectActivity extends BaseActivity {
 				String svIP = saveDeviceItem.getSvrIp().trim();
 				String port = saveDeviceItem.getSvrPort().trim();
 				String uName = saveDeviceItem.getLoginUser().trim();
-				if (!rName.equals("") && !svIP.equals("") && !port.equals("") && !uName.equals("")) {
+				if (!rName.equals("") && !svIP.equals("") && !port.equals("")
+						&& !uName.equals("")) {
 					boolean isIP = IPAndPortUtils.isIp(svIP);
 					boolean isPort = IPAndPortUtils.isNetPort(port);
 					if (isPort && isIP) {
@@ -271,16 +281,20 @@ public class DeviceCollectActivity extends BaseActivity {
 								if (!isConnPass) {
 									setNoConnPassDeviceItem();
 								}
-								saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
+								saveDeviceItemToXML(saveDeviceItem,
+										DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
 							} else {
-								boolean isSame = judgeDevicItemIsSame(saveDeviceItem, chooseDeviceItem);
+								boolean isSame = judgeDevicItemIsSame(
+										saveDeviceItem, chooseDeviceItem);
 								if (isSame) {// 进行了选择
-									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);
+									saveDeviceItemToXML(saveDeviceItem,
+											DeviceViewActivity.AUTO_ADD);
 								} else {
 									if (!isConnPass) {
 										setNoConnPassDeviceItem();
 									}
-									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
+									saveDeviceItemToXML(saveDeviceItem,
+											DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
 								}
 							}
 						} catch (Exception e) {
@@ -304,7 +318,8 @@ public class DeviceCollectActivity extends BaseActivity {
 				boolean isConn = NetWorkUtils.checkNetConnection(context);
 				if (isConn) {
 					try {
-						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(fileName);
+						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils
+								.getCloudAccountList(fileName);
 						int size = cloudAccountList.size();
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
@@ -357,7 +372,8 @@ public class DeviceCollectActivity extends BaseActivity {
 			String porte = item2.getSvrPort();
 			String lgUsere = item2.getLoginUser();
 			String lgPswde = item2.getLoginPass();
-			if (ip.equals(ipe) && port.equals(porte) && lgUser.equals(lgUsere) && lgPswd.equals(lgPswde)) {
+			if (ip.equals(ipe) && port.equals(porte) && lgUser.equals(lgUsere)
+					&& lgPswd.equals(lgPswde)) {
 				result = true;
 			}
 		}
@@ -375,7 +391,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setLoginPass(pswd);
 		saveDeviceItem.setLoginUser(uName);
 		saveDeviceItem.setDeviceName(rName);
-		saveDeviceItem.setPlatformUsername(getString(R.string.device_manager_collect_device));
+		saveDeviceItem
+				.setPlatformUsername(getString(R.string.device_manager_collect_device));
 		saveDeviceItem.setUsable(yesRadioButton.isChecked());
 		String dChannel = dfChnlEdt.getText().toString().trim();
 		if (dChannel == null || dChannel.equals("")) {
@@ -388,14 +405,16 @@ public class DeviceCollectActivity extends BaseActivity {
 	}
 
 	/** 保存收藏设备到xml文档中 ***/
-	private void saveDeviceItemToXML(final DeviceItem dItem,final int resultCode) throws Exception {
+	private void saveDeviceItemToXML(final DeviceItem dItem,
+			final int resultCode) throws Exception {
 		final Intent intent = new Intent();
 		final int index = isContain(dItem);
 		if (index == -1) {
-			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,ChannelListActivity.filePath);
+			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,
+					ChannelListActivity.filePath);
 			Bundle bundle = new Bundle();
 			intent.putExtra("replace", false);
-			bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+			bundle.putSerializable("saveDeviceItem", saveDeviceItem);
 			intent.putExtras(bundle);
 			setResult(resultCode, intent);
 			DeviceCollectActivity.this.finish();
@@ -403,15 +422,20 @@ public class DeviceCollectActivity extends BaseActivity {
 			// 弹出对话框，询问是否进行替换....
 			Builder builder = new Builder(context);
 			builder.setTitle(getString(R.string.device_manager_devicecollect_cover));
-			builder.setPositiveButton(R.string.device_manager_devicecollect_ensure,new DialogInterface.OnClickListener() {
+			builder.setPositiveButton(
+					R.string.device_manager_devicecollect_ensure,
+					new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								intent.putExtra("replace", true);
-								ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath,index,dItem);
+								ReadWriteXmlUtils.replaceSpecifyDeviceItem(
+										ChannelListActivity.filePath, index,
+										dItem);
 								Bundle bundle = new Bundle();
 								bundle.putInt("index", index);
-								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+								bundle.putSerializable("saveDeviceItem",
+										saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(resultCode, intent);
 								DeviceCollectActivity.this.finish();
@@ -420,15 +444,17 @@ public class DeviceCollectActivity extends BaseActivity {
 							}
 						}
 					});
-			builder.setNegativeButton(R.string.device_manager_devicecollect_cancel, null);
+			builder.setNegativeButton(
+					R.string.device_manager_devicecollect_cancel, null);
 			builder.show();
 		}
 	}
 
 	private int isContain(DeviceItem dItem) {
 		int result = -1;
-		for (int i = 0 ;i< collectDeviceItemList.size();i++) {
-			if (dItem.getDeviceName().equals(collectDeviceItemList.get(i).getDeviceName())) {
+		for (int i = 0; i < collectDeviceItemList.size(); i++) {
+			if (dItem.getDeviceName().equals(
+					collectDeviceItemList.get(i).getDeviceName())) {
 				result = i;
 				break;
 			}
@@ -494,7 +520,8 @@ public class DeviceCollectActivity extends BaseActivity {
 			});
 			return progress;
 		case CONNIDENTIFYDIALOG:
-			ProgressDialog progress2 = ProgressDialog.show(this, "",getString(R.string.device_manager_conn_iden), true, true);
+			ProgressDialog progress2 = ProgressDialog.show(this, "",
+					getString(R.string.device_manager_conn_iden), true, true);
 			progress2.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override
@@ -585,17 +612,23 @@ public class DeviceCollectActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if ((requestCode == REQUESTCODE)) {
-			if (data != null) {
-				Bundle bundle = data.getExtras();
-				if (bundle != null) {
-					setNewUICollectDevice(bundle);
+			if (resultCode == ALL_ADD) {
+				setResult(ALL_ADD);
+				DeviceCollectActivity.this.finish();
+			} else {
+				if (data != null) {
+					Bundle bundle = data.getExtras();
+					if (bundle != null) {
+						setNewUICollectDevice(bundle);
+					}
 				}
 			}
 		}
 	}
 
 	private void setNewUICollectDevice(Bundle bundle) {
-		chooseDeviceItem = (DeviceItem) bundle.getSerializable("chooseDeviceItem");
+		chooseDeviceItem = (DeviceItem) bundle
+				.getSerializable("chooseDeviceItem");
 		int chooseSize = Integer.valueOf(chooseDeviceItem.getChannelSum());
 		List<Channel> channelList = new ArrayList<Channel>();
 		for (int i = 0; i < chooseSize; i++) {
@@ -614,7 +647,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		chooseDeviceItem.setIdentify(true);//
 		saveDeviceItem.setChannelSum(chooseDeviceItem.getChannelSum());
 		saveDeviceItem.setChannelList(channelList);
-		chooseactivity_return_flag = bundle.getInt("chooseactivity_return_flag");
+		chooseactivity_return_flag = bundle
+				.getInt("chooseactivity_return_flag");
 		chooseEdt.setText(chooseDeviceItem.getDeviceName());
 		recordEdt.setText(chooseDeviceItem.getDeviceName());
 		serverEdt.setText(chooseDeviceItem.getSvrIp());
@@ -653,7 +687,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if ((loadDataTask != null) && (loadDataTask.getStatus() == AsyncTask.Status.RUNNING)) {
+		if ((loadDataTask != null)
+				&& (loadDataTask.getStatus() == AsyncTask.Status.RUNNING)) {
 			loadDataTask.cancel(true); // 如果Task还在运行，则先取消它
 			loadDataTask = null;
 		}

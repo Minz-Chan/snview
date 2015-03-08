@@ -17,6 +17,8 @@ import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -32,7 +34,7 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-@SuppressLint("SdCardPath")
+@SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class DeviceViewActivity extends BaseActivity {
 
 	private static final int EDIT = 20;
@@ -40,10 +42,11 @@ public class DeviceViewActivity extends BaseActivity {
 
 	private Context context;
 	private ProgressDialog loadDataPrg;
+	private ProgressDialog refreshDataPrg;
 	private LoadCollectDeviceItemsTask task;
 	private final int LOAD_COLLECT_DEVICEITEM = 0x0010;
-	public static final int AUTO_ADD = 0x0012;//手动界面值手动输入添加返回码
-	public static final int SEMI_AUTO_ADD = 0x0011;//手动界面值手动输入添加返回码
+	public static final int AUTO_ADD = 0x0012;// 手动界面值手动输入添加返回码
+	public static final int SEMI_AUTO_ADD = 0x0011;// 手动界面值手动输入添加返回码
 
 	private ListView mListView;
 	private int clickPosition = 0;
@@ -56,6 +59,28 @@ public class DeviceViewActivity extends BaseActivity {
 
 	private List<PreviewDeviceItem> previewDeviceItems; // 预览通道
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
+	
+	private List<DeviceItem>addDeviceItemList;
+	private final int Add_LOAD_COLLECT_DATA = 0x0023;
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case Add_LOAD_COLLECT_DATA:
+				try {
+					dismissLoadDataDialog(Add_LOAD_COLLECT_DATA);
+					dLAdapter = new DeviceListAdapter(context, addDeviceItemList);
+					mListView.setAdapter(dLAdapter);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +94,16 @@ public class DeviceViewActivity extends BaseActivity {
 	private void setListeners() {
 		mListView.setOnItemClickListener(new OnItemClickListener() { // 进入该设备的信息查看界面
 					@Override
-					public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
+					public void onItemClick(AdapterView<?> parent, View view,
+							int position, long id) {
 						clickPosition = position;
 						clickDeviceItem = deviceItemList.get(position);
 						Intent intent = new Intent();
-						intent.setClass(context,DeviceScanActivity.class);
+						intent.setClass(context, DeviceScanActivity.class);
 						Bundle bundle = new Bundle();
 						bundle.putInt("position", clickPosition);
-						bundle.putSerializable("clickDeviceItem",clickDeviceItem);
+						bundle.putSerializable("clickDeviceItem",
+								clickDeviceItem);
 						intent.putExtras(bundle);
 						startActivityForResult(intent, 20);
 
@@ -98,7 +125,9 @@ public class DeviceViewActivity extends BaseActivity {
 				String wordLen = getString(R.string.device_manager_off_on_line_length);
 				int len = Integer.valueOf(wordLen);
 
-				if ((titleName.length() > (len - 1)) && ((titleName.contains(word1) || titleName.contains(word4)))) {
+				if ((titleName.length() > (len - 1))
+						&& ((titleName.contains(word1) || titleName
+								.contains(word4)))) {
 					titleName = titleName.substring(4);
 				}
 				builder.setTitle(getString(R.string.device_manager_deviceview_delete_device)
@@ -161,7 +190,8 @@ public class DeviceViewActivity extends BaseActivity {
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent();
-						intent.setClass(DeviceViewActivity.this,DeviceCollectActivity.class);
+						intent.setClass(DeviceViewActivity.this,
+								DeviceCollectActivity.class);
 						startActivityForResult(intent, 10);
 					}
 				});
@@ -189,7 +219,8 @@ public class DeviceViewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setToolbarVisiable(false);
 
-		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		previewDeviceItems = GlobalApplication.getInstance()
+				.getRealplayActivity().getPreviewDevices();
 
 		mListView = (ListView) findViewById(R.id.device_listview);
 		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);
@@ -204,29 +235,52 @@ public class DeviceViewActivity extends BaseActivity {
 		task.execute();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == ADD) {
-				if (data != null) {
-					boolean isReplace = data.getBooleanExtra("replace", false);
-					if (isReplace) {
-						Bundle bundle = data.getExtras();
-						if (bundle != null) {
-							DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
-							int index = bundle.getInt("index");
-							deviceItemList.set(index, svDevItem);
-						}
-					}else {
-						Bundle bundle = data.getExtras();
-						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
-						deviceItemList.add(svDevItem);
+			if (data != null) {
+				boolean isReplace = data.getBooleanExtra("replace", false);
+				if (isReplace) {
+					Bundle bundle = data.getExtras();
+					if (bundle != null) {
+						DeviceItem svDevItem = (DeviceItem) bundle
+								.getSerializable("saveDeviceItem");
+						int index = bundle.getInt("index");
+						deviceItemList.set(index, svDevItem);
 					}
+				} else {
+					Bundle bundle = data.getExtras();
+					DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
+					deviceItemList.add(svDevItem);
 				}
-			dLAdapter.notifyDataSetChanged();
+				dLAdapter.notifyDataSetChanged();
+			} else if (resultCode == DeviceCollectActivity.ALL_ADD) {
+				//刷新新的界面
+				showDialog(Add_LOAD_COLLECT_DATA);
+				try {
+					new Thread(){
+						@Override
+						public void run() {
+							try {
+								Message msg = new Message();
+								addDeviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+								msg.what = Add_LOAD_COLLECT_DATA;
+								mHandler.sendMessage(msg);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}.start();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		} else if (requestCode == EDIT) {// 从查看/编辑设备界面返回后...
 			if (data != null) {
-				SharedPreferences spf = getSharedPreferences("user",Context.MODE_PRIVATE);
+				SharedPreferences spf = getSharedPreferences("user",
+						Context.MODE_PRIVATE);
 				String dName = spf.getString("dName", "defaultValue");
 				String lUser = spf.getString("lUser", "defaultValue");
 				String lPass = spf.getString("lPass", "defaultValue");
@@ -275,8 +329,7 @@ public class DeviceViewActivity extends BaseActivity {
 		protected List<DeviceItem> doInBackground(Void... params) {
 			deviceItemList = new ArrayList<DeviceItem>();
 			try {
-				deviceItemList = ReadWriteXmlUtils
-						.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+				deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return null;
@@ -287,9 +340,8 @@ public class DeviceViewActivity extends BaseActivity {
 		@Override
 		protected void onPostExecute(List<DeviceItem> result) {
 			super.onPostExecute(result);
-			dismissLoadDataDialog();
-			dLAdapter = new DeviceListAdapter(DeviceViewActivity.this,
-					deviceItemList);
+			dismissLoadDataDialog(LOAD_COLLECT_DEVICEITEM);
+			dLAdapter = new DeviceListAdapter(DeviceViewActivity.this,deviceItemList);
 			mListView.setAdapter(dLAdapter);
 		}
 	}
@@ -310,21 +362,38 @@ public class DeviceViewActivity extends BaseActivity {
 				}
 			});
 			return loadDataPrg;
+		case Add_LOAD_COLLECT_DATA:
+			String text2 = getString(R.string.system_setting_refreshing_collect_device_data);
+			refreshDataPrg = ProgressDialog.show(this, "", text2, true, true);
+			refreshDataPrg.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					
+				}
+			});
+			return refreshDataPrg;
 		default:
 			return null;
 		}
 	}
 
-	private void dismissLoadDataDialog() {
-		if (loadDataPrg != null && loadDataPrg.isShowing()) {
-			loadDataPrg.dismiss();
+	private void dismissLoadDataDialog(int id) {
+		if (id == Add_LOAD_COLLECT_DATA) {
+			if (refreshDataPrg != null && refreshDataPrg.isShowing()) {
+				refreshDataPrg.dismiss();
+			}
+		}else if (id == LOAD_COLLECT_DEVICEITEM) {
+			if (loadDataPrg != null && loadDataPrg.isShowing()) {
+				loadDataPrg.dismiss();
+			}
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		dismissLoadDataDialog();
+		dismissLoadDataDialog(Add_LOAD_COLLECT_DATA);
+		dismissLoadDataDialog(LOAD_COLLECT_DEVICEITEM);
 		if (!task.isCancelled()) {
 			task.cancel(true);
 		}

@@ -180,7 +180,7 @@ public class DeviceScanActivity extends BaseActivity {
 		String deviceName = clickDeviceItem.getDeviceName();
 		String loginPass = clickDeviceItem.getLoginPass();
 		String loginUser = clickDeviceItem.getLoginUser();
-		String channelSum = clickDeviceItem.getChannelSum();
+//		String channelSum = clickDeviceItem.getChannelSum();
 		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
 		
 		String svrIp = clickDeviceItem.getSvrIp();
