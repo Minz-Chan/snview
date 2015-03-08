@@ -149,6 +149,7 @@
     <string name="system_setting_alarm_pushset_pswd_wrong">密码错误，请检查后再进行验证</string>
     <string name="system_setting_alarm_pushset_user_wrong">用户名错误，请检查后再进行验证</string>
     <string name="system_setting_loading_collect_device_data">正在加载收藏设备数据，请等待</string>
+    <string name="system_setting_refreshing_collect_device_data">正在刷新收藏设备数据，请等待</string>
     <string name="system_setting_corp_content_txt_chi">福建星网锐捷安防科技有限公司  版权所有</string>
     <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
