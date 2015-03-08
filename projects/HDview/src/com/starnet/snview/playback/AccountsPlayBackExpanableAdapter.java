@@ -118,10 +118,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		} else {
 			arrow.setBackgroundResource(R.drawable.channel_listview_right_arrow_sel);
 		}
-		if (!users.get(groupPosition).isEnabled()) {
-//			((View)convertView.getParent()).setBackgroundColor(getColor(R.color.listview_bg_noisenable));
-//			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
-		}
+//		if (!users.get(groupPosition).isEnabled()) {
+////			((View)convertView.getParent()).setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+////			convertView.setBackgroundColor(getColor(R.color.listview_bg_noisenable));
+//		}
 		return convertView;
 	}
 

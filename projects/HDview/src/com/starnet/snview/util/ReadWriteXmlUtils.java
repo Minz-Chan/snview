@@ -427,15 +427,12 @@ public class ReadWriteXmlUtils {
 			sEl.addAttribute("channelNumber", dItem.getChannelSum());
 			sEl.addAttribute("loginUser", dItem.getLoginUser());
 			sEl.addAttribute("loginPass", dItem.getLoginPass());
-
-			sEl.addAttribute("defaultChannel",
-					String.valueOf(dItem.getDefaultChannel()));
+			sEl.addAttribute("platformusername", dItem.getPlatformUsername());
+			sEl.addAttribute("defaultChannel",String.valueOf(dItem.getDefaultChannel()));
 			sEl.addAttribute("serverIP", dItem.getSvrIp());
 			sEl.addAttribute("serverPort", dItem.getSvrPort());
-			sEl.addAttribute("deviceType",
-					String.valueOf(dItem.getDeviceType()));
-			sEl.addAttribute("isSecurityProtectionOpen",
-					String.valueOf(dItem.isSecurityProtectionOpen()));
+			sEl.addAttribute("deviceType",String.valueOf(dItem.getDeviceType()));
+			sEl.addAttribute("isSecurityProtectionOpen",String.valueOf(dItem.isSecurityProtectionOpen()));
 			sEl.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
 			sEl.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
 			sEl.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
