@@ -35,13 +35,14 @@ public class VideoBufferQueue {
 	 * @param src A buffer containing a complete frame
 	 * @return Bytes count which is written
 	 */
-	public int write(byte[] src) {
+	public synchronized int write(byte[] src) {
 		Log.i(TAG, "writeBufferQueue.size():" + writeBufferQueue.size());
 		if (!writeBufferQueue.isEmpty()) {
 			VideoBuffer buf = writeBufferQueue.peek();
 			buf.set(src);
 			Log.i(TAG, "writeBufferQueue set to id " + buf.id);
 			readBufferQueue.offer(writeBufferQueue.poll());
+			
 			Message msg = Message.obtain();
 			msg.what = VideoHandler.MSG_BUFFER_PROCESS;
 			videoHandler.sendMessage(msg);
@@ -82,12 +83,13 @@ public class VideoBufferQueue {
 				// data should be used before VideoBuffer's data is set another byte array reference
 				writeBufferQueue.offer(readBufferQueue.poll());
 				return data;
+			} else {
+				readBufferQueue.poll();  // if head element is null, then remove it
 			}
 		}
 		
 		return null;
 	}
-	
 	
 	
 	private class VideoBuffer {

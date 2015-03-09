@@ -33,7 +33,7 @@ public class AudioBufferQueue {
 		return write(src, 0, src.length);
 	}
 	
-	public int write(byte[] src, int offset, int size) {
+	public synchronized int write(byte[] src, int offset, int size) {
 		Log.i(TAG, "writeBufferQueue.size():" + writeBufferQueue.size());
 		if (!writeBufferQueue.isEmpty()) {
 			AudioBuffer buf = writeBufferQueue.peek();
@@ -61,13 +61,16 @@ public class AudioBufferQueue {
 		Log.i(TAG, "readBufferQueue.size():" + readBufferQueue.size());
 		if (!readBufferQueue.isEmpty()) {
 			AudioBuffer buf = readBufferQueue.peek();
-			int read = buf.get(des, offset, size);
-			Log.i(TAG, "readBufferQueue read from id " + buf.id);
-			if (buf.getState() == AudioBufferState.EMPTY) {
-				writeBufferQueue.offer(readBufferQueue.poll());
+			if (buf != null) {
+				int read = buf.get(des, offset, size);
+				Log.i(TAG, "readBufferQueue read from id " + buf.id);
+				if (buf.getState() == AudioBufferState.EMPTY) {
+					writeBufferQueue.offer(readBufferQueue.poll());
+				}
+				return read;
+			} else {
+				readBufferQueue.poll();
 			}
-			
-			return read;
 		}
 		
 		return 0;
