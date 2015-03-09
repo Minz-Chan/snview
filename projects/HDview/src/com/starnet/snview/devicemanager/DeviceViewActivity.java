@@ -299,6 +299,7 @@ public class DeviceViewActivity extends BaseActivity {
 				clickDeviceItem.setDefaultChannel(defaultChannel);
 				clickDeviceItem.setSvrIp(svrIp);
 				clickDeviceItem.setSvrPort(svrPt);
+				clickDeviceItem.setUsable(spf.getBoolean("isUsable", false));
 
 				deviceItemList.set(clickPosition, clickDeviceItem);
 				dLAdapter.notifyDataSetChanged();

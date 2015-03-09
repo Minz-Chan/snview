@@ -78,6 +78,13 @@ public class DeviceScanActivity extends BaseActivity {
 						username_et.setText(cDeviceItem.getLoginUser());
 						password_et.setText(cDeviceItem.getLoginPass());
 						defaultChannel_et.setText(String.valueOf(cDeviceItem.getDefaultChannel()));
+						if (cDeviceItem.isUsable()) {
+							YesRadioButton.setChecked(true);
+							NoRadioButton.setChecked(false);
+						}else {
+							YesRadioButton.setChecked(false);
+							NoRadioButton.setChecked(true);
+						}
 //						channelnumber_et.setText(cDeviceItem.getChannelSum());
 						try {
 							new Thread(){
@@ -100,6 +107,7 @@ public class DeviceScanActivity extends BaseActivity {
 							editor.putString("dfChl", String.valueOf(cDeviceItem.getDefaultChannel()));
 							editor.putString("svrIp", cDeviceItem.getSvrIp());
 							editor.putString("svrPt", cDeviceItem.getSvrPort());
+							editor.putBoolean("isUsable", cDeviceItem.isUsable());
 							editor.commit();
 							setResult(21, data);
 							DeviceScanActivity.this.finish();
@@ -138,7 +146,7 @@ public class DeviceScanActivity extends BaseActivity {
 		if ((dName.equals(dName2)||(dName == dName2))&&(lPass.equals(lPass2)||(lPass == lPass2))
 			&&(lUser.equals(lUser2)||(lUser == lUser2))&&(chSum.equals(chSum2)||(chSum == chSum2))
 			&&(dfChl.equals(dfChl2)||(dfChl == dfChl2))&&(svrIp.equals(svrIp2)||(svrIp == svrIp2))
-			&&(svrPt.equals(svrPt2)||(svrPt == svrPt2))) {
+			&&(svrPt.equals(svrPt2)||(svrPt == svrPt2))&&(clickDeviceItem2.isUsable()==cDeviceItem.isUsable())) {
 			result = true;
 		}
 		return result;

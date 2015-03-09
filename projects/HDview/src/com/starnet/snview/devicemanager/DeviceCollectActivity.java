@@ -284,17 +284,14 @@ public class DeviceCollectActivity extends BaseActivity {
 								saveDeviceItemToXML(saveDeviceItem,
 										DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
 							} else {
-								boolean isSame = judgeDevicItemIsSame(
-										saveDeviceItem, chooseDeviceItem);
+								boolean isSame = judgeDevicItemIsSame(saveDeviceItem, chooseDeviceItem);
 								if (isSame) {// 进行了选择
-									saveDeviceItemToXML(saveDeviceItem,
-											DeviceViewActivity.AUTO_ADD);
+									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);
 								} else {
 									if (!isConnPass) {
 										setNoConnPassDeviceItem();
 									}
-									saveDeviceItemToXML(saveDeviceItem,
-											DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
+									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
 								}
 							}
 						} catch (Exception e) {
