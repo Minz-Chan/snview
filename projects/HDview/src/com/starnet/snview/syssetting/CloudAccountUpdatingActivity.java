@@ -2,6 +2,7 @@ package com.starnet.snview.syssetting;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -17,6 +18,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,6 +28,8 @@ import android.widget.Toast;
 
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.CommonUtils;
 import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
@@ -60,6 +64,9 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	private String port;
 	private String username;
 	private String password;
+	private List<PreviewDeviceItem> previewDeviceItems; // 预览通道
+	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
+	
 	private Handler responseHandler = new Handler() {
 		@SuppressWarnings("deprecation")
 		@SuppressLint("SdCardPath")
@@ -207,6 +214,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 					try {
 //						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH,clickCloudAccount, account);
 						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickPostion, account);
+						notifyPreviewChange();
 						Intent intent = new Intent();
 						Bundle bundle = new Bundle();
 						bundle.putSerializable("edit_cloudAccount", account);
@@ -235,6 +243,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 								}
 							}
 						}.start();
+						
+						notifyPreviewChange();
 						if (isenablNoRadioBtn.isChecked()) {
 							account.setEnabled(false);
 						} else {
@@ -256,6 +266,24 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 			}
 		} else {
 			showToast(getString(R.string.system_setting_cloudaccountsetedit_null_content));
+		}
+	}
+
+	private void notifyPreviewChange() {
+		String userName = clickCloudAccount.getUsername();
+		for (PreviewDeviceItem item : previewDeviceItems) {
+			if (item.getPlatformUsername().equals(userName)) {
+				deletePDeviceItems.add(item);
+			}
+		}
+		
+		for (int i = 0; i < deletePDeviceItems.size(); i++) {
+			previewDeviceItems.remove(deletePDeviceItems.get(i));
+		}
+		
+		if (deletePDeviceItems.size() > 0) {
+			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
+			GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 		}
 	}
 
@@ -301,6 +329,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
 		clickPostion = Integer.valueOf(getIntent().getExtras().getString(
 				"clickPostion"));
+		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 	}
 
 	@Override
