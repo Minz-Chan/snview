@@ -111,18 +111,7 @@ public class ChannelListActivity extends BaseActivity {
 				nCA.setRotate(true);
 				origin_cloudAccounts.set(position, nCA);
 				chExpandableListAdapter.notifyDataSetChanged();
-				break;
-//				if (position == 0) {
-//					final CloudAccount nCA = (CloudAccount) msgD.getSerializable("netCA");
-//					nCA.setRotate(true);
-//					origin_cloudAccounts.set(position, nCA);
-//					chExpandableListAdapter = new ChannelExpandableListviewAdapter(curContext, origin_cloudAccounts, titleView);
-//					chExpandableListAdapter.setHandler(netHandler);
-//					mExpandableListView.setAdapter(chExpandableListAdapter);
-//				}else {
-//					
-//				}
-				
+				break;				
 			case STAR_LOADDATA_LOADFAI:// 使用上一次的数据进行展开
 				Bundle msgD1 = msg.getData();
 				int posit = msgD1.getInt("position");
@@ -250,8 +239,7 @@ public class ChannelListActivity extends BaseActivity {
 									Intent intent = ChannelListActivity.this
 											.getIntent();
 									intent.putExtra("DEVICE_ITEM_LIST", l);
-									ChannelListActivity.this.setResult(8,
-											intent);
+									ChannelListActivity.this.setResult(8,intent);
 									ChannelListActivity.this.finish();
 								} else {
 									showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
@@ -603,8 +591,7 @@ public class ChannelListActivity extends BaseActivity {
 									pItem.setSvrIp(dItem.getSvrIp());
 									pItem.setSvrPort(dItem.getSvrPort());
 									String deviceName = dItem.getDeviceName();
-									pItem.setPlatformUsername(dItem
-											.getPlatformUsername());
+									pItem.setPlatformUsername(dItem.getPlatformUsername());
 									int len = deviceName.length();
 									String wordLen = getString(R.string.device_manager_off_on_line_length);
 									int wordLength = Integer.valueOf(wordLen);

@@ -89,6 +89,10 @@ public class ChannelRequestTask {
 	}
 
 	protected void sendCollectDevicesToChannelListActivity() throws Exception {
+		isTimeThreadOver = true;
+		isDocumentOpt = true;
+		isRequestTimeOut = true;
+		isStartWorkRequest = true;
 		List<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
 		List<DeviceItem> deviceItemList = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
 		for (DeviceItem item : deviceItemList) {
@@ -324,10 +328,9 @@ public class ChannelRequestTask {
 			if (channeNumber != 0) {
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE
-							+ (j + 1));
+					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE + (j + 1));
 					channel.setSelected(false);
-					channel.setChannelNo((j + 1));
+					channel.setChannelNo(j);
 					channelList.add(channel);
 				}
 			}
