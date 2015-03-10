@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -36,6 +37,8 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class DeviceViewActivity extends BaseActivity {
+	
+	private final String TAG = "DeviceViewActivity";
 
 	private static final int EDIT = 20;
 	private static final int ADD = 10;
@@ -113,8 +116,7 @@ public class DeviceViewActivity extends BaseActivity {
 		mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
 				Builder builder = new Builder(DeviceViewActivity.this);
 				deleteDeviceItem = deviceItemList.get(position);
 				String titleName = deleteDeviceItem.getDeviceName();
@@ -130,6 +132,7 @@ public class DeviceViewActivity extends BaseActivity {
 								.contains(word4)))) {
 					titleName = titleName.substring(4);
 				}
+				final int pos = position;
 				builder.setTitle(getString(R.string.device_manager_deviceview_delete_device)
 						+ " " + titleName + " ?");
 				builder.setPositiveButton(
@@ -139,35 +142,32 @@ public class DeviceViewActivity extends BaseActivity {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								try {
+									
 									int previewSize = previewDeviceItems.size();
 									for (int i = 0; i < previewSize; i++) {
-										PreviewDeviceItem previewDeviceItem = previewDeviceItems
-												.get(i);
-										boolean isContained = checkPreviewDeviceIsInDevicesCollect(
-												previewDeviceItem,
-												deleteDeviceItem);
+										PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
+										boolean isContained = checkPreviewDeviceIsInDevicesCollect(previewDeviceItem,deleteDeviceItem);
 										if (isContained) {
-											deletePDeviceItems
-													.add(previewDeviceItem);// 获取需要删除的预览通道
+											deletePDeviceItems.add(previewDeviceItem);// 获取需要删除的预览通道
 										}
 									}
 									int delSize = deletePDeviceItems.size();
+									Log.i(TAG, "deleteSize："+delSize);
 									for (int i = 0; i < delSize; i++) {
-										PreviewDeviceItem delPreDeviceItem = deletePDeviceItems
-												.get(i);
-										previewDeviceItems
-												.remove(delPreDeviceItem);
+										previewDeviceItems.remove(deletePDeviceItems.get(i));
+										Log.i(TAG, "delete name"+i+":"+deletePDeviceItems.get(i).getDeviceRecordName());
 									}
+									
+									for (int i = 0; i < previewDeviceItems.size(); i++) {
+										Log.i(TAG, "preview name"+i+":"+previewDeviceItems.get(i).getDeviceRecordName());
+									}
+									
 									if (delSize > 0) {
-										GlobalApplication
-												.getInstance()
-												.getRealplayActivity()
-												.notifyPreviewDevicesContentChanged();
+//										GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
+										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
-									ReadWriteXmlUtils
-											.removeDeviceItemToCollectEquipmentXML(
-													deleteDeviceItem,
-													ChannelListActivity.filePath);
+									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem,pos,ChannelListActivity.filePath);
+//									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem,ChannelListActivity.filePath);
 								} catch (DocumentException e) {
 									e.printStackTrace();
 								} catch (IOException e) {
@@ -177,9 +177,7 @@ public class DeviceViewActivity extends BaseActivity {
 								dLAdapter.notifyDataSetChanged(); // 列表的更新操作
 							}
 						});
-				builder.setNegativeButton(
-						getString(R.string.device_manager_deviceview_cancel),
-						null);
+				builder.setNegativeButton(getString(R.string.device_manager_deviceview_cancel),null);
 				builder.show();
 				return true;
 			}

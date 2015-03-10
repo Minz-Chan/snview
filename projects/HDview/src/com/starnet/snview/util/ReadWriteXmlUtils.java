@@ -1,5 +1,6 @@
 package com.starnet.snview.util;
 
+import android.R.integer;
 import android.annotation.SuppressLint;
 
 import java.io.File;
@@ -479,22 +480,39 @@ public class ReadWriteXmlUtils {
 			if (deviceItem.getDeviceName().equals(deviceName)) {//
 				subElement.detach();
 			}
-			// String channelNumber =
-			// subElement.attributeValue("channelNumber");
-			// String loginUser = subElement.attributeValue("loginUser");
-			// String loginPass = subElement.attributeValue("loginPass");
-			// String serverIP = subElement.attributeValue("serverIP");
-			// String serverPort = subElement.attributeValue("serverPort");
-
-			/*
-			 * && (deviceItem.getChannelSum().equals(channelNumber)) &&
-			 * (deviceItem.getLoginUser().equals(loginUser)) &&
-			 * (deviceItem.getLoginPass().equals(loginPass)) &&
-			 * (deviceItem.getSvrIp().equals(serverIP)) &&
-			 * (deviceItem.getSvrPort().equals(serverPort))
-			 */
 		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(filePath);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void removeDeviceItemToCollectEquipmentXML(
+			DeviceItem deviceItem, int index,String filePath) throws DocumentException,
+			IOException {
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
 
+		int size = subElements.size();
+		for (int i = 0; i < size; i++) {
+			if (i == index) {
+				Element subElement = subElements.get(i);
+				subElement.detach();
+				break;
+//				String deviceName = subElement.attributeValue("deviceName");
+//				if (deviceItem.getDeviceName().equals(deviceName)) {//
+//					
+//				}
+			}
+		}
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
 		FileWriter fileWriter = new FileWriter(filePath);
 		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
