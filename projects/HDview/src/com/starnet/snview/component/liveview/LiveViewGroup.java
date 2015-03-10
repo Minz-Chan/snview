@@ -751,7 +751,16 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 * @param devices Devices list used for updating
 	 */
 	public void setDevices(List<PreviewDeviceItem> devices) {
-		setDevices(devices, true);
+		if (mDevices == devices) {
+			List<PreviewDeviceItem> newDevicesInstance = new ArrayList<PreviewDeviceItem>();
+			int size = devices.size();
+			for (int i = 0; i < size; i++) {
+				newDevicesInstance.add(devices.get(i));
+			}
+			setDevices(newDevicesInstance, true);
+		} else {
+			setDevices(devices, true);
+		}
 	}	
 	
 	/**
