@@ -343,6 +343,38 @@ public class ReadWriteXmlUtils {
 		xmlWriter.write(document);
 		fileWriter.close();
 	}
+	
+	@SuppressWarnings({ "deprecation", "unchecked" })
+	public static void replaceSpecifyCloudAccount(String filePath,
+			int index, CloudAccount account)
+			throws Exception {
+		File file = new File(filePath);
+		if (!file.exists()) {
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		int size = subElements.size();
+		
+		for (int i = 0; i < size; i++) {
+			Element sE = subElements.get(i);
+			if (i == index) {
+				sE.setAttributeValue("domain", account.getDomain());
+				sE.setAttributeValue("port", account.getPassword());
+				sE.setAttributeValue("username", account.getUsername());
+				sE.setAttributeValue("password", account.getPort());
+				sE.setAttributeValue("isEnabled", String.valueOf(account.isEnabled()));
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
 
 	/*** 替换特定位置的元素 ***/
 	@SuppressWarnings({ "deprecation", "unchecked" })

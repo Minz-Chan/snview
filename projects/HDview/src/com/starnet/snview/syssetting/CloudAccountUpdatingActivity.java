@@ -42,17 +42,17 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	private RadioButton isenablYseRadioBtn;
 	private RadioButton isenablNoRadioBtn;
 
-	private Button identifyBtn;									  // 验证按钮
-	private Button saveBtn;										  // 保存按钮
-	private CloudAccount identifyCloudAccount;					 // 验证后的账户
+	private Button identifyBtn; // 验证按钮
+	private Button saveBtn; // 保存按钮
+	private CloudAccount identifyCloudAccount; // 验证后的账户
 	private CloudAccount clickCloudAccount = new CloudAccount(); // 要修改的原始账户
 	private int clickPostion;
 	private SynObject synObj = new SynObject();
 
-	private final int DDNS_RESP_SUCC = 0x1100; 					// 获取设备信息成功
-	private final int DDNS_RESP_FAILURE = 0x1101;				// 获取设备信息失败
-	private final int DDNS_REQ_TIMEOUT = 0x1102;				// 设备列表请求超时
-	private final int DDNS_SYS_FAILURE = 0x1103; 				// 非DDNS返回错误
+	private final int DDNS_RESP_SUCC = 0x1100; // 获取设备信息成功
+	private final int DDNS_RESP_FAILURE = 0x1101; // 获取设备信息失败
+	private final int DDNS_REQ_TIMEOUT = 0x1102; // 设备列表请求超时
+	private final int DDNS_SYS_FAILURE = 0x1103; // 非DDNS返回错误
 
 	private Context context;
 
@@ -116,7 +116,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 					port = portExt.getText().toString().trim();
 					username = userExt.getText().toString().trim();
 					password = passwordExt.getText().toString().trim();
-					if (!server.equals("") && !port.equals("") && !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
+					if (!server.equals("") && !port.equals("")
+							&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
 						boolean isPort = IPAndPortUtils.isNetPort(port);// 检测是否是网络端口号
 						if (isPort) {
 							identifyCloudAccount = new CloudAccount();
@@ -154,17 +155,43 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				saveNewAccountToXML();
+//				CloudAccount account = getCloudAccount();
+//				if (changed(account)) {
+//					
+//				} else {
+//					
+//				}
 			}
 		});
 	}
 
-	protected void saveNewAccountToXML() {
-		CloudAccount account = getCloudAccount();
+	protected boolean changed(CloudAccount account) {
+		boolean result = false;
+		if (account == null) {
+			result = true;
+		} else {
+			String domain = clickCloudAccount.getDomain();
+			String paswod = clickCloudAccount.getPassword();
+			String port = clickCloudAccount.getPort();
+			String username = clickCloudAccount.getUsername();
+			if (domain.equals(account.getDomain())
+					|| paswod.equals(account.getPassword())
+					|| port.equals(account.getPort())
+					|| username.equals(account.getUsername())) {
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	protected void saveNewAccountToXML() {//CloudAccount account
+		final CloudAccount account = getCloudAccount();
 		String server = account.getDomain().trim();
 		String port = account.getPort().trim();
 		String username = account.getUsername().trim();
 		String password = account.getPassword().trim();
-		if (!server.equals("") && !port.equals("") && !username.equals("") && !password.equals("")) {
+		if (!server.equals("") && !port.equals("") && !username.equals("")
+				&& !password.equals("")) {
 			account.setRotate(false);
 			account.setExpanded(false);
 			if (isenablYseRadioBtn.isChecked()) {
@@ -174,14 +201,15 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 			}
 			boolean isSame = isEqualCloudAccounts(clickCloudAccount, account);
 			if (isSame) {
-				if (clickCloudAccount.isEnabled() ==account.isEnabled() ) {
+				if (clickCloudAccount.isEnabled() == account.isEnabled()) {
 					CloudAccountUpdatingActivity.this.finish();
-				}else {
+				} else {
 					try {
-						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickCloudAccount,account);
+//						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH,clickCloudAccount, account);
+						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickPostion, account);
 						Intent intent = new Intent();
 						Bundle bundle = new Bundle();
-						bundle.putSerializable("edit_cloudAccount",account);
+						bundle.putSerializable("edit_cloudAccount", account);
 						intent.putExtras(bundle);
 						setResult(3, intent);
 						CloudAccountUpdatingActivity.this.finish();
@@ -189,24 +217,35 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 						e.printStackTrace();
 					}
 				}
-			}else {
+			} else {
 				try {
 					List<CloudAccount> cAList = ReadWriteXmlUtils.getCloudAccountList(CloudAccountAddingActivity.STARUSERSFILEPATH);
-					boolean result = judgeListContainCloudAccount(account, cAList); // 检测是否已经存在账户
+					boolean result = judgeListContainCloudAccount(account,cAList); // 检测是否已经存在账户
 					if (result) {
 						showToast(getString(R.string.device_manager_setting_setedit_contain_no_need));
 					} else {
+						new Thread(){
+
+							@Override
+							public void run() {
+								try {
+									ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickPostion, account);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}.start();
 						if (isenablNoRadioBtn.isChecked()) {
 							account.setEnabled(false);
-						}else {
+						} else {
 							account.setEnabled(true);
 						}
-						CommonUtils.delTags(context,clickCloudAccount);
-						CommonUtils.setTags(context,account);
+						CommonUtils.delTags(context, clickCloudAccount);
+						CommonUtils.setTags(context, account);
 						showToast(getString(R.string.system_setting_cloudaccountupdate_edit_right));
 						Intent intent = new Intent();
 						Bundle bundle = new Bundle();
-						bundle.putSerializable("edit_cloudAccount",account);
+						bundle.putSerializable("edit_cloudAccount", account);
 						intent.putExtras(bundle);
 						setResult(3, intent);
 						CloudAccountUpdatingActivity.this.finish();
@@ -224,7 +263,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		if (bundle != null) {
-			clickCloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
+			clickCloudAccount = (CloudAccount) bundle
+					.getSerializable("cloudAccount");
 			String server = clickCloudAccount.getDomain();
 			String port = clickCloudAccount.getPort();
 			String userName = clickCloudAccount.getUsername();
@@ -259,7 +299,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
-		clickPostion = Integer.valueOf(getIntent().getExtras().getString("clickPostion"));
+		clickPostion = Integer.valueOf(getIntent().getExtras().getString(
+				"clickPostion"));
 	}
 
 	@Override
@@ -304,7 +345,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		public void run() {
 			Message msg = new Message();
 			try {
-				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,username, password, "conn");
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,
+						username, password, "conn");
 				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
@@ -329,7 +371,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		}
 	}
 
-	protected boolean isEqualCloudAccounts(CloudAccount save_CloudAccount2,CloudAccount identify_CloudAccount2) {
+	protected boolean isEqualCloudAccounts(CloudAccount save_CloudAccount2,
+			CloudAccount identify_CloudAccount2) {
 		boolean isEqual = false;
 		if ((save_CloudAccount2 == null) || (identify_CloudAccount2 == null)) {
 			return isEqual;
@@ -344,7 +387,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 			String iPass = identify_CloudAccount2.getPassword();
 			String iName = identify_CloudAccount2.getUsername();
 
-			if (sDman.equals(iDman) && sPort.equals(iPort) && sPass.equals(iPass) && sName.equals(iName)) {
+			if (sDman.equals(iDman) && sPort.equals(iPort)&& sPass.equals(iPass) && sName.equals(iName)) {
 				isEqual = true;
 			} else {
 				isEqual = false;
@@ -353,7 +396,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		}
 	}
 
-	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,List<CloudAccount> cloudAccountList2) {
+	private boolean judgeListContainCloudAccount(CloudAccount cloudAccount,
+			List<CloudAccount> cloudAccountList2) {
 		boolean result = false;
 		int size = cloudAccountList2.size();
 		for (int i = 0; i < size; i++) {
@@ -372,7 +416,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		}
 		return result;
 	}
-	
+
 	private CloudAccount getCloudAccount() {
 		CloudAccount account = new CloudAccount();
 		String domain = domainExt.getText().toString();
