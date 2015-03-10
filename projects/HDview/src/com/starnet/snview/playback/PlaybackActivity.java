@@ -14,8 +14,10 @@ import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -340,6 +342,7 @@ public class PlaybackActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContainerMenuDrawer(true);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.playback_activity);
 
@@ -347,8 +350,8 @@ public class PlaybackActivity extends BaseActivity {
 		initView();
 		
 		setVolumeControlStream(AudioManager.STREAM_MUSIC); // 指定系统音量键影响的音频流
-//		am = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-//		am.setMode(AudioManager.MODE_NORMAL);
+		
+		requestOrientationDelaySetting();
 	}
 
 	protected void dismissPlaybackReqDialog() {
@@ -1002,5 +1005,29 @@ public class PlaybackActivity extends BaseActivity {
 
 	public Handler getHandler() {
 		return mHandler;
+	}
+	
+	private void requestOrientationDelaySetting() {
+		new DelayOrientationSetting().execute(new Object());
+	}
+	
+	/**
+	 * 延迟屏幕方向起始时刻，防止以横屏方式启动程序时出现的非预期横屏情况
+	 */
+	private class DelayOrientationSetting extends AsyncTask<Object, Object, Object> {
+		@Override
+		protected Object doInBackground(Object... params) {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}			
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Object result) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+		}
 	}
 }
