@@ -722,28 +722,7 @@ public class PlaybackActivity extends BaseActivity {
 		}
 		
 		return null;
-	}
-	
-//	private AudioManager am;
-//	private int audioVolume;
-//	private boolean isSoundOn = true;  // 声音是否开启
-//	
-//	private void turnSoundOff() {
-//		if (am != null) {
-//			audioVolume = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-//			am.setStreamVolume(AudioManager.STREAM_MUSIC, 0,
-//					AudioManager.FLAG_PLAY_SOUND);
-//		}
-//	}
-//
-//	private void turnSoundOn() {
-//		if (am != null && audioVolume > 0) {
-//			am.setStreamVolume(AudioManager.STREAM_MUSIC, audioVolume,
-//					AudioManager.FLAG_PLAY_SOUND);
-//		}
-//	}
-//	
-	
+	}	
 
 	private void showTostContent(String content) {
 		Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
@@ -960,17 +939,15 @@ public class PlaybackActivity extends BaseActivity {
 	public void onPause() {
 		super.onPause();
 		closeRemoteSocket();
-//		if (!isSoundOn) {
-//			turnSoundOn();  // 避免影响其他应用的声音
-//		}
+		if (mVideoContainer.isInRecording()) {
+			setRecordButtonSelected(false);
+			mVideoContainer.stopMP4Record();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-//		if (!isSoundOn) {
-//			turnSoundOff();  // 若离开活动前为静音状态，则还原状态
-//		}
 	}
 
 	private void closeRemoteSocket() {
