@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.dom4j.DocumentException;
 
+import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -163,7 +164,7 @@ public class DeviceViewActivity extends BaseActivity {
 									}
 									
 									if (delSize > 0) {
-//										GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
+										GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
 										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 									}
 									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem,pos,ChannelListActivity.filePath);

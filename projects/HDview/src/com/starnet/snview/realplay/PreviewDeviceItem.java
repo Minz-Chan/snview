@@ -3,7 +3,7 @@ package com.starnet.snview.realplay;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class PreviewDeviceItem implements Parcelable {
+public class PreviewDeviceItem implements Parcelable, Cloneable {
 	
 	
 	private String deviceRecordName;   // 设备记录名
@@ -107,5 +107,18 @@ public class PreviewDeviceItem implements Parcelable {
 	public void setPlatformUsername(String platformUsername) {
 		this.platformUsername = platformUsername;
 	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		PreviewDeviceItem clone = (PreviewDeviceItem) super.clone();
+		clone.setDeviceRecordName(new String(deviceRecordName));
+		clone.setSvrIp(new String(svrIp));
+		clone.setSvrPort(new String(svrPort));
+		clone.setLoginUser(new String(loginUserName));
+		clone.setLoginPass(new String(loginPassword));
+		clone.setPlatformUsername(new String(platformUsername));
+		return clone;
+	}
+	
 	
 }

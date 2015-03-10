@@ -751,16 +751,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 * @param devices Devices list used for updating
 	 */
 	public void setDevices(List<PreviewDeviceItem> devices) {
-		if (mDevices == devices) {
-			List<PreviewDeviceItem> newDevicesInstance = new ArrayList<PreviewDeviceItem>();
-			int size = devices.size();
-			for (int i = 0; i < size; i++) {
-				newDevicesInstance.add(devices.get(i));
-			}
-			setDevices(newDevicesInstance, true);
-		} else {
-			setDevices(devices, true);
-		}
+		setDevices(devices, true);
 	}	
 	
 	/**
@@ -776,8 +767,19 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			throw new IllegalArgumentException("Devices can not be null or 0 size.");
 		}
 		
+		List<PreviewDeviceItem> newDevices = new ArrayList<PreviewDeviceItem>();
+		int size = devices.size();
+		try {
+			for (int i = 0; i < size; i++) {
+				newDevices.add((PreviewDeviceItem) devices.get(i).clone());  // Use the deep copy object
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return;
+		}
+		
 		int oldDevicesSize = mDevices == null ? 0 : mDevices.size();
-		mDevices = devices;
+		mDevices = newDevices;
 		mToBeRemovedLiveviews.clear();
 		if (relayout) {
 			if (oldDevicesSize != mDevices.size() || mDevices.size() == 1) {

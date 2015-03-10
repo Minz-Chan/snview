@@ -1189,13 +1189,15 @@ public class RealplayActivity extends BaseActivity {
 					"Invalid parameter devices, null or zero size.");
 		}
 
-		mPreviewDevices.clear();
-		for (int i = 0; i < devices.size(); i++) {
-			mPreviewDevices.add(devices.get(i));
-		}
+//		mPreviewDevices.clear();
+//		for (int i = 0; i < devices.size(); i++) {
+//			mPreviewDevices.add(devices.get(i));
+//		}
 
 		mLiveviewGroup.setVisibility(View.VISIBLE);
 		mLiveviewGroup.setDevices(mPreviewDevices);
+		
+		mPreviewDevices = devices;
 		
 		if (mIsStartedCompleted) {
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
