@@ -463,6 +463,11 @@ public class PlaybackActivity extends BaseActivity {
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
+				if (mVideoContainer.isInRecording()) {
+					showTostContent(getString(R.string.playback_msg_canot_random));
+					return;
+				}
+				
 				if (pbcTask != null) {
 					random(calendar);
 				}
