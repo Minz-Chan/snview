@@ -270,20 +270,22 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	}
 
 	private void notifyPreviewChange() {
-		String userName = clickCloudAccount.getUsername();
-		for (PreviewDeviceItem item : previewDeviceItems) {
-			if (item.getPlatformUsername().equals(userName)) {
-				deletePDeviceItems.add(item);
+		if (previewDeviceItems.size()>0) {
+			String userName = clickCloudAccount.getUsername();
+			for (PreviewDeviceItem item : previewDeviceItems) {
+				if (item.getPlatformUsername().equals(userName)) {
+					deletePDeviceItems.add(item);
+				}
 			}
-		}
-		
-		for (int i = 0; i < deletePDeviceItems.size(); i++) {
-			previewDeviceItems.remove(deletePDeviceItems.get(i));
-		}
-		
-		if (deletePDeviceItems.size() > 0) {
-			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
-			GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			
+			for (int i = 0; i < deletePDeviceItems.size(); i++) {
+				previewDeviceItems.remove(deletePDeviceItems.get(i));
+			}
+			
+			if (deletePDeviceItems.size() > 0) {
+				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			}
 		}
 	}
 
