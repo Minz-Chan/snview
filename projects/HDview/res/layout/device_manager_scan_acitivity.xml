@@ -328,7 +328,7 @@
                 </RadioGroup>
             </RelativeLayout>
 
-            <RelativeLayout
+            <!-- <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" >
 
@@ -341,7 +341,7 @@
                     android:text="@string/device_manager_scan_layout_start_scan"
                     android:textColor="@color/black"
                     android:textSize="18sp" />
-            </RelativeLayout>
+            </RelativeLayout> -->
         </LinearLayout>
     </ScrollView>
 
