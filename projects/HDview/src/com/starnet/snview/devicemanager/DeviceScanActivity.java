@@ -77,7 +77,12 @@ public class DeviceScanActivity extends BaseActivity {
 						port_et.setText(cDeviceItem.getSvrPort());
 						username_et.setText(cDeviceItem.getLoginUser());
 						password_et.setText(cDeviceItem.getLoginPass());
-						defaultChannel_et.setText(String.valueOf(cDeviceItem.getDefaultChannel()));
+						
+						String number = String.valueOf(cDeviceItem.getDefaultChannel());
+						if (number.equals("0")) {
+							number = "1";
+						}
+						defaultChannel_et.setText(number);
 						if (cDeviceItem.isUsable()) {
 							YesRadioButton.setChecked(true);
 							NoRadioButton.setChecked(false);
@@ -190,6 +195,9 @@ public class DeviceScanActivity extends BaseActivity {
 		String loginUser = clickDeviceItem.getLoginUser();
 //		String channelSum = clickDeviceItem.getChannelSum();
 		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
+		if (defaultChannel.equals("0")) {
+			defaultChannel = "1";
+		}
 		
 		String svrIp = clickDeviceItem.getSvrIp();
 		String svrPort = clickDeviceItem.getSvrPort();

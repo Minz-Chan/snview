@@ -241,12 +241,15 @@ public class DeviceEditableActivity extends BaseActivity {
 		String loginPass = clickDeviceItem.getLoginPass();
 		String loginUser = clickDeviceItem.getLoginUser();
 		String deviceName = clickDeviceItem.getDeviceName();
-		String channelSum = clickDeviceItem.getChannelSum();
+//		String channelSum = clickDeviceItem.getChannelSum();
 		String word4 = getString(R.string.device_manager_online_en);
 		String word1 = getString(R.string.device_manager_offline_en);
 		String wordLen = getString(R.string.device_manager_off_on_line_length);
 		String defaultChannel = String.valueOf(clickDeviceItem
 				.getDefaultChannel());
+		if (defaultChannel.equals("0")) {
+			defaultChannel = "1";
+		}
 
 		int len = Integer.valueOf(wordLen);
 		if (deviceName.length() > (len - 1)) {
