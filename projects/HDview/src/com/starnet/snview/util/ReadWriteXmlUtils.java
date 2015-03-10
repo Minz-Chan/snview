@@ -1,6 +1,5 @@
 package com.starnet.snview.util;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 
 import java.io.File;
@@ -412,6 +411,7 @@ public class ReadWriteXmlUtils {
 						String.valueOf(item.isConnPass()));
 				sEl.setAttributeValue("isUsable",
 						String.valueOf(item.isUsable()));
+				sEl.setAttributeValue("platformusername", item.getPlatformUsername());
 				List<Element> elList = sEl.elements();
 				for (int j = 0; j < elList.size(); j++) {
 					elList.get(j).detach();

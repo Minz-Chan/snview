@@ -105,8 +105,7 @@ public class DeviceViewActivity extends BaseActivity {
 						intent.setClass(context, DeviceScanActivity.class);
 						Bundle bundle = new Bundle();
 						bundle.putInt("position", clickPosition);
-						bundle.putSerializable("clickDeviceItem",
-								clickDeviceItem);
+						bundle.putSerializable("clickDeviceItem",clickDeviceItem);
 						intent.putExtras(bundle);
 						startActivityForResult(intent, 20);
 

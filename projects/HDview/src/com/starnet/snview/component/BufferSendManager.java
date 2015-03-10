@@ -141,7 +141,7 @@ public class BufferSendManager {
 			outBuffer.putInt(message.getDeviceId()); // put deviceId
 			outBuffer.put((byte) 1); // should be set to 1 to be compatible with
 										// the previous version
-			outBuffer.put((byte) (message.getChannel() - 1)); // put channel,
+			outBuffer.put((byte) (message.getChannel())); // put channel,
 																// start from 0
 			outBuffer.put((byte) message.getReserve()[0]); // reserve[0]
 			outBuffer.put((byte) message.getReserve()[1]); // reserve[1]

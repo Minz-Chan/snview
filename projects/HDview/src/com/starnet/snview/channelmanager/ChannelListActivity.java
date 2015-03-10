@@ -81,7 +81,6 @@ public class ChannelListActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case CONNECTIFYIDENTIFY_SUCCESS:
-//				showToast("连接验证成功");
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
 					gotoChannelListViewActivity(msg);
@@ -236,8 +235,7 @@ public class ChannelListActivity extends BaseActivity {
 									PreviewDeviceItem p = previewChannelList.get(0);
 									PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
 									previewChannelList.toArray(l);
-									Intent intent = ChannelListActivity.this
-											.getIntent();
+									Intent intent = ChannelListActivity.this.getIntent();
 									intent.putExtra("DEVICE_ITEM_LIST", l);
 									ChannelListActivity.this.setResult(8,intent);
 									ChannelListActivity.this.finish();
@@ -596,12 +594,10 @@ public class ChannelListActivity extends BaseActivity {
 									String wordLen = getString(R.string.device_manager_off_on_line_length);
 									int wordLength = Integer.valueOf(wordLen);
 									if (len >= wordLength) {
-										String showName = deviceName.substring(
-												0, wordLength);
+										String showName = deviceName.substring(0, wordLength);
 										String word3 = getString(R.string.device_manager_online_en);
 										String word4 = getString(R.string.device_manager_offline_en);
-										if (showName.contains(word3)
-												|| showName.contains(word4)) {
+										if (showName.contains(word3)|| showName.contains(word4)) {
 											deviceName = deviceName
 													.substring(wordLength);
 										}

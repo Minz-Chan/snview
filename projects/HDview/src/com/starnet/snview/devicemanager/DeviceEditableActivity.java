@@ -35,6 +35,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	private DeviceItem clickDeviceItem;
 	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
+	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +67,7 @@ public class DeviceEditableActivity extends BaseActivity {
 				String cName = DeviceEditableActivity.this
 						.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
-						&& !svrPt.trim().equals("") && !lUser.trim().equals("") && !dfChl
-						.trim().equals(""))) {// 检查信息是否为空
+						&& !svrPt.trim().equals("") && !lUser.trim().equals("") && !dfChl.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);
 					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 					if (isPort && isIp) {
@@ -77,7 +77,7 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
 						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
-						boolean isBelong = isBelongDeviceItem(clickDeviceItem,mPreviewDeviceItems);
+						boolean isBelong = isBelongDeviceItem(clickDeviceItem);
 						// 并返回原来的界面
 						Intent data = new Intent();
 						Bundle bundle = new Bundle();
@@ -99,9 +99,10 @@ public class DeviceEditableActivity extends BaseActivity {
 								temp.setChannel(channelids.get(i));
 								mPreviewDeviceItems.set(indexs.get(i), temp);
 							}
-							GlobalApplication.getInstance()
-									.getRealplayActivity()
-									.notifyPreviewDevicesContentChanged();
+							
+							if (clickDeviceItem.isUsable()&&noRadioButton.isChecked()) {
+								setNewPreviewDeviceItems();
+							}
 						}
 						clickDeviceItem.setUsable(yesRadioButton.isChecked());
 						bundle.putSerializable("cDeviceItem", clickDeviceItem);
@@ -110,42 +111,55 @@ public class DeviceEditableActivity extends BaseActivity {
 						DeviceEditableActivity.this.finish();
 					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else if (!isPort && isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else {
 						String text = getString(R.string.device_manager_deviceeditable_ip_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					String text = getString(R.string.device_manager_edit_notnull);
-					Toast.makeText(DeviceEditableActivity.this, text,
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
 	}
 
-	protected boolean isBelongDeviceItem(DeviceItem clickDeviceItem2,
-			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+	protected void setNewPreviewDeviceItems() {
+		if (mPreviewDeviceItems.size() > 0) {
+			for (PreviewDeviceItem item : mPreviewDeviceItems) {
+				if (item.getPlatformUsername().equals(
+						clickDeviceItem.getPlatformUsername())
+						&& item.getDeviceRecordName().equals(
+								clickDeviceItem.getDeviceName())) {
+					deletePDeviceItems.add(item);
+				}
+			}
+
+			for (int i = 0; i < deletePDeviceItems.size(); i++) {
+				mPreviewDeviceItems.remove(deletePDeviceItems.get(i));
+			}
+
+			if (deletePDeviceItems.size() > 0) {
+				GlobalApplication.getInstance().getRealplayActivity()
+						.setPreviewDevices(mPreviewDeviceItems);
+				GlobalApplication.getInstance().getRealplayActivity()
+						.notifyPreviewDevicesContentChanged();
+			}
+		}
+	}
+
+	protected boolean isBelongDeviceItem(DeviceItem clickDeviceItem2) {
 		boolean isBelong = false;
-		if (mPreviewDeviceItems2 == null) {
+		if (mPreviewDeviceItems == null) {
 			return false;
 		}
-
-		if ((mPreviewDeviceItems2 != null)
-				&& (mPreviewDeviceItems2.size() == 0)) {
-			return false;
-		}
-
-		int size = mPreviewDeviceItems2.size();
+		int size = mPreviewDeviceItems.size();
 		String clickUsername = clickDeviceItem2.getPlatformUsername();
 		for (int i = 0; i < size; i++) {
-			PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems2.get(i);
+			PreviewDeviceItem previewDeviceItem = mPreviewDeviceItems.get(i);
 			String userName = previewDeviceItem.getPlatformUsername();
 			if (clickUsername.equals(userName)) {
 				isBelong = true;
@@ -179,9 +193,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		return previewInfo;
 	}
 
-	protected boolean isBelongAndSetPreviewDeviceItem(
-			DeviceItem clickDeviceItem2,
-			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+	protected boolean isBelongAndSetPreviewDeviceItem(DeviceItem clickDeviceItem2,List<PreviewDeviceItem> mPreviewDeviceItems2) {
 		boolean isBelong = false;
 		if (mPreviewDeviceItems2 == null) {
 			return false;
@@ -212,8 +224,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 
-		mPreviewDeviceItems = GlobalApplication.getInstance()
-				.getRealplayActivity().getPreviewDevices();
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
@@ -231,8 +242,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
 			if (bundle != null) {
-				clickDeviceItem = (DeviceItem) bundle
-						.getSerializable("clickDeviceItem");
+				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
 			}
 		}
 

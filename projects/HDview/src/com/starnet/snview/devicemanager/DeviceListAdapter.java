@@ -8,8 +8,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DeviceListAdapter extends BaseAdapter {
@@ -52,6 +54,7 @@ public class DeviceListAdapter extends BaseAdapter {
 			convertView = this.mLayoutInflater.inflate(R.layout.device_listview_item_layout_other, null);
 		}
 		
+		ImageView img_device = (ImageView)convertView.findViewById(R.id.img_device);
 		TextView deviceItemName = (TextView) convertView.findViewById(R.id.device_item_name);
 		DeviceItem item  = mDeviceList.get(position);
 		String deviceName = item.getDeviceName();
@@ -62,6 +65,13 @@ public class DeviceListAdapter extends BaseAdapter {
 			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
 		} else {
 			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
+		}
+		
+		if (!item.isUsable()) {
+			img_device.setBackgroundColor(mContext.getResources().getColor(R.color.menu_drawer_bg));
+		}else {
+//			img_device.setBackgroundColor(R.drawable.list_equipment);
+			img_device.setBackgroundResource(R.drawable.list_equipment);
 		}
 		
 		return convertView;

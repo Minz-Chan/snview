@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BufferSendManager;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.protocol.message.LoginRequest;
@@ -19,6 +20,7 @@ import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -108,8 +110,7 @@ public class ConnectionIdentifyTask {
 		};
 	}
 
-	public ConnectionIdentifyTask(Handler handler,
-			CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
+	public ConnectionIdentifyTask(Handler handler,CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
 			int childPos) {
 		this.mHandler = handler;
 		this.mDeviceItem = dItem;
@@ -247,6 +248,11 @@ public class ConnectionIdentifyTask {
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
+				try {
+					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			if (!isCanceled) {
@@ -256,6 +262,11 @@ public class ConnectionIdentifyTask {
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
+				try {
+					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -275,6 +286,11 @@ public class ConnectionIdentifyTask {
 		mDeviceItem.setChannelList(channelList);
 		mDeviceItem.setIdentify(true);
 		mDeviceItem.setConnPass(false);
+		try {
+			ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/** 设置验证后的设备 ***/
@@ -292,6 +308,11 @@ public class ConnectionIdentifyTask {
 		mDeviceItem.setChannelList(channelList);
 		mDeviceItem.setIdentify(true);
 		mDeviceItem.setConnPass(true);
+		try {
+			ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/** 发送网络连接验证请求 **/
@@ -347,6 +368,11 @@ public class ConnectionIdentifyTask {
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
+			}
+			try {
+				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		shouldTimeOutOver = true;

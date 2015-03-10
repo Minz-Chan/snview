@@ -27,8 +27,6 @@ import android.widget.TextView;
 @SuppressLint("SdCardPath")
 public class ButtonOnTouchListener implements OnTouchListener {
 
-	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-
 	private int childPos;
 	private int parentPos;
 	private Context context;
@@ -98,8 +96,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 			String state = getChannelSelectNum(deviceItem);
 
 			if ((state == "half") || (state.equals("half"))) {
-				state_button
-						.setBackgroundResource(R.drawable.channellist_select_alled);
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 				// 将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -108,8 +105,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				cela.notify_number = 2;
 				cela.notifyDataSetChanged();
 			} else if ((state == "all") || (state.equals("all"))) {
-				state_button
-						.setBackgroundResource(R.drawable.channellist_select_empty);
+				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 				// 将通道列表的状态写入到指定的XML状态文件中,1、修改某一组中某一个选项的通道列表的信息
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
@@ -118,22 +114,18 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				cela.notify_number = 2;
 				cela.notifyDataSetChanged();
 			} else { /* zz_empty_select */
-				state_button
-						.setBackgroundResource(R.drawable.channellist_select_alled);
+				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 				// 将通道列表的状态写入到指定的XML状态文件中 ;1、修改某一组中某一个选项的通道列表的信息
 				int channelSize = channels.size();
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
 				}
 				startVisitNet();
-//				cela.notify_number = 2;
-//				cela.notifyDataSetChanged();
 			}
 
 			int number = getPreviewListFromCloudAccounts(cloudAccountList);
 			if (number == 0) {
-				titleView.setText(context
-						.getString(R.string.navigation_title_channel_list));// 设置列表标题名
+				titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
 			} else {
 				titleView.setText(context
 						.getString(R.string.navigation_title_channel_list)

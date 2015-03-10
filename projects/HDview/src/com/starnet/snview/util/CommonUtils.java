@@ -29,6 +29,7 @@ public class CommonUtils {
 			tagList.add(uName + "" + pswd);
 			PushManager.delTags(context, tagList);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -40,7 +41,7 @@ public class CommonUtils {
 			tagList.add(uName + "" + pswd);
 			PushManager.setTags(context, tagList);
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 }

@@ -182,8 +182,9 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					progress.dismiss();
-					if (!task.isCancelled()) {
+					if (task!=null&&!task.isCancelled()) {
 						task.cancel(true);
+						task = null;
 					}
 				}
 			});
@@ -197,11 +198,13 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 			dissmissIdentifyDialog();
-			if (!task.isCancelled()) {
+			if (task!=null&&!task.isCancelled()) {
 				task.cancel(true);
+				task = null;
 			}
+			CloudAccountAddingActivity.this.finish();
 		}
-		return false;
+		return true;
 	}
 
 	public class IdentifyTask extends AsyncTask<Void, Void, String> {
