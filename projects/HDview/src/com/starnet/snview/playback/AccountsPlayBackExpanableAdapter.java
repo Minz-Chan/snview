@@ -159,7 +159,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 				intent.putExtra("child", clickChild);
 				intent.putExtra("device", clickDItem);
 				if (clickGroup == 0) {
-					if (clickDItem.isIdentify()) {
+					if (clickDItem.isConnPass()) {
 						intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
 					}else {//进行联网验证

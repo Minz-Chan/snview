@@ -167,7 +167,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	}
 	
 	private void startVisitNet(){
-		if (!deviceItem.isIdentify()&&NetWorkUtils.checkNetConnection(context)) {// 需要进行验证
+		if (!deviceItem.isConnPass()&&NetWorkUtils.checkNetConnection(context)) {// 需要进行验证
 			isTouch = true;
 			((ChannelListActivity) context).showDialog(CONNIDENTIFYDIALOG);
 			connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,deviceItem, parentPos, childPos);

@@ -351,7 +351,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 		button_channel_list = (Button) convertView.findViewById(R.id.button_channel_list);
 		clickCloudAccount = groupAccountList.get(groupPosition);
 
-		if ((groupPosition == 0) && clickCloudAccount.getDeviceList().get(childPosition).isIdentify()&& !clickCloudAccount.getDeviceList().get(childPosition).isConnPass()) {//
+		if ((groupPosition == 0) && !clickCloudAccount.getDeviceList().get(childPosition).isConnPass()) {//clickCloudAccount.getDeviceList().get(childPosition).isIdentify()&& 
 			button_channel_list.setVisibility(View.GONE);
 		} else {
 			clickL = new ButtonOnclickListener(context, handler,ChannelExpandableListviewAdapter.this, clickCloudAccount,groupAccountList, groupPosition, childPosition,state_button, titleView);
