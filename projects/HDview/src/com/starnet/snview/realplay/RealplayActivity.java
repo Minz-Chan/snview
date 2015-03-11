@@ -1184,10 +1184,10 @@ public class RealplayActivity extends BaseActivity {
 	 * @param devices
 	 */
 	public void setPreviewDevices(List<PreviewDeviceItem> devices) {
-		if (devices == null || devices.size() == 0) {
-			throw new IllegalArgumentException(
-					"Invalid parameter devices, null or zero size.");
-		}
+//		if (devices == null || devices.size() == 0) {
+//			throw new IllegalArgumentException(
+//					"Invalid parameter devices, null or zero size.");
+//		}
 
 //		mPreviewDevices.clear();
 //		for (int i = 0; i < devices.size(); i++) {

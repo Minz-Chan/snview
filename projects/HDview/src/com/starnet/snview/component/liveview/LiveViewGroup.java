@@ -764,8 +764,12 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	 */
 	public void setDevices(List<PreviewDeviceItem> devices, boolean relayout) {
 		if (devices == null || devices.size() == 0) {
-			throw new IllegalArgumentException("Devices can not be null or 0 size.");
+			//throw new IllegalArgumentException("Devices can not be null or 0 size.");
+			setVisibility(View.GONE);
+			return;
 		}
+		
+		setVisibility(View.VISIBLE);
 		
 		List<PreviewDeviceItem> newDevices = new ArrayList<PreviewDeviceItem>();
 		int size = devices.size();
@@ -798,6 +802,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				prepareCurrentScreenLiveViews(devices);
 			}
 		}
+	}
+	
+	private void findLiveviewsToBeRemoved(List<PreviewDeviceItem> oldDevices, List<PreviewDeviceItem> newDevices) {
+		mToBeRemovedLiveviews = null;
 	}
 	
 	public boolean isPTZMode() {
@@ -843,7 +851,16 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	}
 	
 	private synchronized void realCallToPreviewCurrentScreen() {
-		Log.d(TAG, "previewCurrentScreen()");
+		Log.d(TAG, "realCallToPreviewCurrentScreen()");
+		
+		// when view is in background, requestLayout() call has not 
+		// been completed. A layout request should be requested again.
+		if (!isLayoutCompleted()) { 
+			requestPreview = true;
+			requestLayout();
+			return;
+		}
+		
 		for (LiveViewItemContainer c1 : mCurrentLiveviews) {
 			if (!c1.isConnected() && !c1.isConnecting()) {
 				//c1.reset(true);
