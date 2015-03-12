@@ -63,6 +63,10 @@ public class ChannelListViewActivity extends Activity {
 		String titleName = bundle.getString("deviceName");
 		
 		CloudAccount clickCloudAccount = (CloudAccount) bundle.getSerializable("clickCloudAccount");//获取用户单击的星云账号...
+//		if (clickCloudAccount == null) {
+//			clickCloudAccount = new CloudAccount();
+//			setCloudAccount(clickCloudAccount);
+//		}
 		writeCloudAccount = clickCloudAccount;	
 		//判断点击的设备通道列表图标所对应的文档的用户
 		int channelSize = 0;
@@ -90,10 +94,20 @@ public class ChannelListViewActivity extends Activity {
 		((View)titleView.getParent().getParent()).setBackgroundColor(Color.BLACK);
 		((View)titleView.getParent().getParent()).setPadding(0, 5, 0, 0);
 		
-//		((View)titleView.getParent()).setBackgroundColor(Color.BLACK);
 		ChannelListViewActivity.this.setTitle(titleName);//设置标题栏
 		initWadgetsAndAddListeners();
 	}
+
+//	private void setCloudAccount(CloudAccount clickCloudAccount) {
+//		clickCloudAccount.setUsername(getString(R.string.device_manager_collect_device));
+//		clickCloudAccount.setPort("8080");
+//		clickCloudAccount.setEnabled(true);
+//		clickCloudAccount.setRotate(true);
+//		List<DeviceItem>dList = new ArrayList<DeviceItem>();
+//		DeviceItem dItem = new DeviceItem();
+//		dItem
+//		clickCloudAccount.setDeviceList(dList);
+//	}
 
 	private void initWadgetsAndAddListeners() {
 		context = ChannelListViewActivity.this;

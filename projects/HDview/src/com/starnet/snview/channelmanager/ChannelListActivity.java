@@ -115,8 +115,6 @@ public class ChannelListActivity extends BaseActivity {
 				Bundle msgD1 = msg.getData();
 				int posit = msgD1.getInt("position");
 				CloudAccount netCA1 = (CloudAccount) msgD1.getSerializable("netCA");
-//				List<CloudAccount> caList = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
-//				setCloudAccountFromLast(netCA1, caList);
 				netCA1.setRotate(true);
 				origin_cloudAccounts.set(posit, netCA1);
 				chExpandableListAdapter.notifyDataSetChanged();
@@ -125,8 +123,6 @@ public class ChannelListActivity extends BaseActivity {
 				msgD = msg.getData();
 				int positi = msgD.getInt("position");
 				CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
-//				List<CloudAccount> caList1 = ReadWriteXmlUtils.readCloudAccountFromXML(CLOUD_ACCOUNT_PATH);
-//				setCloudAccountFromLast(netCA, caList1);
 				netCA.setRotate(true);
 				origin_cloudAccounts.set(positi, netCA);
 				chExpandableListAdapter.notifyDataSetChanged();
@@ -618,9 +614,8 @@ public class ChannelListActivity extends BaseActivity {
 
 	/** 从设置界面中获取用户信息 */
 	private List<CloudAccount> getCloudAccountInfoFromUI() {
-		CloudAccountInfoOpt caUtil = new CloudAccountInfoOpt();
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
-		accoutInfo = caUtil.getCloudAccountInfoFromUI(getString(R.string.device_manager_collect_device));
+		accoutInfo = new CloudAccountInfoOpt().getCloudAccountInfoFromUI(getString(R.string.device_manager_collect_device));
 		return accoutInfo;
 	}
 
@@ -792,7 +787,9 @@ public class ChannelListActivity extends BaseActivity {
 					dismissDialog(CONNIDENTIFYDIALOG);
 					isCanceled = true;
 					isClickCancel = true;
-					chExpandableListAdapter.setCancel(true);// 不进行验证
+					if (chExpandableListAdapter!=null) {
+						chExpandableListAdapter.setCancel(true);// 不进行验证
+					}					
 				}
 			});
 			return prg;
@@ -805,16 +802,12 @@ public class ChannelListActivity extends BaseActivity {
 		Intent intent = new Intent();
 		Bundle data2 = msg.getData();
 		intent.setClass(curContext, ChannelListViewActivity.class);
+		CloudAccount acount = (CloudAccount) data2.getSerializable("clickCloudAccount");
 		data2.putString("deviceName", data2.getString("deviceName"));
-		data2.putString("childPosition",
-				String.valueOf(data2.getInt("childPos")));
-		data2.putString("groupPosition",
-				String.valueOf(data2.getInt("parentPos")));
-		DeviceItem dItem = (DeviceItem) data2
-				.getSerializable("identifyDeviceItem");
-		data2.putSerializable("clickCloudAccount",
-				data2.getSerializable("clickCloudAccount"));
-		data2.putSerializable("dItem", dItem);
+		data2.putString("childPosition",String.valueOf(data2.getInt("childPos")));
+		data2.putString("groupPosition",String.valueOf(data2.getInt("parentPos")));
+		data2.putSerializable("clickCloudAccount",acount);
+//		data2.putSerializable("dItem", data2.getSerializable("identifyDeviceItem"));
 		intent.putExtras(data2);
 		startActivityForResult(intent, 31);
 	}

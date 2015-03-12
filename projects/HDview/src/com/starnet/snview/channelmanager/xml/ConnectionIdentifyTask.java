@@ -78,6 +78,7 @@ public class ConnectionIdentifyTask {
 						if (timeCount == timeOut) {
 							canRun = false;
 							if (!isCanceled) {// && !shouldTimeOutOver
+								exit();
 								onTimeOut();
 							}
 						}
@@ -101,6 +102,7 @@ public class ConnectionIdentifyTask {
 						isConnectedOver = true;
 						isOnWorkdIOErr = true;
 						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver && !isOnConnectionWrong) {
+							exit();
 							onConnectionWrong();
 						}
 						shouldTimeOutOver = true;
@@ -184,6 +186,7 @@ public class ConnectionIdentifyTask {
 	/** ??错误的操作 ***/
 	protected void onWorkdIOErr() {
 		if (!shouldTimeOutOver && !isCanceled && !isOnWorkdIOErr) {
+			
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
@@ -239,6 +242,7 @@ public class ConnectionIdentifyTask {
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
+				exit();
 			}
 		} else if (len == 20) {
 			if (!isCanceled) {
@@ -249,6 +253,7 @@ public class ConnectionIdentifyTask {
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 				try {
+					exit();
 					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -263,6 +268,7 @@ public class ConnectionIdentifyTask {
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 				try {
+					exit();
 					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -371,6 +377,7 @@ public class ConnectionIdentifyTask {
 			}
 			try {
 				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+				exit();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -400,5 +407,17 @@ public class ConnectionIdentifyTask {
 		shouldTimeOutOver = true;
 		isConnectedOver = true;
 		isOnWorkdIOErr = true;
+		exit();
+	}
+	
+	private void exit(){
+		if ( (client != null) && client.isConnected()) {
+			try {
+				client.close();
+				client = null;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

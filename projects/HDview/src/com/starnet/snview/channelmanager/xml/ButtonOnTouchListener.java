@@ -38,15 +38,13 @@ public class ButtonOnTouchListener implements OnTouchListener {
 	private ConnectionIdentifyTask connTask;
 	private final int CONNIDENTIFYDIALOG = 5;
 	private List<CloudAccount> cloudAccountList;// 星云账号信息
-	CloudAccount clickCloudAccount;
 	private Handler handler;
 
 	public ButtonOnTouchListener(Context context,Handler handler,
-			ChannelExpandableListviewAdapter cela,CloudAccount clickCloudAccount,TextView titleView,
+			ChannelExpandableListviewAdapter cela,TextView titleView,
 			int groupPosition, int childPosition, Button state_button,
 			List<CloudAccount> groupAccountList) {
 		super();
-		this.clickCloudAccount = clickCloudAccount;
 		this.handler = handler;
 		this.parentPos = groupPosition;
 		this.childPos = childPosition;
@@ -55,46 +53,15 @@ public class ButtonOnTouchListener implements OnTouchListener {
 		this.cela = cela;
 		this.titleView = titleView;
 		this.context = context;
-	};
-	
-	public ButtonOnTouchListener(Context context,
-			ChannelExpandableListviewAdapter cela, TextView titleView,
-			int groupPosition, int childPosition, Button state_button,
-			List<CloudAccount> groupAccountList) {
-		super();
-		this.parentPos = groupPosition;
-		this.childPos = childPosition;
-		this.state_button = state_button;
-		this.cloudAccountList = groupAccountList;
-		this.cela = cela;
-		this.titleView = titleView;
-		this.context = context;
-	};
-
-	public ButtonOnTouchListener(Context context,
-			ChannelExpandableListviewAdapter cela, TextView titleView,
-			int groupPosition, int childPosition, Button state_button,
-			List<CloudAccount> groupAccountList, ConnectionIdentifyTask connTask) {
-		super();
-		this.parentPos = groupPosition;
-		this.childPos = childPosition;
-		this.state_button = state_button;
-		this.cloudAccountList = groupAccountList;
-		this.cela = cela;
-		this.titleView = titleView;
-		this.context = context;
-		this.connTask = connTask;
-	};
+	};//CloudAccount clickCloudAccount,
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-
 		if (!ClickUtils.isFastDoubleClick()) {
 			selectCloudAccount = cloudAccountList.get(parentPos);
 			deviceItem = selectCloudAccount.getDeviceList().get(childPos);
 			List<Channel> channels = deviceItem.getChannelList();
 			String state = getChannelSelectNum(deviceItem);
-
 			if ((state == "half") || (state.equals("half"))) {
 				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 				// 将通道列表的状态写入到指定的XML状态文件中;1、修改某一组中某一个选项的通道列表的信息
@@ -102,8 +69,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
 				}
-				cela.notify_number = 2;
-				cela.notifyDataSetChanged();
 			} else if ((state == "all") || (state.equals("all"))) {
 				state_button.setBackgroundResource(R.drawable.channellist_select_empty);
 				// 将通道列表的状态写入到指定的XML状态文件中,1、修改某一组中某一个选项的通道列表的信息
@@ -111,8 +76,6 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(false);
 				}
-				cela.notify_number = 2;
-				cela.notifyDataSetChanged();
 			} else { /* zz_empty_select */
 				state_button.setBackgroundResource(R.drawable.channellist_select_alled);
 				// 将通道列表的状态写入到指定的XML状态文件中 ;1、修改某一组中某一个选项的通道列表的信息
@@ -120,11 +83,12 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
 				}
-				if (parentPos==0) {
+				if (parentPos == 0) {
 					startVisitNet();
 				}
 			}
-
+			cela.notify_number = 2;
+			cela.notifyDataSetChanged();
 			int number = getPreviewListFromCloudAccounts(cloudAccountList);
 			if (number == 0) {
 				titleView.setText(context.getString(R.string.navigation_title_channel_list));// 设置列表标题名
@@ -143,8 +107,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					@Override
 					public void run() {
 						super.run();
-						List<DeviceItem> deviceList = selectCloudAccount
-								.getDeviceList();
+						List<DeviceItem> deviceList = selectCloudAccount.getDeviceList();
 						int size = deviceList.size();
 						for (int i = 0; i < size; i++) {
 							try {
@@ -159,20 +122,19 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				thread.start();
 			}
 
-			List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils
-					.getPreviewChannelList(cloudAccountList);
-			GlobalApplication.getInstance().getRealplayActivity()
-					.setPreviewDevices_copy(touchPreviewItem);
+			List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils.getPreviewChannelList(cloudAccountList);
+			GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(touchPreviewItem);
 
 		}
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void startVisitNet(){
 		if (!deviceItem.isConnPass()&&NetWorkUtils.checkNetConnection(context)) {// 需要进行验证
 			isTouch = true;
 			((ChannelListActivity) context).showDialog(CONNIDENTIFYDIALOG);
-			connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,deviceItem, parentPos, childPos);
+			connTask = new ConnectionIdentifyTask(handler, cloudAccountList.get(parentPos),deviceItem, parentPos, childPos);
 			connTask.setContext(context);
 			connTask.start();
 		}else {
