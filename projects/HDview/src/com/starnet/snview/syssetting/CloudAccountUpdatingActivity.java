@@ -263,7 +263,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	}
 
 	private void notifyPreviewChange() {
-		if (previewDeviceItems.size()>0) {
+		if ((previewDeviceItems!=null)&&previewDeviceItems.size()>0) {
 			String userName = clickCloudAccount.getUsername();
 			for (PreviewDeviceItem item : previewDeviceItems) {
 				if (item.getPlatformUsername().equals(userName)) {

@@ -201,7 +201,7 @@ public class CloudAccountViewActivity extends BaseActivity {
 
 	/** 通知预览通道禁用 ***/
 	private void changeNoUseState(CloudAccount account) {
-		if (previewDeviceItems.size() > 0) {
+		if ((previewDeviceItems!=null)&&previewDeviceItems.size() > 0) {
 			for (PreviewDeviceItem item : previewDeviceItems) {
 				if (item.getPlatformUsername().equals(account.getUsername())) {
 					deletePDeviceItems.add(item);

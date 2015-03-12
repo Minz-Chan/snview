@@ -128,7 +128,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	}
 
 	protected void setNewPreviewDeviceItems() {
-		if (mPreviewDeviceItems.size() > 0) {
+		if ((mPreviewDeviceItems!=null)&mPreviewDeviceItems.size() > 0) {
 			for (PreviewDeviceItem item : mPreviewDeviceItems) {
 				if (item.getPlatformUsername().equals(
 						clickDeviceItem.getPlatformUsername())
@@ -143,10 +143,8 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 
 			if (deletePDeviceItems.size() > 0) {
-				GlobalApplication.getInstance().getRealplayActivity()
-						.setPreviewDevices(mPreviewDeviceItems);
-				GlobalApplication.getInstance().getRealplayActivity()
-						.notifyPreviewDevicesContentChanged();
+				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(mPreviewDeviceItems);
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
 			}
 		}
 	}

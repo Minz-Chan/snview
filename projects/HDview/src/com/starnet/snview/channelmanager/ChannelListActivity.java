@@ -422,11 +422,11 @@ public class ChannelListActivity extends BaseActivity {
 			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
 			ChannelListActivity.this.finish();
 		} else {// 选择的通道为空时，不进行播放
-			List<PreviewDeviceItem> previewDeviceItems = GlobalApplication
-					.getInstance().getRealplayActivity().getPreviewDevices();
-			previewDeviceItems.clear();
-			GlobalApplication.getInstance().getRealplayActivity()
-					.notifyPreviewDevicesContentChanged();
+			List<PreviewDeviceItem> pItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+			if ((pItems!=null)&& (pItems.size() > 0)) {
+				pItems.clear();
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			}
 			ChannelListActivity.this.finish();
 		}
 	}

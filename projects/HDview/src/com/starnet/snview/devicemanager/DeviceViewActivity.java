@@ -141,29 +141,30 @@ public class DeviceViewActivity extends BaseActivity {
 							public void onClick(DialogInterface dialog,
 									int which) {
 								try {
-									
-									int previewSize = previewDeviceItems.size();
-									for (int i = 0; i < previewSize; i++) {
-										PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
-										boolean isContained = checkPreviewDeviceIsInDevicesCollect(previewDeviceItem,deleteDeviceItem);
-										if (isContained) {
-											deletePDeviceItems.add(previewDeviceItem);// 获取需要删除的预览通道
+									if (previewDeviceItems!=null) {
+										int previewSize = previewDeviceItems.size();
+										for (int i = 0; i < previewSize; i++) {
+											PreviewDeviceItem previewDeviceItem = previewDeviceItems.get(i);
+											boolean isContained = checkPreviewDeviceIsInDevicesCollect(previewDeviceItem,deleteDeviceItem);
+											if (isContained) {
+												deletePDeviceItems.add(previewDeviceItem);// 获取需要删除的预览通道
+											}
 										}
-									}
-									int delSize = deletePDeviceItems.size();
-									Log.i(TAG, "deleteSize："+delSize);
-									for (int i = 0; i < delSize; i++) {
-										previewDeviceItems.remove(deletePDeviceItems.get(i));
-										Log.i(TAG, "delete name"+i+":"+deletePDeviceItems.get(i).getDeviceRecordName());
-									}
-									
-									for (int i = 0; i < previewDeviceItems.size(); i++) {
-										Log.i(TAG, "preview name"+i+":"+previewDeviceItems.get(i).getDeviceRecordName());
-									}
-									
-									if (delSize > 0) {
-										GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
-										GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+										int delSize = deletePDeviceItems.size();
+										Log.i(TAG, "deleteSize："+delSize);
+										for (int i = 0; i < delSize; i++) {
+											previewDeviceItems.remove(deletePDeviceItems.get(i));
+											Log.i(TAG, "delete name"+i+":"+deletePDeviceItems.get(i).getDeviceRecordName());
+										}
+										
+										for (int i = 0; i < previewDeviceItems.size(); i++) {
+											Log.i(TAG, "preview name"+i+":"+previewDeviceItems.get(i).getDeviceRecordName());
+										}
+										
+										if (delSize > 0) {
+											GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
+											GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+										}	
 									}
 									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem,pos,ChannelListActivity.filePath);
 //									ReadWriteXmlUtils.removeDeviceItemToCollectEquipmentXML(deleteDeviceItem,ChannelListActivity.filePath);
