@@ -120,7 +120,9 @@ public class ButtonOnTouchListener implements OnTouchListener {
 				for (int i = 0; i < channelSize; i++) {
 					channels.get(i).setSelected(true);
 				}
-				startVisitNet();
+				if (parentPos==0) {
+					startVisitNet();
+				}
 			}
 
 			int number = getPreviewListFromCloudAccounts(cloudAccountList);

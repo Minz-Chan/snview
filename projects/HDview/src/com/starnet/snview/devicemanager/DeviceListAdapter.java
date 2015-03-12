@@ -61,17 +61,19 @@ public class DeviceListAdapter extends BaseAdapter {
 		deviceItemName.setText(deviceName);
 		
 		ImageButton securityProtection = (ImageButton) convertView.findViewById(R.id.device_listview_item_securityprotection);
-		if (item.isSecurityProtectionOpen()) {
-			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
-		} else {
-			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
-		}
+//		if (item.isSecurityProtectionOpen()) {
+//			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
+//		} else {
+//			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
+//		}
 		
 		if (!item.isUsable()) {
-			img_device.setBackgroundColor(mContext.getResources().getColor(R.color.menu_drawer_bg));
+//			img_device.setBackgroundColor(mContext.getResources().getColor(R.color.menu_drawer_bg));
+			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_off);
 		}else {
 //			img_device.setBackgroundColor(R.drawable.list_equipment);
-			img_device.setBackgroundResource(R.drawable.list_equipment);
+//			img_device.setBackgroundResource(R.drawable.list_equipment);
+			securityProtection.setBackgroundResource(R.drawable.device_listview_item_securityprotection_on);
 		}
 		
 		return convertView;

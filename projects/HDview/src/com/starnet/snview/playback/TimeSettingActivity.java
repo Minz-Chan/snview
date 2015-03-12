@@ -272,7 +272,7 @@ public class TimeSettingActivity extends BaseActivity {
 		Channel chanel = new Channel();
 		chanel.setChannelName("通道1");
 		chanel.setSelected(false);
-		chanel.setChannelNo(0);
+		chanel.setChannelNo(1);
 		channelList.add(chanel);
 		dItem.setChannelList(channelList);
 		intent2.putExtra("device", dItem);

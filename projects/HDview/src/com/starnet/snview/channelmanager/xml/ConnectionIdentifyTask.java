@@ -301,7 +301,7 @@ public class ConnectionIdentifyTask {
 		for (int i = 0; i < channelNumber; i++) {
 			Channel channel = new Channel();
 			channel.setChannelName(chanelName + (i + 1));
-			channel.setChannelNo(i);
+			channel.setChannelNo((i+1));
 			channel.setSelected(false);
 			channelList.add(channel);
 		}

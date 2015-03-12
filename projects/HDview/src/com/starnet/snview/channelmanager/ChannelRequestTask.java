@@ -330,7 +330,7 @@ public class ChannelRequestTask {
 					Channel channel = new Channel();
 					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE + (j + 1));
 					channel.setSelected(false);
-					channel.setChannelNo(j);
+					channel.setChannelNo((j+1));
 					channelList.add(channel);
 				}
 			}

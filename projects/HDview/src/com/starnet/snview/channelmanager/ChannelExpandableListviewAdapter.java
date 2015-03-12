@@ -292,7 +292,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter 
 					if (channelList != null) {
 						int channelSize = channelList.size();
 						for (int j = 0; j < channelSize; j++) {
-							if (cur_channel == j ) {//cur_channel == j + 1
+							if (cur_channel == (j+1) ) {//cur_channel == j + 1
 								channelList.get(j).setSelected(true);
 							}
 						}

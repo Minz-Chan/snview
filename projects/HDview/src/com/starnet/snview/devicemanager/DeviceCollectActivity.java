@@ -348,7 +348,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		Channel channel = new Channel();
 		String text = getString(R.string.device_manager_channel);
 		channel.setChannelName(text + "1");
-		channel.setChannelNo(0);
+		channel.setChannelNo(1);
 		channel.setSelected(false);
 		channelList.add(channel);
 		saveDeviceItem.setChannelList(channelList);
@@ -632,7 +632,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			Channel channel = new Channel();
 			String text = getString(R.string.device_manager_channel);
 			channel.setChannelName(text + "" + (i + 1));
-			channel.setChannelNo((i));
+			channel.setChannelNo((i+1));
 			channel.setSelected(false);
 			channelList.add(channel);
 		}
