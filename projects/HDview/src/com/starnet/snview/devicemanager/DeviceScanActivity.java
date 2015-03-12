@@ -25,7 +25,7 @@ public class DeviceScanActivity extends BaseActivity {
 	private EditText port_et;
 	private EditText username_et;
 	private EditText password_et;
-	private EditText defaultChannel_et;
+//	private EditText defaultChannel_et;
 //	private EditText channelnumber_et;
 	private RadioButton YesRadioButton;
 	private RadioButton NoRadioButton;
@@ -82,7 +82,7 @@ public class DeviceScanActivity extends BaseActivity {
 						if (number.equals("0")) {
 							number = "1";
 						}
-						defaultChannel_et.setText(number);
+//						defaultChannel_et.setText(number);
 						if (cDeviceItem.isUsable()) {
 							YesRadioButton.setChecked(true);
 							NoRadioButton.setChecked(false);
@@ -171,7 +171,7 @@ public class DeviceScanActivity extends BaseActivity {
 		username_et = (EditText) findViewById(R.id.et_device_add_username);
 		
 		password_et = (EditText) findViewById(R.id.et_device_add_password);
-		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+//		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 //		channelnumber_et = (EditText) findViewById(R.id.et_device_add_channelnumber);
 		NoRadioButton = (RadioButton) findViewById(R.id.isenable_no_radioBtn);
 		YesRadioButton = (RadioButton) findViewById(R.id.isenable_yes_radioBtn);
@@ -182,7 +182,7 @@ public class DeviceScanActivity extends BaseActivity {
 		username_et.setKeyListener(null);
 		
 		password_et.setKeyListener(null);
-		defaultChannel_et.setKeyListener(null);
+//		defaultChannel_et.setKeyListener(null);
 //		channelnumber_et.setKeyListener(null);
 		
 		Intent intent = getIntent();
@@ -207,7 +207,7 @@ public class DeviceScanActivity extends BaseActivity {
 		port_et.setText(svrPort);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
-		defaultChannel_et.setText(defaultChannel);
+//		defaultChannel_et.setText(defaultChannel);
 //		channelnumber_et.setText(channelSum);
 		if (clickDeviceItem.isUsable()) {
 			YesRadioButton.setChecked(true);

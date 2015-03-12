@@ -43,7 +43,6 @@ public class ChannelListActivity extends BaseActivity {
 	private static final String TAG = "ChannelListActivity";
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	public static final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
-	public static final String REMOTEFILEPATH = "/data/data/com.starnet.snview/remote_deviceItem_list.xml";
 
 	private ChannelRequestTask[] tasks;
 
@@ -636,7 +635,7 @@ public class ChannelListActivity extends BaseActivity {
 			int pos = bundle.getInt("parentPos");
 			if (!isFirstSearch) {
 				origin_cloudAccounts.set(pos, collectCloudAccount);
-				chExpandableListAdapter.notify_number = 2;
+				chExpandableListAdapter.notifyNum = 2;
 				chExpandableListAdapter.notifyDataSetChanged();
 			} else {
 				String userName = collectCloudAccount.getUsername();
@@ -649,7 +648,7 @@ public class ChannelListActivity extends BaseActivity {
 					}
 				}
 				// 查看searchList值是否有变化，考虑searchList.set(i, collectCloudAccount);
-				chExpandableListAdapter.notify_number = 22;
+				chExpandableListAdapter.notifyNum = 22;
 				chExpandableListAdapter.notifyDataSetChanged();
 				List<DeviceItem> colDevices = collectCloudAccount
 						.getDeviceList();

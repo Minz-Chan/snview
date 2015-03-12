@@ -425,8 +425,7 @@ public class ReadWriteXmlUtils {
 						cl.addAttribute("channelName", h.getChannelName());
 						cl.addAttribute("channelNo",
 								String.valueOf(h.getChannelNo()));
-						cl.addAttribute("isSelected",
-								String.valueOf(h.isSelected()));
+						cl.addAttribute("isSelected","false");
 					}
 				}
 				break;
@@ -737,7 +736,7 @@ public class ReadWriteXmlUtils {
 				Element chE = sEle.addElement("channel");
 				chE.addAttribute("channelName", ch.getChannelName());
 				chE.addAttribute("channelNo", String.valueOf(ch.getChannelNo()));
-				chE.addAttribute("isSelected", String.valueOf(ch.isSelected()));
+				chE.addAttribute("isSelected", "false");
 			}
 		}
 
