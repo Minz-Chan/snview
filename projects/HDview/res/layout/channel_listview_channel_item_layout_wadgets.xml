@@ -29,7 +29,7 @@
         android:textSize="@dimen/common_textsize_small_16sp" />
 
     <TextView
-        android:id="@id/channel_listview_device_item_name"
+        android:id="@+id/channelName"
         android:layout_width="5dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

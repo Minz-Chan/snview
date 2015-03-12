@@ -29,7 +29,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	private EditText username_et;
 	private EditText password_et;
 	// private EditText channelnumber_et;
-	private EditText defaultChannel_et;
+//	private EditText defaultChannel_et;
 	private RadioButton noRadioButton;
 	private RadioButton yesRadioButton;
 	private DeviceItem clickDeviceItem;
@@ -63,11 +63,11 @@ public class DeviceEditableActivity extends BaseActivity {
 				String lPass = password_et.getText().toString();
 				String lUser = username_et.getText().toString();
 				// String chSum = channelnumber_et.getText().toString();
-				String dfChl = defaultChannel_et.getText().toString();
+//				String dfChl = defaultChannel_et.getText().toString();
 				String cName = DeviceEditableActivity.this
 						.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
-						&& !svrPt.trim().equals("") && !lUser.trim().equals("") && !dfChl.trim().equals(""))) {// 检查信息是否为空
+						&& !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);
 					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 					if (isPort && isIp) {
@@ -76,7 +76,7 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
-						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
+//						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 						boolean isBelong = isBelongDeviceItem(clickDeviceItem);
 						// 并返回原来的界面
 						Intent data = new Intent();
@@ -233,7 +233,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		username_et = (EditText) findViewById(R.id.et_device_add_username);
 		// channelnumber_et = (EditText)
 		// findViewById(R.id.et_device_add_channelnumber);
-		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+//		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 
 		noRadioButton = (RadioButton) findViewById(R.id.isenable_noi_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.isenable_yesi_radioBtn);
@@ -274,7 +274,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		record_et.setText(deviceName);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
-		defaultChannel_et.setText(defaultChannel);
+//		defaultChannel_et.setText(defaultChannel);
 		// channelnumber_et.setText(channelSum);
 		// channelnumber_et.setKeyListener(null);
 		if (clickDeviceItem.isUsable()) {

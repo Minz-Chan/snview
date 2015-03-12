@@ -87,7 +87,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 					startVisitNet();
 				}
 			}
-			cela.notify_number = 2;
+			cela.notifyNum = 2;
 			cela.notifyDataSetChanged();
 			int number = getPreviewListFromCloudAccounts(cloudAccountList);
 			if (number == 0) {
@@ -138,7 +138,7 @@ public class ButtonOnTouchListener implements OnTouchListener {
 			connTask.setContext(context);
 			connTask.start();
 		}else {
-			cela.notify_number = 2;
+			cela.notifyNum = 2;
 			cela.notifyDataSetChanged();
 		}
 	}

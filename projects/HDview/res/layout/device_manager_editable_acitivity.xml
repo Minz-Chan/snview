@@ -82,7 +82,7 @@
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:singleLine="true"
-                android:textSize="16sp" >
+                android:textSize="18sp" >
 
                 <requestFocus />
             </EditText>
@@ -205,6 +205,7 @@
             </EditText>
         </RelativeLayout>
 
+        <!--
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="0dip"
@@ -244,8 +245,11 @@
                 <requestFocus />
             </EditText>
         </RelativeLayout>
+        -->
 
-        <!-- <RelativeLayout
+
+        <!--
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
@@ -282,7 +286,8 @@
 
                 <requestFocus />
             </EditText>
-        </RelativeLayout> -->
+        </RelativeLayout>
+        -->
 
         <RelativeLayout
             android:layout_width="fill_parent"

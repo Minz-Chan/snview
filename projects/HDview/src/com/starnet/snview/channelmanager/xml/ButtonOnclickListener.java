@@ -22,7 +22,8 @@ import android.widget.TextView;
 
 public class ButtonOnclickListener implements OnClickListener {
 
-//	private final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	// private final String filePath =
+	// "/data/data/com.starnet.snview/deviceItem_list.xml";
 
 	ButtonState bs;
 	TextView titleView;
@@ -47,17 +48,19 @@ public class ButtonOnclickListener implements OnClickListener {
 		case R.id.button_channel_list:
 			DeviceItem dItem = clickCloudAccount.getDeviceList().get(childPos);
 			if (!dItem.isConnPass()) {// 如果用户没有经过验证，则进行验证
-				if (parentPos==0) {
+				if (parentPos == 0) {
 					if (!NetWorkUtils.checkNetConnection(context)) {
 						gotoChanelListViewActivity(dItem);
 					} else {
 						isClick = true;
-						((ChannelListActivity) context).showDialog(CONNIDENTIFYDIALOG);
-						connTask = new ConnectionIdentifyTask(handler, clickCloudAccount,dItem, parentPos, childPos);
+						((ChannelListActivity) context)
+								.showDialog(CONNIDENTIFYDIALOG);
+						connTask = new ConnectionIdentifyTask(handler,
+								clickCloudAccount, dItem, parentPos, childPos);
 						connTask.setContext(context);
 						connTask.start();
 					}
-				}else {
+				} else {
 					gotoChanelListViewActivity(dItem);
 				}
 			} else {// 验证过后的直接弹出对话框
@@ -82,48 +85,32 @@ public class ButtonOnclickListener implements OnClickListener {
 		((ChannelListActivity) context).startActivityForResult(data, 31);
 	}
 
-	public ButtonOnclickListener(Context context2, Handler handler,
-			ChannelExpandableListviewAdapter cela,
-			CloudAccount clickCloudAccount,
-			List<CloudAccount> groupAccountList, int groupPosition,
-			int childPosition, Button staButton, TextView titleView,ConnectionIdentifyTask connTask) {
-		this.context = context2;
-		this.clickCloudAccount = clickCloudAccount;
-		this.parentPos = groupPosition;
-		this.childPos = childPosition;
-		this.state_button = staButton;
+	public ButtonOnclickListener(Context context, Handler handler,
+			ChannelExpandableListviewAdapter cela, List<CloudAccount> gList,
+			int groupPos, int childPos, Button staBtn, TextView titleView) {
+		this.context = context;
+		
+		this.parentPos = groupPos;
+		this.childPos = childPos;
+		this.state_button = staBtn;
 		this.titleView = titleView;
 		this.cela = cela;
-		this.groupAccountList = groupAccountList;
-		this.handler = handler;
-	}
-	
-	public ButtonOnclickListener(Context context2, Handler handler,
-			ChannelExpandableListviewAdapter cela,
-			CloudAccount clickCloudAccount,
-			List<CloudAccount> groupAccountList, int groupPosition,
-			int childPosition, Button staButton, TextView titleView) {
-		this.context = context2;
-		this.clickCloudAccount = clickCloudAccount;
-		this.parentPos = groupPosition;
-		this.childPos = childPosition;
-		this.state_button = staButton;
-		this.titleView = titleView;
-		this.cela = cela;
-		this.groupAccountList = groupAccountList;
+		this.groupAccountList = gList;
+		this.clickCloudAccount = gList.get(groupPos);
 		this.handler = handler;
 	}
 
 	public void setCancel(boolean isCanceled) {
 		connTask.setCanceled(isCanceled);
 	}
-	
+
 	private boolean isClick;
-	public boolean isClick(){
+
+	public boolean isClick() {
 		return isClick;
 	}
-	
-	public void setClick(boolean isClick){
+
+	public void setClick(boolean isClick) {
 		this.isClick = isClick;
 	}
 }

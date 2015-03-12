@@ -707,6 +707,7 @@ public class TimeSettingActivity extends BaseActivity {
 	/** 对开始、结束时间设置为当前时间 **/
 	@SuppressWarnings("deprecation")
 	private void setCurrentTimeForTxt() {
+		videoType.setText(getString(R.string.playback_alarm_type));
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String dateNowStr = sdf.format(d);

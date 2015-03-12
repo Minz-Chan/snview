@@ -70,7 +70,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText serverEdt;
 	private EditText lgUserEdt;
 	private EditText lgPswdEdt;
-	private EditText dfChnlEdt;
+//	private EditText dfChnlEdt;
 
 	private final int LOAD_SUCCESS = 2;
 	private final int LOAD_WRONG = 100;
@@ -391,10 +391,10 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem
 				.setPlatformUsername(getString(R.string.device_manager_collect_device));
 		saveDeviceItem.setUsable(yesRadioButton.isChecked());
-		String dChannel = dfChnlEdt.getText().toString().trim();
-		if (dChannel == null || dChannel.equals("")) {
-			saveDeviceItem.setDefaultChannel(0);
-		}
+//		String dChannel = dfChnlEdt.getText().toString().trim();
+//		if (dChannel == null || dChannel.equals("")) {
+//			saveDeviceItem.setDefaultChannel(0);
+//		}
 		saveDeviceItem.setIdentify(isIdentify);
 		saveDeviceItem.setConnPass(isConnPass);
 		saveDeviceItem.setSecurityProtectionOpen(true);
@@ -494,7 +494,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		lgPswdEdt = (EditText) findViewById(R.id.et_device_add_password);
 		noRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_no_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_yes_radioBtn);
-		dfChnlEdt = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+//		dfChnlEdt = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 		chooseEdt.setKeyListener(null);
 		context = DeviceCollectActivity.this;
 		loadDataTask = new LoadCollectDeviceItemTask();
@@ -652,7 +652,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		portEdt.setText(chooseDeviceItem.getSvrPort());
 		lgUserEdt.setText(chooseDeviceItem.getLoginUser());
 		lgPswdEdt.setText(chooseDeviceItem.getLoginPass());
-		dfChnlEdt.setText("" + chooseDeviceItem.getDefaultChannel());
+//		dfChnlEdt.setText("" + chooseDeviceItem.getDefaultChannel());
 		chooseEdt.setKeyListener(null);
 		String platformUsername = getString(R.string.device_manager_collect_device);
 		chooseDeviceItem.setPlatformUsername(platformUsername);
