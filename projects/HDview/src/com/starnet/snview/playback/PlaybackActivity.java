@@ -101,8 +101,7 @@ public class PlaybackActivity extends BaseActivity {
 
 	private boolean isPlaying = false;// 是否是正在进行播放
 	private boolean isFirstIn = false; // 是否第一次进行远程回放界面
-//	private boolean isOnPlayControl = false; // 是否正在进行播放控制（暂停、继续）
-//	private boolean isInRandomPlay = false;
+	private boolean canUpdateTimebar = true; // 当正在请求随机播放时，时间轴不更新，防止来回跳动
 	private boolean hasRecordFile = false;
 
 	private boolean bVideoRecordPressed; // 是否正在录像
@@ -124,6 +123,7 @@ public class PlaybackActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case RECV_STREAM_DATA_FORMAT:
+				canUpdateTimebar = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
 						.getPlaybackItem().getDeviceRecordName());
 				break;
@@ -219,11 +219,13 @@ public class PlaybackActivity extends BaseActivity {
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				break;
 			case UPDATE_MIDDLE_TIME:
-				long timestamp = msg.getData().getLong("VIDEO_TIME");
-				Calendar c = getQueryStartTimeBase();
-				if (c != null) {
-					c.setTimeInMillis(c.getTimeInMillis()+timestamp);
-					updateTimebar(c);
+				if (canUpdateTimebar) {
+					long timestamp = msg.getData().getLong("VIDEO_TIME");
+					Calendar c = getQueryStartTimeBase();
+					if (c != null) {
+						c.setTimeInMillis(c.getTimeInMillis()+timestamp);
+						updateTimebar(c);
+					}
 				}
 //				Calendar c = Calendar.getInstance();
 //				c.set(2015, 2, 1, 0, 0, 0);
@@ -468,6 +470,7 @@ public class PlaybackActivity extends BaseActivity {
 					return;
 				}
 				
+				canUpdateTimebar = false;
 				if (pbcTask != null) {
 					random(calendar);
 				}
