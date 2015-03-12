@@ -338,23 +338,13 @@ public class RealplayActivity extends BaseActivity {
 	
 	private void previewCurrentPage() {
 		if (mPager.getAmount() > 0) {
-//			int currPageStart = (liveViewManager.getCurrentPageNumber() - 1)
-//					* liveViewManager.getPageCapacity() + 1;
-//			int currPageEnd = (liveViewManager.getCurrentPageNumber() - 1)
-//					* liveViewManager.getPageCapacity()
-//					+ liveViewManager.getCurrentPageCount();
-//			liveViewManager.preview(currPageStart, currPageEnd - currPageStart
-//					+ 1);
-//			
-//			mPager.setNum(currPageStart);
-//			mPager.setAmount(liveViewManager.getPager().getTotalCount());
-//			
-//			liveViewManager.selectLiveView(currPageStart);
-			
 			mLiveviewGroup.previewCurrentScreen();
 			mLiveviewGroup.updatePageInfo();
 			
 			updateUIElementsStatus();
+		} else {
+			mPager.setAmount(0);
+			mPager.setNum(0);
 		}
 	}
 	
@@ -1125,7 +1115,16 @@ public class RealplayActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (resultCode) {
-		case 8:
+		case ChannelListActivity.RESULT_CODE_BACK:
+			mNeedAutoStart = false;
+			mIsStartedCompleted = true;
+			setPreviewDevices(null);
+			if (mPager != null) {
+				mPager.setAmount(0);
+				mPager.setNum(0);
+			}
+			break;
+		case ChannelListActivity.RESULT_CODE_PREVIEW:
 			mNeedAutoStart = false;
 			mIsStartedCompleted = true;
 			

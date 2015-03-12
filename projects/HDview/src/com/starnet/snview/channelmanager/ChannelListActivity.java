@@ -44,6 +44,9 @@ public class ChannelListActivity extends BaseActivity {
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	public static final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	public static final String REMOTEFILEPATH = "/data/data/com.starnet.snview/remote_deviceItem_list.xml";
+	
+	public static final int RESULT_CODE_BACK = 0;
+	public static final int RESULT_CODE_PREVIEW = 8;
 
 	private ChannelRequestTask[] tasks;
 
@@ -233,7 +236,7 @@ public class ChannelListActivity extends BaseActivity {
 									previewChannelList.toArray(l);
 									Intent intent = ChannelListActivity.this.getIntent();
 									intent.putExtra("DEVICE_ITEM_LIST", l);
-									ChannelListActivity.this.setResult(8,intent);
+									ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW,intent);
 									ChannelListActivity.this.finish();
 								} else {
 									showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
@@ -252,7 +255,7 @@ public class ChannelListActivity extends BaseActivity {
 									pItems.toArray(l);
 									Intent intent = ChannelListActivity.this.getIntent();
 									intent.putExtra("DEVICE_ITEM_LIST", l);
-									ChannelListActivity.this.setResult(8,intent);
+									ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW,intent);
 									ChannelListActivity.this.finish();
 								} else {
 									showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
@@ -313,6 +316,10 @@ public class ChannelListActivity extends BaseActivity {
 	}
 
 	private List<PreviewDeviceItem> getPItemsFromOrignalPItems(CloudAccount ca) {
+		if (originPreviewChannelList == null) {
+			return null;
+		}
+		
 		List<PreviewDeviceItem> items = new ArrayList<PreviewDeviceItem>();
 		for (int i = 0; i < originPreviewChannelList.size(); i++) {
 			PreviewDeviceItem item = originPreviewChannelList.get(i);
@@ -413,7 +420,7 @@ public class ChannelListActivity extends BaseActivity {
 			Intent intent = ChannelListActivity.this.getIntent();
 			intent.putExtra("DEVICE_ITEM_LIST", l);
 
-			ChannelListActivity.this.setResult(8, intent);
+			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
 			ChannelListActivity.this.finish();
 		} else {// 选择的通道为空时，不进行播放
 			List<PreviewDeviceItem> previewDeviceItems = GlobalApplication

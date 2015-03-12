@@ -766,6 +766,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		if (devices == null || devices.size() == 0) {
 			//throw new IllegalArgumentException("Devices can not be null or 0 size.");
 			setVisibility(View.GONE);
+			mDevices = new ArrayList<PreviewDeviceItem>();  // list without elements
 			return;
 		}
 		
