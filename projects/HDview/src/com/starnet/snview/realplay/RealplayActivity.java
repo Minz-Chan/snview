@@ -1,5 +1,6 @@
 package com.starnet.snview.realplay;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -1171,8 +1172,15 @@ public class RealplayActivity extends BaseActivity {
 		editor.commit();
 
 		try {
-			ReadWriteXmlUtils.writePreviewItemListInfoToXML(mPreviewDevices,
-					getString(R.string.common_last_devicelist_path));
+			String filePath = getString(R.string.common_last_devicelist_path);
+			if (mPreviewDevices == null) {
+				File file = new File(filePath);
+				if (file.exists()) {
+					file.delete();
+				}
+			}else {
+				ReadWriteXmlUtils.writePreviewItemListInfoToXML(mPreviewDevices,filePath);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
