@@ -3,9 +3,10 @@ package com.starnet.snview.channelmanager;
 import java.util.List;
 
 import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
+//import com.starnet.snview.channelmanager.xml.ButtonOnTouchListener;
 import com.starnet.snview.channelmanager.xml.ButtonOnclickListener;
 import com.starnet.snview.channelmanager.xml.ExpandableListViewUtils;
+import com.starnet.snview.channelmanager.xml.StateBtnOnClickListener;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -38,8 +39,9 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
 
 	private Handler handler;
-	private ButtonOnTouchListener touchL;
+//	private ButtonOnTouchListener touchL;
 	private ButtonOnclickListener bol;
+	private StateBtnOnClickListener tL;
 
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList, TextView titleView) {
 		super();
@@ -246,8 +248,12 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 		stateBtn = (Button) convertView.findViewById(R.id.button_state);
 		String state = getChannelSelectNum(groupPosition, childPosition);
 		changeStateButton(stateBtn, state);
-		touchL = new ButtonOnTouchListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
-		stateBtn.setOnTouchListener(touchL);
+//		touchL = new ButtonOnTouchListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
+//		stateBtn.setOnTouchListener(touchL);
+		tL = new StateBtnOnClickListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
+		stateBtn.setOnClickListener(tL);
+//		stateBtn.setOnTouchListener(tL);
+		
 		chListBtn = (Button) convertView.findViewById(R.id.button_channel_list);
 		bol = new ButtonOnclickListener(context, handler,ChannelExpandableListviewAdapter.this, groupAccountList, groupPosition, childPosition,stateBtn, titleView);
 		chListBtn.setVisibility(View.VISIBLE);
@@ -327,8 +333,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 	public void setCancel(boolean isCanceled) {
 		if ((bol != null) && bol.isClick()) {
 			bol.setCancel(isCanceled);
-		} else if ((touchL != null) && touchL.isTouch()) {
-			touchL.setCancel(isCanceled);
+		} else if ((tL != null) && tL.isTouch()) {
+			tL.setCancel(isCanceled);
 		}
 	}
 //	private boolean containPositon(int groupPosition, List<Integer> pList) {
