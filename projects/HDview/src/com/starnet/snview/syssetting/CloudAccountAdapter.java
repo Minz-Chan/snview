@@ -59,7 +59,8 @@ public class CloudAccountAdapter extends BaseAdapter {
 		if (item.isEnabled()) {
 			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
 		}else{
-			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
+			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
+//			itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
 		}
 		return convertView;
 	}

@@ -100,12 +100,20 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
-				mList.remove(position);
-				caAdapter.notifyDataSetChanged();
-				ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
+				new Thread(){
+					@Override
+					public void run() {
+						ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
+					}
+					
+				}.start();
+				
 				if (NetWorkUtils.checkNetConnection(ctx)) {
 					deleteTags(mList.get(position));
 				}
+				
+				mList.remove(position);
+				caAdapter.notifyDataSetChanged();
 			}
 		});
 		builder.show();
