@@ -9,6 +9,7 @@ import org.apache.mina.handler.demux.MessageHandler;
 import android.util.Log;
 
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.h264.H264DecodeUtil.OnResolutionChangeListener;
 import com.starnet.snview.component.h264.H264Decoder;
 import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.component.liveview.LiveView;
@@ -63,6 +64,15 @@ private static final String TAG = null;
 		
 		if (h264 == null) {
 			h264 = connection.getH264decoder();
+			h264.setOnResolutionChangeListener(new OnResolutionChangeListener() {
+				@Override
+				public void onResolutionChanged(int oldWidth, int oldHeight, int newWidth,
+						int newHeight) {
+					if (lvContainer != null) {
+						lvContainer.getSurfaceView().init(newWidth, newHeight);
+					}					
+				}
+			});
 		}
 		
 		if (lvContainer == null || connection.isShowComponentChanged()) {

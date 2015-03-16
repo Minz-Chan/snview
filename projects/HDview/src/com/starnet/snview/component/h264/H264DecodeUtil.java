@@ -23,6 +23,7 @@ import android.util.Log;
  * @description 修改说明	   对解码函数进行二次封装
  */
 public class H264DecodeUtil {
+	private static final String TAG = "H264DecodeUtil";
 	H264Decoder decoder = new H264Decoder();   
 	MP4Recorder mp4recorder = new MP4Recorder();
 	byte [] NalBuf = new byte[65535]; // 64k
@@ -41,12 +42,19 @@ public class H264DecodeUtil {
 	private String mMp4RecordFileName;
 	private long mMP4FileHanlde = 0;
 	
+	private int width;
+	private int height;
+	
+	private OnResolutionChangeListener mOnResolutionChangeListener;
+	
 	public H264DecodeUtil(String connName) {
 		mInstanceId = connName.hashCode();
 	}
 	
 	public int init(int width, int height) {
 		isCodecOpened = true;
+		this.width = width;
+		this.height = height;
 		return decoder.init(mInstanceId, width, height);  
 	}
 	
@@ -104,21 +112,22 @@ public class H264DecodeUtil {
 							bFindPPS = false;
 							
 							if (H264Decoder.probeSps(NalBuf, NalBufUsed - 4, param) == 1) { // 根据得到的参数判断分辨率信息是否发生变化
-								//System.out.println("->H264DecodeUtil->probe_sps");
+								Log.d(TAG, "->H264DecodeUtil->probe_sps");
 //								VideoView v = ViewManager.getInstance().getVideoView();
-//								int realWidth = ((param[2] + 1) * 16);
-//								int realHeight = ((param[3] + 1) * 16);
-//								System.out.printf("real widthxheight: %dx%d\n", realWidth, realHeight);
-//								System.out.printf("curr widthxheight: %dx%d\n", v.getWidth1(), v.getHeight1());
-//								if (v.getWidth1() != realWidth || v.getHeight1()
-//										!= realHeight) {
-//									System.out.println("test");
-//									init(realWidth, realHeight);
+								int realWidth = ((param[2] + 1) * 16);
+								int realHeight = ((param[3] + 1) * 16);
+								Log.d(TAG, "real width:" + realWidth + ", height:" + realHeight);
+								Log.d(TAG, "curr width" + width +", height:" + height);
+								if (width != realWidth || height != realHeight) {
+									init(realWidth, realHeight);
+									if (mOnResolutionChangeListener != null) {
+										mOnResolutionChangeListener.onResolutionChanged(width, height, realWidth, realWidth);
+									}
 //									VideoView.changeScreenRevolution(realWidth, realHeight);
 //									v.init();
-//								}
+								}
 							} else {
-								//System.out.println("->H264DecodeUtil->probe_sps , can not return 1");
+								Log.d(TAG, "->H264DecodeUtil->probe_sps , can not return 1");
 							}
 							
 //							System.arraycopy(NalBuf, 4, AVConfig.Video.sps, 0, (NalBufUsed - 4) - 4);
@@ -290,6 +299,21 @@ public class H264DecodeUtil {
 		
 		super.finalize();
 	}
+	
+	public OnResolutionChangeListener getOnResolutionChangeListener() {
+		return mOnResolutionChangeListener;
+	}
+
+	public void setOnResolutionChangeListener(
+			OnResolutionChangeListener onResolutionChangeListener) {
+		this.mOnResolutionChangeListener = onResolutionChangeListener;
+	}
+
+
+
+	public static interface OnResolutionChangeListener {
+		public void onResolutionChanged(int oldWidth, int oldHeight, int newWidth, int newHeight);
+	} 
 	
 	
 }

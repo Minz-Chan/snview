@@ -64,6 +64,11 @@ public class VideoHandler extends Handler {
 		Log.i(TAG, "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1));
 	}
 	
+	public void onResolutionChanged(int newWidth, int newHeight) {
+		//h264decoder.init(newWidth, newHeight);
+		videoView.init(newWidth, newHeight);
+	}
+	
 	public VideoBufferQueue getBufferQueue() {
 		return bufferQueue;
 	}

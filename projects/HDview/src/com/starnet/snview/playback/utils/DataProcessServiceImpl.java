@@ -8,6 +8,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.h264.AVConfig;
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.h264.H264DecodeUtil.OnResolutionChangeListener;
 import com.starnet.snview.component.h264.H264Decoder;
 import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
@@ -43,22 +44,24 @@ public class DataProcessServiceImpl implements DataProcessService {
 	public DataProcessServiceImpl(Context context, AudioHandler audioHandler, VideoHandler videoHandler) {
 		super();
 		this.context = context;
-//		this.conn_name = conn_name;
 		this.aHandler = audioHandler;
 		this.vHandler = videoHandler;
 		h264 = getPlaybackContainer().getH264Decoder();
 		h264.init(352, 288);
-
+		h264.setOnResolutionChangeListener(new OnResolutionChangeListener() {
+			@Override
+			public void onResolutionChanged(int oldWidth, int oldHeight, int newWidth,
+					int newHeight) {
+				getPlaybackContainer().getVideoConfig().setWidth(newWidth);
+				getPlaybackContainer().getVideoConfig().setHeight(newHeight);
+				if (vHandler != null) {
+					vHandler.onResolutionChanged(newWidth, newHeight);
+				}
+			}
+		});
 		
 		oneIFrameBuffer = IoBuffer.allocate(65536);
 		handler = ((PlaybackActivity) context).getHandler();
-		
-		/*
-		try {
-			audioWriter = new FileOutputStream("/mnt/sdcard/audioData2.raw");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}*/
 	}
 	
 	private boolean isPlaying() {
