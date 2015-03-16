@@ -27,7 +27,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
-//	private ButtonState bs;
 	private Context context;
 	private TextView titleView;
 	private Button stateBtn;
@@ -39,22 +38,14 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
 
 	private Handler handler;
-//	private ButtonOnTouchListener touchL;
 	private ButtonOnclickListener bol;
-	private StateBtnOnClickListener tL;
+	private StateBtnOnClickListener sbocl;
 
 	public ChannelExpandableListviewAdapter(Context curContext,List<CloudAccount> groupAccountList, TextView titleView) {
 		super();
 		this.titleView = titleView;
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
-//		int size = groupAccountList.size();
-//		for (int i = 0; i < size; i++) {
-//			CloudAccount cloudAccount = groupAccountList.get(i);
-//			if (!cloudAccount.isEnabled()) {// 不需要网络加载的用户，记录其位置...
-//				colorPosList.add(i);
-//			}
-//		}
 		ExpandableListViewUtils.context = context;
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		notifyNum = 3;
@@ -248,11 +239,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 		stateBtn = (Button) convertView.findViewById(R.id.button_state);
 		String state = getChannelSelectNum(groupPosition, childPosition);
 		changeStateButton(stateBtn, state);
-//		touchL = new ButtonOnTouchListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
-//		stateBtn.setOnTouchListener(touchL);
-		tL = new StateBtnOnClickListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
-		stateBtn.setOnClickListener(tL);
-//		stateBtn.setOnTouchListener(tL);
+		sbocl = new StateBtnOnClickListener(context,handler,ChannelExpandableListviewAdapter.this, titleView, groupPosition, childPosition, stateBtn,groupAccountList);
+		stateBtn.setOnClickListener(sbocl);
 		
 		chListBtn = (Button) convertView.findViewById(R.id.button_channel_list);
 		bol = new ButtonOnclickListener(context, handler,ChannelExpandableListviewAdapter.this, groupAccountList, groupPosition, childPosition,stateBtn, titleView);
@@ -333,8 +321,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 	public void setCancel(boolean isCanceled) {
 		if ((bol != null) && bol.isClick()) {
 			bol.setCancel(isCanceled);
-		} else if ((tL != null) && tL.isTouch()) {
-			tL.setCancel(isCanceled);
+		} else if ((sbocl != null) && sbocl.isTouch()) {
+			sbocl.setCancel(isCanceled);
 		}
 	}
 //	private boolean containPositon(int groupPosition, List<Integer> pList) {

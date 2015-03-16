@@ -164,7 +164,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
 					}else {//进行联网验证
 						((TimeSettingActivity)ctx).showDialog(TimeSettingActivity.CONNECTIDENTIFY_PROGRESSBAR);
-						task = new ConnectionIdentifyTask(mHandler,clickUser,clickDItem,clickGroup,clickChild);
+						task = new ConnectionIdentifyTask(mHandler,clickUser,clickDItem,clickGroup,clickChild,false);
 						task.setContext(ctx);
 						task.setCancel(false);
 						task.start();
@@ -249,15 +249,11 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 //		}
 //	};
 	
-	private ProgressBar prg;
-	public void setIdentifyProgressBar(ProgressBar progressBar){
-		this.prg = progressBar;
-	}
+//	private ProgressBar prg;
+//	public void setIdentifyProgressBar(ProgressBar progressBar){
+//		this.prg = progressBar;
+//	}
 	
-	private int getColor(int resid) {
-		return ctx.getResources().getColor(resid);
-	}
-
 	private static int clickGroup;
 	private static int clickChild;
 	protected boolean okFlag;

@@ -53,10 +53,8 @@ public class ButtonOnclickListener implements OnClickListener {
 						gotoChanelListViewActivity(dItem);
 					} else {
 						isClick = true;
-						((ChannelListActivity) context)
-								.showDialog(CONNIDENTIFYDIALOG);
-						connTask = new ConnectionIdentifyTask(handler,
-								clickCloudAccount, dItem, parentPos, childPos);
+						((ChannelListActivity) context).showDialog(CONNIDENTIFYDIALOG);
+						connTask = new ConnectionIdentifyTask(handler,clickCloudAccount, dItem, parentPos, childPos,false);
 						connTask.setContext(context);
 						connTask.start();
 					}
