@@ -1,17 +1,41 @@
 package com.starnet.snview.protocol.message.handler;
 
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
+
+import android.util.Log;
 
 import com.starnet.snview.protocol.message.VideoFrameInfoEx;
 
 public class VideoFrameInfoExMessageHandler implements
 		MessageHandler<VideoFrameInfoEx> {
+	private static final String TAG = "VideoFrameInfoExMessageHandler";
+	
+	private AttributeKey ONE_IFRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBuffer");
+	private AttributeKey ONE_IFRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBufferSize");
+	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
 
 	@Override
-	public void handleMessage(IoSession arg0, VideoFrameInfoEx arg1)
+	public void handleMessage(IoSession session, VideoFrameInfoEx message)
 			throws Exception {
-		System.out.println("VideoFrameInfoEx is arrived...");
+		Log.d(TAG, "VideoFrameInfoEx is arrived...");
+		
+		session.setAttribute(DATA_EXCEED_64KB, Boolean.valueOf(true));
+		
+		Integer oneIFrameDataSize = Integer.valueOf(message.getDataSize());
+		session.setAttribute(ONE_IFRAME_BUFFER_SIZE, oneIFrameDataSize);
+		
+		IoBuffer oneIFrameBuffer = (IoBuffer) session.getAttribute(ONE_IFRAME_BUFFER);
+		if (oneIFrameBuffer == null) {
+			oneIFrameBuffer = IoBuffer.allocate(message.getDataSize());
+		}
+		oneIFrameBuffer.clear();
+		if (oneIFrameBuffer.remaining() < oneIFrameDataSize) {
+			oneIFrameBuffer.expand(oneIFrameDataSize);
+		}
+		session.setAttribute(ONE_IFRAME_BUFFER, oneIFrameBuffer);
 		
 	}
 

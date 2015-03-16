@@ -1,6 +1,7 @@
 package com.starnet.snview.protocol.message.handler;
 
 
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.handler.demux.MessageHandler;
@@ -21,11 +22,11 @@ import com.starnet.snview.protocol.message.VideoIFrameData;
 public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameData> {
 private static final String TAG = null;
 
-	//	private final AttributeKey LIVEVIEW_ITEM = new AttributeKey(Connection.class, "liveview_item");
-//	private final AttributeKey LIVEVIEW_LISTENER = new AttributeKey(Connection.class, "liveview_listener");
-//	private final AttributeKey CONNECTION_LISTENER = new AttributeKey(Connection.class, "connection_listener");
-//	private final AttributeKey H264DECODER = new AttributeKey(Connection.class, "h264decoder");
 	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
+	private AttributeKey ONE_IFRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBuffer");
+	private AttributeKey ONE_IFRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBufferSize");
+	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
+	
 	
 	private H264DecodeUtil h264;
 	private OnLiveViewChangedListener liveViewChangedListener;
@@ -37,7 +38,25 @@ private static final String TAG = null;
 	
 	@Override
 	public void handleMessage(IoSession session, VideoFrameData message) throws Exception {
-		Log.i(TAG, "decode VideoFrameDataMessageHandler");
+		Log.d(TAG, "decode VideoFrameDataMessageHandler");
+		
+		byte[] data = message.getData();
+		int length = data.length;
+		Boolean dataExceed64kb = (Boolean) session.getAttribute(DATA_EXCEED_64KB);
+		if (dataExceed64kb != null && dataExceed64kb) {
+			IoBuffer oneIFrameBuffer = (IoBuffer) session.getAttribute(ONE_IFRAME_BUFFER);
+			Integer oneIFrameDataSize = (Integer) session.getAttribute(ONE_IFRAME_BUFFER_SIZE);
+			
+			oneIFrameBuffer.put(message.getData());
+			
+			if (oneIFrameBuffer.position() >= oneIFrameDataSize) {
+				data = oneIFrameBuffer.flip().array();
+				length = oneIFrameDataSize;
+			} else {
+				return;
+			}
+		}
+		
 		if (connection == null) {
 			connection = (Connection) session.getAttribute(CONNECTION);
 		}
@@ -79,7 +98,7 @@ private static final String TAG = null;
 			h264.setbFirst(true);
 			h264.setbFindPPS(true);
 			
-			byte[] _sps = H264Decoder.extractSps(message.getData(), message.getData().length);
+			byte[] _sps = H264Decoder.extractSps(data, length);
 			byte[] sps = lvContainer.getVideoConfig().getSps();
 			System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
 			lvContainer.getVideoConfig().setSpsLen(_sps.length-4);
@@ -93,13 +112,13 @@ private static final String TAG = null;
 		
 		long t1 = System.currentTimeMillis();
 		
-		h264.decodePacket(message.getData(), message.getData().length,
+		h264.decodePacket(data, length,
 				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());		
 		
 		Log.i(TAG, "decode consume: " + (System.currentTimeMillis()-t1));
 		
 		if (lvContainer.isInRecording() && lvContainer.canStartRecord()) {
-			MP4Recorder.packVideo(lvContainer.getRecordFileHandler(), message.getData(), message.getData().length);
+			MP4Recorder.packVideo(lvContainer.getRecordFileHandler(), data, length);
 		}
 		
 		// 更新视频显示
