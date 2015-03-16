@@ -31,7 +31,7 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelListActivity;
-import com.starnet.snview.channelmanager.xml.ConnectionIdentifyTask;
+import com.starnet.snview.channelmanager.xml.CloudAccountInfoOpt;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.syssetting.CloudAccount;
@@ -43,11 +43,7 @@ import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
-
-	@SuppressWarnings("unused")
-	private static final String TAG = "DeviceCollectActivity";
-
-	private final String fileName = "/data/data/com.starnet.snview/star_cloudAccount.xml";// 用于从文档中获取所有的用户
+	// 用于从文档中获取所有的用户
 	private final int REQUESTCODE = 10; // 用于进入DeviceChooseActivity.java的请求码；
 	public static final int ALL_ADD = 0x0020;
 
@@ -58,7 +54,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private boolean isConnPass = false; // 验证是否通过
 	private boolean isIdentify = false; // 是否进行了验证
 	private RadioButton yesRadioButton;
-	private ConnectionIdentifyTask conIdenTask;
+	private DevConnIdenTask conIdenTask;
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
@@ -70,7 +66,6 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText serverEdt;
 	private EditText lgUserEdt;
 	private EditText lgPswdEdt;
-//	private EditText dfChnlEdt;
 
 	private final int LOAD_SUCCESS = 2;
 	private final int LOAD_WRONG = 100;
@@ -89,9 +84,11 @@ public class DeviceCollectActivity extends BaseActivity {
 	private DeviceItem chooseDeviceItem; // 选择之后的设备
 	private DeviceItem identifyDeviceItem; // 验证之后的设备
 
+	private ProgressDialog loadPrg;
+	private ProgressDialog idenPrg;
+
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
-		@SuppressWarnings("deprecation")
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
@@ -100,22 +97,19 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (synObject.getStatus() == SynObject.STATUS_RUN) {
 					return;
 				}
-				dismissDialog(LOADNETDATADIALOG);
 				synObject.resume();// 解除线程挂起,向下继续执行...
-				dismissDialog(LOADNETDATADIALOG);
+				dismissLoadPRG();
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
-				bundle.putParcelableArrayList("dvrDeviceList",
-						(ArrayList<? extends Parcelable>) dvrDeviceList);
+				bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrDeviceList);
 				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this,
-						DeviceChooseActivity.class);
+				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
 				startActivityForResult(intent, REQUESTCODE);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				isIdentify = true;
 				isConnPass = false;
-				dismissDialog(CONNIDENTIFYDIALOG);
+				dismissIdenPRG();
 				saveDeviceItem.setIdentify(isIdentify);
 				saveDeviceItem.setConnPass(isConnPass);
 				setSaveDeviceItem();
@@ -124,20 +118,18 @@ public class DeviceCollectActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				isIdentify = true;
 				isConnPass = true;
-				dismissDialog(CONNIDENTIFYDIALOG);
+				dismissIdenPRG();
 				saveDeviceItem.setIdentify(true);
 				saveDeviceItem.setConnPass(true);
 				identifyDeviceItem = getIdentifyDeviceItem(msg);
-				saveDeviceItem.setChannelList(identifyDeviceItem
-						.getChannelList());
-				saveDeviceItem
-						.setChannelSum(identifyDeviceItem.getChannelSum());
+				saveDeviceItem.setChannelList(identifyDeviceItem.getChannelList());
+				saveDeviceItem.setChannelSum(identifyDeviceItem.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				isIdentify = true;
 				isConnPass = false;
-				dismissDialog(CONNIDENTIFYDIALOG);
+				dismissIdenPRG();
 				saveDeviceItem.setIdentify(isIdentify);
 				saveDeviceItem.setConnPass(isConnPass);
 				setSaveDeviceItem();
@@ -164,15 +156,13 @@ public class DeviceCollectActivity extends BaseActivity {
 	}
 
 	private void showToast(String content) {
-		Toast.makeText(DeviceCollectActivity.this, content, Toast.LENGTH_SHORT)
-				.show();
+		Toast.makeText(DeviceCollectActivity.this, content, Toast.LENGTH_SHORT).show();
 	}
 
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
 		Bundle data = msg.getData();
-		DeviceItem dItem = (DeviceItem) data
-				.getSerializable("identifyDeviceItem");
+		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
 		return dItem;
 
 	}
@@ -241,15 +231,13 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 
-				if (!NetWorkUtils
-						.checkNetConnection(DeviceCollectActivity.this)) {
+				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
 					showToast(getString(R.string.device_manager_conn_iden_notopen));
 				} else {
 					DeviceItem deviceItem = getDeviceItem();
 					if (deviceItem != null) {
 						showDialog(CONNIDENTIFYDIALOG);
-						conIdenTask = new ConnectionIdentifyTask(mHandler,
-								deviceItem);
+						conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
 						conIdenTask.setContext(DeviceCollectActivity.this);
 						conIdenTask.start();
 					}
@@ -316,7 +304,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (isConn) {
 					try {
 						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils
-								.getCloudAccountList(fileName);
+								.getCloudAccountList(CloudAccountInfoOpt.filePathOfCloudAccount);
 						int size = cloudAccountList.size();
 						if (size > 0) {
 							boolean usable = checkAccountUsable(cloudAccountList);
@@ -388,13 +376,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setLoginPass(pswd);
 		saveDeviceItem.setLoginUser(uName);
 		saveDeviceItem.setDeviceName(rName);
-		saveDeviceItem
-				.setPlatformUsername(getString(R.string.device_manager_collect_device));
+		saveDeviceItem.setPlatformUsername(getString(R.string.device_manager_collect_device));
 		saveDeviceItem.setUsable(yesRadioButton.isChecked());
-//		String dChannel = dfChnlEdt.getText().toString().trim();
-//		if (dChannel == null || dChannel.equals("")) {
-//			saveDeviceItem.setDefaultChannel(0);
-//		}
 		saveDeviceItem.setIdentify(isIdentify);
 		saveDeviceItem.setConnPass(isConnPass);
 		saveDeviceItem.setSecurityProtectionOpen(true);
@@ -407,8 +390,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		final Intent intent = new Intent();
 		final int index = isContain(dItem);
 		if (index == -1) {
-			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,
-					ChannelListActivity.filePath);
+			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,ChannelListActivity.filePath);
 			Bundle bundle = new Bundle();
 			intent.putExtra("replace", false);
 			bundle.putSerializable("saveDeviceItem", saveDeviceItem);
@@ -426,13 +408,10 @@ public class DeviceCollectActivity extends BaseActivity {
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								intent.putExtra("replace", true);
-								ReadWriteXmlUtils.replaceSpecifyDeviceItem(
-										ChannelListActivity.filePath, index,
-										dItem);
+								ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index,dItem);
 								Bundle bundle = new Bundle();
 								bundle.putInt("index", index);
-								bundle.putSerializable("saveDeviceItem",
-										saveDeviceItem);
+								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(resultCode, intent);
 								DeviceCollectActivity.this.finish();
@@ -441,8 +420,7 @@ public class DeviceCollectActivity extends BaseActivity {
 							}
 						}
 					});
-			builder.setNegativeButton(
-					R.string.device_manager_devicecollect_cancel, null);
+			builder.setNegativeButton(R.string.device_manager_devicecollect_cancel, null);
 			builder.show();
 		}
 	}
@@ -450,8 +428,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private int isContain(DeviceItem dItem) {
 		int result = -1;
 		for (int i = 0; i < collectDeviceItemList.size(); i++) {
-			if (dItem.getDeviceName().equals(
-					collectDeviceItemList.get(i).getDeviceName())) {
+			if (dItem.getDeviceName().equals(collectDeviceItemList.get(i).getDeviceName())) {
 				result = i;
 				break;
 			}
@@ -494,7 +471,6 @@ public class DeviceCollectActivity extends BaseActivity {
 		lgPswdEdt = (EditText) findViewById(R.id.et_device_add_password);
 		noRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_no_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_yes_radioBtn);
-//		dfChnlEdt = (EditText) findViewById(R.id.et_device_add_defaultChannel);
 		chooseEdt.setKeyListener(null);
 		context = DeviceCollectActivity.this;
 		loadDataTask = new LoadCollectDeviceItemTask();
@@ -505,31 +481,39 @@ public class DeviceCollectActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case LOADNETDATADIALOG:
-			ProgressDialog progress = ProgressDialog.show(this, "",
-					getString(R.string.loading_devicedata_wait), true, true);
-			progress.setOnCancelListener(new OnCancelListener() {
-				@SuppressWarnings("deprecation")
+			loadPrg = ProgressDialog.show(this, "", getString(R.string.loading_devicedata_wait), true, true);
+			loadPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
-					dismissDialog(LOADNETDATADIALOG);
+					dismissLoadPRG();
 					synObject.resume();
 				}
 			});
-			return progress;
+			return loadPrg;
 		case CONNIDENTIFYDIALOG:
-			ProgressDialog progress2 = ProgressDialog.show(this, "",
-					getString(R.string.device_manager_conn_iden), true, true);
-			progress2.setOnCancelListener(new OnCancelListener() {
-				@SuppressWarnings("deprecation")
+			idenPrg = ProgressDialog.show(this, "", getString(R.string.device_manager_conn_iden), true, true);
+			idenPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
-					dismissDialog(CONNIDENTIFYDIALOG);
+					dismissIdenPRG();
 					conIdenTask.setCanceled(true);// 不进行验证
 				}
 			});
-			return progress2;
+			return idenPrg;
 		default:
 			return null;
+		}
+	}
+	
+	private void dismissIdenPRG(){
+		if (idenPrg!=null && idenPrg.isShowing()) {
+			idenPrg.dismiss();
+		}
+	}
+	
+	private void dismissLoadPRG(){
+		if (loadPrg!=null && loadPrg.isShowing()) {
+			loadPrg.dismiss();
 		}
 	}
 
@@ -547,8 +531,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			Message msg = new Message();
 			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 			try {
-				cloudAccountList = ReadWriteXmlUtils
-						.getCloudAccountList(fileName);
+				cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(CloudAccountInfoOpt.filePathOfCloudAccount);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

@@ -577,17 +577,13 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
 	}
 
-//	private void showContentToast(String content) {
-//		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
-//	}
-
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
 		if (!okFlag) {// if (!okFlag) {
 			showToast(ctx.getString(R.string.playback_content_null));
 		} else {
 			String vType = videoType.getText().toString();
-			int rTyPe = setRecordTypeAcc(vType);
+			int rTyPe = getRecordTypeAcc(vType);
 			if (rTyPe == -1) {
 				showToast(ctx.getString(R.string.playback_videotype_null));
 			} else {
@@ -646,7 +642,7 @@ public class TimeSettingActivity extends BaseActivity {
 		OWSPDateTime eTime = PlaybackUtils.getOWSPDateTime(endTime);
 
 		String vType = videoType.getText().toString();
-		setRecordTypeAcc(vType);
+		getRecordTypeAcc(vType);
 		int channel = 0;
 		if (visitDevItem != null) {
 			channel = TimeSettingUtils.getScanChannel(visitDevItem.getChannelList());
@@ -891,7 +887,7 @@ public class TimeSettingActivity extends BaseActivity {
 		}
 	}
 
-	private int setRecordTypeAcc(String type2) {
+	private int getRecordTypeAcc(String type2) {
 		String typeShAll = getString(R.string.playback_alarm_type);
 		String typeShD = getString(R.string.playback_alarm_type1);
 		String typeDsh = getString(R.string.playback_alarm_type2);
@@ -1061,6 +1057,4 @@ public class TimeSettingActivity extends BaseActivity {
 			return null;
 		}
 	}
-	
-	
 }

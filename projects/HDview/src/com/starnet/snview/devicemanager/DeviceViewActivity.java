@@ -243,8 +243,7 @@ public class DeviceViewActivity extends BaseActivity {
 				if (isReplace) {
 					Bundle bundle = data.getExtras();
 					if (bundle != null) {
-						DeviceItem svDevItem = (DeviceItem) bundle
-								.getSerializable("saveDeviceItem");
+						DeviceItem svDevItem = (DeviceItem) bundle.getSerializable("saveDeviceItem");
 						int index = bundle.getInt("index");
 						deviceItemList.set(index, svDevItem);
 					}

@@ -24,7 +24,7 @@ import com.starnet.snview.devicemanager.DeviceItem;
 @SuppressLint("SdCardPath")
 public class CloudAccountInfoOpt {
 	
-	private final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
+	public static final String filePathOfCloudAccount = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 	
 	//请求星云账号中设备平台的信息
 	private String domain;

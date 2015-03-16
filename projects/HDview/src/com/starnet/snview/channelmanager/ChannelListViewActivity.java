@@ -61,6 +61,7 @@ public class ChannelListViewActivity extends Activity {
 		childPos = Integer.valueOf(childPosition);
 		parentPos = Integer.valueOf(parentPosition);
 		String titleName = bundle.getString("deviceName");
+		boolean all = bundle.getBoolean("selectAll");
 		
 		CloudAccount clickCloudAccount = (CloudAccount) bundle.getSerializable("clickCloudAccount");//获取用户单击的星云账号...
 //		if (clickCloudAccount == null) {
@@ -73,6 +74,7 @@ public class ChannelListViewActivity extends Activity {
 		List<DeviceItem> deviceItemList = clickCloudAccount.getDeviceList();
 		DeviceItem deviceItem = deviceItemList.get(childPos);
 		channelList = deviceItem.getChannelList();
+		
 		channelSize = channelList.size();
 		// 判断通道数量的多少，如果数量比较多的话，则显示一个固定的界面；如果比较少的话，则根据通道数量的多少来显示界面的大小
 		if (channelSize < 11) {
@@ -94,21 +96,21 @@ public class ChannelListViewActivity extends Activity {
 		((View)titleView.getParent().getParent()).setBackgroundColor(Color.BLACK);
 		((View)titleView.getParent().getParent()).setPadding(0, 5, 0, 0);
 		
+		if (all) {
+			setChannelList();
+		}
 		ChannelListViewActivity.this.setTitle(titleName);//设置标题栏
 		initWadgetsAndAddListeners();
 	}
-
-//	private void setCloudAccount(CloudAccount clickCloudAccount) {
-//		clickCloudAccount.setUsername(getString(R.string.device_manager_collect_device));
-//		clickCloudAccount.setPort("8080");
-//		clickCloudAccount.setEnabled(true);
-//		clickCloudAccount.setRotate(true);
-//		List<DeviceItem>dList = new ArrayList<DeviceItem>();
-//		DeviceItem dItem = new DeviceItem();
-//		dItem
-//		clickCloudAccount.setDeviceList(dList);
-//	}
-
+	
+	private void setChannelList(){
+		if (channelList != null && channelList.size() > 0) {
+			for (Channel channl : channelList) {
+				channl.setSelected(true);
+			}
+		}
+	}
+	
 	private void initWadgetsAndAddListeners() {
 		context = ChannelListViewActivity.this;
 		myListView = (ListView) findViewById(R.id.channel_sublistview);
@@ -127,14 +129,12 @@ public class ChannelListViewActivity extends Activity {
 				bundle.putInt("parentPos", parentPos);
 				bundle.putSerializable("wca", writeCloudAccount);
 				intent.putExtras(bundle);
-				setResult(31,intent);
+				setResult(ChannelListActivity.CHANNELLISTVIEWACTIVITY,intent);
 				ChannelListViewActivity.this.finish();
 			}
 		});
-		// 为弹出的Item添加点击事件，每次单击的时候，需要从XML状态文件中读取，通道的选择情况来渲染界面；
-		// 为listview添加响应事件，并置单击后的图像变化，及通道的选择情况；
+		
 		myListView.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				ImageView img = (ImageView) view.findViewById(R.id.channel_listview_device_item_chkbox);// 方框显示按钮

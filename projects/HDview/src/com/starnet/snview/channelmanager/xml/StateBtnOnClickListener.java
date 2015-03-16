@@ -49,7 +49,7 @@ public class StateBtnOnClickListener implements OnClickListener {
 		this.cela = cela;
 		this.titleView = titleView;
 		this.context = context;
-	};// CloudAccount clickCloudAccount,
+	};
 
 	@Override
 	public void onClick(View v) {
@@ -92,7 +92,7 @@ public class StateBtnOnClickListener implements OnClickListener {
 		}
 
 		if (selectCloudAccount.getUsername().equals(CollectDeviceParams.COLLECTDEVICENAME_CHANNEL_TOUCH)) {
-			Thread thread = new Thread() {
+			new Thread() {
 				@Override
 				public void run() {
 					super.run();
@@ -106,24 +106,18 @@ public class StateBtnOnClickListener implements OnClickListener {
 						}
 					}
 				}
-			};
-			thread.start();
+			}.start();
 		}
-		List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils
-				.getPreviewChannelList(cloudAccountList);
-		GlobalApplication.getInstance().getRealplayActivity()
-				.setPreviewDevices_copy(touchPreviewItem);
+		List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils.getPreviewChannelList(cloudAccountList);
+		GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(touchPreviewItem);
 	}
 
 	@SuppressWarnings("deprecation")
 	private void startVisitNet() {
-		if (!deviceItem.isConnPass()
-				&& NetWorkUtils.checkNetConnection(context)) {// 需要进行验证
+		if (!deviceItem.isConnPass() && NetWorkUtils.checkNetConnection(context)) {// 需要进行验证
 			isTouch = true;
 			((ChannelListActivity) context).showDialog(CONNIDENTIFYDIALOG);
-			connTask = new ConnectionIdentifyTask(handler,
-					cloudAccountList.get(parentPos), deviceItem, parentPos,
-					childPos);
+			connTask = new ConnectionIdentifyTask(handler,cloudAccountList.get(parentPos), deviceItem, parentPos,childPos,true);
 			connTask.setContext(context);
 			connTask.start();
 		} else {
