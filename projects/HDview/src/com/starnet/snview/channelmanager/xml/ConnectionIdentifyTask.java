@@ -22,6 +22,7 @@ import com.starnet.snview.protocol.message.VersionInfoRequest;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
+import android.R.integer;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,6 +50,8 @@ public class ConnectionIdentifyTask {
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 	private boolean selectAll = false;
+	
+	private List<DeviceItem> dItems ;
 
 	public ConnectionIdentifyTask(Handler handler,CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
 			int childPos,boolean selectAll) {
@@ -72,7 +75,7 @@ public class ConnectionIdentifyTask {
 		timeOutThread = new Thread() {
 			@Override
 			public void run() {
-				super.run();
+				
 				int timeCount = 0;
 				boolean canRun = true;
 				while (canRun && !shouldTimeOutOver && !isCanceled) {
@@ -96,7 +99,12 @@ public class ConnectionIdentifyTask {
 		connectionThread = new Thread() {// Preview channel connection thread.
 			@Override
 			public void run() {
-				super.run();
+				try {
+					dItems = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				if (!isCanceled) {// user did not click back.
 					boolean isConnected = initialClientSocket();
 					if (isConnected) {
@@ -248,7 +256,10 @@ public class ConnectionIdentifyTask {
 				mHandler.sendMessage(msg);
 				try {
 					exit();
-					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+					int index = getIndexFromDeviceItem();
+					if (needChange(index)) {
+						ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mDeviceItem);	
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -263,12 +274,28 @@ public class ConnectionIdentifyTask {
 				mHandler.sendMessage(msg);
 				try {
 					exit();
-					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+					int index = getIndexFromDeviceItem();
+					if (needChange(index)) {
+						ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mDeviceItem);	
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	private int getIndexFromDeviceItem() {
+		int index = 0 ;
+		if (dItems != null && dItems.size() > 0) {
+			for (int i = 0; i < dItems.size(); i++) {
+				if (mDeviceItem.getDeviceName().equals(dItems.get(i).getDeviceName())) {
+					index = i;
+					break;
+				}
+			}
+		}		
+		return index;
 	}
 
 	/** 设置验证后的设备 ***/
@@ -287,7 +314,10 @@ public class ConnectionIdentifyTask {
 		mDeviceItem.setIdentify(true);
 		mDeviceItem.setConnPass(false);
 		try {
-			ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+			int index = getIndexFromDeviceItem();
+			if (needChange(index)) {
+				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mDeviceItem);	
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -309,7 +339,10 @@ public class ConnectionIdentifyTask {
 		mDeviceItem.setIdentify(true);
 		mDeviceItem.setConnPass(true);
 		try {
-			ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+			int index = getIndexFromDeviceItem();
+			if (needChange(index)) {
+				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mDeviceItem);	
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -370,13 +403,24 @@ public class ConnectionIdentifyTask {
 				mHandler.sendMessage(msg);
 			}
 			try {
-				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, mDeviceItem);
+				int index = getIndexFromDeviceItem();
+				if (needChange(index)) {
+					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mDeviceItem);	
+				}				
 				exit();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		shouldTimeOutOver = true;
+	}
+	
+	private boolean needChange(int index){
+		boolean result = false;
+		if(mDeviceItem.isConnPass() == dItems.get(index).isConnPass()){
+			result = true;
+		}
+		return result;
 	}
 
 	private void setBundleData(Bundle data) {
