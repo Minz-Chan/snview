@@ -86,7 +86,7 @@ public class ChannelListActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				if (prg != null && prg.isShowing()) {
 					prg.dismiss();
-					gotoChannelListViewActivity(msg,true);
+					gotoChannelListViewActivity(msg);
 					chExpAdapter.notifyDataSetChanged();
 				}
 				break;
@@ -144,13 +144,13 @@ public class ChannelListActivity extends BaseActivity {
 		setListenersForWadgets();
 	}
 
-	protected void gotoChannelListViewActivity(Message msg, boolean b) {
+	protected void gotoChannelListViewActivity(Message msg) {
 		Intent intent = new Intent();
 		Bundle data = msg.getData();
 		Bundle bundle = new Bundle();
 		intent.setClass(curContext, ChannelListViewActivity.class);
 		CloudAccount acount = (CloudAccount) data.getSerializable("clickCloudAccount");
-		bundle.putBoolean("selectAll", b);
+		bundle.putBoolean("selectAll", data.getBoolean("selectAll"));
 		bundle.putString("deviceName", data.getString("deviceName"));
 		bundle.putString("childPosition",String.valueOf(data.getInt("childPos")));
 		bundle.putString("groupPosition",String.valueOf(data.getInt("parentPos")));
@@ -804,16 +804,17 @@ public class ChannelListActivity extends BaseActivity {
 		}
 	}
 
-	private void gotoChannelListViewActivity(Message msg) {
-		Intent intent = new Intent();
-		Bundle data2 = msg.getData();
-		intent.setClass(curContext, ChannelListViewActivity.class);
-		CloudAccount acount = (CloudAccount) data2.getSerializable("clickCloudAccount");
-		data2.putString("deviceName", data2.getString("deviceName"));
-		data2.putString("childPosition",String.valueOf(data2.getInt("childPos")));
-		data2.putString("groupPosition",String.valueOf(data2.getInt("parentPos")));
-		data2.putSerializable("clickCloudAccount",acount);
-		intent.putExtras(data2);
-		startActivityForResult(intent, CHANNELLISTVIEWACTIVITY);
-	}
+//	private void gotoChannelListViewActivity(Message msg) {
+//		Intent intent = new Intent();
+//		Bundle data2 = msg.getData();
+//		intent.setClass(curContext, ChannelListViewActivity.class);
+//		CloudAccount acount = (CloudAccount) data2.getSerializable("clickCloudAccount");
+//		data2.putBoolean("selectAll", data2.getBoolean("selectAll"));
+//		data2.putString("deviceName", data2.getString("deviceName"));
+//		data2.putString("childPosition",String.valueOf(data2.getInt("childPos")));
+//		data2.putString("groupPosition",String.valueOf(data2.getInt("parentPos")));
+//		data2.putSerializable("clickCloudAccount",acount);
+//		intent.putExtras(data2);
+//		startActivityForResult(intent, CHANNELLISTVIEWACTIVITY);
+//	}
 }
