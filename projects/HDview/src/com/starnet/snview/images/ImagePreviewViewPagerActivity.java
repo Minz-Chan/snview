@@ -3,7 +3,6 @@ package com.starnet.snview.images;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
@@ -11,7 +10,7 @@ import com.starnet.snview.images.Image.ImageType;
 import com.starnet.snview.images.utils.PhotoView;
 import com.starnet.snview.images.utils.PhotoViewAttacher.OnViewTapListener;
 import com.starnet.snview.images.utils.SelfDefViewPager;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -50,7 +49,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 	private RelativeLayout mNavigationBar;					// 导航栏
 	private int click_time = 0;
 	private Button delete_button;
-	private PhotoView photoView;
+//	private PhotoView photoView;
 	private int video_click_time = 0 ;
 	
 
@@ -118,10 +117,10 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		ImageView mRightArrow = (ImageView) nToolbar.findViewById(R.id.base_toolbar_container_arrowright);
 		mRightArrow.setVisibility(View.GONE);					// 隐藏小按钮
 
-		setListenersForWadgets();
+		setListenersForWidgets();
 	}
 
-	private void setListenersForWadgets() {
+	private void setListenersForWidgets() {
 
 		imagepreview_leftBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -309,10 +308,10 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			return size;
 		}
 
-		@SuppressWarnings("deprecation")
+		@SuppressLint("NewApi")
 		@Override
 		public View instantiateItem(ViewGroup container, int position) {
-			photoView = new PhotoView(container.getContext());
+			PhotoView photoView = new PhotoView(container.getContext());
 			int mPostion = position;
 			int m_pos = mSelfDefViewPager.getCurrentItem();
 			Log.v(TAG, "m_pos:"+m_pos);
@@ -333,27 +332,29 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				String path = imageList.get(mPostion).getImagePath();
 				String jpgPath = swith2CapPath(path);
 					
-				View imageVideo = ((LayoutInflater) (context
+				View video = ((LayoutInflater) (context
 						.getSystemService(Context.LAYOUT_INFLATER_SERVICE)))
 						.inflate(R.layout.images_video_item, null, false);
-				RelativeLayout imageVideoContent = (RelativeLayout) imageVideo
+				RelativeLayout imageVideoContent = (RelativeLayout) video
 						.findViewById(R.id.images_video_content);
-				ImageButton playBtn = (ImageButton) imageVideo
+				ImageButton playBtn = (ImageButton) video
 						.findViewById(R.id.images_video_play);
 				Drawable bg = Drawable.createFromPath(jpgPath);//设置的缩略图背景...
 				if (bg == null) {
-					bg = getResources().getDrawable(R.drawable.demo_bg);
+//					bg = getResources().getDrawable(R.drawable.demo_bg);
+					bg = getResources().getDrawable(R.color.black);
 				}
 
 				int w = GlobalApplication.getInstance().getScreenWidth();
 				int h = w * bg.getIntrinsicHeight() / bg.getIntrinsicWidth();
 				
-				imageVideoContent.setBackgroundDrawable(bg);
+//				imageVideoContent.setBackgroundDrawable(bg);
+				imageVideoContent.setBackground(bg);
 				imageVideoContent.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 				
-				container.addView(imageVideo, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				container.addView(video, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 				
-				imageVideo.setOnClickListener(new OnClickListener() {
+				video.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						video_click_time++;
@@ -390,7 +391,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						startActivityForResult(intent, 10);
 					}
 				});
-				return imageVideo;
+				return video;
 			}
 		}
 

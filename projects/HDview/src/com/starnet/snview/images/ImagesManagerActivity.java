@@ -3,10 +3,9 @@ package com.starnet.snview.images;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ExpandableListView;
@@ -20,8 +19,6 @@ import com.starnet.snview.util.ActivityUtility;
 
 public class ImagesManagerActivity extends BaseActivity {
 	
-	private final String TAG = "ImagesManagerActivity";
-
 	private FrameLayout mBaseContentView;
 	private ExpandableListView mExpandableListView;
 	private ImagesExpandableListAdapter mExpandableListAdapter;
@@ -57,7 +54,8 @@ public class ImagesManagerActivity extends BaseActivity {
 		
 		
 		super.hideExtendButton();
-		super.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
+//		super.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
+		super.setRightButtonBg(R.drawable.navigation_bar_del_btn_selector);
 		super.setToolbarVisiable(false);
 		//super.setExtendBarVisible(false);
 		
@@ -73,12 +71,7 @@ public class ImagesManagerActivity extends BaseActivity {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单
-					ImagesManagerActivity.this.openMenuDrawer();					
-				} else {	// 退出图像管理编辑状态
-					switch2EditStatus(false);
-					mIsEdit = false;
-				}
+				backOrLeftOperation();
 			}
 		});
 		
@@ -149,8 +142,10 @@ public class ImagesManagerActivity extends BaseActivity {
 									R.color.navigation_bar_blue_bg));
 			ImagesManagerActivity.this
 					.setLeftButtonBg(R.drawable.navigation_bar_menu_btn_selector);
+//			ImagesManagerActivity.this
+//					.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
 			ImagesManagerActivity.this
-					.setRightButtonBg(R.drawable.navigation_bar_edit_btn_selector);
+			.setRightButtonBg(R.drawable.navigation_bar_del_btn_selector);
 			
 			setTitleText(0);
 			mExpandableListAdapter.setThumbnailSelectedCount(0);
@@ -230,15 +225,42 @@ public class ImagesManagerActivity extends BaseActivity {
 			}
 		}
 	}
+	
+	
+	
+	private void backOrLeftOperation(){
+		if (!mIsEdit) {	// 菜单按钮，处在非编辑状态，应该可以直接拉出抽屉菜单
+			ImagesManagerActivity.this.openMenuDrawer();					
+		} else {	// 退出图像管理编辑状态
+			switch2EditStatus(false);
+			mIsEdit = false;
+		}
+	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-		super.onActivityResult(requestCode, resultCode, data);
-		
-		Log.v(TAG, "data"+data);
-		
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+			if (mIsEdit) {
+				switch2EditStatus(false);
+				mIsEdit = false;
+				return true;
+			}else {
+				return super.onKeyDown(keyCode, event);
+			}
+			
+		}else {
+			return super.onKeyDown(keyCode, event);
+		}
 	}
+
+//	@Override
+//	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//		
+//		super.onActivityResult(requestCode, resultCode, data);
+//		
+//		Log.v(TAG, "data"+data);
+//		
+//	}
 	
 	
 }
