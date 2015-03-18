@@ -173,7 +173,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				} 
 				
 				int count = 0;
-				while (vHandler.getBufferQueue().write(tmp) == 0) {
+				while (vHandler.isAlive() && 
+						vHandler.getBufferQueue().write(tmp) == 0) {
 					Log.i(TAG, "video write queue full111...");
 					try {
 						if (count == 5) {
@@ -242,7 +243,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 					} 
 					
 					int count = 0;					
-					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
+					while (vHandler.isAlive() && 
+							vHandler.getBufferQueue().write(toBeWritten) == 0) {
 						Log.i(TAG, "video write queue full222...");
 						try {
 							if (count == 5) {

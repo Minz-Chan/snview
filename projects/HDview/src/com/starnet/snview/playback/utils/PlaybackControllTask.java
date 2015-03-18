@@ -278,6 +278,7 @@ public class PlaybackControllTask {
 			}
 			if ((videoPlayThread != null) && videoPlayThread.isAlive()) {
 				videoPlayThread.quit();
+				videoPlayHandler.setAlive(false);
 			}
 			
 			if (client != null && !client.isClosed() && client.isConnected()) {

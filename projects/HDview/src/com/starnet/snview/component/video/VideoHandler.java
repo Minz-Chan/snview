@@ -17,11 +17,15 @@ public class VideoHandler extends Handler {
 	private VideoBufferQueue bufferQueue;
 	private PlaybackLiveView videoView;
 	
+	private boolean isAlive;
+	
 	public VideoHandler(Looper looper, PlaybackLiveView playbackLiveView) {
 		super(looper);
 		this.videoView = playbackLiveView;
 		h264decoder = new H264DecodeUtil(this.toString());
 		bufferQueue = new VideoBufferQueue(this);
+		
+		isAlive = true;
 	}
 
 
@@ -72,5 +76,15 @@ public class VideoHandler extends Handler {
 	public VideoBufferQueue getBufferQueue() {
 		return bufferQueue;
 	}
+
+
+	public boolean isAlive() {
+		return isAlive;
+	}
+
+
+	public void setAlive(boolean isAlive) {
+		this.isAlive = isAlive;
+	}	
 	
 }
