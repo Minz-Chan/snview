@@ -72,7 +72,8 @@ private static final String TAG = null;
 						Log.d(TAG, "onResolutionChanged, oldWidth:" + oldWidth
 								+ ", oldHeihgt:" + oldHeight + ", newWidth:"
 								+ newWidth + ", newHeight:" + newHeight);
-						if (lvContainer.getVideoConfig().getFramerate() == 0){
+						int framerate = lvContainer.getVideoConfig().getFramerate();
+						if (framerate <= 0 || framerate > 120){
 							lvContainer.getVideoConfig().setFramerate(25);
 						}
 						lvContainer.getVideoConfig().setWidth(newWidth);
