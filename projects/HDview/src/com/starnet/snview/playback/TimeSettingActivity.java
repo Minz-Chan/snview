@@ -445,6 +445,12 @@ public class TimeSettingActivity extends BaseActivity {
 		startScanBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (tasks!=null) {
+					for (int i = 0; i < tasks.length; i++) {
+						tasks[i].setThreadOver(true);
+					}
+				}
+				
 				if (typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
 				}				

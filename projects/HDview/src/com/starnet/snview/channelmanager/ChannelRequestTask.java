@@ -32,6 +32,7 @@ public class ChannelRequestTask {
 	private Thread workThread;
 	private CloudAccount reqCA;
 	private final int TIME = 7;
+	private boolean clickOk;
 	private boolean isCanceled;
 	private SharedPreferences sp;
 	private boolean isDocumentOpt;
@@ -259,7 +260,7 @@ public class ChannelRequestTask {
 		isRequestTimeOut = true;
 		isTimeThreadOver = true;
 		isStartWorkRequest = true;
-		if (!isCanceled) {
+		if (!isCanceled && !clickOk) {
 			Message msg = new Message();
 			msg.what = ChannelListActivity.STAR_LOADDATA_TIMEOUT;
 			Bundle data = new Bundle();
@@ -278,6 +279,10 @@ public class ChannelRequestTask {
 		isStartWorkRequest = false;
 		timeThread.start();
 		workThread.start();
+	}
+	
+	public void setThreadOver(boolean threadOver){
+		this.clickOk = threadOver;
 	}
 
 	public void setCanceled(boolean isCanceled) {

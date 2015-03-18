@@ -57,8 +57,8 @@ public class ChannelListActivity extends BaseActivity {
 
 	private long start_time = 0;
 	private EditText searchEdt;
-	List<CloudAccount> searchList;
-	private ImageButton startScanButton;
+	private ImageButton startScanBtn;
+	private List<CloudAccount> searchList;
 	private boolean isFirstSearch = false;
 	private CloudAccount collectCloudAccount;
 	private final int CONNIDENTIFYDIALOG = 5;
@@ -227,11 +227,15 @@ public class ChannelListActivity extends BaseActivity {
 				return false;
 			}
 		});
-		startScanButton.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表，从cloudAccounts中就可以选择。。。
+		startScanBtn.setOnClickListener(new OnClickListener() {// 单击该按钮时，收集选择的通道列表，从cloudAccounts中就可以选择。。。
 
 					@Override
 					public void onClick(View v) {
-
+						if (tasks!=null) {
+							for (int i = 0; i < tasks.length; i++) {
+								tasks[i].setThreadOver(true);
+							}
+						}
 						boolean isAllLoaded = checkCloudAccountsLoad();
 						if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
 							previewChannelList = new ArrayList<PreviewDeviceItem>();
@@ -515,7 +519,7 @@ public class ChannelListActivity extends BaseActivity {
 		cloudAccounts_enable = new ArrayList<CloudAccount>();
 
 		curContext = ChannelListActivity.this;
-		startScanButton = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
+		startScanBtn = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpListView = (ExpandableListView) findViewById(R.id.channel_listview);
 
 		searchEdt = (EditText) findViewById(R.id.search_et);

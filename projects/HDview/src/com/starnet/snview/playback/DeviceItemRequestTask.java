@@ -29,6 +29,7 @@ public class DeviceItemRequestTask {
 	private Thread workThread;
 	private CloudAccount reqCA;
 	private final int TIME = 77;
+	private boolean threadOver;
 	private boolean isCanceled;
 	private boolean isDocumentOpt;
 	private boolean isRequestTimeOut;
@@ -70,7 +71,7 @@ public class DeviceItemRequestTask {
 				super.run();
 				boolean isRun = false;
 				int timeCount = 0;
-				while (!isRun && !isTimeThreadOver && !isCanceled) {
+				while (!isRun && !isTimeThreadOver && !isCanceled && !threadOver) {
 					timeCount++;
 					try {
 						Thread.sleep(1000);
@@ -84,6 +85,10 @@ public class DeviceItemRequestTask {
 				}
 			}
 		};
+	}
+	
+	public void setThreadOver(boolean threadOver){
+		this.threadOver = threadOver;
 	}
 
 	protected void sendMessageToUiFresh() throws Exception {
@@ -168,7 +173,9 @@ public class DeviceItemRequestTask {
 				data.putString("success", "Yes");
 				data.putSerializable("netCA", netAct);
 				msg.setData(data);
-				mHandler.sendMessage(msg);
+				if (!threadOver) {
+					mHandler.sendMessage(msg);
+				}
 			}
 		} else {
 			if (!isCanceled && !isStartWorkRequest) {
@@ -183,7 +190,9 @@ public class DeviceItemRequestTask {
 				data.putInt("position", pos);
 				data.putSerializable("netCA", reqCA);
 				msg.setData(data);
-				mHandler.sendMessage(msg);
+				if (!threadOver) {
+					mHandler.sendMessage(msg);
+				}
 			}
 		}
 	}
@@ -194,18 +203,21 @@ public class DeviceItemRequestTask {
 		isRequestTimeOut = true;
 		isTimeThreadOver = true;
 		isStartWorkRequest = true;
-		if (!isCanceled) {
+		if (!isCanceled && !threadOver) {
 			Message msg = new Message();
 			msg.what = TIMEOUT;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
 			msg.setData(data);
-			mHandler.sendMessage(msg);
+			if (!threadOver) {
+				mHandler.sendMessage(msg);
+			}
 		}
 	}
 
 	public void start() {
+		threadOver = false;
 		isCanceled = false;
 		isDocumentOpt = false;
 		isRequestTimeOut = false;

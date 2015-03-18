@@ -22,7 +22,6 @@ import com.starnet.snview.protocol.message.VersionInfoRequest;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-import android.R.integer;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,6 +50,7 @@ public class ConnectionIdentifyTask {
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 	private boolean selectAll = false;
 	
+//	private boolean clickOk;
 	private List<DeviceItem> dItems ;
 
 	public ConnectionIdentifyTask(Handler handler,CloudAccount clickCloudAccount, DeviceItem dItem, int parentPos,
@@ -65,7 +65,7 @@ public class ConnectionIdentifyTask {
 	}
 
 	private void initialThread() {
-
+//		clickOk = false;
 		isOnWorkdIOErr = false;
 		isConnectedOver = false;
 		shouldTimeOutOver = false;
@@ -176,7 +176,7 @@ public class ConnectionIdentifyTask {
 			setBundleData(data);
 			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
-			if (!isCanceled && !isOnWorkdUnknwnHost) {
+			if (!isCanceled && !isOnWorkdUnknwnHost) {// && !clickOk
 				mHandler.sendMessage(msg);
 			}
 		}
@@ -197,7 +197,7 @@ public class ConnectionIdentifyTask {
 			setBundleData(data);
 			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
-			if (!isCanceled && !isOnWorkdIOErr) {
+			if (!isCanceled && !isOnWorkdIOErr) {// && !clickOk 
 				mHandler.sendMessage(msg);
 			}
 		}
@@ -448,6 +448,10 @@ public class ConnectionIdentifyTask {
 		isOnWorkdIOErr = true;
 		exit();
 	}
+	
+//	public void setClickOk(boolean clickOk){
+//		this.clickOk = clickOk;
+//	}
 	
 	private void exit(){
 		if ( (client != null) && client.isConnected()) {

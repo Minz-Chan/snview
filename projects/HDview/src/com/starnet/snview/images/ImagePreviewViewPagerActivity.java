@@ -39,7 +39,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 	private Context context;
 	private int showSum;									// 导航栏中总数
 	private int showNum;									// 导航栏中第几幅画面
-	private TextView imagepreview_title;					// 显示设备的数量，以及显示画面的序号
+	private TextView imgNumInfoTitle;					// 显示设备的数量，以及显示画面的序号
 	private Button imagepreview_leftBtn;					// 返回按钮
 
 	private SelfDefViewPager mSelfDefViewPager;				// 自定义的ViewPager可以判断是左滑，还是右滑
@@ -48,13 +48,13 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 	private FrameLayout nToolbar;
 	private RelativeLayout mNavigationBar;					// 导航栏
 	private int click_time = 0;
-	private Button delete_button;
+	private Button deleteBtn;
 //	private PhotoView photoView;
 	private int video_click_time = 0 ;
 	
 
 	private ImagesManager mImagesManager;
-	List<Image> imageList = new LinkedList<Image>();
+	private List<Image> imageList = new LinkedList<Image>();
 
 
 	@Override
@@ -77,15 +77,13 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		mImagesManager = ImagesManager.getInstance();
 
 		imagepreview_leftBtn = super.getLeftButton();
-		imagepreview_title = super.getTitleView();
+		imgNumInfoTitle = super.getTitleView();
 
 		Intent intent = getIntent();
 		if (intent != null) {
-			String imgPosInMap = intent.getStringExtra("imgPosInMap");
-			String sumMap = intent.getStringExtra("sumMap");
-			showSum = Integer.valueOf(sumMap);
-			showNum = Integer.valueOf(imgPosInMap);
-			imagepreview_title.setText("(" + showNum + "/" + showSum + ")");// 测试使用...
+			showSum = Integer.valueOf(intent.getStringExtra("sumMap"));
+			showNum = Integer.valueOf(intent.getStringExtra("imgPosInMap"));
+			imgNumInfoTitle.setText("(" + showNum + "/" + showSum + ")");// 测试使用...
 
 			imageList = intent.getParcelableArrayListExtra("imageList");
 			int size = imageList.size();
@@ -93,7 +91,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		}
 
 		int cur_pos = showNum - 1;
-		mSelfDefViewPager = new SelfDefViewPager(context,imagepreview_title,showSum);
+		mSelfDefViewPager = new SelfDefViewPager(context,imgNumInfoTitle,showSum);
 		selfPagerAdapter = new SelfPagerAdapter();
 		mSelfDefViewPager.setAdapter(selfPagerAdapter);
 		mSelfDefViewPager.setCurrentItem(cur_pos);
@@ -107,12 +105,12 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 		subLayout.setBackgroundColor(getResources().getColor(
 				R.color.image_manager_delete_red));
 
-		delete_button = new Button(context);//自定义删除按钮
-		delete_button.setBackgroundResource(R.drawable.imagepreview_deletebtn_selector);
-		delete_button.setHeight(LayoutParams.WRAP_CONTENT);
-		delete_button.setWidth(LayoutParams.WRAP_CONTENT);
+		deleteBtn = new Button(context);//自定义删除按钮
+		deleteBtn.setBackgroundResource(R.drawable.imagepreview_deletebtn_selector);
+		deleteBtn.setHeight(LayoutParams.WRAP_CONTENT);
+		deleteBtn.setWidth(LayoutParams.WRAP_CONTENT);
 
-		subLayout.addView(delete_button, rParams);				// 将delete_button承装在相对布局中
+		subLayout.addView(deleteBtn, rParams);				// 将delete_button承装在相对布局中
 		nToolbar.addView(subLayout);							// 将相对布局承装在nToolbar中
 		ImageView mRightArrow = (ImageView) nToolbar.findViewById(R.id.base_toolbar_container_arrowright);
 		mRightArrow.setVisibility(View.GONE);					// 隐藏小按钮
@@ -129,7 +127,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			}
 		});
 
-		delete_button.setOnClickListener(new OnClickListener() {// 删除按钮...
+		deleteBtn.setOnClickListener(new OnClickListener() {// 删除按钮...
 					@Override
 					public void onClick(View v) {
 
@@ -152,7 +150,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 										if (ori_size >= 2) {								// 不止一张照片 删除最后一张照片，总数、序数同时变
 												if ((ori_size - 1 == cur_pos)) {
 												int m_ori_size = ori_size - 1;
-												imagepreview_title.setText("("+ cur_pos + "/"+ m_ori_size + ")");// 改变显示...
+												imgNumInfoTitle.setText("("+ cur_pos + "/"+ m_ori_size + ")");// 改变显示...
 												imageList.remove(cur_pos);					// 移除掉...
 												int m_cur_pos = cur_pos - 1;
 
@@ -191,7 +189,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 												if (cur_pos != 0) {// 不是第一张照片
 													Log.v(TAG,"delete meidia。。。。。");
 													int m_ori_size = ori_size - 1;
-													imagepreview_title.setText("("+ cur_pos+ "/"+ m_ori_size+ ")");// 改变显示...
+													imgNumInfoTitle.setText("("+ cur_pos+ "/"+ m_ori_size+ ")");// 改变显示...
 													imageList.remove(cur_pos);// 移除掉...
 
 													selfPagerAdapter.notifyDataSetChanged();
@@ -228,7 +226,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 												} else {// 是第一张照片时...
 													Log.v(TAG,"delete first。。。。。");
 													int m_ori_size = ori_size - 1;
-													imagepreview_title.setText("(1/"+ m_ori_size+ ")");// 改变显示...
+													imgNumInfoTitle.setText("(1/"+ m_ori_size+ ")");// 改变显示...
 													imageList.remove(cur_pos);// 移除掉...
 
 													selfPagerAdapter.notifyDataSetChanged();
@@ -337,8 +335,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						.inflate(R.layout.images_video_item, null, false);
 				RelativeLayout imageVideoContent = (RelativeLayout) video
 						.findViewById(R.id.images_video_content);
-				ImageButton playBtn = (ImageButton) video
-						.findViewById(R.id.images_video_play);
+				ImageButton playBtn = (ImageButton) video.findViewById(R.id.images_video_play);
 				Drawable bg = Drawable.createFromPath(jpgPath);//设置的缩略图背景...
 				if (bg == null) {
 //					bg = getResources().getDrawable(R.drawable.demo_bg);
@@ -448,7 +445,7 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			for (int i = 0; i < date_size; i++) {
 				sum += imagesManager.getImageListForDate(dateList.get(i)).size();
 			}
-			imagepreview_title.setText("(" + cur_pos + "/" + sum + ")");
+			imgNumInfoTitle.setText("(" + cur_pos + "/" + sum + ")");
 			ArrayList<Image> imgNewAdded = null;
 			try {
 				imgNewAdded = (ArrayList<Image>) data.getExtras().get("CAPTURE_NEW_ADDED");
