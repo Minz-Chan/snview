@@ -387,6 +387,7 @@ public class PlaybackActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				resetTimebar();
+				freeResource();				
 				Intent intent = new Intent();
 				intent.setClass(context, TimeSettingActivity.class);
 				startActivityForResult(intent, TIMESETTING_RTN_CODE);
@@ -948,7 +949,19 @@ public class PlaybackActivity extends BaseActivity {
 
 	@Override
 	public void onPause() {
+		Log.d(TAG, "onPause()");
 		super.onPause();
+	}
+
+	@Override
+	protected void onDestroy() {
+		Log.d(TAG, "onDestroy()");
+		super.onDestroy();
+		freeResource();
+	}
+	
+	private void freeResource() {
+		Log.d(TAG, "freeResource()");
 		closeRemoteSocket();
 		if (mVideoContainer.isInRecording()) {
 			setRecordButtonSelected(false);

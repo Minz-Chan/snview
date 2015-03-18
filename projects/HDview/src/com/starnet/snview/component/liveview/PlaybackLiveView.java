@@ -184,10 +184,8 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 			mScale.setScale(1.0F * (right-left) / mVideoBit.getWidth(), 
 					1.0F * (bottom-top) / mVideoBit.getHeight());
 		}
-
-		if (parent != null && parent.isConnected()) {
-			contentUpdate();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
-		}
+		
+		contentUpdate();  // 横竖屏切换时，图片先自动扩展，防止因网络原因部分Liveview未及时刷新
 		
 		super.onLayout(changed, left, top, right, bottom);
 	}
