@@ -52,7 +52,9 @@ import com.starnet.snview.playback.utils.TLV_V_RecordInfo;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.ClickEventUtils;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ClickEventUtils.OnActionListener;
 
 public class PlaybackActivity extends BaseActivity {
 	private static final String TAG = "PlaybackActivity";
@@ -567,6 +569,14 @@ public class PlaybackActivity extends BaseActivity {
 		editor.putString("last_query_starttime", sdf.format(c.getTime()));
 		editor.commit();
 	}
+	
+	private ClickEventUtils mToolbarItemClickCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			Toolbar.ACTION_ENUM action = (Toolbar.ACTION_ENUM) params[0];
+			onToolbarItemClick(action);
+		}
+	}, 500);
 
 	private Toolbar.OnItemClickListener mToolbarOnItemClickListener = new Toolbar.OnItemClickListener() {
 		@Override
@@ -575,32 +585,45 @@ public class PlaybackActivity extends BaseActivity {
 				return;
 			}
 			
-			switch (imgBtn.getItemData().getActionID()) {
-			case PLAY_PAUSE:
-				if (isFirstIn) {
-					showTostContent(getString(R.string.playback_not_remoteinfo));
-				} else {
-					String curTime = mTimebar.getCurrentTime();
-					playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
-				}
-				break;
-			case PICTURE:
-				mVideoContainer.takePicture();
-				break;
-			case VIDEO_RECORD:
-				processVideoRecord();
-				break;
-			case SOUND:
-				controlSound();
-				break;
-			case STOP:
-				stop();
-				break;
-			default:
-				break;
-			}
+			mToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
+					this.hashCode(), imgBtn.getItemData().getActionID());
 		}
 	};
+	
+	private void onToolbarItemClick(ACTION_ENUM actionId) {
+		switch (actionId) {
+		case PLAY_PAUSE:
+			if (isFirstIn) {
+				showTostContent(getString(R.string.playback_not_remoteinfo));
+			} else {
+				String curTime = mTimebar.getCurrentTime();
+				playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
+			}
+			break;
+		case PICTURE:
+			mVideoContainer.takePicture();
+			break;
+		case VIDEO_RECORD:
+			processVideoRecord();
+			break;
+		case SOUND:
+			controlSound();
+			break;
+		case STOP:
+			stop();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private ClickEventUtils mLandToolbarItemClickCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			Integer viewId = (Integer) params[0];
+			onLandToolbarItemClick(viewId);
+		}
+	}, 500);
 	
 	private LandControlbarClickListener mPlaybackLandToolbarClickListener = new LandControlbarClickListener() {
 		@Override
@@ -609,33 +632,37 @@ public class PlaybackActivity extends BaseActivity {
 				return;
 			}
 			
-			switch (v.getId()) {
-			case R.id.playback_landscape_capture_button:
-				mVideoContainer.takePicture();
-				break;
-			case R.id.playback_landscape_record_button:
-				processVideoRecord();
-				break;
-			case R.id.playback_landscape_pause_play_button:
-				if (isFirstIn) {
-					showTostContent(getString(R.string.playback_not_remoteinfo));
-				} else {
-					String curTime = mPlaybackLandscapeToolbar.getTimeBar().getCurrentTime();
-					playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
-				}
-				break;
-			case R.id.playback_landscape_sound_button:
-				controlSound();
-				break;
-			case R.id.playback_landscape_stop_button:
-				stop();
-				break;
-			default:
-				break;
-			}
-			
+			mLandToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
+					this.hashCode(), Integer.valueOf(v.getId()));
 		}
 	};
+	
+	private void onLandToolbarItemClick(int viewId) {
+		switch (viewId) {
+		case R.id.playback_landscape_capture_button:
+			mVideoContainer.takePicture();
+			break;
+		case R.id.playback_landscape_record_button:
+			processVideoRecord();
+			break;
+		case R.id.playback_landscape_pause_play_button:
+			if (isFirstIn) {
+				showTostContent(getString(R.string.playback_not_remoteinfo));
+			} else {
+				String curTime = mPlaybackLandscapeToolbar.getTimeBar().getCurrentTime();
+				playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
+			}
+			break;
+		case R.id.playback_landscape_sound_button:
+			controlSound();
+			break;
+		case R.id.playback_landscape_stop_button:
+			stop();
+			break;
+		default:
+			break;
+		}
+	}
 
 	@SuppressWarnings("deprecation")
 	private void playOrPause(OWSPDateTime startTime) {
