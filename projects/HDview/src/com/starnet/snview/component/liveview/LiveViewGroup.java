@@ -79,7 +79,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			mPtzControl.sendCommand(CTL_ACTION.STOP);	
 			getSelectedLiveview().stopArrowAnimation();
 		}
-	}, 300);
+	}, 500);
 	
 	/**
 	 * Delay to preview devices. Avoid calling preview function many times
@@ -90,9 +90,9 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private ClickEventUtils mPreviewCallDelay = new ClickEventUtils(new OnActionListener() {
 		@Override
 		public void OnAction(int clickCount, Object... params) {
-			realCallToPreviewCurrentScreen();
+			previewCurrentScreen();
 		}
-	}, 50);
+	}, 200);
 	
 	
 	private GestureDetector directionGestureDetector;
@@ -102,7 +102,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private VideoPager mPager;
 	private PTZControl mPtzControl;
 	private LiveControl mLiveControl;
-	private LiveViewManager mLiveViewManager;
 	private Handler mHandler;
 	
 	private List<PreviewDeviceItem> mDevices;
@@ -982,7 +981,8 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				Log.d(TAG, "Preview request has been accepted.");
 			}
 			requestPreview = false;
-			previewCurrentScreen();
+			//previewCurrentScreen();
+			mPreviewCallDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 		}
 	}
 	
