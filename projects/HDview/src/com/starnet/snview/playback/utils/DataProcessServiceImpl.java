@@ -175,20 +175,22 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int count = 0;
 				while (vHandler.getBufferQueue().write(tmp) == 0) {
 					Log.i(TAG, "video write queue full111...");
-					if (count == 5) {
-						count = 0;
-						Message msg = Message.obtain();
-						msg.what =VideoHandler.MSG_BUFFER_PROCESS;
-						vHandler.sendMessage(msg);
-					}
-					
 					try {
+						if (count == 5) {
+							count = 0;
+							Message msg = Message.obtain();
+							msg.what =VideoHandler.MSG_BUFFER_PROCESS;
+							vHandler.sendMessage(msg);
+						}
+						
 						Thread.sleep(10);
 						count++;
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
-					}
+						break;
+					} 
 				}
+				
 //				int result = 0;
 //				try {
 //					long t1 = System.currentTimeMillis();
@@ -239,21 +241,23 @@ public class DataProcessServiceImpl implements DataProcessService {
 						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
 					} 
 					
-					int count = 0;
+					int count = 0;					
 					while (vHandler.getBufferQueue().write(toBeWritten) == 0) {
 						Log.i(TAG, "video write queue full222...");
-						if (count == 5) {
-							count = 0;
-							Message msg = Message.obtain();
-							msg.what = VideoHandler.MSG_BUFFER_PROCESS;
-							vHandler.sendMessage(msg);
-						}
 						try {
+							if (count == 5) {
+								count = 0;
+								Message msg = Message.obtain();
+								msg.what =VideoHandler.MSG_BUFFER_PROCESS;
+								vHandler.sendMessage(msg);
+							}
+							
 							Thread.sleep(10);
 							count++;
-						} catch (InterruptedException e) {
+						} catch (Exception e) {
 							e.printStackTrace();
-						}
+							break;
+						} 
 					}
 					
 					isIFrameFinished = true;
