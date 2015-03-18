@@ -167,10 +167,9 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "$$$Frame data P:" + tmp.length);
 
-				
-				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-					MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), tmp, tmp.length);
-				} 
+//				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+//					MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), tmp, tmp.length);
+//				} 
 				
 				int count = 0;
 				while (vHandler.isAlive() && 
@@ -237,10 +236,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
 					byte[] toBeWritten = oneIFrameBuffer.flip().array();
-					
-					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
-					} 
+
+//					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+//						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
+//					} 
 					
 					int count = 0;					
 					while (vHandler.isAlive() && 
@@ -352,7 +351,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int sampleRate = (int) tlv_V_StreamDataFormat.getAudioFormat()
 						.getSamplesPerSecond();
 				
-				Log.i(TAG, "sampleRate: " + sampleRate);
+				Log.d(TAG, "sampleRate: " + sampleRate);
+				Log.d(TAG, "framerate: " + framerate);
 
 				if (tlv_V_StreamDataFormat != null) {
 					if (width > 0 && height > 0) {

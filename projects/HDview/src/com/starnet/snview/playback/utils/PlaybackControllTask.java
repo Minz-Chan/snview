@@ -122,10 +122,11 @@ public class PlaybackControllTask {
 		audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
 		
 		// Video play thread
-		videoPlayThread = new HandlerThread("videoPlayThread");
+		videoPlayThread = new HandlerThread("videoPlayThread", android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
 		videoPlayThread.start();
-		videoPlayHandler = new VideoHandler(videoPlayThread.getLooper(), 
-				((PlaybackActivity)context).getVideoContainer().getSurfaceView());
+		videoPlayHandler = new VideoHandler(context,
+				videoPlayThread.getLooper(), ((PlaybackActivity) context)
+						.getVideoContainer().getSurfaceView());
 		
 		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
 		controller = new PlaybackController();

@@ -1,8 +1,12 @@
 package com.starnet.snview.component.video;
 
 import com.starnet.snview.component.h264.H264DecodeUtil;
+import com.starnet.snview.component.h264.MP4Recorder;
 import com.starnet.snview.component.liveview.PlaybackLiveView;
+import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.playback.PlaybackActivity;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -13,14 +17,17 @@ public class VideoHandler extends Handler {
 	public static final int MSG_BUFFER_PROCESS = 0x11110001;
 	public static final int MSG_VIDEOPLAYER_INIT = 0x11110002;
 	
+	private Context context;
+	
 	private H264DecodeUtil h264decoder;
 	private VideoBufferQueue bufferQueue;
 	private PlaybackLiveView videoView;
 	
 	private boolean isAlive;
 	
-	public VideoHandler(Looper looper, PlaybackLiveView playbackLiveView) {
+	public VideoHandler(Context context, Looper looper, PlaybackLiveView playbackLiveView) {
 		super(looper);
+		this.context = context;
 		this.videoView = playbackLiveView;
 		h264decoder = new H264DecodeUtil(this.toString());
 		bufferQueue = new VideoBufferQueue(this);
@@ -47,12 +54,13 @@ public class VideoHandler extends Handler {
 		byte[] vData = bufferQueue.read();
 		
 		if (vData == null) {
+			Log.d(TAG, "processVideoData, data null");
 			return;
 		}
 		
 		int result = 0;
 		try {
-			Log.i(TAG, "$$$Process video data: " + vData.length);
+			Log.d(TAG, "$$$Process video data: " + vData.length);
 			result = h264decoder.decodePacket(vData, vData.length,
 					videoView.retrievetDisplayBuffer());
 			
@@ -60,12 +68,19 @@ public class VideoHandler extends Handler {
 			e.printStackTrace();
 		}
 
+		Log.d(TAG, "decode result: " + result);
 		if (result == 1) {
-			Log.i(TAG, "Video data size:" + vData.length);
-			Log.i(TAG, "*********************** update video: X Frame  *************************");
+			Log.d(TAG, "Video data size:" + vData.length);
+			Log.d(TAG, "*********************** update video: X Frame  *************************");
 			videoView.onContentUpdated();					
 		}
-		Log.i(TAG, "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1));
+		Log.d(TAG, "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1));
+		
+		if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+			Log.d(TAG, "MP4Recorder.packVideo, data size:" + vData.length);
+			int r = MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), vData, vData.length);
+			Log.d(TAG, "MP4Recorder.packVideo result:" + r);
+		} 
 	}
 	
 	public void onResolutionChanged(int newWidth, int newHeight) {
@@ -77,6 +92,13 @@ public class VideoHandler extends Handler {
 		return bufferQueue;
 	}
 
+	private PlaybackLiveViewItemContainer getPlaybackContainer() {
+		return getPlaybackActivity().getVideoContainer();
+	}
+
+	private PlaybackActivity getPlaybackActivity() {
+		return (PlaybackActivity) context;
+	}
 
 	public boolean isAlive() {
 		return isAlive;
