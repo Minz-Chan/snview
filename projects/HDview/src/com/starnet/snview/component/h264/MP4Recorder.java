@@ -2,7 +2,10 @@ package com.starnet.snview.component.h264;
 
 import java.util.HashMap;
 
+import android.util.Log;
+
 public class MP4Recorder {
+	private static final String TAG = "MP4Recorder";
 	private static HashMap<Long, Boolean> status = new HashMap<Long, Boolean>();
 	
 	static {
@@ -27,6 +30,7 @@ public class MP4Recorder {
     public static long createRecordFile(String filename, int width,
 			int height, int framerate, int AVCProfileIndication,
 			int profile_compat, int AVCLevelIndication) {
+    	Log.d(TAG, "createRecordFile, width:" +  width + ", height:" + height);
     	long fileHandler = MP4CreateRecordFile(filename, width, height, framerate,
     			AVCProfileIndication, profile_compat, AVCLevelIndication);
     	status.put(Long.valueOf(fileHandler), Boolean.valueOf(true));

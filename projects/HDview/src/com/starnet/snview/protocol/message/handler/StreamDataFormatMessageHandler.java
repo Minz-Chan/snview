@@ -43,10 +43,9 @@ public class StreamDataFormatMessageHandler implements
 		int width = message.getVideoDataFormat().getWidth();
 		int height = message.getVideoDataFormat().getHeight();
 		
-		lvContainer.getVideoConfig().setWidth(width);
-		lvContainer.getVideoConfig().setHeight(height);
-		
 		if (width > 0 && height > 0) {
+			lvContainer.getVideoConfig().setWidth(width);
+			lvContainer.getVideoConfig().setHeight(height);
 			lvContainer.getSurfaceView().init(width, height);
 			
 			h264.init(width, height);

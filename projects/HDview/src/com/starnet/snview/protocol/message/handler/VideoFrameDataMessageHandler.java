@@ -69,6 +69,15 @@ private static final String TAG = null;
 				public void onResolutionChanged(int oldWidth, int oldHeight, int newWidth,
 						int newHeight) {
 					if (lvContainer != null) {
+						Log.d(TAG, "onResolutionChanged, oldWidth:" + oldWidth
+								+ ", oldHeihgt:" + oldHeight + ", newWidth:"
+								+ newWidth + ", newHeight:" + newHeight);
+						if (lvContainer.getVideoConfig().getFramerate() == 0){
+							lvContainer.getVideoConfig().setFramerate(25);
+						}
+						lvContainer.getVideoConfig().setWidth(newWidth);
+						lvContainer.getVideoConfig().setHeight(newHeight);
+						lvContainer.setWindowInfoContent(newWidth + "x" + newHeight);
 						lvContainer.getSurfaceView().init(newWidth, newHeight);
 					}					
 				}

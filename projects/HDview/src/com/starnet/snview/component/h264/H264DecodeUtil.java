@@ -119,9 +119,11 @@ public class H264DecodeUtil {
 								Log.d(TAG, "real width:" + realWidth + ", height:" + realHeight);
 								Log.d(TAG, "curr width" + width +", height:" + height);
 								if (width != realWidth || height != realHeight) {
+									int oldWidth = width;
+									int oldHeight = height;
 									init(realWidth, realHeight);
 									if (mOnResolutionChangeListener != null) {
-										mOnResolutionChangeListener.onResolutionChanged(width, height, realWidth, realWidth);
+										mOnResolutionChangeListener.onResolutionChanged(oldWidth, oldHeight, realWidth, realHeight);
 									}
 //									VideoView.changeScreenRevolution(realWidth, realHeight);
 //									v.init();
