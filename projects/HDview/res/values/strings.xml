@@ -311,6 +311,7 @@
     <string name="playback_status_pause_requesting">请求暂停中&#8230;</string>
     <string name="playback_status_stop_requesting">请求停止中&#8230;</string>
     <string name="playback_status_resume_requesting">请求继续中&#8230;</string>
+    <string name="playback_status_eof">录像结束</string>
     <string name="playback_msg_canot_random">"当前为录像状态，请先停止录像!"</string>
     <string name="playback_not_open_play">网络未打开，请打开后再进行远程回放&#8230;</string>
     <string name="playback_not_remoteinfo">没有远程回放信息，请获取回放信息后，再进行播放与暂停&#8230;</string>

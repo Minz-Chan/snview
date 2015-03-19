@@ -60,6 +60,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				if (vHandler != null) {
 					vHandler.onResolutionChanged(newWidth, newHeight);
 				}
+				
+				getPlaybackActivity().stopMP4RecordIfInRecording();
 			}
 		});
 		
@@ -511,12 +513,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 		}
 		return returnValue;
 	}
-
-	private void updateTimebar(int second) {
-		// 更新时间轴
-		
-	}
-	
 	
 	private ArrayList<TLV_V_RecordInfo> recordInfoList = new ArrayList<TLV_V_RecordInfo>();
 
@@ -531,15 +527,5 @@ public class DataProcessServiceImpl implements DataProcessService {
 		msg.what = flag;
 		handler.sendMessage(msg);
 	}
-	
-//	private boolean isPauseFlag;
-//	private boolean isResumeFlag;
-//	public void setPause(boolean isPause){
-//		this.isPauseFlag = isPause;
-//	}
-//	public void setResume(boolean isResume){
-//		this.isResumeFlag = isResume;
-//	}
-	
 	
 }

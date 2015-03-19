@@ -85,6 +85,7 @@ public class PlaybackActivity extends BaseActivity {
 	public static final int NOTIFYREMOTEUIFRESH_EXCEPTION = 0x11240003;
 	public static final int RECV_STREAM_DATA_FORMAT = 0x11240004;
 	public static final int UPDATE_MIDDLE_TIME = 0x11240005;
+	public static final int RECORD_EOF = 0x11240006;
 	
 	public static final int ACTION_PLAY_SUCC = 0x11250000;
 	public static final int ACTION_PAUSE_SUCC = 0x11250001;
@@ -168,6 +169,12 @@ public class PlaybackActivity extends BaseActivity {
 				showTostContent(getString(R.string.playback_netvisit_timeout));
 				mVideoContainer
 						.setWindowInfoContent(getString(R.string.playback_status_connect_fail));
+				break;
+			case RECORD_EOF:
+				isPlaying = false;
+				setButtonToPlay();
+				stopMP4RecordIfInRecording();
+				mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_eof));
 				break;
 			case ACTION_PLAY_SUCC:
 				isPlaying = true;
@@ -990,6 +997,10 @@ public class PlaybackActivity extends BaseActivity {
 	private void freeResource() {
 		Log.d(TAG, "freeResource()");
 		closeRemoteSocket();
+		stopMP4RecordIfInRecording();
+	}
+	
+	public void stopMP4RecordIfInRecording() {
 		if (mVideoContainer.isInRecording()) {
 			setRecordButtonSelected(false);
 			mVideoContainer.stopMP4Record();
