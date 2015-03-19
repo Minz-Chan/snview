@@ -301,7 +301,7 @@ public class LiveViewItemContainer extends RelativeLayout {
 		final Connection conn = obtainConnection();
 		PreviewDeviceItem p = mPreviewItem;
 
-		conn.reInit();
+		conn.reInit(mItemIndex);
 		conn.setHost(p.getSvrIp());
 		conn.setPort(Integer.valueOf(p.getSvrPort()));
 		conn.setUsername(p.getLoginUser());

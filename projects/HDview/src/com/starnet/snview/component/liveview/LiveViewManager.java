@@ -523,7 +523,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				conn.SetConnectionListener(connectionStatusListener);
 			}
 
-			conn.reInit();
+//			conn.reInit();
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));
 			conn.setUsername(p.getLoginUser());
@@ -617,7 +617,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 				conn.SetConnectionListener(connectionStatusListener);
 			}
 
-			conn.reInit();
+//			conn.reInit();
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));
 			conn.setUsername(p.getLoginUser());
@@ -714,7 +714,7 @@ public class LiveViewManager implements ClickEventUtils.OnActionListener {
 
 			PreviewDeviceItem p = devices.get(startIndex - 1 + i);
 
-			conn.reInit();
+//			conn.reInit();
 
 			conn.setHost(p.getSvrIp());
 			conn.setPort(Integer.valueOf(p.getSvrPort()));

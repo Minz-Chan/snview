@@ -66,10 +66,10 @@ public class H264DecodeUtil {
 		return decoder.init(mInstanceId, width, height);  
 	}
 	
-	public int uninit() {
-		isCodecOpened = false;
-		return decoder.uninit(mInstanceId);
-	}
+//	public int uninit() {
+//		isCodecOpened = false;
+//		return decoder.uninit(mInstanceId);
+//	}
 
 	/**
 	 * decode array buffer of h264 video stream data, the minimum decode unit should be a NAL unit
@@ -129,7 +129,7 @@ public class H264DecodeUtil {
 									Log.d(TAG, "resolution changed...");
 									int oldWidth = width;
 									int oldHeight = height;
-									decoder.init(mInstanceId, width, height);
+									decoder.init(mInstanceId, realWidth, realHeight);
 									if (mOnResolutionChangeListener != null) {
 										mOnResolutionChangeListener
 												.onResolutionChanged(oldWidth,
@@ -300,14 +300,14 @@ public class H264DecodeUtil {
 		mMP4FileHanlde = 0;
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		if (decoder != null && isCodecOpened) {
-			decoder.uninit(mInstanceId);
-		}
-		
-		super.finalize();
-	}
+//	@Override
+//	protected void finalize() throws Throwable {
+//		if (decoder != null && isCodecOpened) {
+//			decoder.uninit(mInstanceId);
+//		}
+//		
+//		super.finalize();
+//	}
 	
 	public OnResolutionChangeListener getOnResolutionChangeListener() {
 		return mOnResolutionChangeListener;

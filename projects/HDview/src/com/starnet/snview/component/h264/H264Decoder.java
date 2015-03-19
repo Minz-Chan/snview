@@ -43,11 +43,11 @@ public class H264Decoder {
     }
     
     /**
-     * 解码器资源回收
+     * 回收解码器相关资源，仅在程序结束时回收一次
      * @return 返回1说明资源回收成功，否则表示失败
      */
-    public int uninit(int instance_id) {
-    	return UninitDecoder(instance_id);
+    public static int uninit(int instance_id) {
+    	return UninitDecoder(0);
     }
     
     /**

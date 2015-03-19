@@ -112,11 +112,17 @@ public class Connection extends DemuxingIoHandler {
         initMessageHandler();
     }
     
-    public void reInit() {
+    /**
+     * 重新初始化连接
+     * @param itemIndex 用于确定使用哪一个解码器
+     */
+    public void reInit(int itemIndex) {
     	isDisposed = false;
     	isConnecting = false;
     	isJustAfterConnected = false;
     	isShowComponentChanged = false;
+    	
+    	mH264decoder = new H264DecodeUtil(String.valueOf(itemIndex%4));
     	
     	if (!connector.isDisposed()) {
     		connector.dispose(true);
@@ -468,7 +474,7 @@ public class Connection extends DemuxingIoHandler {
 		}
 
 		if (mH264decoder != null) {
-			mH264decoder.uninit();
+			//mH264decoder.uninit();
 		}
 	}
 

@@ -18,6 +18,7 @@ import com.starnet.snview.component.Toolbar;
 import com.starnet.snview.component.VideoPager;
 import com.starnet.snview.component.Toolbar.ActionImageButton;
 import com.starnet.snview.component.VideoPager.ACTION;
+import com.starnet.snview.component.h264.H264Decoder;
 import com.starnet.snview.component.liveview.LiveViewGroup;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.QuarteredViewGroup.MODE;
@@ -1149,6 +1150,7 @@ public class RealplayActivity extends BaseActivity {
 //		liveViewManager.closeAllConnection(false);
 		mLiveviewGroup.stopPreviewCurrentScreen();
 		savePreviewStatus();
+		H264Decoder.uninit(0); // 回收所有解码器资源
 		super.onDestroy();
 	}
 	

@@ -29,7 +29,7 @@ public class VideoHandler extends Handler {
 		super(looper);
 		this.context = context;
 		this.videoView = playbackLiveView;
-		h264decoder = new H264DecodeUtil(this.toString());
+		h264decoder = new H264DecodeUtil(String.valueOf(0));
 		bufferQueue = new VideoBufferQueue(this);
 		
 		isAlive = true;
