@@ -59,7 +59,7 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 	
 	private Paint mPaint = new Paint();	
 	
-	private H264DecodeUtil mH264decoder;
+//	private H264DecodeUtil mH264decoder;
 
 	
 	
@@ -67,14 +67,14 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		super(context, attrs);
 		mContext = context;
 		mPaint.setColor(Color.RED);
-		mH264decoder = new H264DecodeUtil(String.valueOf(this.hashCode()));
+//		mH264decoder = new H264DecodeUtil(String.valueOf(this.hashCode()));
 		
 	}
 	public PlaybackLiveViewItemContainer(Context context) {
 		super(context);
 		mContext = context;
 		mPaint.setColor(Color.RED);
-		mH264decoder = new H264DecodeUtil(String.valueOf(this.hashCode()));
+//		mH264decoder = new H264DecodeUtil(String.valueOf(this.hashCode()));
 	}
 
 	public void findSubViews() {
@@ -124,9 +124,9 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		mWindowInfoText.setText(null);
 	}	
 	
-	public H264DecodeUtil getH264Decoder() {
-		return mH264decoder;
-	}
+//	public H264DecodeUtil getH264Decoder() {
+//		return mH264decoder;
+//	}
 
 //	public void setIsResponseError(boolean isResponseError) {
 //		this.mIsResponseError = isResponseError;

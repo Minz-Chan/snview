@@ -69,8 +69,8 @@ public class VideoHandler extends Handler {
 		}
 
 		Log.d(TAG, "decode result: " + result);
-		if (result == 1) {
-			Log.d(TAG, "Video data size:" + vData.length);
+		Log.d(TAG, "Video data size:" + vData.length);
+		if (result == 1) {			
 			Log.d(TAG, "*********************** update video: X Frame  *************************");
 			videoView.onContentUpdated();					
 		}
@@ -100,10 +100,13 @@ public class VideoHandler extends Handler {
 		return (PlaybackActivity) context;
 	}
 
+	public H264DecodeUtil getH264Decoder() {
+		return h264decoder;
+	}
+	
 	public boolean isAlive() {
 		return isAlive;
 	}
-
 
 	public void setAlive(boolean isAlive) {
 		this.isAlive = isAlive;

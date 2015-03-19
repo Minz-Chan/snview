@@ -1,6 +1,7 @@
 package com.starnet.snview.playback.utils;
 
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -46,12 +47,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 		this.context = context;
 		this.aHandler = audioHandler;
 		this.vHandler = videoHandler;
-		h264 = getPlaybackContainer().getH264Decoder();
+		h264 = vHandler.getH264Decoder();
 		h264.init(352, 288);
 		h264.setOnResolutionChangeListener(new OnResolutionChangeListener() {
 			@Override
 			public void onResolutionChanged(int oldWidth, int oldHeight, int newWidth,
 					int newHeight) {
+				Log.d(TAG, "onResolutionChanged, [" + oldWidth + ", "
+						+ oldHeight + ", " + newWidth + ", " + newHeight + "]");
 				getPlaybackContainer().getVideoConfig().setWidth(newWidth);
 				getPlaybackContainer().getVideoConfig().setHeight(newHeight);
 				if (vHandler != null) {
@@ -212,9 +215,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
 						TLV_V_VideoData.class, data, flag,
 						tlv_Header.getTlv_len());
-
+				
+				Log.d(TAG, "(I)Video data size:" + tmp.length);
+				
 				if (lastType == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO_EX
 						|| lastType == TLV_T_Command.TLV_T_VIDEO_FRAME_INFO) {
+					Log.d(TAG, "I Frame found...");
 					h264.setbFirst(true);
 					h264.setbFindPPS(true);
 					
@@ -235,8 +241,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
-					byte[] toBeWritten = oneIFrameBuffer.flip().array();
-
+					int dataSize = oneIFrameBuffer.position();
+					ByteBuffer buf = ByteBuffer.allocate(dataSize);
+					buf.put(oneIFrameBuffer.flip().array(), 0, dataSize);
+					byte[] toBeWritten = buf.array();
+					
+					Log.d(TAG, "Video data size , toBeWritten.length:" + toBeWritten.length);
+					
 //					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
 //						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
 //					} 
@@ -249,7 +260,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 							if (count == 5) {
 								count = 0;
 								Message msg = Message.obtain();
-								msg.what =VideoHandler.MSG_BUFFER_PROCESS;
+								msg.what = VideoHandler.MSG_BUFFER_PROCESS;
 								vHandler.sendMessage(msg);
 							}
 							

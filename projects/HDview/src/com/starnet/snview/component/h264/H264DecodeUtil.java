@@ -53,6 +53,14 @@ public class H264DecodeUtil {
 	
 	public int init(int width, int height) {
 		isCodecOpened = true;
+		
+		if (this.width != width || this.height != height) {
+			if (mOnResolutionChangeListener != null) {
+				mOnResolutionChangeListener.onResolutionChanged(this.width,
+						this.height, width, height);
+			}
+		}
+		
 		this.width = width;
 		this.height = height;
 		return decoder.init(mInstanceId, width, height);  
@@ -113,27 +121,26 @@ public class H264DecodeUtil {
 							
 							if (H264Decoder.probeSps(NalBuf, NalBufUsed - 4, param) == 1) { // 根据得到的参数判断分辨率信息是否发生变化
 								Log.d(TAG, "->H264DecodeUtil->probe_sps");
-//								VideoView v = ViewManager.getInstance().getVideoView();
 								int realWidth = ((param[2] + 1) * 16);
 								int realHeight = ((param[3] + 1) * 16);
 								Log.d(TAG, "real width:" + realWidth + ", height:" + realHeight);
-								Log.d(TAG, "curr width" + width +", height:" + height);
+								Log.d(TAG, "curr width:" + width +", height:" + height);
 								if (width != realWidth || height != realHeight) {
+									Log.d(TAG, "resolution changed...");
 									int oldWidth = width;
 									int oldHeight = height;
-									init(realWidth, realHeight);
+									decoder.init(mInstanceId, width, height);
 									if (mOnResolutionChangeListener != null) {
-										mOnResolutionChangeListener.onResolutionChanged(oldWidth, oldHeight, realWidth, realHeight);
+										mOnResolutionChangeListener
+												.onResolutionChanged(oldWidth,
+														oldHeight, realWidth,
+														realHeight);
 									}
-//									VideoView.changeScreenRevolution(realWidth, realHeight);
-//									v.init();
 								}
 							} else {
 								Log.d(TAG, "->H264DecodeUtil->probe_sps , can not return 1");
 							}
 							
-//							System.arraycopy(NalBuf, 4, AVConfig.Video.sps, 0, (NalBufUsed - 4) - 4);
-//							AVConfig.Video.spsLen = (NalBufUsed - 4) - 4;
 							
 						} else {				// if NAL unit sequence is not 'sps, pps, ...', reread from buffer
 			   				NalBuf[0] = 0;
