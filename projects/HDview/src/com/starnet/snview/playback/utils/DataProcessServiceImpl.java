@@ -241,10 +241,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
+					/*
 					int dataSize = oneIFrameBuffer.position();
 					ByteBuffer buf = ByteBuffer.allocate(dataSize);
 					buf.put(oneIFrameBuffer.flip().array(), 0, dataSize);
-					byte[] toBeWritten = buf.array();
+					byte[] toBeWritten = buf.array();*/
+					byte[] toBeWritten = oneIFrameBuffer.flip().array();
 					
 					Log.d(TAG, "Video data size , toBeWritten.length:" + toBeWritten.length);
 					
