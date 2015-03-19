@@ -834,14 +834,21 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 	
+	private static int TAKE_PICTURE_INTERVAL = 1;
+	private long takePictureStarttime = 0;
 	private void takePicture() {
 		if (checkIfPreviewDeviceListEmpty()) {
 			return;
 		}
 		
-		LiveViewItemContainer c = mLiveviewGroup.getSelectedLiveview();
-		if (c.isConnected()) {
-			c.takePicture();
+		long t = System.currentTimeMillis();
+		long clickInterval = (t-takePictureStarttime)/1000;
+		if (clickInterval >= TAKE_PICTURE_INTERVAL) {
+			LiveViewItemContainer c = mLiveviewGroup.getSelectedLiveview();
+			if (c.isConnected()) {
+				c.takePicture();
+			}
+			takePictureStarttime = t;
 		}
 	}
 	
