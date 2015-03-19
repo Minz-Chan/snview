@@ -139,6 +139,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
 				
+				checkVideoRecorderStatus(time);
+				
 				// 更新时间轴
 				if (oldSecond != second) { 
 					Message msg = Message.obtain();
@@ -316,6 +318,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						tlv_Header.getTlv_len());
 				
 				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+					Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
 					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
 				} 
 				
@@ -392,6 +395,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 					Message msg = Message.obtain();
 					msg.what = PlaybackActivity.RECV_STREAM_DATA_FORMAT;
 					handler.sendMessage(msg);
+					
+					lastVideoTimestamp = 0;
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//TLV_T_LOGIN_ANSWER
 				Log.i(TAG, "######TLV TYPE: TLV_T_LOGIN_ANSWER");
@@ -421,6 +426,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int minute = (int) ((time / (1000*60)) % 60);
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
+				
+				checkVideoRecorderStatus(time);
 				
 				// 更新时间轴
 				if (oldSecond != second) { 
@@ -520,12 +527,20 @@ public class DataProcessServiceImpl implements DataProcessService {
 	public ArrayList<TLV_V_RecordInfo> getRecordInfos() {
 		return recordInfoList;
 	}
-
 	
 	private void sendMsgToPlayActivity(int flag){
 		Message msg = new Message();
 		msg.what = flag;
 		handler.sendMessage(msg);
+	}
+	
+	private long lastVideoTimestamp = 0;
+	private void checkVideoRecorderStatus(long videoTimestamp) {
+		long delta = (videoTimestamp - lastVideoTimestamp) / 1000;
+		if (lastVideoTimestamp != 0 && delta >= 60) { // 若视频时间戳间隔超过1分钟，说明录像源已变更
+			getPlaybackActivity().stopMP4RecordIfInRecording();
+		}
+		lastVideoTimestamp = videoTimestamp;		
 	}
 	
 }

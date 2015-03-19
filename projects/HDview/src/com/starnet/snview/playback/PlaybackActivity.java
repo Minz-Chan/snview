@@ -126,7 +126,7 @@ public class PlaybackActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case RECV_STREAM_DATA_FORMAT:
-				stopMP4RecordIfInRecording();
+				//stopMP4RecordIfInRecording();
 				
 				canUpdateTimebar = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
@@ -1003,10 +1003,16 @@ public class PlaybackActivity extends BaseActivity {
 	}
 	
 	public void stopMP4RecordIfInRecording() {
-		if (mVideoContainer.isInRecording()) {
-			setRecordButtonSelected(false);
-			mVideoContainer.stopMP4Record();
-		}
+		Log.d(TAG, "stopMP4RecordIfInRecording()");
+		PlaybackActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (mVideoContainer.isInRecording()) {
+					setRecordButtonSelected(false);
+					mVideoContainer.stopMP4Record();
+				}
+			}
+		});
 	}
 
 	@Override
