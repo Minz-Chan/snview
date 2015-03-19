@@ -126,6 +126,8 @@ public class PlaybackActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case RECV_STREAM_DATA_FORMAT:
+				stopMP4RecordIfInRecording();
+				
 				canUpdateTimebar = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
 						.getPlaybackItem().getDeviceRecordName());

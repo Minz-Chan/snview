@@ -39,15 +39,19 @@ public class VideoBufferQueue {
 		Log.i(TAG, "writeBufferQueue.size():" + writeBufferQueue.size());
 		if (!writeBufferQueue.isEmpty()) {
 			VideoBuffer buf = writeBufferQueue.peek();
-			buf.set(src);
-			Log.i(TAG, "writeBufferQueue set to id " + buf.id);
-			readBufferQueue.offer(writeBufferQueue.poll());
-			
-			Message msg = Message.obtain();
-			msg.what = VideoHandler.MSG_BUFFER_PROCESS;
-			videoHandler.sendMessage(msg);
-			
-			return src.length;
+			if (buf != null) {
+				buf.set(src);
+				Log.i(TAG, "writeBufferQueue set to id " + buf.id);
+				readBufferQueue.offer(writeBufferQueue.poll());
+				
+				Message msg = Message.obtain();
+				msg.what = VideoHandler.MSG_BUFFER_PROCESS;
+				videoHandler.sendMessage(msg);
+				
+				return src.length;
+			} else {
+				writeBufferQueue.poll();  // if head element is null, then remove it
+			}
 		}
 		
 		return 0;
@@ -72,7 +76,7 @@ public class VideoBufferQueue {
 //		return 0;
 //	}
 	
-	public byte[] read() {
+	public synchronized byte[] read() {
 		Log.i(TAG, "readBufferQueue.size():" + readBufferQueue.size());
 		if (!readBufferQueue.isEmpty()) {
 			VideoBuffer buf = readBufferQueue.peek();

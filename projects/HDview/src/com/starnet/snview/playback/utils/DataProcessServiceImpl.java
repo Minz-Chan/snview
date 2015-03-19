@@ -59,9 +59,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 				getPlaybackContainer().getVideoConfig().setHeight(newHeight);
 				if (vHandler != null) {
 					vHandler.onResolutionChanged(newWidth, newHeight);
-				}
-				
-				getPlaybackActivity().stopMP4RecordIfInRecording();
+				}				
 			}
 		});
 		
