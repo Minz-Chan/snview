@@ -988,8 +988,8 @@ public class RealplayActivity extends BaseActivity {
 				R.drawable.toolbar_video_record_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.PTZ,
 				R.drawable.toolbar_ptz_selector));
-		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.QUALITY,
-				R.drawable.toolbar_quality_high_selector));
+//		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.QUALITY,
+//				R.drawable.toolbar_quality_high_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.MICROPHONE,
 				R.drawable.toolbar_microphone_stop_selector));
 		itemList.add(new Toolbar.ItemData(Toolbar.ACTION_ENUM.SOUND,

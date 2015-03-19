@@ -78,7 +78,7 @@
 				
                 <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 视频质量 -->
-                <ImageButton android:id="@id/landscape_liveview_quality_button" android:background="@drawable/landscape_quality_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <ImageButton android:id="@id/landscape_liveview_quality_button" android:visibility="gone" android:background="@drawable/landscape_quality_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
 				
                 <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 删除所有选中 -->
@@ -98,7 +98,7 @@
 				
                 <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="2.0" />
 				<!-- 放大 -->
-                <ImageButton android:id="@id/landscape_liveview_enlarge_button" android:background="@drawable/landscape_enlarge_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+                <ImageButton android:id="@id/landscape_liveview_enlarge_button" android:visibility="gone" android:background="@drawable/landscape_enlarge_selector" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" />
                 <LinearLayout android:clickable="false" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" />
             </LinearLayout>
         </FrameLayout>
