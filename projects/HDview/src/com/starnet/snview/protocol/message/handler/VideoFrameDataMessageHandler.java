@@ -132,8 +132,8 @@ private static final String TAG = null;
 		
 		long t1 = System.currentTimeMillis();
 		
-		h264.decodePacket(data, length,
-				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());		
+		int decodeResult = h264.decodePacket(data, length,
+				((LiveView) liveViewChangedListener).retrievetDisplayBuffer());
 		
 		Log.i(TAG, "decode consume: " + (System.currentTimeMillis()-t1));
 		
@@ -142,8 +142,8 @@ private static final String TAG = null;
 		}
 		
 		// 更新视频显示
-		if (liveViewChangedListener != null && !connection.getLiveViewItemContainer().isManualStop()) {
-			//System.out.println(liveViewChangedListener + "@before onDisplayContentUpdated" );
+		if (decodeResult == 1 && liveViewChangedListener != null
+				&& !connection.getLiveViewItemContainer().isManualStop()) {
 			liveViewChangedListener.onContentUpdated();
 		}
 	}

@@ -136,6 +136,8 @@ public class H264DecodeUtil {
 														oldHeight, realWidth,
 														realHeight);
 									}
+									width = realWidth;
+									height = realHeight;
 								}
 							} else {
 								Log.d(TAG, "->H264DecodeUtil->probe_sps , can not return 1");
