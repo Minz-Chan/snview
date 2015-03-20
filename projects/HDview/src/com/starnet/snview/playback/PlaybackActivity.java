@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -45,6 +46,7 @@ import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.TimeBar.OnActionMoveCallback;
 import com.starnet.snview.playback.utils.PlaybackControllTask.PlaybackRequest;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
@@ -472,25 +474,36 @@ public class PlaybackActivity extends BaseActivity {
 		this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
 	}
 	
+	private static final long TIMEBAR_PICKED_UP_INTERVAL = 1;
 	private ClickEventUtils mRandomEventCallDelay = new ClickEventUtils(new OnActionListener() {
 		@Override
 		public void OnAction(int clickCount, Object... params) {
 			Calendar calendar = (Calendar)params[0];
 			onRandomEvent(calendar);
 		}
-	}, 1000);
+	}, TIMEBAR_PICKED_UP_INTERVAL*1000);
 
+	private long onTimePickedCalledbackTime;
 	private void initTimebar() {
 		mTimebar = (TimeBar) findViewById(R.id.timebar_control);
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
-				canUpdateTimebar = false;
+				onTimePickedCalledbackTime = System.currentTimeMillis();
 				mRandomEventCallDelay.makeContinuousClickCalledOnce(this.hashCode(), calendar);
 			}
 		};
 
 		mTimebar.setTimeBarCallback(mTimeBarCallBack);
+		
+		mTimebar.setOnActionMoveCallback(new OnActionMoveCallback() {
+			@Override
+			public void onActionMove(MotionEvent e) {
+				onTimebarActionMove(e);
+			}
+		});
+		
+		
 		mTimebar.reset();
 		mTimebar.setCurrentTime(Calendar.getInstance());
 	}
@@ -503,6 +516,17 @@ public class PlaybackActivity extends BaseActivity {
 		
 		if (pbcTask != null) {
 			random(calendar);
+		}
+	}
+	
+	public void onTimebarActionMove(MotionEvent e) {
+		canUpdateTimebar = false;
+		
+		long currentTime = System.currentTimeMillis();
+		long delta = currentTime-onTimePickedCalledbackTime;
+		Log.d(TAG, "onTimebarActionMove, delta:" + delta);
+		if (delta < TIMEBAR_PICKED_UP_INTERVAL*1000) {
+			mRandomEventCallDelay.cancle();
 		}
 	}
 

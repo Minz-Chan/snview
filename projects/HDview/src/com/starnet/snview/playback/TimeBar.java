@@ -100,9 +100,10 @@ public class TimeBar extends View {
 	}
 	
 	private void OnActionMove(MotionEvent e) {
-		float moveOffsetOnX = e.getX() - mLastTouchX;
-
+		Log.d(TAG, "OnActionMove");
+		float moveOffsetOnX = e.getX() - mLastTouchX;		
 		if (Math.abs(moveOffsetOnX) >= mMoveSensitive) {
+			Log.d(TAG, "mIsFrozen:" + mIsFrozen + ", mOnActionMoveCallback:" + mOnActionMoveCallback);
 			mLastTouchX = e.getX();
 			if (!mIsFrozen) {
 				mTouchMoved = true;
