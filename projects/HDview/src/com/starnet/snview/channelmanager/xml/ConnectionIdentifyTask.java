@@ -417,7 +417,7 @@ public class ConnectionIdentifyTask {
 	
 	private boolean needChange(int index){
 		boolean result = false;
-		if(mDeviceItem.isConnPass() == dItems.get(index).isConnPass()){
+		if(mDeviceItem.isConnPass() != dItems.get(index).isConnPass()){
 			result = true;
 		}
 		return result;
