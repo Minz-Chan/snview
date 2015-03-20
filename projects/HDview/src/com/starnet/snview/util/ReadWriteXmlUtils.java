@@ -377,7 +377,7 @@ public class ReadWriteXmlUtils {
 
 	/*** 替换特定位置的元素 ***/
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	public static void replaceSpecifyDeviceItem(String filePath, int index,
+	public synchronized static void replaceSpecifyDeviceItem(String filePath, int index,
 			DeviceItem item) throws Exception {
 		File file = new File(filePath);
 		if (!file.exists()) {

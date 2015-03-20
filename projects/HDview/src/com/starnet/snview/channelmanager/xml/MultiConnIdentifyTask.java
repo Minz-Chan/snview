@@ -51,7 +51,7 @@ public class MultiConnIdentifyTask {
 	private List<DeviceItem> mItems;
 
 	private final int defaultChannelNum = 1;
-	private final int TIMECOUNT = 7;
+	private final int TIMECOUNT = 17;
 
 	private boolean connectionLongOver;
 	private boolean timeThreadOver;
@@ -128,6 +128,7 @@ public class MultiConnIdentifyTask {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
+				Log.i(TAG, "expection:"+e.getMessage());
 			}
 		}
 	}
@@ -154,24 +155,24 @@ public class MultiConnIdentifyTask {
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
-				closeSocket();
-				replaceItem();
+				replaceItem(true);
+//				closeSocket();
 			}
 		} else if (len == 20) {
 			Log.i(TAG, "len == 20");
 			timeThreadOver = true;
 			if (!isCanceled) {
 				connIdentifyFail(msg, data);
-				closeSocket();
-				replaceItem();
+//				closeSocket();
+				replaceItem(false);
 			}
 		} else {
 			timeThreadOver = true;
 			Log.i(TAG, "other....len:"+len);
 			if (!isCanceled) {
 				connIdentifyFail(msg, data);
-				closeSocket();
-				replaceItem();
+//				closeSocket();
+				replaceItem(false);
 			}
 		}
 	}
@@ -183,7 +184,7 @@ public class MultiConnIdentifyTask {
 		setBundleData(data);
 		msg.setData(data);
 		mHandler.sendMessage(msg);
-		closeSocket();
+//		closeSocket();
 	}
 
 	private void setBundleData(Bundle data) {
@@ -259,12 +260,13 @@ public class MultiConnIdentifyTask {
 		mItem.setConnPass(connPass);
 	}
 
-	private void replaceItem() {
+	private void replaceItem(boolean b) {
 		try {
 			int index = getIndexFromDeviceItem();
+			Log.i(TAG, "replace index:"+index +"boolean:"+b);
 			if (needChange(index)) {
-				ReadWriteXmlUtils.replaceSpecifyDeviceItem(
-						ChannelListActivity.filePath, index, mItem);
+				ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index, mItem);
+				Log.i(TAG, "index:"+index+"-->item DeviceName:"+mItem.getDeviceName());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -343,10 +345,10 @@ public class MultiConnIdentifyTask {
 		setBundleData(data);
 		msg.setData(data);
 		mHandler.sendMessage(msg);
-		closeSocket();
+//		closeSocket();
 	}
 
-	private void closeSocket() {
+	public void closeSocket() {
 		if ((client != null) && !client.isClosed()) {
 			try {
 				client.close();

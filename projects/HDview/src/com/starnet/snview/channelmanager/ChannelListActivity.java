@@ -164,6 +164,7 @@ public class ChannelListActivity extends BaseActivity {
 		originAccounts.get(0).getDeviceList().set(pos, deviceItem);
 		String title = curContext.getString(R.string.navigation_title_channel_list);
 		if (connIdenSum==0) {
+			closeMultiSocket();
 			dismissMultiConnPrg();
 			boolean isAllLoaded = ChannelListUtils.checkCloudAccountsLoad(originAccounts);
 			if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
@@ -203,6 +204,16 @@ public class ChannelListActivity extends BaseActivity {
 					} else {
 						showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
 					}
+				}
+			}
+		}
+	}
+
+	private void closeMultiSocket() {
+		if (connTasks!=null) {
+			for (int i = 0; i < connTasks.length; i++) {
+				if (connTasks[i] != null) {
+					connTasks[i].closeSocket();
 				}
 			}
 		}
@@ -967,8 +978,9 @@ public class ChannelListActivity extends BaseActivity {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					dismissMultiConnPrg();
+					closeMultiSocket();
 					for (int i = 0; i < connTasks.length; i++) {
-						if (connTasks[i]==null) {
+						if (connTasks[i]!=null) {
 							connTasks[i].setCancel(true);
 						}
 					}				
