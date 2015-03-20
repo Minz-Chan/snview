@@ -867,6 +867,8 @@ public class RealplayActivity extends BaseActivity {
 		}
 	}
 	
+	private static int RECORD_INTERVAL = 2;
+	private long recordStarttime = 0;
 	private void processVideoRecord() {
 		Log.i(TAG, "processVideoRecord");
 		if (!checkIsPTZDeviceConnected()) {
@@ -876,16 +878,21 @@ public class RealplayActivity extends BaseActivity {
 			return; // 未连接状态下，不作处理
 		}
 		
-		bVideoRecordPressed = !bVideoRecordPressed;
-		
-		if (bVideoRecordPressed) { // 开启录像
-			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
-			mLiveviewGroup.getSelectedLiveview().startMP4Record();
-		} else { // 关闭录像
-			mToolbar.setActionImageButtonSelected(
-					Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
-			mLiveviewGroup.getSelectedLiveview().stopMP4Record();
+		long t = System.currentTimeMillis();
+		long clickInterval = (t-recordStarttime)/1000;
+		if (clickInterval >= RECORD_INTERVAL) {
+			bVideoRecordPressed = !bVideoRecordPressed;
+			
+			if (bVideoRecordPressed) { // 开启录像
+				mToolbar.setActionImageButtonSelected(
+						Toolbar.ACTION_ENUM.VIDEO_RECORD, true);
+				mLiveviewGroup.getSelectedLiveview().startMP4Record();
+			} else { // 关闭录像
+				mToolbar.setActionImageButtonSelected(
+						Toolbar.ACTION_ENUM.VIDEO_RECORD, false);
+				mLiveviewGroup.getSelectedLiveview().stopMP4Record();
+			}
+			recordStarttime = System.currentTimeMillis();
 		}
 	}
 	
