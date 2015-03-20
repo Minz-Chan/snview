@@ -35,17 +35,17 @@ public class ChannelListUtils {
 			return hasSelect;
 		}
 		List<Channel> channels = item.getChannelList();
-		if (channels == null ) {
+		if (channels == null) {
 			return hasSelect;
 		}
-		
+
 		for (Channel channel : channels) {
 			if (channel.isSelected()) {
 				hasSelect = true;
 				break;
 			}
 		}
-		
+
 		return hasSelect;
 	}
 
@@ -67,18 +67,32 @@ public class ChannelListUtils {
 		}
 		return index;
 	}
-	
-	public static void setChannelSelectedDeviceItem(DeviceItem item){
+
+	public static void setChannelSelectedDeviceItem(DeviceItem item) {
 		if (item == null) {
 			return;
 		}
 		List<Channel> channels = item.getChannelList();
 		if (channels == null) {
-			return ;
+			return;
 		}
-		
+
 		for (Channel channel : channels) {
 			channel.setSelected(true);
 		}
+	}
+
+	/** 检测星云用户是否已经将数据加载完毕 ,如果加载完毕返回true；否则，返回false **/
+	public static boolean checkCloudAccountsLoad(List<CloudAccount> accounts) {
+		boolean allLoad = true;
+		if (accounts != null) {
+			for (int i = 0; i < accounts.size(); i++) {
+				if (!accounts.get(i).isRotate()) {//未加载完成
+					allLoad = false;
+					break;
+				}
+			}
+		}
+		return allLoad;
 	}
 }

@@ -76,6 +76,8 @@ public class ChannelListActivity extends BaseActivity {
 	private final int MULTICONNIDENTIFY = 0x001E;
 	private MultiConnIdentifyTask[] connTasks;
 
+	private boolean[] hasDatas;
+	
 	public static final int STAR_LOADDATA_TIMEOUT = 0x0002;
 	public static final int STAR_LOADDATA_SUCCESS = 0x0003;
 	public static final int STAR_LOADDATA_LOADFAI = 0x0004;
@@ -90,28 +92,18 @@ public class ChannelListActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case CONNECTIFYIDENTIFY_SUCCESS:
-//				if (prg != null && prg.isShowing()) {
-//					prg.dismiss();
-//					gotoChannelListViewActivity(msg);
-//					mAdapter.notifyDataSetChanged();
-//				}
 				singleConnIdentifyBackWork(msg);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				singleConnIdentifyBackWork(msg);
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-//				if (prg != null && prg.isShowing()) {
-//					prg.dismiss();
-////					showToast(getString(R.string.channel_manager_connect_timeout));
-//					gotoChannelListViewActivity(msg);
-//					mAdapter.notifyDataSetChanged();
-//				}
 				singleConnIdentifyBackWork(msg);
 				break;
 			case STAR_LOADDATA_SUCCESS:
 				Bundle msgD = msg.getData();
 				int position = msgD.getInt("position");
+				hasDatas[position] = true;
 				final CloudAccount nCA = (CloudAccount) msgD.getSerializable("netCA");
 				nCA.setRotate(true);
 				originAccounts.set(position, nCA);
@@ -120,6 +112,7 @@ public class ChannelListActivity extends BaseActivity {
 			case STAR_LOADDATA_LOADFAI:// 使用上一次的数据进行展开
 				Bundle msgD1 = msg.getData();
 				int posit = msgD1.getInt("position");
+				hasDatas[posit] = false;
 				CloudAccount netCA1 = (CloudAccount) msgD1.getSerializable("netCA");
 				netCA1.setRotate(true);
 				originAccounts.set(posit, netCA1);
@@ -128,6 +121,7 @@ public class ChannelListActivity extends BaseActivity {
 			case STAR_LOADDATA_TIMEOUT:// 使用上一次的数据进行展开
 				msgD = msg.getData();
 				int positi = msgD.getInt("position");
+				hasDatas[positi] = false;
 				CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 				netCA.setRotate(true);
 				originAccounts.set(positi, netCA);
@@ -167,7 +161,6 @@ public class ChannelListActivity extends BaseActivity {
 	
 	private void multiConnIdentifyBackWork(Message msg){
 		connIdenSum--;
-		
 		Bundle data = msg.getData();
 		DeviceItem deviceItem = (DeviceItem) data.getSerializable("deviceItem");
 		ChannelListUtils.setChannelSelectedDeviceItem(deviceItem);
@@ -176,13 +169,12 @@ public class ChannelListActivity extends BaseActivity {
 		String title = curContext.getString(R.string.navigation_title_channel_list);
 		if (connIdenSum==0) {
 			dismissMultiConnPrg();
-			boolean isAllLoaded = checkCloudAccountsLoad();
+			boolean isAllLoaded = ChannelListUtils.checkCloudAccountsLoad(originAccounts);
 			if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
 				List<PreviewDeviceItem> preList = new ArrayList<PreviewDeviceItem>();
 				preList = getPreviewChannelList(originAccounts);
 				if (!isFirstSearch) {
 					if (preList.size() > 0) {
-//						GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(preList);
 						titleView.setText(title + "(" + preList.size() +")" );
 						PreviewDeviceItem p = preList.get(0);
 						PreviewDeviceItem[] l = new PreviewDeviceItem[preList.size()];
@@ -199,11 +191,11 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}else {
 				if (isAllUsersLoaded()) {
-					ChannelListActivity.this.finish();
+//					ChannelListActivity.this.finish();
+					obtainNewPreviewItemsAndPlay(originAccounts);
 				} else {// 存在加载成功
 					List<PreviewDeviceItem> pItems = getPreviewItems();
 					if (pItems != null && pItems.size() > 0) {
-//						GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(pItems);
 						titleView.setText(title + "(" + pItems.size() +")" );
 						PreviewDeviceItem p = pItems.get(0);
 						PreviewDeviceItem[] l = new PreviewDeviceItem[pItems.size()];
@@ -315,50 +307,10 @@ public class ChannelListActivity extends BaseActivity {
 					@SuppressWarnings("deprecation")
 					@Override
 					public void onClick(View v) {
-						if (tasks!=null && NetWorkUtils.checkNetConnection(curContext)) {
-							for (int i = 0; i < tasks.length; i++) {
-								if (tasks[i]!=null) {
-									tasks[i].setThreadOver(true);
-								}
-							}
-						}
-						boolean isAllLoaded = checkCloudAccountsLoad();
-						if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
-							CloudAccount ca = originAccounts.get(0);
-							List <DeviceItem> items = ChannelListUtils.getDeviceItems(ca);
-							if (items!= null && items.size() > 0) {
-								//对通道列表进行验证
-								showDialog(MULTICONNIDENTIFY);
-								connIdenSum = items.size();
-								connTasks = new MultiConnIdentifyTask[items.size()];
-								for (int i = 0; i < items.size(); i++) {
-									int index = ChannelListUtils.getIndex(items.get(i),ca);
-									connTasks[i] = new MultiConnIdentifyTask(curContext,mHandler,ca,items.get(i),index);
-									connTasks[i].start();
-								}
-							}else {
-								List<PreviewDeviceItem> preList = new ArrayList<PreviewDeviceItem>();
-								preList = getPreviewChannelList(originAccounts);
-								if (!isFirstSearch) {
-									if (preList.size() > 0) {
-										PreviewDeviceItem p = preList.get(0);
-										PreviewDeviceItem[] l = new PreviewDeviceItem[preList.size()];
-										preList.toArray(l);
-										Intent intent = ChannelListActivity.this.getIntent();
-										intent.putExtra("DEVICE_ITEM_LIST", l);
-										ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW,intent);
-										ChannelListActivity.this.finish();
-									} else {
-										showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
-									}
-								} else {
-									backAndLeftOperation();
-								}
-							}
-						} else {// 如果某个用户的数据尚未加载完成，则用户需要使用原来的数据，进行播放
-							if (isAllUsersLoaded()) {
-								ChannelListActivity.this.finish();
-							} else {// 存在加载成功
+						if (NetWorkUtils.checkNetConnection(curContext)) {
+							closeSockets();
+							boolean isAllLoaded = ChannelListUtils.checkCloudAccountsLoad(originAccounts);
+							if (isAllLoaded) {// 加载完成，则从用户选择的情形进行数据刷新
 								CloudAccount ca = originAccounts.get(0);
 								List <DeviceItem> items = ChannelListUtils.getDeviceItems(ca);
 								if (items!= null && items.size() > 0) {
@@ -371,21 +323,32 @@ public class ChannelListActivity extends BaseActivity {
 										connTasks[i] = new MultiConnIdentifyTask(curContext,mHandler,ca,items.get(i),index);
 										connTasks[i].start();
 									}
-								} else {
-									List<PreviewDeviceItem> pItems = getPreviewItems();
-									if (pItems != null && pItems.size() > 0) {
-										PreviewDeviceItem p = pItems.get(0);
-										PreviewDeviceItem[] l = new PreviewDeviceItem[pItems.size()];
-										pItems.toArray(l);
-										Intent intent = ChannelListActivity.this.getIntent();
-										intent.putExtra("DEVICE_ITEM_LIST", l);
-										ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW,intent);
-										ChannelListActivity.this.finish();
+								}else {
+									startPlay();
+								}
+							} else {// 如果某个用户的数据尚未加载完成，则用户需要使用原来的数据，进行播放
+								if (isAllUsersLoaded()) {
+									startPlay();
+								} else {// 存在加载成功
+									CloudAccount ca = originAccounts.get(0);
+									List <DeviceItem> items = ChannelListUtils.getDeviceItems(ca);
+									if (items!= null && items.size() > 0) {
+										//对通道列表进行验证
+										showDialog(MULTICONNIDENTIFY);
+										connIdenSum = items.size();
+										connTasks = new MultiConnIdentifyTask[items.size()];
+										for (int i = 0; i < items.size(); i++) {
+											int index = ChannelListUtils.getIndex(items.get(i),ca);
+											connTasks[i] = new MultiConnIdentifyTask(curContext,mHandler,ca,items.get(i),index);
+											connTasks[i].start();
+										}
 									} else {
-										showToast(getString(R.string.channel_manager_channellistview_channelnotchoose));
+										startPlay();
 									}
 								}
 							}
+						}else {
+							showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 						}
 					}
 				});
@@ -397,22 +360,6 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		});
 	}
-	
-//	@SuppressWarnings("deprecation")
-//	private void multiConnIdentifyWork(CloudAccount ca) {
-//		List <DeviceItem> items = ChannelListUtils.getDeviceItems(ca);
-//		if (items!= null && items.size() > 0) {
-//			//对通道列表进行验证
-//			showDialog(MULTICONNIDENTIFY);
-//			connIdenSum = items.size();
-//			connTasks = new MultiConnIdentifyTask[items.size()];
-//			for (int i = 0; i < items.size(); i++) {
-//				int index = ChannelListUtils.getIndex(items.get(i),ca);
-//				connTasks[i] = new MultiConnIdentifyTask(curContext,mHandler,ca,items.get(i),index);
-//				connTasks[i].start();
-//			}
-//		}
-//	}
 
 	/** 检测所有的星云平台账户是否都未加载成功;如果都未加载返回true；否则，返回false **/
 	private boolean isAllUsersLoaded() {
@@ -529,8 +476,8 @@ public class ChannelListActivity extends BaseActivity {
 		}
 		return previewChannelList2;
 	}
-
-	private void backAndLeftOperation() {
+	
+	private void closeSockets(){
 		if (tasks != null) {
 			for (int i = 0; i < tasks.length; i++) {
 				if (tasks[i] != null) {
@@ -538,35 +485,89 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}
 		}
-		endTime = System.currentTimeMillis();
-		long time = endTime - startTime;
-		if (time / 1000 >= 3) {// 3秒钟限制;超过3秒时，检测用户是否加载完毕，，如果加载完毕，则读取用户数据；否则，使用原来的数据
-			Log.v(TAG, "" + (time / 1000));
-			boolean allLoad = checkCloudAccountsLoad();
-			if (!allLoad) {
-				ChannelListActivity.this.finish();
-				return;
+		if (connTasks!=null) {
+			for (int i = 0; i < connTasks.length; i++) {
+				if (connTasks[i] != null) {
+					connTasks[i].setCancel(true);
+				}
 			}
 		}
-		if (!checkCloudAccountsLoad()) {//
+	}
+	
+	private void startPlay(){
+		obtainNewPreviewItemsAndPlay(originAccounts);
+		
+//		if (!ChannelListUtils.checkCloudAccountsLoad(originAccounts)) {//未加载完毕
+//			//对于未加载完毕的使用上一次的选择。故而需要获取用户的选择通道情形
+//			obtainNewPreviewItemsAndPlay(originAccounts);
+//			return;
+//		}else{
+//			obtainChannelsAndPlay();
+//		}
+	}
+
+	private void backAndLeftOperation() {
+		if (NetWorkUtils.checkNetConnection(curContext)) {
+			closeSockets();
+		}
+		obtainNewPreviewItemsAndPlay(originAccounts);
+//		if (!ChannelListUtils.checkCloudAccountsLoad(originAccounts)) {//未加载完毕
+//			//对于未加载完毕的使用上一次的选择。故而需要获取用户的选择通道情形
+//			obtainNewPreviewItemsAndPlay(originAccounts);
+//			return;
+//		}else{
+//			obtainChannelsAndPlay();
+//		}
+	}
+
+	/**对于未加载的用户，使用上一次的通道数据，对于加载完毕的用户使用当前选择的通道数据 ***/
+	private void obtainNewPreviewItemsAndPlay(List<CloudAccount> accounts) {
+		if (accounts == null) {
 			ChannelListActivity.this.finish();
 			return;
 		}
-		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
-		previewChannelList = getPreviewChannelList(originAccounts);
-		if (previewChannelList.size() > 0) {
-			PreviewDeviceItem p = previewChannelList.get(0);
-
-			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList
-					.size()];
-			previewChannelList.toArray(l);
-
+		List<PreviewDeviceItem> ps = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		List<PreviewDeviceItem> previewChanls = new ArrayList<PreviewDeviceItem>();
+		for (int i = 0; i < accounts.size(); i++) {
+			CloudAccount act = accounts.get(i);
+			if (act != null && hasDatas[i]) {
+				List<DeviceItem> ds = act.getDeviceList();
+				if (ds != null) {
+					for (DeviceItem itm : ds) {
+						List<Channel> chls = itm.getChannelList();
+						for (Channel cl : chls) {
+							if (cl.isSelected()) {
+								PreviewDeviceItem pm = getPreviewItem(i,itm);
+								pm.setChannel(cl.getChannelNo());
+								previewChanls.add(pm);
+							}
+						}
+					}
+				}
+			}else{
+				if (ps == null) {
+					break;
+				}else {//使用上一次的
+					String name = act.getUsername();
+					List<PreviewDeviceItem> temp = getLastPreviewItems(ps,name);
+					if (temp!=null && temp.size() > 0) {
+						for(PreviewDeviceItem p : temp){
+							previewChanls.add(p);
+						}
+					}
+				}
+			}
+		}
+		//play
+		if (previewChanls.size() > 0) {
+			PreviewDeviceItem p = previewChanls.get(0);
+			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChanls.size()];
+			previewChanls.toArray(l);
 			Intent intent = ChannelListActivity.this.getIntent();
 			intent.putExtra("DEVICE_ITEM_LIST", l);
-
 			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
 			ChannelListActivity.this.finish();
-		} else {// 选择的通道为空时，不进行播放
+		}else {
 			List<PreviewDeviceItem> pItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 			if ((pItems!=null)&& (pItems.size() > 0)) {
 				pItems.clear();
@@ -576,16 +577,51 @@ public class ChannelListActivity extends BaseActivity {
 		}
 	}
 
-	/** 检测星云用户是否已经将数据加载完毕 **/
-	private boolean checkCloudAccountsLoad() {
-		boolean allLoad = true;
-		for (int i = 0; i < originAccounts.size(); i++) {
-			if (!originAccounts.get(i).isRotate()) {
-				allLoad = false;
-				break;
+	private List<PreviewDeviceItem> getLastPreviewItems(List<PreviewDeviceItem> ps, String name) {
+		List<PreviewDeviceItem> temp = new ArrayList<PreviewDeviceItem>();
+		for (PreviewDeviceItem pi : ps) {
+			if (pi.getPlatformUsername().equals(name)) {
+				temp.add(pi);
 			}
 		}
-		return allLoad;
+		return temp;
+	}
+
+	private PreviewDeviceItem getPreviewItem(int i,DeviceItem itm){
+		PreviewDeviceItem pm = new PreviewDeviceItem();
+		pm.setLoginPass(itm.getLoginPass());
+		pm.setLoginUser(itm.getLoginUser());
+		pm.setSvrIp(itm.getSvrIp());
+		pm.setSvrPort(itm.getSvrPort());
+		String dName = itm.getDeviceName();
+		pm.setPlatformUsername(itm.getPlatformUsername());
+		if (i == 0) {
+			pm.setDeviceRecordName(dName);
+		}else{
+			pm.setDeviceRecordName(dName.substring(4));
+		}
+		return pm;
+	}
+
+	private void obtainChannelsAndPlay() {
+		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
+		previewChannelList = getPreviewChannelList(originAccounts);
+		if (previewChannelList.size() > 0) {
+			PreviewDeviceItem p = previewChannelList.get(0);
+			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
+			previewChannelList.toArray(l);
+			Intent intent = ChannelListActivity.this.getIntent();
+			intent.putExtra("DEVICE_ITEM_LIST", l);
+			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
+			ChannelListActivity.this.finish();
+		}else {
+			List<PreviewDeviceItem> pItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+			if ((pItems!=null)&& (pItems.size() > 0)) {
+				pItems.clear();
+				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+			}
+			ChannelListActivity.this.finish();
+		}
 	}
 
 	protected List<PreviewDeviceItem> removeContain(
@@ -660,6 +696,7 @@ public class ChannelListActivity extends BaseActivity {
 
 		originAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
 		
+		hasDatas = new boolean[originAccounts.size()];
 		copyCloudAccountEnable();
 		
 		mAdapter = new ChannelExpandableListviewAdapter(curContext, originAccounts, titleView);
