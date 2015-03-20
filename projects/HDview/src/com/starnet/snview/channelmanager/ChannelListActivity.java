@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -42,7 +41,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 @SuppressLint({ "SdCardPath", "HandlerLeak" })
 public class ChannelListActivity extends BaseActivity {
 
-	private static final String TAG = "ChannelListActivity";
+//	private static final String TAG = "ChannelListActivity";
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	public static final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
 	
@@ -50,10 +49,7 @@ public class ChannelListActivity extends BaseActivity {
 	public static final int RESULT_CODE_PREVIEW = 8;
 
 	private ChannelRequestTask[] tasks;
-
-	private long endTime = 0;
 	private int titleNum = 0;
-	private long startTime = 0;
 	private Context curContext;
 	private TextView titleView;// 通道列表标题栏
 
@@ -67,7 +63,7 @@ public class ChannelListActivity extends BaseActivity {
 	private ExpandableListView mExpListView;
 	private List<CloudAccount> enablAccounts;
 //	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
-	private List<PreviewDeviceItem> originPreviewChannelList;
+	private List<PreviewDeviceItem> oriPreviewChnls;
 	private ChannelExpandableListviewAdapter mAdapter;
 	private List<CloudAccount> originAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
 	
@@ -404,13 +400,13 @@ public class ChannelListActivity extends BaseActivity {
 	}
 
 	private List<PreviewDeviceItem> getPItemsFromOrignalPItems(CloudAccount ca) {
-		if (originPreviewChannelList == null) {
+		if (oriPreviewChnls == null) {
 			return null;
 		}
 		
 		List<PreviewDeviceItem> items = new ArrayList<PreviewDeviceItem>();
-		for (int i = 0; i < originPreviewChannelList.size(); i++) {
-			PreviewDeviceItem item = originPreviewChannelList.get(i);
+		for (int i = 0; i < oriPreviewChnls.size(); i++) {
+			PreviewDeviceItem item = oriPreviewChnls.get(i);
 			if (item.getPlatformUsername().equals(ca.getUsername())) {
 				items.add(item);
 			}
@@ -530,29 +526,45 @@ public class ChannelListActivity extends BaseActivity {
 		List<PreviewDeviceItem> previewChanls = new ArrayList<PreviewDeviceItem>();
 		for (int i = 0; i < accounts.size(); i++) {
 			CloudAccount act = accounts.get(i);
-			if (act != null && hasDatas[i]) {
+			if (i == 0 && act != null) {
 				List<DeviceItem> ds = act.getDeviceList();
 				if (ds != null) {
 					for (DeviceItem itm : ds) {
 						List<Channel> chls = itm.getChannelList();
 						for (Channel cl : chls) {
 							if (cl.isSelected()) {
-								PreviewDeviceItem pm = getPreviewItem(i,itm);
+								PreviewDeviceItem pm = getPreviewItem(i, itm);
 								pm.setChannel(cl.getChannelNo());
 								previewChanls.add(pm);
 							}
 						}
 					}
 				}
-			}else{
-				if (ps == null) {
-					break;
-				}else {//使用上一次的
-					String name = act.getUsername();
-					List<PreviewDeviceItem> temp = getLastPreviewItems(ps,name);
-					if (temp!=null && temp.size() > 0) {
-						for(PreviewDeviceItem p : temp){
-							previewChanls.add(p);
+			} else {
+				if (act != null && hasDatas[i]) {
+					List<DeviceItem> ds = act.getDeviceList();
+					if (ds != null) {
+						for (DeviceItem itm : ds) {
+							List<Channel> chls = itm.getChannelList();
+							for (Channel cl : chls) {
+								if (cl.isSelected()) {
+									PreviewDeviceItem pm = getPreviewItem(i,itm);
+									pm.setChannel(cl.getChannelNo());
+									previewChanls.add(pm);
+								}
+							}
+						}
+					}
+				}else{
+					if (ps == null) {
+						break;
+					}else {//使用上一次的
+						String name = act.getUsername();
+						List<PreviewDeviceItem> temp = getLastPreviewItems(ps,name);
+						if (temp!=null && temp.size() > 0) {
+							for(PreviewDeviceItem p : temp){
+								previewChanls.add(p);
+							}
 						}
 					}
 				}
@@ -578,8 +590,9 @@ public class ChannelListActivity extends BaseActivity {
 	}
 
 	private List<PreviewDeviceItem> getLastPreviewItems(List<PreviewDeviceItem> ps, String name) {
+		
 		List<PreviewDeviceItem> temp = new ArrayList<PreviewDeviceItem>();
-		for (PreviewDeviceItem pi : ps) {
+		for (PreviewDeviceItem pi : oriPreviewChnls) {
 			if (pi.getPlatformUsername().equals(name)) {
 				temp.add(pi);
 			}
@@ -601,27 +614,6 @@ public class ChannelListActivity extends BaseActivity {
 			pm.setDeviceRecordName(dName.substring(4));
 		}
 		return pm;
-	}
-
-	private void obtainChannelsAndPlay() {
-		List<PreviewDeviceItem> previewChannelList = new ArrayList<PreviewDeviceItem>();
-		previewChannelList = getPreviewChannelList(originAccounts);
-		if (previewChannelList.size() > 0) {
-			PreviewDeviceItem p = previewChannelList.get(0);
-			PreviewDeviceItem[] l = new PreviewDeviceItem[previewChannelList.size()];
-			previewChannelList.toArray(l);
-			Intent intent = ChannelListActivity.this.getIntent();
-			intent.putExtra("DEVICE_ITEM_LIST", l);
-			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
-			ChannelListActivity.this.finish();
-		}else {
-			List<PreviewDeviceItem> pItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-			if ((pItems!=null)&& (pItems.size() > 0)) {
-				pItems.clear();
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
-			}
-			ChannelListActivity.this.finish();
-		}
 	}
 
 	protected List<PreviewDeviceItem> removeContain(
@@ -684,7 +676,7 @@ public class ChannelListActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
 
-		originPreviewChannelList = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();// 获取源预览通道列表
+		oriPreviewChnls = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();// 获取源预览通道列表
 		enablAccounts = new ArrayList<CloudAccount>();
 
 		curContext = ChannelListActivity.this;
@@ -725,7 +717,6 @@ public class ChannelListActivity extends BaseActivity {
 					j++;
 				}
 			}
-			startTime = System.currentTimeMillis();
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 		}

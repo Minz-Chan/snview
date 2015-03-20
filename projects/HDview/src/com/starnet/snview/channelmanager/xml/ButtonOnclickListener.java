@@ -48,7 +48,9 @@ public class ButtonOnclickListener implements OnClickListener {
 		case R.id.button_channel_list:
 			DeviceItem dItem = clickCloudAccount.getDeviceList().get(childPos);
 			if (!dItem.isConnPass()) {// 如果用户没有经过验证，则进行验证
-				if (parentPos == 0) {
+				
+				String nm = context.getString(R.string.device_manager_collect_device);
+				if (clickCloudAccount.getUsername().equals(nm)) {
 					if (!NetWorkUtils.checkNetConnection(context)) {
 						gotoChanelListViewActivity(dItem);
 					} else {

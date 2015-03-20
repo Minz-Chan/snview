@@ -78,7 +78,9 @@ public class StateBtnOnClickListener implements OnClickListener {
 			for (int i = 0; i < channelSize; i++) {
 				channels.get(i).setSelected(true);
 			}
-			if (parentPos == 0) {
+			
+			String nm = context.getString(R.string.device_manager_collect_device);
+			if (cloudAccountList.get(parentPos).getUsername().equals(nm)) {
 				startVisitNet();
 			}
 		}
