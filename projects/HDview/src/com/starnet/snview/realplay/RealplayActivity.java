@@ -1202,7 +1202,7 @@ public class RealplayActivity extends BaseActivity {
 //		}
 
 		mLiveviewGroup.setVisibility(View.VISIBLE);
-		mLiveviewGroup.setDevices(mPreviewDevices);
+		mLiveviewGroup.setDevices(devices);
 		
 		mPreviewDevices = devices;
 		

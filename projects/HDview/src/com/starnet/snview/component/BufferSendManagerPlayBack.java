@@ -146,7 +146,7 @@ public class BufferSendManagerPlayBack {
 
 			outBuffer.putUnsignedInt(message.getDeviceId()); // put deviceId
 			outBuffer.put((byte) 1); // should be set to 1 to be compatible with the previous version
-			outBuffer.put((byte) (message.getChannel())); // put channel,start from 0
+			outBuffer.put((byte) (message.getChannel()-1)); // put channel,start from 0
 			outBuffer.put((byte) message.getStreamMode());
 			outBuffer.put((byte) message.getDataType());
 		} else if (msg instanceof TLV_V_SearchRecordRequest) {
