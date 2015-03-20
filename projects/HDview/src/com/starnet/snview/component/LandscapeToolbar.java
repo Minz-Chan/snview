@@ -153,6 +153,8 @@ public class LandscapeToolbar extends FrameLayout {
 		case R.id.landscape_liveview_quality_button:
 		case R.id.landscape_liveview_delete_button:
 		case R.id.landscape_liveview_record_button:
+		case R.id.landscape_liveview_voicetalk_button:
+		case R.id.landscape_liveview_sound_button:
 			mLandControlbarListener.landControlbarClick(v);
 			break;
 		case 2:

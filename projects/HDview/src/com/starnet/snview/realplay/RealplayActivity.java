@@ -768,29 +768,10 @@ public class RealplayActivity extends BaseActivity {
 				
 				break;
 			case MICROPHONE:
-				if (!bIsMicrophoneOpen) { // 开启麦克风
-					bIsMicrophoneOpen = true;
-					mToolbar.setActionImageButtonBg(
-							Toolbar.ACTION_ENUM.MICROPHONE,
-							R.drawable.toolbar_microphone_selector);
-				} else { // 关闭麦克风
-					bIsMicrophoneOpen = false;
-					mToolbar.setActionImageButtonBg(
-							Toolbar.ACTION_ENUM.MICROPHONE,
-							R.drawable.toolbar_microphone_stop_selector);
-				}
-
+				processMicrophone();
 				break;
 			case SOUND:
-				if (!bIsSoundOpen) { // 开启扬声器
-					bIsSoundOpen = true;
-					mToolbar.setActionImageButtonBg(Toolbar.ACTION_ENUM.SOUND,
-							R.drawable.toolbar_sound_selector);
-				} else { // 关闭扬声器
-					bIsSoundOpen = false;
-					mToolbar.setActionImageButtonBg(Toolbar.ACTION_ENUM.SOUND,
-							R.drawable.toolbar_sound_off_selector);
-				}
+				processSound();
 				break;
 			case VIDEO_RECORD:
 				processVideoRecord();
@@ -802,6 +783,36 @@ public class RealplayActivity extends BaseActivity {
 			}
 		}
 	};
+	
+	private void processMicrophone() {
+		if (!bIsMicrophoneOpen) { // 开启麦克风
+			bIsMicrophoneOpen = true;
+			mToolbar.setActionImageButtonBg(
+					Toolbar.ACTION_ENUM.MICROPHONE,
+					R.drawable.toolbar_microphone_selector);
+			liveControl.getLandscapeToolbar().getVoiceTalkButton().setSelected(true);
+		} else { // 关闭麦克风
+			bIsMicrophoneOpen = false;
+			mToolbar.setActionImageButtonBg(
+					Toolbar.ACTION_ENUM.MICROPHONE,
+					R.drawable.toolbar_microphone_stop_selector);
+			liveControl.getLandscapeToolbar().getVoiceTalkButton().setSelected(false);
+		}
+	}
+	
+	private void processSound() {
+		if (!bIsSoundOpen) { // 开启扬声器
+			bIsSoundOpen = true;
+			mToolbar.setActionImageButtonBg(Toolbar.ACTION_ENUM.SOUND,
+					R.drawable.toolbar_sound_selector);
+			liveControl.getLandscapeToolbar().getSoundButton().setSelected(true);
+		} else { // 关闭扬声器
+			bIsSoundOpen = false;
+			mToolbar.setActionImageButtonBg(Toolbar.ACTION_ENUM.SOUND,
+					R.drawable.toolbar_sound_off_selector);
+			liveControl.getLandscapeToolbar().getSoundButton().setSelected(false);
+		}
+	}
 	
 	/**
 	 * 判断正在预览的设备列表是否为空
@@ -936,6 +947,12 @@ public class RealplayActivity extends BaseActivity {
 				break;
 			case R.id.landscape_liveview_record_button:
 				processVideoRecord();
+				break;
+			case R.id.landscape_liveview_voicetalk_button:
+				processMicrophone();
+				break;
+			case R.id.landscape_liveview_sound_button:
+				processSound();
 				break;
 			}
 
