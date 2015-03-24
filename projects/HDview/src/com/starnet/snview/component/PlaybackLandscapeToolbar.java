@@ -7,6 +7,7 @@ import java.util.TimerTask;
 
 import com.starnet.snview.R;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.playback.TimeBar;
 import com.starnet.snview.playback.TimeBar.OnActionMoveCallback;
 import com.starnet.snview.util.ActivityUtility;
@@ -181,7 +182,9 @@ public class PlaybackLandscapeToolbar extends LinearLayout {
 		mTimeBar.setOnActionMoveCallback(new OnActionMoveCallback() {
 			@Override
 			public void onActionMove(MotionEvent e) {
+				Log.d(TAG, "onActionMove");
 				onTimeBarActionMove(e);
+				((PlaybackActivity)mContext).onTimebarActionMove(e);
 			}
 		});
 	}

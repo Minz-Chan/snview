@@ -17,7 +17,7 @@ public class ClickEventUtils {
     private int lastIdentifier = -1;
     private int clickCount = 0;
     
-    
+    private boolean isCancle;
     
     private Object[] params;
     
@@ -36,6 +36,9 @@ public class ClickEventUtils {
     	handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+            	if (isCancle) {
+            		return;
+            	}
             	ClickEventUtils.this.onActionListener.OnAction(clickCount, params);
                 delayTimer.cancel();
                 clickCount = 0;
@@ -62,6 +65,8 @@ public class ClickEventUtils {
      */
     public void makeContinuousClickCalledOnce(int identifier, Object... params) {
     	this.params = params;
+    	
+    	isCancle = false;
     	
     	long now = System.currentTimeMillis();
     	
@@ -94,6 +99,10 @@ public class ClickEventUtils {
         };
         delayTimer = new Timer();
         delayTimer.schedule(task, interval);
+    }
+    
+    public void cancle() {
+    	isCancle = true;
     }
     
     public static final int CLICK = 1;

@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -45,6 +46,7 @@ import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.global.Constants;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.playback.TimeBar.OnActionMoveCallback;
 import com.starnet.snview.playback.utils.PlaybackControllTask.PlaybackRequest;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.PlaybackControllTask;
@@ -471,28 +473,61 @@ public class PlaybackActivity extends BaseActivity {
 				getResources().getDimensionPixelSize(R.dimen.toolbar_height));
 		this.mToolbar.setOnItemClickListener(mToolbarOnItemClickListener);
 	}
+	
+	private static final long TIMEBAR_PICKED_UP_INTERVAL = 1;
+	private ClickEventUtils mRandomEventCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			Calendar calendar = (Calendar)params[0];
+			onRandomEvent(calendar);
+		}
+	}, TIMEBAR_PICKED_UP_INTERVAL*1000);
 
+	private long onTimePickedCalledbackTime;
 	private void initTimebar() {
 		mTimebar = (TimeBar) findViewById(R.id.timebar_control);
 		mTimeBarCallBack = new TimeBar.TimePickedCallBack() {
 			public void onTimePickedCallback(Calendar calendar) {
 				Log.i(TAG, "Called when MOVE_UP event occurs");
-				if (mVideoContainer.isInRecording()) {
-					showTostContent(getString(R.string.playback_msg_canot_random));
-					return;
-				}
-				
-				canUpdateTimebar = false;
-				if (pbcTask != null) {
-					random(calendar);
-				}
+				onTimePickedCalledbackTime = System.currentTimeMillis();
+				mRandomEventCallDelay.makeContinuousClickCalledOnce(this.hashCode(), calendar);
 			}
 		};
 
 		mTimebar.setTimeBarCallback(mTimeBarCallBack);
+		
+		mTimebar.setOnActionMoveCallback(new OnActionMoveCallback() {
+			@Override
+			public void onActionMove(MotionEvent e) {
+				onTimebarActionMove(e);
+			}
+		});
+		
+		
 		mTimebar.reset();
 		mTimebar.setCurrentTime(Calendar.getInstance());
+	}
+	
+	private void onRandomEvent(Calendar calendar) {
+		if (mVideoContainer.isInRecording()) {
+			showTostContent(getString(R.string.playback_msg_canot_random));
+			return;
+		}
 		
+		if (pbcTask != null) {
+			random(calendar);
+		}
+	}
+	
+	public void onTimebarActionMove(MotionEvent e) {
+		canUpdateTimebar = false;
+		
+		long currentTime = System.currentTimeMillis();
+		long delta = currentTime-onTimePickedCalledbackTime;
+		Log.d(TAG, "onTimebarActionMove, delta:" + delta);
+		if (delta < TIMEBAR_PICKED_UP_INTERVAL*1000) {
+			mRandomEventCallDelay.cancle();
+		}
 	}
 
 	private void initLandscapeToolbar() {
@@ -594,8 +629,24 @@ public class PlaybackActivity extends BaseActivity {
 				return;
 			}
 			
-			mToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
-					this.hashCode(), imgBtn.getItemData().getActionID());
+			ACTION_ENUM actionId = imgBtn.getItemData().getActionID();
+			switch (actionId) {
+			case PLAY_PAUSE:
+			case SOUND:
+			case STOP:
+				mToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
+						this.hashCode(), actionId);
+				break;
+			case PICTURE:
+				takePicture();
+				break;
+			case VIDEO_RECORD:
+				processVideoRecord();
+				break;
+			default:
+				break;
+			}
+			
 		}
 	};
 	
@@ -610,7 +661,7 @@ public class PlaybackActivity extends BaseActivity {
 			}
 			break;
 		case PICTURE:
-			mVideoContainer.takePicture();
+			takePicture();
 			break;
 		case VIDEO_RECORD:
 			processVideoRecord();
@@ -641,15 +692,30 @@ public class PlaybackActivity extends BaseActivity {
 				return;
 			}
 			
-			mLandToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
-					this.hashCode(), Integer.valueOf(v.getId()));
+			int viewId = v.getId();
+			switch (viewId) {
+			case R.id.playback_landscape_capture_button:
+				takePicture();
+				break;
+			case R.id.playback_landscape_record_button:
+				processVideoRecord();
+				break;
+			case R.id.playback_landscape_pause_play_button:
+			case R.id.playback_landscape_sound_button:
+			case R.id.playback_landscape_stop_button:
+				mLandToolbarItemClickCallDelay.makeContinuousClickCalledOnce(
+						this.hashCode(), Integer.valueOf(viewId));
+				break;
+			default:
+				break;
+			}
 		}
 	};
 	
 	private void onLandToolbarItemClick(int viewId) {
 		switch (viewId) {
 		case R.id.playback_landscape_capture_button:
-			mVideoContainer.takePicture();
+			takePicture();
 			break;
 		case R.id.playback_landscape_record_button:
 			processVideoRecord();
@@ -712,7 +778,20 @@ public class PlaybackActivity extends BaseActivity {
 				R.drawable.toolbar_pause_selector);
 		mPlaybackLandscapeToolbar.getPausePlayButton().setSelected(false);
 	}
+	
+	private static int TAKE_PICTURE_INTERVAL = 1;
+	private long takePictureStarttime = 0;
+	private void takePicture() {
+		long t = System.currentTimeMillis();
+		long clickInterval = (t-takePictureStarttime)/1000;
+		if (clickInterval >= TAKE_PICTURE_INTERVAL) {
+			mVideoContainer.takePicture();
+			takePictureStarttime = t;
+		}
+	}
 
+	private static int RECORD_INTERVAL = 2;
+	private long recordStarttime = 0;
 	private void processVideoRecord() {
 		Log.i(TAG, "processVideoRecord");
 		if (!isPlaying) {
@@ -721,14 +800,20 @@ public class PlaybackActivity extends BaseActivity {
 			return;
 		}
 
-		bVideoRecordPressed = !bVideoRecordPressed;
+		long t = System.currentTimeMillis();
+		long clickInterval = (t-recordStarttime)/1000;
+		if (clickInterval >= RECORD_INTERVAL) {
+			bVideoRecordPressed = !bVideoRecordPressed;
 
-		if (bVideoRecordPressed) { // 开启录像
-			setRecordButtonSelected(true);
-			mVideoContainer.startMP4Record();
-		} else { // 关闭录像
-			setRecordButtonSelected(false);
-			mVideoContainer.stopMP4Record();
+			if (bVideoRecordPressed) { // 开启录像
+				setRecordButtonSelected(true);
+				mVideoContainer.startMP4Record();
+			} else { // 关闭录像
+				setRecordButtonSelected(false);
+				mVideoContainer.stopMP4Record();
+			}
+			
+			recordStarttime = System.currentTimeMillis();
 		}
 	}
 	
