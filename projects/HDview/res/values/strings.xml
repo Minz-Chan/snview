@@ -129,7 +129,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_ok">确定</string>
     <string name="system_setting_alarm_pushset_port_null">端口号为空，请填充</string>
     <string name="system_setting_alarm_pushset_uName_null">用户名为空，请填充</string>
-    <string name="system_setting_about_build">Version 6.2.0 (Build 20150323)</string>
+    <string name="system_setting_about_build">Version 6.2.0 (Build 20150324)</string>
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
@@ -154,7 +154,7 @@
     <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_alarm_pushset_domain_port_wrong">域名或者端口号错误，请检查后再进行验证</string>
-    <string name="system_setting_corp_content_txt_eng">Copyright © 2010&#8211;2014 Star&#8211;netsecurity</string>
+    <string name="system_setting_corp_content_txt_eng">Copyright © 2010&#8211;2015 Star&#8211;netsecurity</string>
     <string name="device_manager">设备管理</string>
     <string name="device_manager_ip">设备IP</string>
     <string name="device_manager_choose">选择</string>
