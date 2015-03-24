@@ -798,10 +798,36 @@ public class ReadWriteXmlUtils {
 			wrt.write(document);
 			wrt.close();
 			result = true;
-			System.out.println("remove Success!!!");
 		} catch (Exception e) {
 			result = false;
-			System.out.println("remove Failed!!!");
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static synchronized boolean removeCloudAccoutFromXML(int index,String fileName) {
+		// 首先从文档中构造出一个对象，如果该对象的数据和cloudAccount的属性值相同的话，那么则删除该用户
+		boolean result = false;
+		SAXReader saxReader = new SAXReader();
+		File file = new File(fileName);
+		try {
+			Document document = saxReader.read(file);
+			Element root = document.getRootElement();
+			List<Element> subElements = root.elements();
+			for (int i = 0; i < subElements.size(); i++) {
+				if (i == index) {
+					subElements.get(i).detach();
+					break;
+				}
+			}
+			OutputFormat op = new OutputFormat("", true, "UTF-8");
+			XMLWriter wrt = new XMLWriter(new FileOutputStream(fileName), op);
+			wrt.write(document);
+			wrt.close();
+			result = true;
+		} catch (Exception e) {
+			result = false;
 			e.printStackTrace();
 		}
 		return result;

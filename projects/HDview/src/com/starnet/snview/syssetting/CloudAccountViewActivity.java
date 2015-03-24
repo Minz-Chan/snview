@@ -110,13 +110,15 @@ public class CloudAccountViewActivity extends BaseActivity {
 				titleName = account.getUsername();
 				Builder builder = new Builder(CloudAccountViewActivity.this);
 				builder.setTitle(getString(R.string.system_setting_cloudaccountview_delete_user) + " " + titleName + " ?");
+				final int pos = position;
 				builder.setPositiveButton(
 						getString(R.string.system_setting_cloudaccountview_ok),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog,int which) {
 								changeNoUseState(account);										
-								ReadWriteXmlUtils.removeCloudAccoutFromXML(filePath, account);
+//								ReadWriteXmlUtils.removeCloudAccoutFromXML(filePath, account);
+								ReadWriteXmlUtils.removeCloudAccoutFromXML(pos, filePath);
 								cloudAccountList.remove(account);
 								caAdapter.notifyDataSetChanged();
 								if (account.isEnabled()) {// 删除tagring
