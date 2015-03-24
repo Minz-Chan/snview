@@ -361,9 +361,9 @@ public class ReadWriteXmlUtils {
 			Element sE = subElements.get(i);
 			if (i == index) {
 				sE.setAttributeValue("domain", account.getDomain());
-				sE.setAttributeValue("port", account.getPassword());
+				sE.setAttributeValue("port",account.getPort() );
 				sE.setAttributeValue("username", account.getUsername());
-				sE.setAttributeValue("password", account.getPort());
+				sE.setAttributeValue("password", account.getPassword());
 				sE.setAttributeValue("isEnabled", String.valueOf(account.isEnabled()));
 				break;
 			}
