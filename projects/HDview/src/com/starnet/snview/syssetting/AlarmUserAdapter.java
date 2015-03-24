@@ -28,8 +28,7 @@ public class AlarmUserAdapter extends BaseAdapter {
 		this.mData = mData;
 		this.isAccept = isAccept;
 		this.isClickFlag = isAccept;
-		flater = (LayoutInflater) ctx
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		flater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override

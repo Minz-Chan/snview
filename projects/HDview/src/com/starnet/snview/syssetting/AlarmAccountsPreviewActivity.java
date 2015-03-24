@@ -28,7 +28,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	private Context ctx;
 	private ListView userListView;
 	private List<CloudAccount> mList;
-	private CloudAccountAdapter caAdapter;
+	private AlarmAccountsPreviewAdapter caAdapter;
 	private final int ADDINGTCODE = 0x0006;
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int REQUESTCODE_EDIT = 0x0004;
@@ -148,7 +148,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		if (mList == null) {
 			mList = new ArrayList<CloudAccount>();
 		}
-		caAdapter = new CloudAccountAdapter(ctx, mList);
+		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mList);
 		userListView = (ListView) findViewById(R.id.userListView);
 		userListView.setAdapter(caAdapter);
 

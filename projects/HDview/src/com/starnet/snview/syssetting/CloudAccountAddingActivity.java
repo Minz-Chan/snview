@@ -115,12 +115,13 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 					String content = getString(R.string.device_manager_setting_setedit_contain_no_need);
 					showToast(content);
 				} else {// 如果不包含，则添加
-					new Thread() {
-						@Override
-						public void run() {
-							ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(STARUSERSFILEPATH, account);
-						}
-					}.start();
+//					new Thread() {
+//						@Override
+//						public void run() {
+//							ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(STARUSERSFILEPATH, account);
+//						}
+//					}.start();
+					ReadWriteXmlUtils.addNewCloudAccoutNodeToRootXML(STARUSERSFILEPATH, account);
 					CommonUtils.setTags(ctx, account);
 					Intent intent = new Intent();
 					Bundle bundle = new Bundle();

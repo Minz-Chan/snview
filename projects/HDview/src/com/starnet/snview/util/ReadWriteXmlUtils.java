@@ -344,7 +344,7 @@ public class ReadWriteXmlUtils {
 	}
 	
 	@SuppressWarnings({ "deprecation", "unchecked" })
-	public static void replaceSpecifyCloudAccount(String filePath,
+	public synchronized static void replaceSpecifyCloudAccount(String filePath,
 			int index, CloudAccount account)
 			throws Exception {
 		File file = new File(filePath);
@@ -817,7 +817,7 @@ public class ReadWriteXmlUtils {
 	 * @param cloudAccount
 	 *            星云账户
 	 */
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public static synchronized boolean addNewCloudAccoutNodeToRootXML(
 			String fileName, CloudAccount cloudAccount) {//
 		boolean result = false;
@@ -835,27 +835,27 @@ public class ReadWriteXmlUtils {
 			}
 			Document document = saxReader.read(file);
 			Element rootElement = document.getRootElement();
-			List<Element> subElements = rootElement.elements();
+//			List<Element> subElements = rootElement.elements();
 
 			String caDomain = cloudAccount.getDomain();
 			String caPort = cloudAccount.getPort();
 			String caPassword = cloudAccount.getPassword();
 			String caUsername = cloudAccount.getUsername();
 
-			int size = subElements.size();
-			for (int i = 0; i < size; i++) {
-				Element subElement = subElements.get(i);
-				String domain = subElement.attributeValue("domain");
-				String port = subElement.attributeValue("port");
-				String username = subElement.attributeValue("username");
-				String password = subElement.attributeValue("password");
-				if (domain.equals(caDomain) && port.equals(caPort)
-						&& username.equals(caUsername)
-						&& password.equals(caPassword)) {
-					subElement.detach();
-					break;
-				}
-			}
+//			int size = subElements.size();
+//			for (int i = 0; i < size; i++) {
+//				Element subElement = subElements.get(i);
+//				String domain = subElement.attributeValue("domain");
+//				String port = subElement.attributeValue("port");
+//				String username = subElement.attributeValue("username");
+//				String password = subElement.attributeValue("password");
+//				if (domain.equals(caDomain) && port.equals(caPort)
+//						&& username.equals(caUsername)
+//						&& password.equals(caPassword)) {
+//					subElement.detach();
+//					break;
+//				}
+//			}
 			// 开始写入
 			Element clAElement = rootElement.addElement("cloudAccount");
 			clAElement.addAttribute("username", caUsername);

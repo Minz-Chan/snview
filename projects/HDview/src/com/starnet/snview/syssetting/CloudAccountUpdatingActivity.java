@@ -286,8 +286,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		if (bundle != null) {
-			clickCloudAccount = (CloudAccount) bundle
-					.getSerializable("cloudAccount");
+			clickCloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
 			String server = clickCloudAccount.getDomain();
 			String port = clickCloudAccount.getPort();
 			String userName = clickCloudAccount.getUsername();
@@ -322,8 +321,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
-		clickPostion = Integer.valueOf(getIntent().getExtras().getString(
-				"clickPostion"));
+		clickPostion = Integer.valueOf(getIntent().getExtras().getString("clickPostion"));
 		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 	}
 
@@ -369,8 +367,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		public void run() {
 			Message msg = new Message();
 			try {
-				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,
-						username, password, "conn");
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,username, password, "conn");
 				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
