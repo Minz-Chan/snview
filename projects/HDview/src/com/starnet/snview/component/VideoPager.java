@@ -6,6 +6,7 @@ import com.starnet.snview.component.Toolbar.ItemLayout;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 public class VideoPager extends LinearLayout {
+	private static final String TAG = "VideoPager";
 	private ImageButton previous;
 	private ImageButton next;
 	private TextView text;
@@ -77,13 +79,14 @@ public class VideoPager extends LinearLayout {
 
 		
 		text = new TextView(getContext());
-		this.setGravity(Gravity.CENTER);
+		text.setGravity(Gravity.CENTER);
 		text.setText("");
 		
 		textLinearLayout.setGravity(Gravity.CENTER);
 		textLinearLayout.setPadding(0, 0, 0, 0);
 		textLinearLayout.setOrientation(VERTICAL);
-		textLinearLayout.addView(text, itemContentLayoutParams);
+		textLinearLayout.addView(text, 
+				new LinearLayout.LayoutParams(itemWidth, height));
 		super.addView(textLinearLayout, itemLayoutParams);
 		
 		next = new ImageButton(getContext());
@@ -140,6 +143,7 @@ public class VideoPager extends LinearLayout {
 	
 	private void OnContentChanged() {
 		text.setText(num + seperator + amount);
+		Log.d(TAG, "Pager text: " + text.getText().toString());
 	}
 	
 	public static abstract interface OnActionClickListener {
