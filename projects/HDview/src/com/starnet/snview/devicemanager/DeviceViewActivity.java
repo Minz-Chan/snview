@@ -33,6 +33,7 @@ import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint({ "SdCardPath", "HandlerLeak" })
@@ -217,9 +218,10 @@ public class DeviceViewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setToolbarVisiable(false);
 
-		previewDeviceItems = GlobalApplication.getInstance()
-				.getRealplayActivity().getPreviewDevices();
-
+		RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+		if (activity != null) {
+			previewDeviceItems = activity.getPreviewDevices();
+		}
 		mListView = (ListView) findViewById(R.id.device_listview);
 		navigation_bar_add_btn = (Button) findViewById(R.id.base_navigationbar_right_btn);
 
