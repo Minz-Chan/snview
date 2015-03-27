@@ -143,6 +143,7 @@ public class RealplayActivity extends BaseActivity {
 		pdi.setLoginUser(alarmDevice.getUserName());
 		pdi.setLoginPass(alarmDevice.getPassword());
 		pdi.setChannel(alarmDevice.getChannel());
+		pdi.setPlatformUsername(alarmDevice.getPusherUserName());
 		devices.add(pdi);
 		
 		return devices;

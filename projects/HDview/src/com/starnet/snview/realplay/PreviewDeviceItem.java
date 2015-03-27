@@ -111,12 +111,12 @@ public class PreviewDeviceItem implements Parcelable, Cloneable {
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		PreviewDeviceItem clone = (PreviewDeviceItem) super.clone();
-		clone.setDeviceRecordName(new String(deviceRecordName));
-		clone.setSvrIp(new String(svrIp));
-		clone.setSvrPort(new String(svrPort));
-		clone.setLoginUser(new String(loginUserName));
-		clone.setLoginPass(new String(loginPassword));
-		clone.setPlatformUsername(new String(platformUsername));
+		clone.setDeviceRecordName(new String(deviceRecordName==null?"":deviceRecordName));
+		clone.setSvrIp(new String(svrIp==null?"":svrIp));
+		clone.setSvrPort(new String(svrPort==null?"":svrPort));
+		clone.setLoginUser(new String(loginUserName==null?"":loginUserName));
+		clone.setLoginPass(new String(loginPassword==null?"":loginPassword));
+		clone.setPlatformUsername(new String(platformUsername==null?"":platformUsername));
 		return clone;
 	}
 	
