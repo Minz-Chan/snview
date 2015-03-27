@@ -600,12 +600,17 @@ public class ChannelListActivity extends BaseActivity {
 		}
 	}
 
-	private List<PreviewDeviceItem> getLastPreviewItems(List<PreviewDeviceItem> ps, String name) {
-		
+	private List<PreviewDeviceItem> getLastPreviewItems(List<PreviewDeviceItem> ps, String name) {		
 		List<PreviewDeviceItem> temp = new ArrayList<PreviewDeviceItem>();
-		for (PreviewDeviceItem pi : oriPreviewChnls) {
-			if (pi.getPlatformUsername().equals(name)) {
-				temp.add(pi);
+		if((oriPreviewChnls!=null)&&(oriPreviewChnls.size()>0)){
+			int size = oriPreviewChnls.size();
+			for (int i =0 ;i< size; i++) {
+				PreviewDeviceItem pi = oriPreviewChnls.get(i);
+				if(pi != null){
+					if (pi.getPlatformUsername().equals(name)) {
+						temp.add(pi);
+					}
+				}
 			}
 		}
 		return temp;
