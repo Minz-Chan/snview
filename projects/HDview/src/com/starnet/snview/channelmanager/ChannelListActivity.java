@@ -105,21 +105,27 @@ public class ChannelListActivity extends BaseActivity {
 				originAccounts.set(position, nCA);
 				mAdapter.notifyDataSetChanged();
 				break;				
-			case STAR_LOADDATA_LOADFAI:// 使用上一次的数据进行展开
+			case STAR_LOADDATA_LOADFAI:
 				Bundle msgD1 = msg.getData();
 				int posit = msgD1.getInt("position");
 				hasDatas[posit] = false;
 				CloudAccount netCA1 = (CloudAccount) msgD1.getSerializable("netCA");
 				netCA1.setRotate(true);
+				if(posit!=0){
+					netCA1.setDeviceList(null);
+				}
 				originAccounts.set(posit, netCA1);
 				mAdapter.notifyDataSetChanged();
 				break;
-			case STAR_LOADDATA_TIMEOUT:// 使用上一次的数据进行展开
+			case STAR_LOADDATA_TIMEOUT:
 				msgD = msg.getData();
 				int positi = msgD.getInt("position");
 				hasDatas[positi] = false;
 				CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 				netCA.setRotate(true);
+				if(positi!=0){
+					netCA.setDeviceList(null);
+				}
 				originAccounts.set(positi, netCA);
 				mAdapter.notifyDataSetChanged();
 				break;
@@ -533,26 +539,28 @@ public class ChannelListActivity extends BaseActivity {
 			ChannelListActivity.this.finish();
 			return;
 		}
-		List<PreviewDeviceItem> ps = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+//		List<PreviewDeviceItem> ps = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		List<PreviewDeviceItem> previewChanls = new ArrayList<PreviewDeviceItem>();
 		for (int i = 0; i < accounts.size(); i++) {
 			CloudAccount act = accounts.get(i);
-			if (i == 0 && act != null) {
-				List<DeviceItem> ds = act.getDeviceList();
-				if (ds != null) {
-					for (DeviceItem itm : ds) {
-						List<Channel> chls = itm.getChannelList();
-						for (Channel cl : chls) {
-							if (cl.isSelected()) {
-								PreviewDeviceItem pm = getPreviewItem(i, itm);
-								pm.setChannel(cl.getChannelNo());
-								previewChanls.add(pm);
+			if (i == 0 && act != null) {//针对收藏设备，必须可以进行加载的
+				if(act != null){
+					List<DeviceItem> ds = act.getDeviceList();
+					if (ds != null) {
+						for (DeviceItem itm : ds) {
+							List<Channel> chls = itm.getChannelList();
+							for (Channel cl : chls) {
+								if (cl.isSelected()) {
+									PreviewDeviceItem pm = getPreviewItem(i, itm);
+									pm.setChannel(cl.getChannelNo());
+									previewChanls.add(pm);
+								}
 							}
 						}
 					}
 				}
 			} else {
-				if (act != null && hasDatas[i]) {
+				if (act != null && hasDatas[i]) {//代表星云平台用户有数据
 					List<DeviceItem> ds = act.getDeviceList();
 					if (ds != null) {
 						for (DeviceItem itm : ds) {
@@ -567,11 +575,11 @@ public class ChannelListActivity extends BaseActivity {
 						}
 					}
 				}else{
-					if (ps == null) {
+					if (oriPreviewChnls == null) {
 						break;
 					}else {//使用上一次的
 						String name = act.getUsername();
-						List<PreviewDeviceItem> temp = getLastPreviewItems(ps,name);
+						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
 						if (temp!=null && temp.size() > 0) {
 							for(PreviewDeviceItem p : temp){
 								previewChanls.add(p);
@@ -600,7 +608,7 @@ public class ChannelListActivity extends BaseActivity {
 		}
 	}
 
-	private List<PreviewDeviceItem> getLastPreviewItems(List<PreviewDeviceItem> ps, String name) {		
+	private List<PreviewDeviceItem> getLastPreviewItems(String name) {		//List<PreviewDeviceItem> ps,
 		List<PreviewDeviceItem> temp = new ArrayList<PreviewDeviceItem>();
 		if((oriPreviewChnls!=null)&&(oriPreviewChnls.size()>0)){
 			int size = oriPreviewChnls.size();

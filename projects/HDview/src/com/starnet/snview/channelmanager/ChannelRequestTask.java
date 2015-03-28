@@ -31,7 +31,7 @@ public class ChannelRequestTask {
 	private Thread timeThread;
 	private Thread workThread;
 	private CloudAccount reqCA;
-	private final int TIME = 7;
+	private final int TIMEOUT = 1;
 	private boolean clickOk;
 	private boolean isCanceled;
 	private SharedPreferences sp;
@@ -77,7 +77,7 @@ public class ChannelRequestTask {
 					timeCount++;
 					try {
 						Thread.sleep(1000);
-						if (timeCount == TIME) {
+						if (timeCount == TIMEOUT) {
 							isRun = true;
 							onTimeOut();
 						}
@@ -253,7 +253,6 @@ public class ChannelRequestTask {
 				d.setConnPass(true);
 				d.setPlatformUsername(reqCA.getUsername());
 			}
-//			Collections.sort(dList1, new PinyinComparator());// 排序...
 		}		
 		isDocumentOpt = true;
 		isTimeThreadOver = true;

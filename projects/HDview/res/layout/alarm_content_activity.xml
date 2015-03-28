@@ -129,7 +129,7 @@
             </EditText>
         </RelativeLayout>
 
-        <RelativeLayout
+<!--         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
@@ -166,9 +166,9 @@
 
                 <requestFocus />
             </EditText>
-        </RelativeLayout>
+        </RelativeLayout> -->
 
-        <RelativeLayout
+        <!-- <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
@@ -205,7 +205,7 @@
 
                 <requestFocus />
             </EditText>
-        </RelativeLayout>
+        </RelativeLayout> -->
 
         <RelativeLayout
             android:layout_width="fill_parent"

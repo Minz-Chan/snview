@@ -36,10 +36,10 @@ public class AlarmContentActivity extends BaseActivity implements
 	private AlarmDevice device;
 
 	public ProgressDialog imgprogress;
-	private EditText alarm_content_ip;
+//	private EditText alarm_content_ip;
 	private EditText alarm_content_time;
 	private EditText alarm_content_type;
-	private EditText alarm_content_iport;
+//	private EditText alarm_content_iport;
 	private EditText alarm_content_device;
 	private EditText alarm_content_channel;
 	private final int REQUESTCODE = 0x0023;
@@ -125,9 +125,9 @@ public class AlarmContentActivity extends BaseActivity implements
 		String dTime = device.getAlarmTime();
 		String time = dTime.replaceAll(",", " ").replaceAll("，", " ");
 		alarm_content_time.setText(time);
-		alarm_content_ip.setText(device.getIp());
+//		alarm_content_ip.setText(device.getIp());
 		alarm_content_type.setText(device.getAlarmType());
-		alarm_content_iport.setText("" + device.getPort());
+//		alarm_content_iport.setText("" + device.getPort());
 		alarm_content_device.setText(device.getDeviceName());
 		alarm_content_channel.setText("" + device.getChannel());
 		alarm_content_contents.setText(device.getAlarmContent());
@@ -155,10 +155,10 @@ public class AlarmContentActivity extends BaseActivity implements
 	}
 
 	private void setInputNull() {
-		alarm_content_ip.setKeyListener(null);
+//		alarm_content_ip.setKeyListener(null);
 		alarm_content_time.setKeyListener(null);
 		alarm_content_type.setKeyListener(null);
-		alarm_content_iport.setKeyListener(null);
+//		alarm_content_iport.setKeyListener(null);
 		alarm_content_device.setKeyListener(null);
 		alarm_content_channel.setKeyListener(null);
 		alarm_content_contents.setKeyListener(null);
@@ -169,10 +169,10 @@ public class AlarmContentActivity extends BaseActivity implements
 	private void finViewsById() {
 		imgBtn = (Button) findViewById(R.id.imgBtn);
 		vdoBtn = (Button) findViewById(R.id.vdoBtn);
-		alarm_content_ip = (EditText) findViewById(R.id.alarm_content_ip);
+//		alarm_content_ip = (EditText) findViewById(R.id.alarm_content_ip);
 		alarm_content_time = (EditText) findViewById(R.id.alarm_content_time);
 		alarm_content_type = (EditText) findViewById(R.id.alarm_content_type);
-		alarm_content_iport = (EditText) findViewById(R.id.alarm_content_iport);
+//		alarm_content_iport = (EditText) findViewById(R.id.alarm_content_iport);
 		alarm_content_device = (EditText) findViewById(R.id.alarm_content_device);
 		alarm_content_channel = (EditText) findViewById(R.id.alarm_content_channel);
 		alarm_content_contents = (EditText) findViewById(R.id.alarm_content_contents);
