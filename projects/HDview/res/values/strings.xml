@@ -261,7 +261,7 @@
     <string name="alarm_content_channel">报警通道</string>
     <string name="alarm_content_contents">报警内容</string>
     <string name="alarm_content_devicename">报警设备</string>
-    <string name="alarm_content_pushdomain">推送域名</string>
+    <string name="alarm_content_pushdomain">推送IP</string>
     <string name="alarm_content_pushusername">推送用户</string>
     <string name="alarm_content_connwrong">连接请求有误，请稍后再试&#8230;</string>
     <string name="alarm_manageradapter_content">报警信息</string>
