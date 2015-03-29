@@ -559,34 +559,33 @@ public class ChannelListActivity extends BaseActivity {
 						}
 					}
 				}
-			} else {
-				if (act != null && hasDatas[i]) {//代表星云平台用户有数据
-					List<DeviceItem> ds = act.getDeviceList();
-					if (ds != null) {
-						for (DeviceItem itm : ds) {
-							List<Channel> chls = itm.getChannelList();
-							for (Channel cl : chls) {
-								if (cl.isSelected()) {
-									PreviewDeviceItem pm = getPreviewItem(i,itm);
-									pm.setChannel(cl.getChannelNo());
-									previewChanls.add(pm);
+			} else {//针对星云账户
+				if (act != null) {
+					if (hasDatas[i]) {//代表星云平台用户有数据
+						List<DeviceItem> ds = act.getDeviceList();
+						if (ds != null) {
+							for (DeviceItem itm : ds) {
+								List<Channel> chls = itm.getChannelList();
+								for (Channel cl : chls) {
+									if (cl.isSelected()) {
+										PreviewDeviceItem pm = getPreviewItem(i,itm);
+										pm.setChannel(cl.getChannelNo());
+										previewChanls.add(pm);
+									}
 								}
 							}
 						}
-					}
-				}else{
-					if (oriPreviewChnls == null) {
-						break;
-					}else {//使用上一次的
-						String name = act.getUsername();
-						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
-						if (temp!=null && temp.size() > 0) {
-							for(PreviewDeviceItem p : temp){
-								previewChanls.add(p);
-							}
-						}
+					}else {//代表星云平台用户无数据，则不不需要进行重新选择
+//						String name = act.getUsername();
+//						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
+//						if (temp!=null && temp.size() > 0) {
+//							for(PreviewDeviceItem p : temp){
+//								previewChanls.add(p);
+//							}
+//						}
 					}
 				}
+//				else{ }
 			}
 		}
 		//play

@@ -45,7 +45,9 @@ public class AlarmPushSettingService extends Service {
 		Log.v(TAG, "AlarmPushSettingService onStart......");
 		getSettingsSP();
 		if (!isAllAcc) {
-			PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+			if (ctx!=null) {
+				PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+			}
 		} else {
 			new Thread() {
 				@Override
@@ -55,7 +57,9 @@ public class AlarmPushSettingService extends Service {
 						getSettingsSP();
 						Log.v(TAG, "AlarmPushSettingService onStart relFlag ......");
 						try {
-							saveAllAccounts();
+							if (ctx!=null) {
+								saveAllAccounts();
+							}
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -64,7 +68,9 @@ public class AlarmPushSettingService extends Service {
 						getSettingsSP();
 						Log.v(TAG, "AlarmPushSettingService onStart delFlag......");
 						try {
-							delPushUserAndSaveStarnetUser();
+							if (ctx!=null) {
+								delPushUserAndSaveStarnetUser();
+							}
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
