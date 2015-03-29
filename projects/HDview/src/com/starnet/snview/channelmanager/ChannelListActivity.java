@@ -75,6 +75,7 @@ public class ChannelListActivity extends BaseActivity {
 	private MultiConnIdentifyTask[] connTasks;
 
 	private boolean[] hasDatas;
+	private boolean[] isLoading;
 	
 	public static final int STAR_LOADDATA_TIMEOUT = 0x0002;
 	public static final int STAR_LOADDATA_SUCCESS = 0x0003;
@@ -102,6 +103,7 @@ public class ChannelListActivity extends BaseActivity {
 				Bundle msgD = msg.getData();
 				int position = msgD.getInt("position");
 				hasDatas[position] = true;
+				isLoading[position] = false;
 				final CloudAccount nCA = (CloudAccount) msgD.getSerializable("netCA");
 				nCA.setRotate(true);
 				originAccounts.set(position, nCA);
@@ -111,6 +113,7 @@ public class ChannelListActivity extends BaseActivity {
 				Bundle msgD1 = msg.getData();
 				int posit = msgD1.getInt("position");
 				hasDatas[posit] = false;
+				isLoading[posit] = false;
 				CloudAccount netCA1 = (CloudAccount) msgD1.getSerializable("netCA");
 				netCA1.setRotate(true);
 				if(posit!=0){
@@ -125,6 +128,7 @@ public class ChannelListActivity extends BaseActivity {
 				msgD = msg.getData();
 				int positi = msgD.getInt("position");
 				hasDatas[positi] = false;
+				isLoading[positi] = false;
 				CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 				netCA.setRotate(true);
 				if(positi!=0){
@@ -199,7 +203,6 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}else {
 				if (isAllUsersLoaded()) {
-//					ChannelListActivity.this.finish();
 					obtainNewPreviewItemsAndPlay(originAccounts);
 				} else {// 存在加载成功
 					List<PreviewDeviceItem> pItems = getPreviewItems();
@@ -531,7 +534,6 @@ public class ChannelListActivity extends BaseActivity {
 			ChannelListActivity.this.finish();
 		}
 		ChannelListActivity.this.finish();
-//		obtainNewPreviewItemsAndPlay(originAccounts);
 	}
 
 	/**对于未加载的用户，使用上一次的通道数据，对于加载完毕的用户使用当前选择的通道数据 ***/
@@ -576,16 +578,17 @@ public class ChannelListActivity extends BaseActivity {
 							}
 						}
 					}else {//代表星云平台用户无数据，则不不需要进行重新选择
-//						String name = act.getUsername();
-//						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
-//						if (temp!=null && temp.size() > 0) {
-//							for(PreviewDeviceItem p : temp){
-//								previewChanls.add(p);
-//							}
-//						}
+						if (isLoading[i]) {
+							String name = act.getUsername();
+							List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
+							if (temp!=null && temp.size() > 0) {
+								for(PreviewDeviceItem p : temp){
+									previewChanls.add(p);
+								}
+							}
+						}
 					}
 				}
-//				else{ }
 			}
 		}
 		//play
@@ -717,6 +720,10 @@ public class ChannelListActivity extends BaseActivity {
 		originAccounts = getCloudAccountInfoFromUI();// 获取收藏设备，以及用户信息
 		
 		hasDatas = new boolean[originAccounts.size()];
+		isLoading = new boolean[originAccounts.size()];
+		for (int i = 0; i < originAccounts.size(); i++) {
+			isLoading[i] = true;
+		}		
 		copyCloudAccountEnable();
 		
 		mAdapter = new ChannelExpandableListviewAdapter(curContext, originAccounts, titleView);
@@ -776,8 +783,7 @@ public class ChannelListActivity extends BaseActivity {
 	}
 
 	private void showToast(String content) {
-		Toast.makeText(ChannelListActivity.this, content, Toast.LENGTH_SHORT)
-				.show();
+		Toast.makeText(ChannelListActivity.this, content, Toast.LENGTH_SHORT).show();
 	}
 
 	private List<PreviewDeviceItem> getPreviewChannelList(

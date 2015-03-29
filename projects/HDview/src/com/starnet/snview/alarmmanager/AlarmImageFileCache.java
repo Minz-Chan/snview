@@ -16,11 +16,15 @@ public class AlarmImageFileCache {
 
 	public static Context context;
 
-	/** 从缓存中获取图片 **/
+	/** 从外置SD卡中获取图片 **/
 	public static Bitmap getImageFromExternal(String url) {
 		String appName = getApplicationName();
 		String[] urls = url.split("/");
-		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
+		String extPath = SDCardUtils.getExternalSDCardPath();
+		if (extPath == null ) {
+			return null;
+		}
+		String path = extPath + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
