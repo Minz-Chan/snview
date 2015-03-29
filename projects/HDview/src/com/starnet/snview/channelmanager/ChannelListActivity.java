@@ -33,6 +33,7 @@ import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -64,6 +65,7 @@ public class ChannelListActivity extends BaseActivity {
 	private List<CloudAccount> enablAccounts;
 //	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
 	private List<PreviewDeviceItem> oriPreviewChnls;
+	private List<PreviewDeviceItem> oriPreviewChnlsBackup;// 备份星云平台用户信息
 	private ChannelExpandableListviewAdapter mAdapter;
 	private List<CloudAccount> originAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
 	
@@ -113,6 +115,8 @@ public class ChannelListActivity extends BaseActivity {
 				netCA1.setRotate(true);
 				if(posit!=0){
 					netCA1.setDeviceList(null);
+					showToast(netCA1.getUsername()+getString(R.string.channel_load_exception));
+					
 				}
 				originAccounts.set(posit, netCA1);
 				mAdapter.notifyDataSetChanged();
@@ -125,6 +129,7 @@ public class ChannelListActivity extends BaseActivity {
 				netCA.setRotate(true);
 				if(positi!=0){
 					netCA.setDeviceList(null);
+					showToast(netCA.getUsername()+getString(R.string.channel_load_timeout));
 				}
 				originAccounts.set(positi, netCA);
 				mAdapter.notifyDataSetChanged();
@@ -509,28 +514,24 @@ public class ChannelListActivity extends BaseActivity {
 	
 	private void startPlay(){
 		obtainNewPreviewItemsAndPlay(originAccounts);
-		
-//		if (!ChannelListUtils.checkCloudAccountsLoad(originAccounts)) {//未加载完毕
-//			//对于未加载完毕的使用上一次的选择。故而需要获取用户的选择通道情形
-//			obtainNewPreviewItemsAndPlay(originAccounts);
-//			return;
-//		}else{
-//			obtainChannelsAndPlay();
-//		}
 	}
 
 	private void backAndLeftOperation() {
 		if (NetWorkUtils.checkNetConnection(curContext)) {
 			closeSockets();
 		}
-		obtainNewPreviewItemsAndPlay(originAccounts);
-//		if (!ChannelListUtils.checkCloudAccountsLoad(originAccounts)) {//未加载完毕
-//			//对于未加载完毕的使用上一次的选择。故而需要获取用户的选择通道情形
-//			obtainNewPreviewItemsAndPlay(originAccounts);
-//			return;
-//		}else{
-//			obtainChannelsAndPlay();
-//		}
+		
+		if ((oriPreviewChnlsBackup!= null)&&(oriPreviewChnlsBackup.size() > 0)) {
+			PreviewDeviceItem p = oriPreviewChnlsBackup.get(0);
+			PreviewDeviceItem[] l = new PreviewDeviceItem[oriPreviewChnlsBackup.size()];
+			oriPreviewChnlsBackup.toArray(l);
+			Intent intent = ChannelListActivity.this.getIntent();
+			intent.putExtra("DEVICE_ITEM_LIST", l);
+			ChannelListActivity.this.setResult(RESULT_CODE_PREVIEW, intent);
+			ChannelListActivity.this.finish();
+		}
+		ChannelListActivity.this.finish();
+//		obtainNewPreviewItemsAndPlay(originAccounts);
 	}
 
 	/**对于未加载的用户，使用上一次的通道数据，对于加载完毕的用户使用当前选择的通道数据 ***/
@@ -539,7 +540,6 @@ public class ChannelListActivity extends BaseActivity {
 			ChannelListActivity.this.finish();
 			return;
 		}
-//		List<PreviewDeviceItem> ps = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		List<PreviewDeviceItem> previewChanls = new ArrayList<PreviewDeviceItem>();
 		for (int i = 0; i < accounts.size(); i++) {
 			CloudAccount act = accounts.get(i);
@@ -699,10 +699,15 @@ public class ChannelListActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
-
-		oriPreviewChnls = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();// 获取源预览通道列表
+		RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+		if (activity!=null) {
+			oriPreviewChnls = activity.getPreviewDevices();// 获取源预览通道列表
+			if ((oriPreviewChnls != null) && (oriPreviewChnls.size() > 0)) {
+				copyOriginPreviewItems();
+			}
+		}
+		
 		enablAccounts = new ArrayList<CloudAccount>();
-
 		curContext = ChannelListActivity.this;
 		startScanBtn = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
 		mExpListView = (ExpandableListView) findViewById(R.id.channel_listview);
@@ -743,6 +748,21 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
+		}
+	}
+
+	private void copyOriginPreviewItems() {
+		oriPreviewChnlsBackup = new ArrayList<PreviewDeviceItem>();
+		for (PreviewDeviceItem pi : oriPreviewChnls) {
+			PreviewDeviceItem tp = new PreviewDeviceItem();
+			tp.setChannel(pi.getChannel());
+			tp.setDeviceRecordName(pi.getDeviceRecordName());
+			tp.setLoginPass(pi.getLoginPass());
+			tp.setLoginUser(pi.getLoginUser());
+			tp.setPlatformUsername(pi.getPlatformUsername());
+			tp.setSvrIp(pi.getSvrIp());
+			tp.setSvrPort(pi.getSvrPort());
+			oriPreviewChnlsBackup.add(tp);
 		}
 	}
 

@@ -20,6 +20,8 @@
     <string name="common_connection_wrong_check_port_domain">连接失败，请检查域名和端口设置</string>
     <string name="common_request_outtime_check_port_server">设备列表请求超时，请检查端口和服务器</string>
     <string name="common_last_devicelist_path">/data/data/com.starnet.snview/LastDevicesList.xml</string>
+    <string name="channel_load_timeout">账户数据加载超时</string>
+    <string name="channel_load_exception">账户数据加载失败</string>
     <string name="channel_listview_device_layout_ok">确定</string>
     <string name="channel_listview_device_layout_cancel">取消</string>
     <string name="channel_manager_connect_timeout">连接验证超时</string>
@@ -65,7 +67,7 @@
     <string name="system_setting_alarm_manager_add">增加</string>
     <string name="system_setting_newfunction">新功能介绍</string>
     <string name="system_setting_cloudaccount_port">端口</string>
-    <string name="system_setting_newworksetting">星云平台</string>
+    <string name="system_setting_newworksetting">视频监控服务平台</string>
     <string name="system_setting_alarm_manager_code">密码</string>
     <string name="system_setting_alarminfo_accept_off">关</string>
     <string name="system_setting_alarminfo_accept_open">开</string>
@@ -162,8 +164,10 @@
     <string name="device_manager_name">设备名称</string>
     <string name="device_manager_online_en">(在线)</string>
     <string name="device_manager_offline_en">(离线)</string>
-    <!-- <string name="device_manager_online_cn">（在线）</string>
-    <string name="device_manager_offline_cn">（离线）</string> -->
+    <!--
+    <string name="device_manager_online_cn">（在线）</string>
+    <string name="device_manager_offline_cn">（离线）</string>
+    -->
     <string name="device_manager_deviceview_ok">确定</string>
     <string name="device_manager_save_failed">保存失败</string>
     <string name="device_manager_off_on_line_length">4</string>

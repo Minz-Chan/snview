@@ -144,9 +144,11 @@ public class AlarmPushSettingService extends Service {
 	private void getSettingsSP() {
 		// regOrDelSP = ctx.getSharedPreferences("PSXMLFILE", 0);
 		// isAccept = regOrDelSP.getBoolean("regOrDelSP", true);
-		settingsSP = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		isAccept = settingsSP.getBoolean("isAccept", true);
-		isAllAcc = settingsSP.getBoolean("isAllAccept", true);
+		if (ctx!=null) {
+			settingsSP = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+			isAccept = settingsSP.getBoolean("isAccept", true);
+			isAllAcc = settingsSP.getBoolean("isAllAccept", true);
+		}
 	}
 
 	private final IBinder binder = new MyBinder();
