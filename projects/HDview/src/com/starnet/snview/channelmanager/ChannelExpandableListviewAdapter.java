@@ -12,6 +12,7 @@ import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import android.content.Context;
 import android.os.Handler;
@@ -48,6 +49,7 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 		this.context = curContext;
 		ExpandableListViewUtils.context = context;
 		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+//		mPreviewDeviceItems = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(ChannelListActivity.previewFilePath);
 		notifyNum = 3;
 	}
 

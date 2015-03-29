@@ -1,7 +1,10 @@
 package com.starnet.snview.channelmanager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.dom4j.DocumentException;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -45,6 +48,7 @@ public class ChannelListActivity extends BaseActivity {
 //	private static final String TAG = "ChannelListActivity";
 	private final String CLOUD_ACCOUNT_PATH = "/data/data/com.starnet.snview/cloudAccount_list.xml";
 	public static final String filePath = "/data/data/com.starnet.snview/deviceItem_list.xml";
+	public static final String previewFilePath = "/data/data/com.starnet.snview/previewItem_list.xml";
 	
 	public static final int RESULT_CODE_BACK = 0;
 	public static final int RESULT_CODE_PREVIEW = 8;
@@ -68,6 +72,7 @@ public class ChannelListActivity extends BaseActivity {
 	private List<PreviewDeviceItem> oriPreviewChnlsBackup;// 备份星云平台用户信息
 	private ChannelExpandableListviewAdapter mAdapter;
 	private List<CloudAccount> originAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
+	private List<PreviewDeviceItem> preItemsInXML;
 	
 	private int connIdenSum = 0 ;
 	private ProgressDialog multiPRG;
@@ -563,7 +568,7 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			} else {//针对星云账户
 				if (act != null) {
-					if (hasDatas[i]) {//代表星云平台用户有数据
+					if (hasDatas[i]) {//代表星云平台用户有数据,判断用户是否重新进行了选择；//如果是，删除以前选择的，而当下没有进行选择的
 						List<DeviceItem> ds = act.getDeviceList();
 						if (ds != null) {
 							for (DeviceItem itm : ds) {
@@ -577,7 +582,31 @@ public class ChannelListActivity extends BaseActivity {
 								}
 							}
 						}
-					}else {//代表星云平台用户无数据，则不不需要进行重新选择
+						//获取上一次改账户的通道选择情况,先删除，后添加
+//						List<PreviewDeviceItem> lastSelectPs = ChannelListUtils.getLastSelectPreviewItems(act.getUsername(),oriPreviewChnlsBackup);
+//						
+//						if (lastSelectPs!=null&&lastSelectPs.size()>0) {
+//							List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
+//							//删除以前选择的，而当下没有进行选择的
+//							if (delPs!=null&&delPs.size()>0) {
+//								try {
+//									ChannelListUtils.deletePreviewItemInXML(delPs,preItemsInXML);
+//								} catch (Exception e) {//处理异常？？？？？
+//									e.printStackTrace();
+//								}
+//							}
+//							//删除以前选择的，而当下没有进行选择的
+//							List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
+//							try {
+//								ChannelListUtils.addNewPreviewItemsToXML(addPs);
+//							} catch (IOException e) {
+//								e.printStackTrace();
+//							} catch (DocumentException e) {
+//								e.printStackTrace();
+//							}
+//						}
+						
+					}else {//代表星云平台用户无数据，则需要判断是否正在加载
 						if (isLoading[i]) {
 							String name = act.getUsername();
 							List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
@@ -755,6 +784,8 @@ public class ChannelListActivity extends BaseActivity {
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 		}
+		
+		preItemsInXML = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 	}
 
 	private void copyOriginPreviewItems() {
