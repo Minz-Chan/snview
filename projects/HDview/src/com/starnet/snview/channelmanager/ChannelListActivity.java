@@ -1,10 +1,7 @@
 package com.starnet.snview.channelmanager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.dom4j.DocumentException;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -72,7 +69,7 @@ public class ChannelListActivity extends BaseActivity {
 	private List<PreviewDeviceItem> oriPreviewChnlsBackup;// 备份星云平台用户信息
 	private ChannelExpandableListviewAdapter mAdapter;
 	private List<CloudAccount> originAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
-	private List<PreviewDeviceItem> preItemsInXML;
+	private List<PreviewDeviceItem> preItemsInApplication;
 	
 	private int connIdenSum = 0 ;
 	private ProgressDialog multiPRG;
@@ -784,8 +781,8 @@ public class ChannelListActivity extends BaseActivity {
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 		}
-		
-		preItemsInXML = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
+		GlobalApplication.getInstance().setLastPreviewItems(oriPreviewChnlsBackup);
+//		preItemsInApplication = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 	}
 
 	private void copyOriginPreviewItems() {

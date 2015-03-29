@@ -1,8 +1,11 @@
 package com.starnet.snview.global;
 
+import java.util.List;
+
 import com.baidu.frontia.FrontiaApplication;
 import com.starnet.snview.R;
 import com.starnet.snview.images.ImageLoader;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ActivityUtility;
 
@@ -34,6 +37,8 @@ public class GlobalApplication extends FrontiaApplication {
 	
 	private Handler mHandler;
 	private Handler mPlaybackHandler;
+	
+	private List<PreviewDeviceItem> lastPreviewItems;
 
 	public static GlobalApplication getInstance() {
 		return singleton;
@@ -183,6 +188,14 @@ public class GlobalApplication extends FrontiaApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+	}
+
+	public List<PreviewDeviceItem> getLastPreviewItems() {
+		return lastPreviewItems;
+	}
+
+	public void setLastPreviewItems(List<PreviewDeviceItem> lastPreviewItems) {
+		this.lastPreviewItems = lastPreviewItems;
 	}
 
 }
