@@ -6,7 +6,6 @@ import com.starnet.snview.global.GlobalApplication;
 
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Log;
 
 public class SDCardUtils {
 

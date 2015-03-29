@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -37,12 +39,11 @@ import com.starnet.snview.syssetting.CloudAccount;
 @SuppressLint("SdCardPath")
 public class ReadWriteXmlUtils {
 	protected static final String TAG = "AlarmPersistenceUtils";
-
+	public static final String previewFilePath = "/data/data/com.starnet.snview/previewItem_list.xml";//预览通道账户的信息文件
 	public final static String ALARMS_PERSISTANCE_PATH = "/data/data/com.starnet.snview/ALARMS_PERSISTANCE_FILE.xml";
 
 	private static String INDENT = "";
 	private static String CHARSET = "UTF-8";
-
 	public static boolean expandFlag = false;
 
 	/**
@@ -423,8 +424,7 @@ public class ReadWriteXmlUtils {
 						Channel h = channelList.get(k);
 						Element cl = sEl.addElement("channel");
 						cl.addAttribute("channelName", h.getChannelName());
-						cl.addAttribute("channelNo",
-								String.valueOf(h.getChannelNo()));
+						cl.addAttribute("channelNo",String.valueOf(h.getChannelNo()));
 						cl.addAttribute("isSelected","false");
 					}
 				}
@@ -538,10 +538,6 @@ public class ReadWriteXmlUtils {
 				Element subElement = subElements.get(i);
 				subElement.detach();
 				break;
-//				String deviceName = subElement.attributeValue("deviceName");
-//				if (deviceItem.getDeviceName().equals(deviceName)) {//
-//					
-//				}
 			}
 		}
 		OutputFormat opf = new OutputFormat("", true, "UTF-8");
@@ -553,8 +549,7 @@ public class ReadWriteXmlUtils {
 
 	// 从指定的文档中获取内容
 	@SuppressWarnings("unchecked")
-	public static List<CloudAccount> getCloudAccountList(String filePath)
-			throws Exception {
+	public static List<CloudAccount> getCloudAccountList(String filePath) throws Exception {
 		List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -861,27 +856,11 @@ public class ReadWriteXmlUtils {
 			}
 			Document document = saxReader.read(file);
 			Element rootElement = document.getRootElement();
-//			List<Element> subElements = rootElement.elements();
 
 			String caDomain = cloudAccount.getDomain();
 			String caPort = cloudAccount.getPort();
 			String caPassword = cloudAccount.getPassword();
 			String caUsername = cloudAccount.getUsername();
-
-//			int size = subElements.size();
-//			for (int i = 0; i < size; i++) {
-//				Element subElement = subElements.get(i);
-//				String domain = subElement.attributeValue("domain");
-//				String port = subElement.attributeValue("port");
-//				String username = subElement.attributeValue("username");
-//				String password = subElement.attributeValue("password");
-//				if (domain.equals(caDomain) && port.equals(caPort)
-//						&& username.equals(caUsername)
-//						&& password.equals(caPassword)) {
-//					subElement.detach();
-//					break;
-//				}
-//			}
 			// 开始写入
 			Element clAElement = rootElement.addElement("cloudAccount");
 			clAElement.addAttribute("username", caUsername);
@@ -1575,61 +1554,6 @@ public class ReadWriteXmlUtils {
 
 	/**
 	 * 
-	 * @param pdiList
-	 *            ：预览列表
-	 * @param filePath
-	 *            :文件路径；
-	 * @return :true表示正常写入，FALSE，表示写入错误；
-	 * @throws IOException
-	 */
-	public static boolean writePreviewItemListInfoToXML(
-			List<PreviewDeviceItem> previewDeviceItemList, String filePath)
-			throws IOException {
-		boolean result = false;
-		File file = new File(filePath);
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-		Document document = DocumentHelper.createDocument();
-		Element root = document.addElement("previewDeviceItems");
-
-		int size = previewDeviceItemList.size();
-		for (int i = 0; i < size; i++) {
-			Element subElement = root.addElement("previewDeviceItem");
-
-			PreviewDeviceItem previewDeviceItem = previewDeviceItemList.get(i);
-
-			String dRName = previewDeviceItem.getDeviceRecordName();
-			String lgPass = previewDeviceItem.getLoginPass();
-			String lgUser = previewDeviceItem.getLoginUser();
-
-			String dSvrIp = previewDeviceItem.getSvrIp();
-			String svPort = previewDeviceItem.getSvrPort();
-			String channl = String.valueOf(previewDeviceItem.getChannel());
-
-			String platformUsername = previewDeviceItem.getPlatformUsername();
-
-			subElement.addAttribute("dRName", dRName);// 测试使用。。。
-			subElement.addAttribute("lgPass", lgPass);
-			subElement.addAttribute("lgUser", lgUser);
-
-			subElement.addAttribute("dSvrIp", dSvrIp);
-			subElement.addAttribute("svPort", svPort);
-			subElement.addAttribute("channl", channl);
-			subElement.addAttribute("platformUsername", platformUsername);
-		}
-
-		OutputFormat opf = new OutputFormat("", true, "UTF-8");
-		FileWriter writer = new FileWriter(file);
-		XMLWriter xmlWriter = new XMLWriter(writer, opf);
-		xmlWriter.write(document);
-		writer.close();
-		result = true;
-		return result;
-	}
-
-	/**
-	 * 
 	 * @param page
 	 *            :页数
 	 * @param filePath
@@ -1805,11 +1729,6 @@ public class ReadWriteXmlUtils {
 		return previewDeviceItemList;
 	}
 
-	/** 添加报警推送账户 **/
-	public static void addAlarmUser(AlarmUser user) {
-
-	}
-
 	/** 获取报警推送账户 **/
 	public static List<AlarmUser> getAlarmUserList() {
 		List<AlarmUser> userList = new ArrayList<AlarmUser>();
@@ -1840,5 +1759,207 @@ public class ReadWriteXmlUtils {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param pdiList
+	 *            ：预览列表
+	 * @param filePath
+	 *            :文件路径；
+	 * @return :true表示正常写入，FALSE，表示写入错误；
+	 * @throws IOException
+	 */
+	public static boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList, String filePath) throws IOException {
+		boolean result = false;
+		File file = new File(filePath);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("previewDeviceItems");
+
+		int size = previewDeviceItemList.size();
+		for (int i = 0; i < size; i++) {
+			Element subElement = root.addElement("previewDeviceItem");
+
+			PreviewDeviceItem previewDeviceItem = previewDeviceItemList.get(i);
+
+			String dRName = previewDeviceItem.getDeviceRecordName();
+			String lgPass = previewDeviceItem.getLoginPass();
+			String lgUser = previewDeviceItem.getLoginUser();
+
+			String dSvrIp = previewDeviceItem.getSvrIp();
+			String svPort = previewDeviceItem.getSvrPort();
+			String channl = String.valueOf(previewDeviceItem.getChannel());
+
+			String platformUsername = previewDeviceItem.getPlatformUsername();
+
+			subElement.addAttribute("dRName", dRName);// 测试使用。。。
+			subElement.addAttribute("lgPass", lgPass);
+			subElement.addAttribute("lgUser", lgUser);
+			subElement.addAttribute("dSvrIp", dSvrIp);
+			subElement.addAttribute("svPort", svPort);
+			subElement.addAttribute("channl", channl);
+			subElement.addAttribute("platformUsername", platformUsername);
+		}
+
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter writer = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(writer, opf);
+		xmlWriter.write(document);
+		writer.close();
+		result = true;
+		return result;
+	}
+	
+	public static void addPreviewItemListInfoToXML( PreviewDeviceItem pi) throws IOException, DocumentException {
+		File file = new File(previewFilePath);
+		SAXReader saxReader = new SAXReader();
+		if (!file.exists()) {// 如果文件不存在，则创建文件，并打开文件进行读写操作
+			file.createNewFile();
+			Document doc = DocumentHelper.createDocument();
+			doc.addElement("previewDeviceItems");
+			OutputFormat op = new OutputFormat("", true, "UTF-8");
+			XMLWriter wr = new XMLWriter(new FileOutputStream(previewFilePath),op);
+			wr.write(doc);
+			wr.close();
+		}
+		Document document = saxReader.read(file);
+		Element rootElement = document.getRootElement();
+		// 开始写入
+		Element subElement = rootElement.addElement("previewDeviceItem");
+		subElement.addAttribute("dRName", pi.getDeviceRecordName());// 测试使用。。。
+		subElement.addAttribute("lgPass", pi.getLoginPass());
+		subElement.addAttribute("lgUser", pi.getLoginUser());
+		subElement.addAttribute("dSvrIp", pi.getSvrIp());
+		subElement.addAttribute("svPort", pi.getSvrPort());
+		subElement.addAttribute("channl", "" + pi.getChannel());
+		subElement.addAttribute("platformUsername", pi.getPlatformUsername());
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		XMLWriter wrt = new XMLWriter(new FileOutputStream(previewFilePath),opf);
+		wrt.write(document);
+		wrt.close();
+	}
+	
+	public static boolean replacePreviewItemInXML(PreviewDeviceItem pi, int index) throws IOException, DocumentException {
+		boolean result = false;
+		File file = new File(previewFilePath);
+		if (!file.exists()) {
+			return true;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		int size = subElements.size();
+		for (int i = 0; i < size; i++) {
+			if (i == index) {
+				Element sE = subElements.get(i);
+				sE.setAttributeValue("dRName", pi.getDeviceRecordName());
+				sE.setAttributeValue("lgPass",pi.getLoginPass());
+				sE.setAttributeValue("lgUser",pi.getLoginUser());
+				sE.setAttributeValue("dSvrIp", pi.getSvrIp());
+				sE.setAttributeValue("svPort", pi.getSvrPort());
+				sE.setAttributeValue("channl", String.valueOf(pi.getChannel()));
+				sE.setAttributeValue("platformUsername", pi.getPlatformUsername());
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+		return result;
+	}
+	
+	public static void removePreviewItemInXML(int index) throws IOException, DocumentException {
+		File file = new File(previewFilePath);
+		if (!file.exists()) {
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		int size = subElements.size();
+		for (int i = 0; i < size; i++) {
+			if (i == index) {
+				subElements.get(i).detach();				
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
+
+	public static void removePreviewItemInXML(PreviewDeviceItem preItem) throws DocumentException, IOException {
+		File file = new File(previewFilePath);
+		if (!file.exists()) {
+			return;
+		}
+		SAXReader saxReader = new SAXReader();
+		Document document = saxReader.read(file);
+		Element root = document.getRootElement();
+		List<Element> subElements = root.elements();
+		
+		String pName = preItem.getPlatformUsername();
+		String dName = preItem.getDeviceRecordName();
+		int channlNo = preItem.getChannel();
+		String chNo = String.valueOf(channlNo);
+		
+		int size = subElements.size();
+		for (int i = 0; i < size; i++) {
+			String tempName = subElements.get(i).attributeValue("dRName");
+			String tempChnl = subElements.get(i).attributeValue("channl");
+			String tempPName = subElements.get(i).attributeValue("channl");
+			if (tempName.equals(dName)&&chNo.equals(tempChnl)&&tempPName.equals(pName)) {
+				subElements.get(i).detach();
+				break;
+			}
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		FileWriter fileWriter = new FileWriter(file);
+		XMLWriter xmlWriter = new XMLWriter(fileWriter, opf);
+		xmlWriter.write(document);
+		fileWriter.close();
+	}
+
+	public static void addNewPreviewItemsToXML(List<PreviewDeviceItem> addPs) throws IOException, DocumentException {
+		File file = new File(previewFilePath);
+		SAXReader saxReader = new SAXReader();
+		if (!file.exists()) {// 如果文件不存在，则创建文件，并打开文件进行读写操作
+			file.createNewFile();
+			Document doc = DocumentHelper.createDocument();
+			doc.addElement("previewDeviceItems");
+			OutputFormat op = new OutputFormat("", true, "UTF-8");
+			XMLWriter wr = new XMLWriter(new FileOutputStream(previewFilePath),op);
+			wr.write(doc);
+			wr.close();
+		}
+		if (addPs == null) {
+			return;
+		}
+		Document document = saxReader.read(file);
+		Element rootElement = document.getRootElement();
+		// 开始写入
+		for (PreviewDeviceItem pi : addPs) {
+			Element subElement = rootElement.addElement("previewDeviceItem");
+			subElement.addAttribute("dRName", pi.getDeviceRecordName());// 测试使用。。。
+			subElement.addAttribute("lgPass", pi.getLoginPass());
+			subElement.addAttribute("lgUser", pi.getLoginUser());
+			subElement.addAttribute("dSvrIp", pi.getSvrIp());
+			subElement.addAttribute("svPort", pi.getSvrPort());
+			subElement.addAttribute("channl", "" + pi.getChannel());
+			subElement.addAttribute("platformUsername", pi.getPlatformUsername());
+		}
+		OutputFormat opf = new OutputFormat("", true, "UTF-8");
+		XMLWriter wrt = new XMLWriter(new FileOutputStream(previewFilePath),opf);
+		wrt.write(document);
+		wrt.close();
 	}
 }

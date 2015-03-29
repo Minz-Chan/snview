@@ -230,8 +230,7 @@ public class AlarmContentActivity extends BaseActivity implements
 				isAvailable = true;
 			}
 			if (isAvailable) {
-				isExist = AlarmImageFileCache
-						.isExistImageFileInExternal(imgUrl);
+				isExist = AlarmImageFileCache.isExistImageFileInExternal(imgUrl);
 			}
 			if (isExist) {
 				if (imgprogress != null && imgprogress.isShowing()) {
@@ -239,8 +238,7 @@ public class AlarmContentActivity extends BaseActivity implements
 				}
 				getImageFromUrlFromLocal(imgUrl);
 			} else {
-				boolean isEt = AlarmImageFileCache
-						.isExistImgFileInternal(imgUrl);
+				boolean isEt = AlarmImageFileCache.isExistImgFileInternal(imgUrl);
 				if (isEt) {
 					if (imgprogress != null && imgprogress.isShowing()) {
 						imgprogress.dismiss();

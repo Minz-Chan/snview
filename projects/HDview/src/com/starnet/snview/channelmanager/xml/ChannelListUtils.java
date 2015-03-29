@@ -1,11 +1,18 @@
 package com.starnet.snview.channelmanager.xml;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.DocumentException;
+
+import android.R.integer;
+
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class ChannelListUtils {
 
@@ -87,7 +94,7 @@ public class ChannelListUtils {
 		boolean allLoad = true;
 		if (accounts != null) {
 			for (int i = 0; i < accounts.size(); i++) {
-				if (!accounts.get(i).isRotate()) {//未加载完成
+				if (!accounts.get(i).isRotate()) {// 未加载完成
 					allLoad = false;
 					break;
 				}
@@ -95,4 +102,90 @@ public class ChannelListUtils {
 		}
 		return allLoad;
 	}
+
+	public static List<PreviewDeviceItem> getLastSelectPreviewItems(
+			String username, List<PreviewDeviceItem> oriPreviewChnls) {
+		List<PreviewDeviceItem> ps = new ArrayList<PreviewDeviceItem>();
+		
+		if (oriPreviewChnls == null) {
+			return ps;
+		}
+		
+		for (PreviewDeviceItem pItem : oriPreviewChnls) {
+			if (pItem.getPlatformUsername().equals(username)) {
+				ps.add(pItem);
+			}
+		}
+		return ps;
+	}
+
+	public static List<PreviewDeviceItem> getDeletePreviewItems(
+			List<PreviewDeviceItem> previewChanls,
+			List<PreviewDeviceItem> lastSelectPs) {
+		List<PreviewDeviceItem> deletePs = new ArrayList<PreviewDeviceItem>();
+		for (PreviewDeviceItem pi : previewChanls) {
+			lastSelectPs.remove(pi);
+		}
+		return deletePs;
+	}
+
+	public static void deletePreviewItemInXML(List<PreviewDeviceItem> delPs,
+			List<PreviewDeviceItem> preItemsInXML) throws IOException,
+			DocumentException {
+		for (int i = 0; i < delPs.size(); i++) {
+			ReadWriteXmlUtils.removePreviewItemInXML(delPs.get(i));
+			// int index = getIndexOf(delPs.get(i),preItemsInXML);
+			// if (index != -1) {
+			//
+			// }
+		}
+	}
+
+	public static List<PreviewDeviceItem> getAddPreviewItems(
+			List<PreviewDeviceItem> previewChanls,
+			List<PreviewDeviceItem> lastSelectPs) {
+		List<PreviewDeviceItem> ps = new ArrayList<PreviewDeviceItem>();
+		if (previewChanls == null) {
+			return ps;
+		}
+		for (PreviewDeviceItem pi : previewChanls) {
+			if (!isExist(pi, lastSelectPs)) {
+				ps.add(pi);
+			}
+		}
+		return ps;
+	}
+
+	private static boolean isExist(PreviewDeviceItem pi,
+			List<PreviewDeviceItem> lastSelectPs) {
+		for (PreviewDeviceItem tp : lastSelectPs) {
+			if (pi.getDeviceRecordName().equals(tp.getDeviceRecordName())
+					&& pi.getPlatformUsername().equals(tp.getPlatformUsername())
+					&& (tp.getChannel() == pi.getChannel())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void addNewPreviewItemsToXML(List<PreviewDeviceItem> addPs) throws IOException, DocumentException {
+		ReadWriteXmlUtils.addNewPreviewItemsToXML(addPs);
+	}
+
+	// private static int getIndexOf(PreviewDeviceItem
+	// pi,List<PreviewDeviceItem> preItemsInXML) {
+	// int index = -1;
+	// if (preItemsInXML==null) {
+	// return -1;
+	// }
+	// for (int i = 0; i < preItemsInXML.size(); i++) {
+	// if
+	// (pi.getDeviceRecordName().equals(preItemsInXML.get(i).getDeviceRecordName())&&pi.getChannel()
+	// == preItemsInXML.get(i).getChannel()) {
+	// index = i;
+	// break;
+	// }
+	// }
+	// return index;
+	// }
 }
