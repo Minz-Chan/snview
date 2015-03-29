@@ -20,11 +20,11 @@ public class AlarmImageFileCache {
 	public static Bitmap getImageFromExternal(String url) {
 		String appName = getApplicationName();
 		String[] urls = url.split("/");
-		String extPath = SDCardUtils.getExternalSDCardPath();
-		if (extPath == null ) {
+		boolean isAvailable = SDCardUtils.isAvailableForExternalSDCard();
+		if (!isAvailable) {
 			return null;
 		}
-		String path = extPath + appName + urls[urls.length - 1];
+		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
@@ -48,11 +48,15 @@ public class AlarmImageFileCache {
 		}
 	}
 
-	/*** 判断图像文件是否在SDCard上 **/
+	/*** 判断图像文件是否在外置SDCard上 **/
 	public static boolean isExistImageFileInExternal(String imgUrl) {
 		String appName = getApplicationName();
 		boolean isExist = false;
 		String[] urls = imgUrl.split("/");
+		boolean isAvailable = SDCardUtils.isAvailableForExternalSDCard();
+		if (!isAvailable) {
+			return false;
+		}
 		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
