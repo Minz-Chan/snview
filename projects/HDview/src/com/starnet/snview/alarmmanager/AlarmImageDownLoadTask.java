@@ -83,6 +83,7 @@ public class AlarmImageDownLoadTask {
 					sendDataToImgActivity(imgData);
 				} catch (IOException e) {
 					onDownloadFailed();// 下载失败的处理
+					e.printStackTrace();
 				}
 			}
 		};
