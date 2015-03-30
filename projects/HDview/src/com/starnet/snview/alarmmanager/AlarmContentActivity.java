@@ -222,12 +222,14 @@ public class AlarmContentActivity extends BaseActivity implements
 			boolean isAvailable = false;
 			AlarmImageFileCache.context = ctx;
 			String imgUrl = device.getImageUrl();
-			String exPath = SDCardUtils.getExternalSDCardPath();
 			String appName = AlarmImageFileCache.getApplicationName2();
-			String tempPath = exPath + appName;
-			File file = new File(tempPath);
-			if (file.exists()) {
-				isAvailable = true;
+			if (SDCardUtils.isAvailableForExternalSDCard()) {
+				String exPath = SDCardUtils.getExternalSDCardPath();
+				String tempPath = exPath + appName;
+				File file = new File(tempPath);
+				if (file.exists()) {
+					isAvailable = true;
+				}
 			}
 			if (isAvailable) {
 				isExist = AlarmImageFileCache.isExistImageFileInExternal(imgUrl);
