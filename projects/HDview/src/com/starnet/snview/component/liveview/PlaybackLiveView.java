@@ -71,7 +71,7 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		onContentReset();
+		contentUpdate();
 	}
 
 	@Override

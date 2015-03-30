@@ -3,6 +3,7 @@ package com.starnet.snview.playback.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 import com.starnet.snview.component.BufferSendManagerPlayBack;
@@ -76,6 +77,26 @@ public class PlaybackControllTask {
 		this.mHandler = mHandler;
 		this.playbackRequest = playbackRequest;
 
+		// Initialize receive thread and timeout thread
+		initRecvAndTimeoutThread();
+		
+		// Audio play thread
+		audioPlayThread = new HandlerThread("audioPlayThread");
+		audioPlayThread.start();
+		audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
+		
+		// Video play thread
+		videoPlayThread = new HandlerThread("videoPlayThread", android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
+		videoPlayThread.start();
+		videoPlayHandler = new VideoHandler(context,
+				videoPlayThread.getLooper(), ((PlaybackActivity) context)
+						.getVideoContainer().getSurfaceView());
+		
+		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
+		controller = new PlaybackController();
+	}
+	
+	private void initRecvAndTimeoutThread() {
 		recvThread = new Thread("recvThread") {
 			@Override
 			public void run() {
@@ -115,21 +136,6 @@ public class PlaybackControllTask {
 				}
 			}
 		};
-		
-		// Audio play thread
-		audioPlayThread = new HandlerThread("audioPlayThread");
-		audioPlayThread.start();
-		audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
-		
-		// Video play thread
-		videoPlayThread = new HandlerThread("videoPlayThread", android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
-		videoPlayThread.start();
-		videoPlayHandler = new VideoHandler(context,
-				videoPlayThread.getLooper(), ((PlaybackActivity) context)
-						.getVideoContainer().getSurfaceView());
-		
-		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
-		controller = new PlaybackController();
 	}
 	
 	
@@ -330,7 +336,12 @@ WAIT_TO_RESUME:
 				}
 			}
 			
-		} catch (Exception e) {
+		} catch (SocketException e) {
+			// 连接被重置或其他错误
+			sendMessageToActivity(PlaybackActivity.CONNECTION_ERROR);
+			e.printStackTrace();
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -462,6 +473,18 @@ WAIT_TO_RESUME:
 	public void start(OWSPDateTime startTime) {
 		controller.setChannel(getPlaybackChannel());
 		controller.requestStart(startTime);
+	}
+	
+	public void startAgainWhenConnectionReset(OWSPDateTime startTime) {
+		initRecvAndTimeoutThread(); // reinitialize thread because thread 
+									// was dead after connection reset exception
+		
+		playStartTime = startTime;
+		
+		timeThread.start();
+		recvThread.start();
+		resumePlay = true;
+		breakDataProcess = false;
 	}
 
 	public void pause(){

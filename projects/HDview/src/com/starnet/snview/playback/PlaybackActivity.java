@@ -88,6 +88,7 @@ public class PlaybackActivity extends BaseActivity {
 	public static final int RECV_STREAM_DATA_FORMAT = 0x11240004;
 	public static final int UPDATE_MIDDLE_TIME = 0x11240005;
 	public static final int RECORD_EOF = 0x11240006;
+	public static final int CONNECTION_ERROR = 0x11240007;
 	
 	public static final int ACTION_PLAY_SUCC = 0x11250000;
 	public static final int ACTION_PLAY_FAIL = 0x11250001;
@@ -110,6 +111,7 @@ public class PlaybackActivity extends BaseActivity {
 	private boolean isPlaying = false;// 是否是正在进行播放
 	private boolean isFirstIn = false; // 是否第一次进行远程回放界面
 	private boolean canUpdateTimebar = true; // 当正在请求随机播放时，时间轴不更新，防止来回跳动
+	private boolean connectionResetHappen = false; // 是否发生连接重置的错误
 	private boolean hasRecordFile = false;
 
 	private boolean bVideoRecordPressed; // 是否正在录像
@@ -132,7 +134,7 @@ public class PlaybackActivity extends BaseActivity {
 			switch (msg.what) {
 			case RECV_STREAM_DATA_FORMAT:
 				//stopMP4RecordIfInRecording();
-				
+				connectionResetHappen = false;
 				canUpdateTimebar = true;
 				mVideoContainer.setWindowInfoText(mVideoContainer
 						.getPlaybackItem().getDeviceRecordName());
@@ -182,6 +184,12 @@ public class PlaybackActivity extends BaseActivity {
 				setButtonToPlay();
 				stopMP4RecordIfInRecording();
 				mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_eof));
+				break;
+			case CONNECTION_ERROR:
+				isPlaying = false;
+				connectionResetHappen = true;
+				setButtonToPlay();
+				mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_connection_error));
 				break;
 			case ACTION_PLAY_SUCC:
 				isPlaying = true;
@@ -905,7 +913,11 @@ public class PlaybackActivity extends BaseActivity {
 	private void start(OWSPDateTime startTime) {
 		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_play_requsting));
 		action = PlaybackControlAction.PLAY;
-		pbcTask.start(startTime);
+		if (!connectionResetHappen) {
+			pbcTask.start(startTime);
+		} else {
+			pbcTask.startAgainWhenConnectionReset(startTime);
+		}
 	}
 
 	private void resume() {
