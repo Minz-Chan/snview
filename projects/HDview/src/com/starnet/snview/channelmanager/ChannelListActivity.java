@@ -734,7 +734,7 @@ public class ChannelListActivity extends BaseActivity {
 				copyOriginPreviewItems();
 			}
 		}
-		
+		GlobalApplication.getInstance().setLastPreviewItems(oriPreviewChnlsBackup);
 		enablAccounts = new ArrayList<CloudAccount>();
 		curContext = ChannelListActivity.this;
 		startScanBtn = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
@@ -781,7 +781,7 @@ public class ChannelListActivity extends BaseActivity {
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 		}
-		GlobalApplication.getInstance().setLastPreviewItems(oriPreviewChnlsBackup);
+		
 //		preItemsInApplication = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 	}
 
