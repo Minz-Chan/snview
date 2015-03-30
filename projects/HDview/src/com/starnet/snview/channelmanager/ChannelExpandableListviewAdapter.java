@@ -48,8 +48,8 @@ public class ChannelExpandableListviewAdapter extends BaseExpandableListAdapter{
 		this.groupAccountList = groupAccountList;
 		this.context = curContext;
 		ExpandableListViewUtils.context = context;
-		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-//		mPreviewDeviceItems = GlobalApplication.getInstance().getLastPreviewItems();
+//		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		mPreviewDeviceItems = GlobalApplication.getInstance().getLastPreviewItems();
 //		mPreviewDeviceItems = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(ChannelListActivity.previewFilePath);
 		notifyNum = 3;
 	}

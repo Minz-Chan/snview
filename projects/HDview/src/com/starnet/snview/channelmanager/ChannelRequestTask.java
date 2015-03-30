@@ -31,7 +31,7 @@ public class ChannelRequestTask {
 	private Thread timeThread;
 	private Thread workThread;
 	private CloudAccount reqCA;
-	private final int TIMEOUT = 7;
+	private final int TIMEOUT = 1;
 	private boolean clickOk;
 	private boolean isCanceled;
 	private SharedPreferences sp;

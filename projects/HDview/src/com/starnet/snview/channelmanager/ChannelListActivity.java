@@ -579,44 +579,47 @@ public class ChannelListActivity extends BaseActivity {
 								}
 							}
 						}
-						//获取上一次改账户的通道选择情况,先删除，后添加
-//						List<PreviewDeviceItem> lastSelectPs = ChannelListUtils.getLastSelectPreviewItems(act.getUsername(),oriPreviewChnlsBackup);
-//						
-//						if (lastSelectPs!=null&&lastSelectPs.size()>0) {
-//							List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
-//							//删除以前选择的，而当下没有进行选择的
-//							if (delPs!=null&&delPs.size()>0) {
-//								try {
-//									ChannelListUtils.deletePreviewItemInXML(delPs,preItemsInXML);
-//								} catch (Exception e) {//处理异常？？？？？
-//									e.printStackTrace();
-//								}
-//							}
-//							//删除以前选择的，而当下没有进行选择的
-//							List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
-//							try {
-//								ChannelListUtils.addNewPreviewItemsToXML(addPs);
-//							} catch (IOException e) {
-//								e.printStackTrace();
-//							} catch (DocumentException e) {
-//								e.printStackTrace();
-//							}
-//						}
-						
-					}else {//代表星云平台用户无数据，则需要判断是否正在加载
-						if (isLoading[i]) {
-							String name = act.getUsername();
-							List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
-							if (temp!=null && temp.size() > 0) {
-								for(PreviewDeviceItem p : temp){
-									previewChanls.add(p);
+						//获取上一次该账户的通道选择情况,先删除，后添加
+						List<PreviewDeviceItem> lastSelectPs = ChannelListUtils.getLastSelectPreviewItems(act.getUsername(),preItemsInApplication);
+						if (lastSelectPs!=null&&lastSelectPs.size()>0) {
+							List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
+							if (delPs!=null&&delPs.size()>0) {
+								for (PreviewDeviceItem pi : delPs) {
+									preItemsInApplication.remove(pi);
+								}
+							}
+							List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
+							if (addPs != null && addPs.size() > 0) {
+								for(PreviewDeviceItem pi : addPs){
+									preItemsInApplication.add(pi);
 								}
 							}
 						}
+					}else {//代表星云平台用户无数据，则需要判断是否正在加载
+						String name = act.getUsername();
+						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
+						if (isLoading[i]) {//表示正在加载
+							if (temp!=null && temp.size() > 0) {
+								for(PreviewDeviceItem p : temp){
+									previewChanls.add(p);//用于预览
+								}
+								for(PreviewDeviceItem p : temp){
+									preItemsInApplication.add(p);//用于显示；===针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+								}
+							}
+						}else{//代表星云平台用户无数据，且不在加载数据，则使用以前的保存
+							if (temp!=null && temp.size() > 0) {
+								for(PreviewDeviceItem p : temp){
+									preItemsInApplication.add(p);//针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+								}
+							}
+						}
+					//当星云平台加载成功时，获取该账户下用户选择的预览通道，并设置对应的GlobalApplication.java,当用户加载失败或者是加载超时的时候，则保存用户上一次的选择情形；
 					}
 				}
 			}
 		}
+		GlobalApplication.getInstance().setLastPreviewItems(preItemsInApplication);//注入刚刚选择的情况（包括加载成功和未加载成功的情形）
 		//play
 		if (previewChanls.size() > 0) {
 			PreviewDeviceItem p = previewChanls.get(0);
@@ -797,6 +800,19 @@ public class ChannelListActivity extends BaseActivity {
 			tp.setSvrIp(pi.getSvrIp());
 			tp.setSvrPort(pi.getSvrPort());
 			oriPreviewChnlsBackup.add(tp);
+		}
+		
+		preItemsInApplication = new ArrayList<PreviewDeviceItem>();
+		for (PreviewDeviceItem pi : oriPreviewChnls) {
+			PreviewDeviceItem tp = new PreviewDeviceItem();
+			tp.setChannel(pi.getChannel());
+			tp.setDeviceRecordName(pi.getDeviceRecordName());
+			tp.setLoginPass(pi.getLoginPass());
+			tp.setLoginUser(pi.getLoginUser());
+			tp.setPlatformUsername(pi.getPlatformUsername());
+			tp.setSvrIp(pi.getSvrIp());
+			tp.setSvrPort(pi.getSvrPort());
+			preItemsInApplication.add(tp);
 		}
 	}
 
