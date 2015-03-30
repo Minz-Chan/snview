@@ -484,14 +484,32 @@ public class DataProcessServiceImpl implements DataProcessService {
 //							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC);
 //						}
 					}else {//表示暂停失败
-						if (isPlaying()) {
+//						if (isPlaying()) {
+//							returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
+//							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
+//							break;
+//						} else {
+//							returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
+//							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
+//							break;
+//						}
+						if (action == PlaybackControlAction.PLAY) {
+							returnValue = PlaybackActivity.ACTION_PLAY_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_FAIL);
+							break;
+						} else if (action == PlaybackControlAction.PAUSE) {
 							returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
 							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
-							break;
-						} else {
+						} else if (action == PlaybackControlAction.RESUME) {
 							returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
 							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
 							break;
+						} else if (action == PlaybackControlAction.RANDOM_PLAY) {
+							returnValue = PlaybackActivity.ACTION_RANDOM_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_FAIL);
+						} else if (action == PlaybackControlAction.STOP) {
+							returnValue = PlaybackActivity.ACTION_STOP_FAIL;
+							sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_FAIL);
 						}
 					}
 //				}

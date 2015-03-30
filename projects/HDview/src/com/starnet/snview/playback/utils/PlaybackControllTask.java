@@ -398,6 +398,8 @@ WAIT_TO_RESUME:
 			result = true;
 			break;
 		case PlaybackActivity.ACTION_PAUSE_SUCC:
+		case PlaybackActivity.ACTION_PLAY_FAIL:
+		case PlaybackActivity.ACTION_RESUME_FAIL:
 			result = true;
 			break;	
 		case PlaybackActivity.ACTION_RANDOM_SUCC:
@@ -416,9 +418,12 @@ WAIT_TO_RESUME:
 			breakDataProcess = true;
 			result = true;
 			break;
-		case PlaybackActivity.ACTION_RESUME_FAIL:
+		case PlaybackActivity.ACTION_PLAY_SUCC:
 		case PlaybackActivity.ACTION_PAUSE_FAIL:
 		case PlaybackActivity.ACTION_RESUME_SUCC:
+		case PlaybackActivity.ACTION_RANDOM_FAIL:
+		case PlaybackActivity.ACTION_STOP_SUCC:
+		case PlaybackActivity.ACTION_STOP_FAIL:
 		default:
 				break;
 		}

@@ -312,9 +312,14 @@
     <string name="playback_status_nonerecordfile">没有录像文件</string>
     <string name="playback_status_connect_fail">连接失败</string>
     <string name="playback_status_play_requsting">请求回放中&#8230;</string>
+    <string name="playback_status_play_fail">请求回放失败</string>
     <string name="playback_status_pause_requesting">请求暂停中&#8230;</string>
+    <string name="playback_status_pause_fail">请求暂停失败</string>
     <string name="playback_status_stop_requesting">请求停止中&#8230;</string>
+    <string name="playback_status_stop_fail">请求停止失败</string>
     <string name="playback_status_resume_requesting">请求继续中&#8230;</string>
+    <string name="playback_status_resume_fail">请求继续失败</string>
+    <string name="playback_status_random_fail">请求随机播放失败</string>
     <string name="playback_status_eof">录像结束</string>
     <string name="playback_msg_canot_random">"当前为录像状态，请先停止录像!"</string>
     <string name="playback_not_open_play">网络未打开，请打开后再进行远程回放&#8230;</string>

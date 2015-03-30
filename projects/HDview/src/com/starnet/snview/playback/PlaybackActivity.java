@@ -90,12 +90,15 @@ public class PlaybackActivity extends BaseActivity {
 	public static final int RECORD_EOF = 0x11240006;
 	
 	public static final int ACTION_PLAY_SUCC = 0x11250000;
-	public static final int ACTION_PAUSE_SUCC = 0x11250001;
-	public static final int ACTION_PAUSE_FAIL = 0x11250002;
-	public static final int ACTION_RESUME_SUCC = 0x11250003;
-	public static final int ACTION_RESUME_FAIL = 0x11250004;
-	public static final int ACTION_RANDOM_SUCC = 0x11250005;
-	public static final int ACTION_STOP_SUCC = 0x11250006;
+	public static final int ACTION_PLAY_FAIL = 0x11250001;
+	public static final int ACTION_PAUSE_SUCC = 0x11250002;
+	public static final int ACTION_PAUSE_FAIL = 0x11250003;
+	public static final int ACTION_RESUME_SUCC = 0x11250004;
+	public static final int ACTION_RESUME_FAIL = 0x11250005;
+	public static final int ACTION_RANDOM_SUCC = 0x11250006;
+	public static final int ACTION_RANDOM_FAIL = 0x11250007;
+	public static final int ACTION_STOP_SUCC = 0x11250008;
+	public static final int ACTION_STOP_FAIL = 0x11250009;
 
 	private OWSPDateTime firstRecordFileStarttime;
 	private ProgressDialog prg;
@@ -184,6 +187,10 @@ public class PlaybackActivity extends BaseActivity {
 				isPlaying = true;
 				setButtonToPause();
 				break;
+			case ACTION_PLAY_FAIL:
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_play_fail));
+				break;
 			case ACTION_PAUSE_SUCC:// 更新图标
 				mVideoContainer
 						.setWindowInfoContent(getString(R.string.playback_status_pause));
@@ -191,12 +198,15 @@ public class PlaybackActivity extends BaseActivity {
 				setButtonToPlay();
 				break;
 			case ACTION_PAUSE_FAIL:
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_pause_fail));
+				/*
 				boolean isOpen = NetWorkUtils.checkNetConnection(context);
 				if (isOpen) {
 					pause();
 				} else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
-				}
+				}*/
 				break;
 			case ACTION_RESUME_SUCC:// 更新图标
 				//dismissPlaybackReqDialog();
@@ -206,14 +216,17 @@ public class PlaybackActivity extends BaseActivity {
 				setButtonToPause();
 				break;
 			case ACTION_RESUME_FAIL:
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_resume_fail));
 				// 不更新图标
+				/*
 				boolean isOpen2 = NetWorkUtils.checkNetConnection(context);
 				if (isOpen2) {
 					showDialog(PLAYBACK_REQ_DIALOG);
 					resume();
 				} else {
 					showTostContent(getString(R.string.playback_not_remoteinfo));
-				}
+				}*/
 				break;
 			case ACTION_RANDOM_SUCC:
 				isPlaying = true;
@@ -221,15 +234,25 @@ public class PlaybackActivity extends BaseActivity {
 						.getPlaybackItem().getDeviceRecordName());
 				setButtonToPause();
 				break;
+			case ACTION_RANDOM_FAIL:
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_random_fail));
+				break;
 			case ACTION_STOP_SUCC:
 				mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_stop));
 				isPlaying = false;
 				setButtonToPlay();
 				updateTimebar(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
 				break;
+			case ACTION_STOP_FAIL:
+				mVideoContainer
+						.setWindowInfoContent(getString(R.string.playback_status_stop_fail));
+				break;
 			case PAUSE_RESUME_TIMEOUT:
+				/*
 				dismissPlaybackReqDialog();
 				showTostContent(getString(R.string.playback_netvisit_timeout));
+				*/
 				break;
 			case UPDATE_MIDDLE_TIME:
 				if (canUpdateTimebar) {
