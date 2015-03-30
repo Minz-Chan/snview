@@ -570,7 +570,11 @@ public class ChannelListActivity extends BaseActivity {
 						List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
 						if (delPs!=null&&delPs.size()>0) {
 							for (PreviewDeviceItem pi : delPs) {
-								preItemsInApplication.remove(pi);
+//								preItemsInApplication.remove(pi);
+								int index = getIndexOfPreviewItem(pi);
+								if (index != -1){
+									preItemsInApplication.remove(index);
+								}
 							}
 						}
 					}
