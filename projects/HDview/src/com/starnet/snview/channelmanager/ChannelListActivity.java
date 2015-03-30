@@ -1,8 +1,11 @@
 package com.starnet.snview.channelmanager;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -64,12 +67,11 @@ public class ChannelListActivity extends BaseActivity {
 
 	private ExpandableListView mExpListView;
 	private List<CloudAccount> enablAccounts;
-//	private List<PreviewDeviceItem> previewChannelList;// 当前预览通道
 	private List<PreviewDeviceItem> oriPreviewChnls;
 	private List<PreviewDeviceItem> oriPreviewChnlsBackup;// 备份星云平台用户信息
 	private ChannelExpandableListviewAdapter mAdapter;
 	private List<CloudAccount> originAccounts = new ArrayList<CloudAccount>();// 用于网络访问时用户信息的显示(访问前与访问后)；
-	private List<PreviewDeviceItem> preItemsInApplication;
+	private List<PreviewDeviceItem> preItemsInApplication = new ArrayList<PreviewDeviceItem>();
 	
 	private int connIdenSum = 0 ;
 	private ProgressDialog multiPRG;
@@ -571,14 +573,15 @@ public class ChannelListActivity extends BaseActivity {
 								preItemsInApplication.remove(pi);
 							}
 						}
-						List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
-						if (addPs != null && addPs.size() > 0) {
-							for(PreviewDeviceItem pi : addPs){
+					}
+					List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
+					if (addPs != null && addPs.size() > 0) {
+						for(PreviewDeviceItem pi : addPs){
+							if (!isExistInPreviewItems(pi)) {
 								preItemsInApplication.add(pi);
 							}
 						}
 					}
-					
 				}
 			} else {//针对星云账户
 				if (act != null) {
@@ -602,16 +605,22 @@ public class ChannelListActivity extends BaseActivity {
 							List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
 							if (delPs!=null&&delPs.size()>0) {
 								for (PreviewDeviceItem pi : delPs) {
-									preItemsInApplication.remove(pi);
-								}
-							}
-							List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
-							if (addPs != null && addPs.size() > 0) {
-								for(PreviewDeviceItem pi : addPs){
-									preItemsInApplication.add(pi);
+//									preItemsInApplication.remove(pi);//应该从后往前删除
+									int index = getIndexOfPreviewItem(pi);
+									if (index != -1){
+										preItemsInApplication.remove(index);
+									}
 								}
 							}
 						}
+						List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls, lastSelectPs);
+						if (addPs != null && addPs.size() > 0) {
+							for (PreviewDeviceItem pi : addPs) {
+								if (!isExistInPreviewItems(pi)) {
+									preItemsInApplication.add(pi);
+								}
+							}
+						}						
 					}else {//代表星云平台用户无数据，则需要判断是否正在加载
 						String name = act.getUsername();
 						List<PreviewDeviceItem> temp = getLastPreviewItems(name);//ps,
@@ -621,13 +630,17 @@ public class ChannelListActivity extends BaseActivity {
 									previewChanls.add(p);//用于预览
 								}
 								for(PreviewDeviceItem p : temp){
-									preItemsInApplication.add(p);//用于显示；===针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+									if (!isExistInPreviewItems(p)) {
+										preItemsInApplication.add(p);//用于显示；===针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+									}
 								}
 							}
 						}else{//代表星云平台用户无数据，且不在加载数据，则使用以前的保存
 							if (temp!=null && temp.size() > 0) {
 								for(PreviewDeviceItem p : temp){
-									preItemsInApplication.add(p);//针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+									if (!isExistInPreviewItems(p)) {
+										preItemsInApplication.add(p);//针对未加载成功的星云平台，需要保存上一次的选择情况，用于下次加载成功时的正常显示
+									}
 								}
 							}
 						}
@@ -637,6 +650,20 @@ public class ChannelListActivity extends BaseActivity {
 			}
 		}
 		GlobalApplication.getInstance().setLastPreviewItems(preItemsInApplication);//注入刚刚选择的情况（包括加载成功和未加载成功的情形）
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					File file = new File(previewFilePath);
+					if (file.exists()) {
+						file.delete();
+					}
+					ReadWriteXmlUtils.writePreviewItemListInfoToXML(preItemsInApplication, previewFilePath);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 		//play
 		if (previewChanls.size() > 0) {
 			PreviewDeviceItem p = previewChanls.get(0);
@@ -654,6 +681,35 @@ public class ChannelListActivity extends BaseActivity {
 			}
 			ChannelListActivity.this.finish();
 		}
+	}
+	
+	private int getIndexOfPreviewItem(PreviewDeviceItem pi){
+		int index = -1;
+		for (int i = 0; i < preItemsInApplication.size(); i++) {
+			 PreviewDeviceItem tp = preItemsInApplication.get(i);
+			 if (tp.getPlatformUsername().equals(pi.getPlatformUsername())&&(tp.getDeviceRecordName().equals(pi.getDeviceRecordName()))&&(tp.getChannel()==pi.getChannel())) {
+				 index = i;
+				 break;
+			} 
+		}	
+		return index;
+	}
+	
+	private boolean isExistInPreviewItems(PreviewDeviceItem p){
+		boolean isExist = false;
+		if (preItemsInApplication == null) {
+			return false;
+		}
+		if (preItemsInApplication != null && preItemsInApplication.size()==0) {
+			return false;
+		}
+		for (PreviewDeviceItem tp : preItemsInApplication) {
+			if (tp.getPlatformUsername().equals(p.getPlatformUsername())
+					&& tp.getDeviceRecordName().equals(p.getDeviceRecordName())&&(tp.getChannel() == p.getChannel())) {
+				return true;
+			}
+		}
+		return isExist;
 	}
 
 	private List<PreviewDeviceItem> getLastPreviewItems(String name) {		//List<PreviewDeviceItem> ps,
@@ -754,7 +810,10 @@ public class ChannelListActivity extends BaseActivity {
 				copyOriginPreviewItems();
 			}
 		}
-		GlobalApplication.getInstance().setLastPreviewItems(oriPreviewChnlsBackup);
+		
+		preItemsInApplication = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(previewFilePath);
+		GlobalApplication.getInstance().setLastPreviewItems(preItemsInApplication);
+		
 		enablAccounts = new ArrayList<CloudAccount>();
 		curContext = ChannelListActivity.this;
 		startScanBtn = (ImageButton) findViewById(R.id.startScan);// 开始预览按钮
@@ -819,18 +878,18 @@ public class ChannelListActivity extends BaseActivity {
 			oriPreviewChnlsBackup.add(tp);
 		}
 		
-		preItemsInApplication = new ArrayList<PreviewDeviceItem>();
-		for (PreviewDeviceItem pi : oriPreviewChnls) {
-			PreviewDeviceItem tp = new PreviewDeviceItem();
-			tp.setChannel(pi.getChannel());
-			tp.setDeviceRecordName(pi.getDeviceRecordName());
-			tp.setLoginPass(pi.getLoginPass());
-			tp.setLoginUser(pi.getLoginUser());
-			tp.setPlatformUsername(pi.getPlatformUsername());
-			tp.setSvrIp(pi.getSvrIp());
-			tp.setSvrPort(pi.getSvrPort());
-			preItemsInApplication.add(tp);
-		}
+//		preItemsInApplication = new ArrayList<PreviewDeviceItem>();
+//		for (PreviewDeviceItem pi : oriPreviewChnls) {
+//			PreviewDeviceItem tp = new PreviewDeviceItem();
+//			tp.setChannel(pi.getChannel());
+//			tp.setDeviceRecordName(pi.getDeviceRecordName());
+//			tp.setLoginPass(pi.getLoginPass());
+//			tp.setLoginUser(pi.getLoginUser());
+//			tp.setPlatformUsername(pi.getPlatformUsername());
+//			tp.setSvrIp(pi.getSvrIp());
+//			tp.setSvrPort(pi.getSvrPort());
+//			preItemsInApplication.add(tp);
+//		}
 	}
 
 	private void copyCloudAccountEnable() {
