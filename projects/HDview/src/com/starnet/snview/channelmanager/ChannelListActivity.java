@@ -562,6 +562,23 @@ public class ChannelListActivity extends BaseActivity {
 							}
 						}
 					}
+					
+					List<PreviewDeviceItem> lastSelectPs = ChannelListUtils.getLastSelectPreviewItems(act.getUsername(),preItemsInApplication);
+					if (lastSelectPs!=null&&lastSelectPs.size()>0) {
+						List<PreviewDeviceItem> delPs = ChannelListUtils.getDeletePreviewItems(previewChanls,lastSelectPs);
+						if (delPs!=null&&delPs.size()>0) {
+							for (PreviewDeviceItem pi : delPs) {
+								preItemsInApplication.remove(pi);
+							}
+						}
+						List<PreviewDeviceItem> addPs = ChannelListUtils.getAddPreviewItems(previewChanls,lastSelectPs);
+						if (addPs != null && addPs.size() > 0) {
+							for(PreviewDeviceItem pi : addPs){
+								preItemsInApplication.add(pi);
+							}
+						}
+					}
+					
 				}
 			} else {//针对星云账户
 				if (act != null) {

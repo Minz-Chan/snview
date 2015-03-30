@@ -7,7 +7,7 @@ import com.starnet.snview.channelmanager.ChannelExpandableListviewAdapter;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.ChannelListViewActivity;
 import com.starnet.snview.devicemanager.DeviceItem;
-import com.starnet.snview.realplay.PreviewDeviceItem;
+//import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.NetWorkUtils;
 
@@ -39,7 +39,7 @@ public class ButtonOnclickListener implements OnClickListener {
 	private CloudAccount clickCloudAccount;// 星云账号信息
 	private final int CONNIDENTIFYDIALOG = 5;
 	private ConnectionIdentifyTask connTask;// 连接验证线程
-	List<PreviewDeviceItem> previewChannelList;
+//	List<PreviewDeviceItem> previewChannelList;
 
 	@SuppressWarnings("deprecation")
 	@Override

@@ -103,8 +103,8 @@ public class ChannelListUtils {
 		return allLoad;
 	}
 
-	public static List<PreviewDeviceItem> getLastSelectPreviewItems(
-			String username, List<PreviewDeviceItem> oriPreviewChnls) {
+	//获取上一次该账户下的通道的选择列表
+	public static List<PreviewDeviceItem> getLastSelectPreviewItems(String username, List<PreviewDeviceItem> oriPreviewChnls) {
 		List<PreviewDeviceItem> ps = new ArrayList<PreviewDeviceItem>();
 		
 		if (oriPreviewChnls == null) {
@@ -119,12 +119,21 @@ public class ChannelListUtils {
 		return ps;
 	}
 
-	public static List<PreviewDeviceItem> getDeletePreviewItems(
-			List<PreviewDeviceItem> previewChanls,
-			List<PreviewDeviceItem> lastSelectPs) {
+	/**在上一次的选择通道中，获取需要删除的预览通道列表**/
+	public static List<PreviewDeviceItem> getDeletePreviewItems(List<PreviewDeviceItem> currPreviewChanls, List<PreviewDeviceItem> lastSelectPs) {
 		List<PreviewDeviceItem> deletePs = new ArrayList<PreviewDeviceItem>();
-		for (PreviewDeviceItem pi : previewChanls) {
-			lastSelectPs.remove(pi);
+		for (PreviewDeviceItem pi : lastSelectPs) {
+			if (!isExist(pi,currPreviewChanls)) {
+				PreviewDeviceItem temp = new PreviewDeviceItem();
+				temp.setChannel(pi.getChannel());
+				temp.setDeviceRecordName(pi.getDeviceRecordName());
+				temp.setLoginPass(pi.getLoginPass());
+				temp.setLoginUser(pi.getLoginUser());
+				temp.setPlatformUsername(pi.getPlatformUsername());
+				temp.setSvrIp(pi.getSvrIp());
+				temp.setSvrPort(pi.getSvrPort());
+				deletePs.add(temp);
+			}
 		}
 		return deletePs;
 	}
@@ -134,10 +143,6 @@ public class ChannelListUtils {
 			DocumentException {
 		for (int i = 0; i < delPs.size(); i++) {
 			ReadWriteXmlUtils.removePreviewItemInXML(delPs.get(i));
-			// int index = getIndexOf(delPs.get(i),preItemsInXML);
-			// if (index != -1) {
-			//
-			// }
 		}
 	}
 
@@ -150,7 +155,15 @@ public class ChannelListUtils {
 		}
 		for (PreviewDeviceItem pi : previewChanls) {
 			if (!isExist(pi, lastSelectPs)) {
-				ps.add(pi);
+				PreviewDeviceItem temp = new PreviewDeviceItem();
+				temp.setChannel(pi.getChannel());
+				temp.setDeviceRecordName(pi.getDeviceRecordName());
+				temp.setLoginPass(pi.getLoginPass());
+				temp.setLoginUser(pi.getLoginUser());
+				temp.setPlatformUsername(pi.getPlatformUsername());
+				temp.setSvrIp(pi.getSvrIp());
+				temp.setSvrPort(pi.getSvrPort());
+				ps.add(temp);
 			}
 		}
 		return ps;
