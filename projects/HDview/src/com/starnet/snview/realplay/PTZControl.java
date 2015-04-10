@@ -6,6 +6,8 @@ import com.starnet.snview.component.liveview.LiveViewGroup;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.RealplayActivity.TOOLBAR_EXTEND_MENU;
 import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.ClickEventUtils;
+import com.starnet.snview.util.ClickEventUtils.OnActionListener;
 
 import android.content.res.Resources;
 import android.util.Log;
@@ -247,6 +249,13 @@ public class PTZControl {
 		}
 	}
 	
+	private ClickEventUtils mPTZStopMoveCallDelay = new ClickEventUtils(new OnActionListener() {
+		@Override
+		public void OnAction(int clickCount, Object... params) {
+			mPtzReqSender.stopMove();
+		}
+	}, 300);
+	
 	private OnTouchListener mOnPTZFocalLengthListener = new OnTouchListener() {
 		
 		@Override
@@ -258,14 +267,16 @@ public class PTZControl {
 				if (action == MotionEvent.ACTION_DOWN) {
 					mPtzReqSender.focalLengthIncrease();
 				} else if (action == MotionEvent.ACTION_UP) {
-					mPtzReqSender.stopMove();
+//					mPtzReqSender.stopMove();
+					mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 				}
 				break;
 			case R.id.ptz_pop_focal_length_decrease:
 				if (action == MotionEvent.ACTION_DOWN) {
 					mPtzReqSender.focalLengthDecrease();
 				} else if (action == MotionEvent.ACTION_UP) {
-					mPtzReqSender.stopMove();
+//					mPtzReqSender.stopMove();
+					mPTZStopMoveCallDelay.makeContinuousClickCalledOnce(this.hashCode(), new Object());
 				}
 				break;
 			}
