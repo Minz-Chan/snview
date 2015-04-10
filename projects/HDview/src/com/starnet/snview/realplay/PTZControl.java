@@ -32,6 +32,9 @@ public class PTZControl {
 	private boolean mIsFlingAction = false;
 	private boolean mIsEnterPTZInSingleMode = false;  // 在开启PTZ功能时是否处于单通道模式
 	
+	private int mContentContainerHeight;
+	
+//	private FrameLayout mContentContainer;
 	private LinearLayout mPTZControlbarMenu;
 	private LinearLayout mPTZPopFrame;
 	
@@ -70,6 +73,7 @@ public class PTZControl {
 	}
 	
 	private void init() {
+//		mContentContainer = (FrameLayout) findViewById(R.id.base_content);
 		mPTZControlbarMenu = (LinearLayout) findViewById(R.id.ptz_controlbar_menu);
 		mPTZMenuScan = (ImageButton) findViewById(R.id.ptz_controlbar_menu_scan);
 		mPTZMenuFocalLength = (ImageButton) findViewById(R.id.ptz_controlbar_menu_focal_length);
@@ -550,6 +554,12 @@ public class PTZControl {
 							R.dimen.toolbar_height) * 2
 					- (int) mLiveActivity.getResources().getDimension(
 							R.dimen.portrait_pop_frame_bottom_margin);
+			
+			Log.i(TAG, "android.os.Build.BRAND: " + android.os.Build.BRAND + ".");
+			String brand = android.os.Build.BRAND;
+			if (brand.equalsIgnoreCase("Meizu")) { // 若为魅族手机，则显示位置进行微调
+				lp.topMargin -= h;
+			}
 		}
 		
 		Log.i(TAG, "lp.topMargin:" + lp.topMargin + ", lp.bottomMargin:" + lp.bottomMargin);
