@@ -1,7 +1,7 @@
 package com.starnet.snview.protocol.message;
 
 public class OwspVideoDataFormat {
-	private int codecId;
+	private long codecId;
 	private int bitrate;
 	private int width;
 	private int height;
@@ -10,10 +10,10 @@ public class OwspVideoDataFormat {
 	private int reserve;
 	
 	
-	public int getCodecId() {
+	public long getCodecId() {
 		return codecId;
 	}
-	public void setCodecId(int codecId) {
+	public void setCodecId(long codecId) {
 		this.codecId = codecId;
 	}
 	public int getBitrate() {

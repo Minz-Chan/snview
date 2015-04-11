@@ -6,9 +6,11 @@ import org.apache.mina.handler.demux.MessageHandler;
 
 import android.util.Log;
 
+import com.starnet.snview.R;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.protocol.Connection;
+import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.protocol.message.StreamDataFormat;
 
 public class StreamDataFormatMessageHandler implements
@@ -45,6 +47,13 @@ public class StreamDataFormatMessageHandler implements
 		Log.d(TAG, "width:" + width + ", height:" + height + ", fps:" + framerate);
 		
 		lvContainer.getVideoConfig().setFramerate(framerate);
+		
+		long codecId = message.getVideoDataFormat().getCodecId();
+		if (codecId != 0 && codecId != Constants.CODEC_H264) {
+			lvContainer.setWindowInfoContent(R.string.connection_response_unsupported_codec);
+			lvContainer.setIsResponseError(true);
+			session.close();
+		}
 		
 		if (width > 0 && height > 0) {
 			lvContainer.getVideoConfig().setWidth(width);

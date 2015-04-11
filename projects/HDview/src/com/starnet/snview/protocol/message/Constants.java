@@ -70,4 +70,6 @@ public final class Constants {
 		static final int OWSP_ACTION_TV_TUNER = 129;		//切换频道, 消息参数为INT*, 为频道号
 		static final int OWSP_ACTION_TV_SET_QUALITY  = 130;		//画质设置, 亮度,色度,饱和度,对比度结构体
 	}
+	
+	public static long CODEC_H264 = 0x34363248;	// H264
 }

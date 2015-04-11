@@ -27,7 +27,7 @@ public class StreamDataFormatMessageDecoder extends
 		s.setReserve(body.get());
 		
 		OwspVideoDataFormat v = new OwspVideoDataFormat();
-		v.setCodecId(body.getInt());
+		v.setCodecId(body.getUnsignedInt());
 		v.setBitrate(body.getInt());
 		v.setWidth(body.getShort());
 		v.setHeight(body.getShort());
