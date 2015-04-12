@@ -148,7 +148,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="40dp"
-                    android:checked="true"
+                    android:checked="false"
                     android:text="@string/system_setting_cloudaccount_isenable_no"
                     android:textColor="@color/system_setting_listview_selected" />
             </RadioGroup>
