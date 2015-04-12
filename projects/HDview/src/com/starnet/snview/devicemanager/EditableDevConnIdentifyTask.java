@@ -6,26 +6,25 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.starnet.snview.R;
-import com.starnet.snview.channelmanager.Channel;
+//import com.starnet.snview.R;
+//import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BufferSendManager;
 import com.starnet.snview.protocol.message.LoginRequest;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
-import com.starnet.snview.syssetting.CloudAccount;
+//import com.starnet.snview.syssetting.CloudAccount;
 
-public class DevConnIdenTask {
-	
+public class EditableDevConnIdentifyTask {
 	private Socket client;
 	private Context context;
 	private Handler mHandler;
@@ -36,8 +35,8 @@ public class DevConnIdenTask {
 	private Thread connectionThread;
 	private BufferSendManager sender;
 	private boolean isOnConnectionWrong;
-	private CloudAccount clickCloudAccount;
-	private final int defaultChannelNum = 1;
+//	private CloudAccount clickCloudAccount;
+//	private final int defaultChannelNum = 1;
 	private boolean isConnectedOver = false;
 	private boolean shouldTimeOutOver = false;
 	private boolean isOnWorkdIOErr;
@@ -46,7 +45,7 @@ public class DevConnIdenTask {
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 
-	public DevConnIdenTask(Handler handler, DeviceItem deviceItem) {
+	public EditableDevConnIdentifyTask(Handler handler, DeviceItem deviceItem) {
 		this.mHandler = handler;
 		this.mDeviceItem = deviceItem;
 		initialThread();
@@ -115,10 +114,10 @@ public class DevConnIdenTask {
 			isConnectedOver = true;
 			isOnWorkdIOErr = true;
 			Message msg = new Message();
-			Bundle data = new Bundle();
-			setWrongDevicetItem(1);
-			setBundleData(data);
-			msg.setData(data);
+//			Bundle data = new Bundle();
+//			setWrongDevicetItem(1);
+//			setBundleData(data);
+//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnConnectionWrong && shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
@@ -154,10 +153,10 @@ public class DevConnIdenTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-			Bundle data = new Bundle();
-			setWrongDevicetItem(1);
-			setBundleData(data);
-			msg.setData(data);
+//			Bundle data = new Bundle();
+//			setWrongDevicetItem(1);
+//			setBundleData(data);
+//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdUnknwnHost) {
 				mHandler.sendMessage(msg);
@@ -171,10 +170,10 @@ public class DevConnIdenTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-			Bundle data = new Bundle();
-			setWrongDevicetItem(1);
-			setBundleData(data);
-			msg.setData(data);
+//			Bundle data = new Bundle();
+//			setWrongDevicetItem(1);
+//			setBundleData(data);
+//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdIOErr) {
 				mHandler.sendMessage(msg);
@@ -203,7 +202,7 @@ public class DevConnIdenTask {
 	/** 获取网络连接验证的信息 */
 	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
-		Bundle data = new Bundle();
+//		Bundle data = new Bundle();
 		Message msg = new Message();
 		InputStream in = client.getInputStream();
 		byte[] head = new byte[8];
@@ -215,12 +214,12 @@ public class DevConnIdenTask {
 			if (!isCanceled) {
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_SUCCESS;
-				byte[] recvData = new byte[len - 4];
-				in.read(recvData);
-				int channelNumber = recvData[80];
-				setDevicetItem(channelNumber);
-				setBundleData(data);
-				msg.setData(data);
+//				byte[] recvData = new byte[len - 4];
+//				in.read(recvData);
+//				int channelNumber = recvData[80];
+//				setDevicetItem(channelNumber);
+//				setBundleData(data);
+//				msg.setData(data);
 				mHandler.sendMessage(msg);
 				exit();
 			}
@@ -229,9 +228,9 @@ public class DevConnIdenTask {
 				exit();
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_WRONG;
-				setDevicetItem(defaultChannelNum);
-				setBundleData(data);
-				msg.setData(data);
+//				setDevicetItem(defaultChannelNum);
+//				setBundleData(data);
+//				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
 		} else {
@@ -239,49 +238,48 @@ public class DevConnIdenTask {
 				exit();
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_WRONG;
-				setDevicetItem(defaultChannelNum);
-				setBundleData(data);
-				msg.setData(data);
+//				setDevicetItem(defaultChannelNum);
+//				setBundleData(data);
+//				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
 		}
 	}
 
 	/** 设置验证后的设备 ***/
-	private void setWrongDevicetItem(int channelNumber) {
-		String chanelName = context.getString(R.string.device_manager_channel);
-		List<Channel> channelList = new ArrayList<Channel>();
-		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
-		for (int i = 0; i < channelNumber; i++) {
-			Channel channel = new Channel();
-			channel.setChannelName(chanelName + "" + (i + 1));
-			channel.setChannelNo((i + 1));
-			channel.setSelected(false);
-			channelList.add(channel);
-		}
-		mDeviceItem.setChannelList(channelList);
-		mDeviceItem.setIdentify(true);
-		mDeviceItem.setConnPass(false);
-
-	}
+//	private void setWrongDevicetItem(int channelNumber) {
+//		String chanelName = context.getString(R.string.device_manager_channel);
+//		List<Channel> channelList = new ArrayList<Channel>();
+//		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
+//		for (int i = 0; i < channelNumber; i++) {
+//			Channel channel = new Channel();
+//			channel.setChannelName(chanelName + "" + (i + 1));
+//			channel.setChannelNo((i + 1));
+//			channel.setSelected(false);
+//			channelList.add(channel);
+//		}
+//		mDeviceItem.setChannelList(channelList);
+//		mDeviceItem.setIdentify(true);
+//		mDeviceItem.setConnPass(false);
+//	}
 
 	/** 设置验证后的设备 ***/
-	private void setDevicetItem(int channelNumber) {
-		String chanelName = context.getString(R.string.device_manager_channel);
-		List<Channel> channelList = new ArrayList<Channel>();
-		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
-		for (int i = 0; i < channelNumber; i++) {
-			Channel channel = new Channel();
-			channel.setChannelName(chanelName + (i + 1));
-			channel.setChannelNo((i + 1));
-			channel.setSelected(false);
-			channelList.add(channel);
-		}
-		mDeviceItem.setChannelList(channelList);
-		mDeviceItem.setIdentify(true);
-		mDeviceItem.setConnPass(true);
-
-	}
+//	private void setDevicetItem(int channelNumber) {
+//		String chanelName = context.getString(R.string.device_manager_channel);
+//		List<Channel> channelList = new ArrayList<Channel>();
+//		mDeviceItem.setChannelSum(String.valueOf(channelNumber));
+//		for (int i = 0; i < channelNumber; i++) {
+//			Channel channel = new Channel();
+//			channel.setChannelName(chanelName + (i + 1));
+//			channel.setChannelNo((i + 1));
+//			channel.setSelected(false);
+//			channelList.add(channel);
+//		}
+//		mDeviceItem.setChannelList(channelList);
+//		mDeviceItem.setIdentify(true);
+//		mDeviceItem.setConnPass(true);
+//
+//	}
 
 	/** 发送网络连接验证请求 **/
 	private void sendConnectionIdentifyRequest() throws IOException {
@@ -328,11 +326,11 @@ public class DevConnIdenTask {
 		}
 		if (!isCanceled && !shouldTimeOutOver) {
 			Message msg = new Message();
-			Bundle data = new Bundle();
-			mDeviceItem.setIdentify(true);
-			mDeviceItem.setConnPass(false);
-			setBundleData(data);
-			msg.setData(data);
+//			Bundle data = new Bundle();
+//			mDeviceItem.setIdentify(true);
+//			mDeviceItem.setConnPass(false);
+//			setBundleData(data);
+//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
@@ -341,11 +339,11 @@ public class DevConnIdenTask {
 		shouldTimeOutOver = true;
 	}
 
-	private void setBundleData(Bundle data) {
-		data.putSerializable("identifyDeviceItem", mDeviceItem);
-		data.putString("deviceName", mDeviceItem.getDeviceName());
-		data.putSerializable("clickCloudAccount", clickCloudAccount);
-	}
+//	private void setBundleData(Bundle data) {
+//		data.putSerializable("identifyDeviceItem", mDeviceItem);
+//		data.putString("deviceName", mDeviceItem.getDeviceName());
+//		data.putSerializable("clickCloudAccount", clickCloudAccount);
+//	}
 
 	public void setContext(Context context) {
 		this.context = context;

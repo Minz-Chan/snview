@@ -3,42 +3,76 @@ package com.starnet.snview.devicemanager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
-
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.IPAndPortUtils;
 
+@SuppressLint("HandlerLeak")
 public class DeviceEditableActivity extends BaseActivity {
 
 	protected static final String TAG = "DeviceEditableActivity";
 
 	private EditText port_et;
-	// private Button saveButton;
 	private EditText record_et;
 	private EditText server_et;
 	private EditText username_et;
 	private EditText password_et;
 
 	private Button identifyBtn;
-	// private EditText channelnumber_et;
-	// private EditText defaultChannel_et;
 	private RadioButton noRadioButton;
 	private RadioButton yesRadioButton;
 	private DeviceItem clickDeviceItem;
 	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
+
+	private ProgressDialog connIdenPrg;
+	private final int CONNIDENPRG = 0x0003;
+	private EditableDevConnIdentifyTask connIdenTask;
+	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
+	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
+	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+
+	private Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case CONNECTIFYIDENTIFY_WRONG:
+				dimissPrg();
+				String txt = getString(R.string.device_manager_deviceedit_conniden_fail);
+				showToasContent(txt);
+				break;
+			case CONNECTIFYIDENTIFY_SUCCESS:
+				dimissPrg();
+				String txt2 = getString(R.string.device_manager_deviceedit_conniden_succ);
+				showToasContent(txt2);
+				break;
+			case CONNECTIFYIDENTIFY_TIMEOUT:
+				dimissPrg();
+				String txt3 = getString(R.string.device_manager_deviceedit_conniden_timeout);
+				showToasContent(txt3);
+				break;
+			}
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -144,12 +178,67 @@ public class DeviceEditableActivity extends BaseActivity {
 				identifyWork();
 			}
 		});
-
 	}
 
 	/** 验证链接 ***/
 	protected void identifyWork() {
+		getCurrentItemAndConnIdentify();
+	}
 
+	@SuppressWarnings("deprecation")
+	private void getCurrentItemAndConnIdentify() {
+		String svrPt = port_et.getText().toString();
+		String dName = record_et.getText().toString();
+		String svrIp = server_et.getText().toString();
+		String lPass = password_et.getText().toString();
+		String lUser = username_et.getText().toString();
+		if ((!dName.trim().equals("") && !svrIp.trim().equals("")
+				&& !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
+			DeviceItem deviceItem = new DeviceItem();
+			deviceItem.setDeviceName(dName);
+			deviceItem.setSvrIp(svrIp);
+			deviceItem.setSvrPort(svrPt);
+			deviceItem.setLoginPass(lPass);
+			deviceItem.setLoginUser(lUser);
+			showDialog(CONNIDENPRG);
+			connIdenTask = new EditableDevConnIdentifyTask(mHandler, deviceItem);
+			connIdenTask.start();
+		}else {
+			String content = getString(R.string.device_manager_deviceedit_conn_info_null);
+			showToasContent(content);
+		}
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case CONNIDENPRG:
+			connIdenPrg = ProgressDialog
+					.show(this,
+							"",
+							getString(R.string.device_manager_deviceedit_conning_and_wait),
+							true, true);
+			connIdenPrg.setOnCancelListener(new OnCancelListener() {
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					dimissPrg();
+					connIdenTask.setCancel(true);
+				}
+			});
+			return connIdenPrg;
+		default:
+			return null;
+		}
+	}
+
+	private void dimissPrg() {
+		if (connIdenPrg != null && connIdenPrg.isShowing()) {
+			connIdenPrg.dismiss();
+		}
+	}
+
+	private void showToasContent(String content) {
+		Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
 	}
 
 	protected void setNewPreviewDeviceItems() {
