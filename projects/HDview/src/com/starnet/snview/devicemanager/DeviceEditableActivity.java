@@ -3,6 +3,7 @@ package com.starnet.snview.devicemanager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
+
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
@@ -192,17 +194,27 @@ public class DeviceEditableActivity extends BaseActivity {
 		String svrIp = server_et.getText().toString();
 		String lPass = password_et.getText().toString();
 		String lUser = username_et.getText().toString();
-		if ((!dName.trim().equals("") && !svrIp.trim().equals("")
-				&& !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
+		if ((!dName.trim().equals("") && !svrIp.trim().equals("") && !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
 			DeviceItem deviceItem = new DeviceItem();
 			deviceItem.setDeviceName(dName);
 			deviceItem.setSvrIp(svrIp);
 			deviceItem.setSvrPort(svrPt);
 			deviceItem.setLoginPass(lPass);
 			deviceItem.setLoginUser(lUser);
-			showDialog(CONNIDENPRG);
-			connIdenTask = new EditableDevConnIdentifyTask(mHandler, deviceItem);
-			connIdenTask.start();
+			
+			int port = Integer.valueOf(svrPt);
+			if (port < 0 || (port > 65534)) {
+				String p = getString(R.string.device_manager_port);
+				showToasContent(p+getString(R.string.device_manager_collect_add_not_ext65534));
+			}else {
+				if ((lPass != null) && (lPass.length() < 16)) {
+					showDialog(CONNIDENPRG);
+					connIdenTask = new EditableDevConnIdentifyTask(mHandler, deviceItem);
+					connIdenTask.start();
+				}else{
+					showToasContent(getString(R.string.device_manager_collect_add_reinput_pass));
+				}
+			}
 		}else {
 			String content = getString(R.string.device_manager_deviceedit_conn_info_null);
 			showToasContent(content);

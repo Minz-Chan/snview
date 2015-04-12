@@ -235,24 +235,25 @@ public class DeviceCollectActivity extends BaseActivity {
 				} else {
 					DeviceItem deviceItem = getDeviceItem();
 					if (deviceItem != null) {
-						
 						String port = deviceItem.getSvrPort();
 						if (port != null) {
 							int portNum = Integer.valueOf(port);
 							if (portNum < 0 || portNum > 65533) {
-								deviceItem.setSvrPort("8080");
+//								deviceItem.setSvrPort("8080");
+								String p = getString(R.string.device_manager_port);
+								showToast(p+getString(R.string.device_manager_collect_add_not_ext65534));
+							}else {
+								String lgPass = deviceItem.getLoginPass();
+								if ((lgPass != null) && (lgPass.length() < 16)) {
+									showDialog(CONNIDENTIFYDIALOG);
+									conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
+									conIdenTask.setContext(DeviceCollectActivity.this);
+									conIdenTask.start();
+								} else {
+									showToast(getString(R.string.device_manager_collect_add_reinput_pass));
+								}
 							}
-						}
-						
-						String lgPass = deviceItem.getLoginPass();
-						if ((lgPass != null) && (lgPass.length() < 16)) {
-							showDialog(CONNIDENTIFYDIALOG);
-							conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
-							conIdenTask.setContext(DeviceCollectActivity.this);
-							conIdenTask.start();
-						} else {
-							showToast(getString(R.string.device_manager_collect_add_reinput_pass));
-						}
+						}						
 					}
 				}
 			}

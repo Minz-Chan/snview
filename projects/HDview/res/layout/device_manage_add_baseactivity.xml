@@ -186,7 +186,7 @@
                 android:layout_marginLeft="47dp"
                 android:layout_toRightOf="@id/device_add_port"
                 android:ems="10"
-                android:hint="@string/device_manager_collect_add_not_ext65532"                
+                android:hint="@string/device_manager_collect_add_not_ext65534"                
                 android:inputType="number"
                 android:singleLine="true"
                 android:textSize="16sp" />
