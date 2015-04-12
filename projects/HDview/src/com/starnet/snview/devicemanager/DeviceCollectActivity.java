@@ -240,8 +240,8 @@ public class DeviceCollectActivity extends BaseActivity {
 							int portNum = Integer.valueOf(port);
 							if (portNum < 0 || portNum > 65533) {
 //								deviceItem.setSvrPort("8080");
-								String p = getString(R.string.device_manager_port);
-								showToast(p+getString(R.string.device_manager_collect_add_not_ext65534));
+//								String p = getString(R.string.device_manager_port);
+								showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 							}else {
 								String lgPass = deviceItem.getLoginPass();
 								if ((lgPass != null) && (lgPass.length() < 16)) {

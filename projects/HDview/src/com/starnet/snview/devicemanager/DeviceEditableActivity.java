@@ -203,9 +203,8 @@ public class DeviceEditableActivity extends BaseActivity {
 			deviceItem.setLoginUser(lUser);
 			
 			int port = Integer.valueOf(svrPt);
-			if (port < 0 || (port > 65534)) {
-				String p = getString(R.string.device_manager_port);
-				showToasContent(p+getString(R.string.device_manager_collect_add_not_ext65534));
+			if (port < 0 || (port > 65535)) {
+				showToasContent(getString(R.string.device_manager_collect_add_not_ext65535));
 			}else {
 				if ((lPass != null) && (lPass.length() < 16)) {
 					showDialog(CONNIDENPRG);
