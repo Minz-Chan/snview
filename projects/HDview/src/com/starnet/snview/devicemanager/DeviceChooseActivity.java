@@ -297,7 +297,7 @@ public class DeviceChooseActivity extends BaseActivity {
 	}
 
 	private void superChangeViewFromBase() {// 得到从父类继承的控件，并修改
-		super.getTitleView();
+//		super.getTitleView();
 		leftButton = super.getLeftButton();
 		super.setToolbarVisiable(false);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);

@@ -205,90 +205,6 @@
             </EditText>
         </RelativeLayout>
 
-        <!--
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
-            android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
-            android:layout_weight="1.0" >
-
-            <LinearLayout
-                android:id="@+id/txt_device_add_defaultchannel"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true" >
-
-                <TextView
-                    android:layout_width="75dp"
-                    android:layout_height="fill_parent"
-                    android:gravity="center|left"
-                    android:text="@string/device_manager_add_scan_edit_layout_default_channel"
-                    android:textColor="@color/md__defaultBackground"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_device_add_defaultChannel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="47dp"
-                android:layout_toRightOf="@id/txt_device_add_defaultchannel"
-                android:ems="10"
-                android:inputType="number"
-                android:singleLine="true"
-                android:textSize="18sp" >
-
-                <requestFocus />
-            </EditText>
-        </RelativeLayout>
-        -->
-
-
-        <!--
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
-            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
-
-            <LinearLayout
-                android:id="@+id/txt_device_add_channelnumber"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true" >
-
-                <TextView
-                    android:layout_width="75dp"
-                    android:layout_height="fill_parent"
-                    android:gravity="center|left"
-                    android:text="@string/device_manager_add_scan_edit_layout_channel_number"
-                    android:textColor="@color/md__defaultBackground"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/et_device_add_channelnumber"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="47dp"
-                android:layout_toRightOf="@id/txt_device_add_channelnumber"
-                android:ems="10"
-                android:inputType="number"
-                android:singleLine="true"
-                android:textSize="18sp" >
-
-                <requestFocus />
-            </EditText>
-        </RelativeLayout>
-        -->
-
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -338,6 +254,25 @@
                     android:textColor="@color/system_setting_listview_selected"
                     android:textSize="14sp" />
             </RadioGroup>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
+            android:layout_marginRight="@dimen/cloudaccout_setting_marginright"
+            android:layout_marginTop="5dp" >
+
+            <Button
+                android:id="@+id/conn_identify_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:text="@string/device_manager_conn_identify_channel_btn"
+                android:textColor="@color/md__defaultBackground"
+                android:textSize="16sp" />
         </RelativeLayout>
     </LinearLayout>
 

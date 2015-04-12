@@ -52,7 +52,7 @@
     <string name="toolbar_quality_menu_custom">自定义</string>
     <string name="toolbar_sub_menu_focal_length">焦距</string>
     <string name="cloudaccount_listview_item_enable">启用</string>
-    <string name="system_starplatform">星云平台</string>
+    <string name="system_starplatform">视频监控服务平台</string>
     <string name="system_setting_help">帮助</string>
     <string name="system_setting_about">关于</string>
     <string name="system_setting_logout">退出</string>
@@ -252,7 +252,7 @@
     <string name="realplay_update_previewdevicelist_timeout">设备信息更新超时!</string>
     <string name="realplay_update_previewdevicelist_btn_cancel">设备信息更新超时!</string>
     <string name="realplay_update_previewdevicelist_wait">通道数据更新中，请等待&#8230;</string>
-    <string name="alarm_title">报警推送</string>
+    <string name="alarm_title">报警管理</string>
     <string name="alarm_dialog_OK">确定</string>
     <string name="alarm_manager">报警管理</string>
     <string name="alarm_content_ip">报警IP</string>

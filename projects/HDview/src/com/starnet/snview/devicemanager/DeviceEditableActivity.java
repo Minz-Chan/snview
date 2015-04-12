@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
@@ -28,8 +29,10 @@ public class DeviceEditableActivity extends BaseActivity {
 	private EditText server_et;
 	private EditText username_et;
 	private EditText password_et;
+
+	private Button identifyBtn;
 	// private EditText channelnumber_et;
-//	private EditText defaultChannel_et;
+	// private EditText defaultChannel_et;
 	private RadioButton noRadioButton;
 	private RadioButton yesRadioButton;
 	private DeviceItem clickDeviceItem;
@@ -63,7 +66,7 @@ public class DeviceEditableActivity extends BaseActivity {
 				String lPass = password_et.getText().toString();
 				String lUser = username_et.getText().toString();
 				// String chSum = channelnumber_et.getText().toString();
-//				String dfChl = defaultChannel_et.getText().toString();
+				// String dfChl = defaultChannel_et.getText().toString();
 				String cName = DeviceEditableActivity.this
 						.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
@@ -76,17 +79,21 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
-//						clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
+						// clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
 						boolean isBelong = isBelongDeviceItem(clickDeviceItem);
 						// 并返回原来的界面
 						Intent data = new Intent();
 						Bundle bundle = new Bundle();
 						if (isBelong) {
-							HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
+							HashMap<String, ArrayList<Integer>> map = getUpdateInfo(
+									clickDeviceItem, mPreviewDeviceItems);
 							bundle.putBoolean("priviewUpdate", true);
-							bundle.putIntegerArrayList("indexes",map.get("indexs"));
-							bundle.putIntegerArrayList("channelids",map.get("channelids"));
-							ArrayList<Integer> channelids = map.get("channelids");
+							bundle.putIntegerArrayList("indexes",
+									map.get("indexs"));
+							bundle.putIntegerArrayList("channelids",
+									map.get("channelids"));
+							ArrayList<Integer> channelids = map
+									.get("channelids");
 							ArrayList<Integer> indexs = map.get("indexs");
 							for (int i = 0; i < map.get("indexs").size(); i++) {
 								PreviewDeviceItem temp = new PreviewDeviceItem();
@@ -99,8 +106,9 @@ public class DeviceEditableActivity extends BaseActivity {
 								temp.setChannel(channelids.get(i));
 								mPreviewDeviceItems.set(indexs.get(i), temp);
 							}
-							
-							if (clickDeviceItem.isUsable()&&noRadioButton.isChecked()) {
+
+							if (clickDeviceItem.isUsable()
+									&& noRadioButton.isChecked()) {
 								setNewPreviewDeviceItems();
 							}
 						}
@@ -111,24 +119,41 @@ public class DeviceEditableActivity extends BaseActivity {
 						DeviceEditableActivity.this.finish();
 					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,
+								Toast.LENGTH_SHORT).show();
 					} else if (!isPort && isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,
+								Toast.LENGTH_SHORT).show();
 					} else {
 						String text = getString(R.string.device_manager_deviceeditable_ip_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,
+								Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					String text = getString(R.string.device_manager_edit_notnull);
-					Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
+					Toast.makeText(DeviceEditableActivity.this, text,
+							Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
+
+		identifyBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				identifyWork();
+			}
+		});
+
+	}
+
+	/** 验证链接 ***/
+	protected void identifyWork() {
+
 	}
 
 	protected void setNewPreviewDeviceItems() {
-		if ((mPreviewDeviceItems!=null)&mPreviewDeviceItems.size() > 0) {
+		if ((mPreviewDeviceItems != null) & mPreviewDeviceItems.size() > 0) {
 			for (PreviewDeviceItem item : mPreviewDeviceItems) {
 				if (item.getPlatformUsername().equals(
 						clickDeviceItem.getPlatformUsername())
@@ -143,8 +168,10 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 
 			if (deletePDeviceItems.size() > 0) {
-				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(mPreviewDeviceItems);
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+				GlobalApplication.getInstance().getRealplayActivity()
+						.setPreviewDevices(mPreviewDeviceItems);
+				GlobalApplication.getInstance().getRealplayActivity()
+						.notifyPreviewDevicesContentChanged();
 			}
 		}
 	}
@@ -191,7 +218,9 @@ public class DeviceEditableActivity extends BaseActivity {
 		return previewInfo;
 	}
 
-	protected boolean isBelongAndSetPreviewDeviceItem(DeviceItem clickDeviceItem2,List<PreviewDeviceItem> mPreviewDeviceItems2) {
+	protected boolean isBelongAndSetPreviewDeviceItem(
+			DeviceItem clickDeviceItem2,
+			List<PreviewDeviceItem> mPreviewDeviceItems2) {
 		boolean isBelong = false;
 		if (mPreviewDeviceItems2 == null) {
 			return false;
@@ -222,7 +251,8 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 
-		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		mPreviewDeviceItems = GlobalApplication.getInstance()
+				.getRealplayActivity().getPreviewDevices();
 
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
@@ -231,16 +261,19 @@ public class DeviceEditableActivity extends BaseActivity {
 		username_et = (EditText) findViewById(R.id.et_device_add_username);
 		// channelnumber_et = (EditText)
 		// findViewById(R.id.et_device_add_channelnumber);
-//		defaultChannel_et = (EditText) findViewById(R.id.et_device_add_defaultChannel);
+		// defaultChannel_et = (EditText)
+		// findViewById(R.id.et_device_add_defaultChannel);
 
 		noRadioButton = (RadioButton) findViewById(R.id.isenable_noi_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.isenable_yesi_radioBtn);
 
+		identifyBtn = (Button) findViewById(R.id.conn_identify_btn);
 		Intent intent = getIntent();
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
 			if (bundle != null) {
-				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
+				clickDeviceItem = (DeviceItem) bundle
+						.getSerializable("clickDeviceItem");
 			}
 		}
 
@@ -249,7 +282,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		String loginPass = clickDeviceItem.getLoginPass();
 		String loginUser = clickDeviceItem.getLoginUser();
 		String deviceName = clickDeviceItem.getDeviceName();
-//		String channelSum = clickDeviceItem.getChannelSum();
+		// String channelSum = clickDeviceItem.getChannelSum();
 		String word4 = getString(R.string.device_manager_online_en);
 		String word1 = getString(R.string.device_manager_offline_en);
 		String wordLen = getString(R.string.device_manager_off_on_line_length);
@@ -272,7 +305,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		record_et.setText(deviceName);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
-//		defaultChannel_et.setText(defaultChannel);
+		// defaultChannel_et.setText(defaultChannel);
 		// channelnumber_et.setText(channelSum);
 		// channelnumber_et.setKeyListener(null);
 		if (clickDeviceItem.isUsable()) {

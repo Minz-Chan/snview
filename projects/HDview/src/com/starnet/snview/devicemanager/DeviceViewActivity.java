@@ -189,8 +189,7 @@ public class DeviceViewActivity extends BaseActivity {
 					@Override
 					public void onClick(View v) {
 						Intent intent = new Intent();
-						intent.setClass(DeviceViewActivity.this,
-								DeviceCollectActivity.class);
+						intent.setClass(DeviceViewActivity.this,DeviceCollectActivity.class);
 						startActivityForResult(intent, 10);
 					}
 				});
