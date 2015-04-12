@@ -39,7 +39,7 @@
     <string name="navigation_title_device_management">设备管理</string>
     <string name="navigation_title_picture_management">图像管理</string>
     <string name="navigation_title_system_setting_network_setting">网络配置</string>
-    <string name="navigation_title_system_setting_cloudaccount_setting">星云平台</string>
+    <string name="navigation_title_system_setting_cloudaccount_setting">视频监控服务平台</string>
     <string name="nothing" />
     <string name="toolbar_sub_menu_focus">聚焦</string>
     <string name="toolbar_sub_dialog_set">设置</string>
@@ -115,8 +115,8 @@
     <string name="system_setting_cloudaccount_adding_connect_succ">验证成功</string>
     <string name="system_setting_cloudaccount_adding_connect_fail">验证失败</string>
     <string name="system_setting_cloudaccount_adding_connect_timeout">验证超时</string>
-    <string name="notify_accept_open">报警账户、星云平台账户接收推送消息</string>
-    <string name="notify_accept_off">报警账户、星云平台账户不接收推送消息</string>
+    <string name="notify_accept_open">报警账户、视频监控服务平台账户接收推送消息</string>
+    <string name="notify_accept_off">报警账户、视频监控服务平台账户不接收推送消息</string>
     <string name="system_setting_help_titile">帮助</string>
     <string name="system_setting_cloudaccountview_delete_user">删除账户</string>
     <string name="system_setting_alarm_pushset_input_domain">请输入域名</string>
