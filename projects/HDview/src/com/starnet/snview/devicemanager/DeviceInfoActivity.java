@@ -34,7 +34,7 @@ public class DeviceInfoActivity extends BaseActivity {
 	// private EditText et_device_add_channelnumber;
 
 	private Button identify_save_btn;// 验证并保存按钮...
-	private EditText select_et;
+//	private EditText select_et;
 
 	// private Button on_off_btn;//单击,控制device_add_choose_et是否可输入
 	// private static int clickTime = 0;
@@ -53,7 +53,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
 	private void findViewsAndInitial() {
 		// on_off_btn = (Button) findViewById(R.id.device_add_button_state);''
-		select_et = (EditText) findViewById(R.id.device_add_choose_et);
+//		select_et = (EditText) findViewById(R.id.device_add_choose_et);
 
 		et_device_add_server = (EditText) findViewById(R.id.et_device_add_server);
 		et_device_add_port = (EditText) findViewById(R.id.et_device_add_port);
@@ -90,7 +90,7 @@ public class DeviceInfoActivity extends BaseActivity {
 		}
 
 		// et_device_add_channelnumber.setKeyListener(null);
-		select_et.setKeyListener(null);
+//		select_et.setKeyListener(null);
 	}
 
 	private void setClickListenersForButton() {
@@ -101,27 +101,6 @@ public class DeviceInfoActivity extends BaseActivity {
 				DeviceInfoActivity.this.finish();
 			}
 		});
-
-		// on_off_btn.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// clickTime++;
-		// if ((clickTime%2 != 0)) {
-		// select_et.setEnabled(true);
-		// select_et.setInputType(InputType.TYPE_CLASS_TEXT);
-		// }else {
-		// String content = select_et.getText().toString();
-		// select_et.setText(content);
-		// select_et.clearFocus();
-		// Context context = DeviceInfoActivity.this;
-		// InputMethodManager im = (InputMethodManager)
-		// getSystemService(context.INPUT_METHOD_SERVICE);
-		// im.hideSoftInputFromWindow(select_et.getWindowToken(), 0);
-		// select_et.setKeyListener(null);
-		// }
-		// }
-		// });
 
 		identify_save_btn.setOnClickListener(new OnClickListener() {
 

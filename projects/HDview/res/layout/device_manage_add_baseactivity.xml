@@ -51,25 +51,27 @@
 
                 <LinearLayout
                     android:id="@+id/linearLayout2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="45dp"
                     android:layout_toRightOf="@+id/linearLayout1"
-                    android:orientation="horizontal" >
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:weightSum="1.0" >
 
-                    <EditText
-                        android:id="@+id/device_add_choose_et"
-                        android:layout_width="0.0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:inputType="none"
-                        android:singleLine="true" />
+                    <!-- <EditText -->
+                    <!-- android:id="@+id/device_add_choose_et" -->
+                    <!-- android:layout_width="0.0dp" -->
+                    <!-- android:layout_height="wrap_content" -->
+                    <!-- android:layout_weight="1" -->
+                    <!-- android:ems="10" -->
+                    <!-- android:inputType="none" -->
+                    <!-- android:singleLine="true" /> -->
 
                     <Button
                         android:id="@+id/device_add_button_state"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/device_manager_choose" />
                 </LinearLayout>
@@ -98,7 +100,6 @@
                     android:textColor="@color/md__defaultBackground"
                     android:textSize="16sp" />
             </LinearLayout>
-
 
             <EditText
                 android:id="@+id/et_device_add_record"
@@ -262,7 +263,8 @@
                 android:textSize="18sp" />
         </RelativeLayout>
 
-<!--         <RelativeLayout
+        <!--
+             <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
@@ -296,7 +298,8 @@
                 android:inputType="number"
                 android:singleLine="true"
                 android:textSize="18sp" />
-        </RelativeLayout> -->
+        </RelativeLayout>
+        -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -330,9 +333,9 @@
                     android:id="@+id/device_manager_isenable_yes_radioBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:text="@string/system_setting_cloudaccount_isenable_yes"
                     android:textColor="@color/system_setting_listview_selected"
-                    android:checked="true"
                     android:textSize="14sp" />
 
                 <RadioButton

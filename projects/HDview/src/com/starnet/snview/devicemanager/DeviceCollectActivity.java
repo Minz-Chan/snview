@@ -60,7 +60,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 
 	private int chooseactivity_return_flag = 1;
-	private EditText chooseEdt;
+//	private EditText chooseEdt;
 	private EditText portEdt;
 	private EditText recordEdt;
 	private EditText serverEdt;
@@ -463,7 +463,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 		identifyBtn = (Button) findViewById(R.id.conn_identify_btn);
 		portEdt = (EditText) findViewById(R.id.et_device_add_port);
-		chooseEdt = (EditText) findViewById(R.id.device_add_choose_et);
+//		chooseEdt = (EditText) findViewById(R.id.device_add_choose_et);
 		recordEdt = (EditText) findViewById(R.id.et_device_add_record);
 		serverEdt = (EditText) findViewById(R.id.et_device_add_server);
 		chooseBtn = (Button) findViewById(R.id.device_add_button_state);
@@ -471,7 +471,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		lgPswdEdt = (EditText) findViewById(R.id.et_device_add_password);
 		noRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_no_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_yes_radioBtn);
-		chooseEdt.setKeyListener(null);
+//		chooseEdt.setKeyListener(null);
 		context = DeviceCollectActivity.this;
 		loadDataTask = new LoadCollectDeviceItemTask();
 		loadDataTask.execute();
@@ -629,14 +629,14 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setChannelList(channelList);
 		chooseactivity_return_flag = bundle
 				.getInt("chooseactivity_return_flag");
-		chooseEdt.setText(chooseDeviceItem.getDeviceName());
+//		chooseEdt.setText(chooseDeviceItem.getDeviceName());
 		recordEdt.setText(chooseDeviceItem.getDeviceName());
 		serverEdt.setText(chooseDeviceItem.getSvrIp());
 		portEdt.setText(chooseDeviceItem.getSvrPort());
 		lgUserEdt.setText(chooseDeviceItem.getLoginUser());
 		lgPswdEdt.setText(chooseDeviceItem.getLoginPass());
 //		dfChnlEdt.setText("" + chooseDeviceItem.getDefaultChannel());
-		chooseEdt.setKeyListener(null);
+//		chooseEdt.setKeyListener(null);
 		String platformUsername = getString(R.string.device_manager_collect_device);
 		chooseDeviceItem.setPlatformUsername(platformUsername);
 		// setIdentifyDeviceItem(saveDeviceItem);
