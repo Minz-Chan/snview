@@ -186,9 +186,10 @@
                 android:layout_marginLeft="47dp"
                 android:layout_toRightOf="@id/device_add_port"
                 android:ems="10"
+                android:hint="@string/device_manager_collect_add_not_ext65532"                
                 android:inputType="number"
                 android:singleLine="true"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -258,48 +259,50 @@
                 android:layout_marginLeft="47dp"
                 android:layout_toRightOf="@id/txt_device_add_password"
                 android:ems="10"
+                android:hint="@string/device_manager_collect_add_not_ext16"
                 android:inputType="textPassword"
                 android:singleLine="true"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
         </RelativeLayout>
 
-        <!--
-             <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft"
-            android:layout_marginRight="@dimen/cloudaccout_setting_marginright" >
+        <!-- <RelativeLayout -->
+        <!-- android:layout_width="fill_parent" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:layout_marginLeft="@dimen/cloudaccout_setting_marginleft" -->
+        <!-- android:layout_marginRight="@dimen/cloudaccout_setting_marginright" > -->
 
-            <LinearLayout
-                android:id="@+id/txt_device_add_defaultchannel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true" >
 
-                <TextView
-                    android:layout_width="75dp"
-                    android:layout_height="38dp"
-                    android:gravity="center|left"
-                    android:text="@string/device_manager_add_scan_edit_layout_default_channel"
-                    android:textColor="@color/md__defaultBackground"
-                    android:textSize="16sp" />
-            </LinearLayout>
+        <!-- <LinearLayout -->
+        <!-- android:id="@+id/txt_device_add_defaultchannel" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:layout_alignParentLeft="true" -->
+        <!-- android:layout_alignParentTop="true" > -->
 
-            <EditText
-                android:id="@+id/et_device_add_defaultChannel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="47dp"
-                android:layout_toRightOf="@id/txt_device_add_defaultchannel"
-                android:ems="10"
-                android:inputType="number"
-                android:singleLine="true"
-                android:textSize="18sp" />
-        </RelativeLayout>
-        -->
+
+        <!-- <TextView -->
+        <!-- android:layout_width="75dp" -->
+        <!-- android:layout_height="38dp" -->
+        <!-- android:gravity="center|left" -->
+        <!-- android:text="@string/device_manager_add_scan_edit_layout_default_channel" -->
+        <!-- android:textColor="@color/md__defaultBackground" -->
+        <!-- android:textSize="16sp" /> -->
+        <!-- </LinearLayout> -->
+
+
+        <!-- <EditText -->
+        <!-- android:id="@+id/et_device_add_defaultChannel" -->
+        <!-- android:layout_width="wrap_content" -->
+        <!-- android:layout_height="wrap_content" -->
+        <!-- android:layout_alignParentRight="true" -->
+        <!-- android:layout_alignParentTop="true" -->
+        <!-- android:layout_marginLeft="47dp" -->
+        <!-- android:layout_toRightOf="@id/txt_device_add_defaultchannel" -->
+        <!-- android:ems="10" -->
+        <!-- android:inputType="number" -->
+        <!-- android:singleLine="true" -->
+        <!-- android:textSize="18sp" /> -->
+        <!-- </RelativeLayout> -->
 
         <LinearLayout
             android:layout_width="match_parent"
