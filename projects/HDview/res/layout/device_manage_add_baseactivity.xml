@@ -186,11 +186,12 @@
                 android:layout_marginLeft="47dp"
                 android:layout_toRightOf="@id/device_add_port"
                 android:ems="10"
-                android:hint="@string/device_manager_collect_add_not_ext65534"                
                 android:inputType="number"
                 android:singleLine="true"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
         </RelativeLayout>
+        
+        <!-- android:hint="@string/device_manager_collect_add_not_ext65534" -->
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -259,11 +260,11 @@
                 android:layout_marginLeft="47dp"
                 android:layout_toRightOf="@id/txt_device_add_password"
                 android:ems="10"
-                android:hint="@string/device_manager_collect_add_not_ext16"
                 android:inputType="textPassword"
                 android:singleLine="true"
                 android:textSize="16sp" />
         </RelativeLayout>
+        <!-- android:hint="@string/device_manager_collect_add_not_ext16" -->
 
         <!-- <RelativeLayout -->
         <!-- android:layout_width="fill_parent" -->
