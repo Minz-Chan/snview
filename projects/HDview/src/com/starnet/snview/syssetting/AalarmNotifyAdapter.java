@@ -214,51 +214,7 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 		@Override
 		public boolean onDown(MotionEvent e) {
 			Log.i(TAG, "====onDown====");
-			if (curPostion == 0) {
-				if (isClickFlagAcc) {
-					isClickFlagAcc = false;
-					curTXT.setText(ctx.getString(R.string.notify_accept_off));
-					curImgBtn
-							.setBackgroundResource(R.drawable.pushset_notify_off);
-				} else {
-					isClickFlagAcc = true;
-					curTXT.setText(ctx.getString(R.string.notify_accept_open));
-					curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				}
-			} else if (curPostion == 1) {
-				if (isClickFlagSha) {
-					isClickFlagSha = false;
-					curTXT.setText(ctx.getString(R.string.remind_shake_off));
-					curImgBtn
-							.setBackgroundResource(R.drawable.pushset_notify_off);
-				} else {
-					isClickFlagSha = true;
-					long[] pattern = { 50, 200, 50, 200 };
-					vibrator.vibrate(pattern, -1);
-					curTXT.setText(ctx.getString(R.string.remind_shake_open));
-					curImgBtn
-							.setBackgroundResource(R.drawable.pushset_notify_open);
-				}
-			} else if (curPostion == 2) {
-				if (isClickFlagSou) {
-					isClickFlagSou = false;
-					curTXT.setText(ctx.getString(R.string.remind_sound_off));
-					curImgBtn
-							.setBackgroundResource(R.drawable.pushset_notify_off);
-				} else {
-					isClickFlagSou = true;
-					curTXT.setText(ctx.getString(R.string.remind_sound_open));
-					curImgBtn
-							.setBackgroundResource(R.drawable.pushset_notify_open);
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							SnapshotSound s = new SnapshotSound(ctx);
-							s.playPushSetSound();
-						}
-					}).start();
-				}
-			}
+			pressDownAction();
 			return false;
 		}
 
@@ -276,7 +232,12 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
-			Log.i(TAG, "====onScroll====");
+			Log.i(TAG, "====onScroll====distanceX：" + distanceX);
+			if (distanceX > 0) {//表示左滑关闭
+				scrollCloseAction();
+			} else {//右滑表示打开，左滑表示
+				scrollOpenAction();
+			}
 			return false;
 		}
 
@@ -290,6 +251,102 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 				float velocityY) {
 			Log.i(TAG, "====onFling====");
 			return false;
+		}
+	}
+
+	private void pressDownAction() {
+		if (curPostion == 0) {
+			if (isClickFlagAcc) {
+				isClickFlagAcc = false;
+				curTXT.setText(ctx.getString(R.string.notify_accept_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			} else {
+				isClickFlagAcc = true;
+				curTXT.setText(ctx.getString(R.string.notify_accept_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+		} else if (curPostion == 1) {
+			if (isClickFlagSha) {
+				isClickFlagSha = false;
+				curTXT.setText(ctx.getString(R.string.remind_shake_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			} else {
+				isClickFlagSha = true;
+				long[] pattern = { 50, 200, 50, 200 };
+				vibrator.vibrate(pattern, -1);
+				curTXT.setText(ctx.getString(R.string.remind_shake_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+		} else if (curPostion == 2) {
+			if (isClickFlagSou) {
+				isClickFlagSou = false;
+				curTXT.setText(ctx.getString(R.string.remind_sound_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			} else {
+				isClickFlagSou = true;
+				curTXT.setText(ctx.getString(R.string.remind_sound_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						SnapshotSound s = new SnapshotSound(ctx);
+						s.playPushSetSound();
+					}
+				}).start();
+			}
+		}
+	}
+
+	private void scrollCloseAction() {
+		if (curPostion == 0) {
+			if (isClickFlagAcc) {
+				isClickFlagAcc = false;
+				curTXT.setText(ctx.getString(R.string.notify_accept_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			}
+		} else if (curPostion == 1) {
+			if (isClickFlagSha) {
+				isClickFlagSha = false;
+				curTXT.setText(ctx.getString(R.string.remind_shake_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			}
+		} else if (curPostion == 2) {
+			if (isClickFlagSou) {
+				isClickFlagSou = false;
+				curTXT.setText(ctx.getString(R.string.remind_sound_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			}
+		}
+	}
+
+	private void scrollOpenAction() {
+		if (curPostion == 0) {
+			if (!isClickFlagAcc){
+				isClickFlagAcc = true;
+				curTXT.setText(ctx.getString(R.string.notify_accept_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+		} else if (curPostion == 1) {
+			if (!isClickFlagSha) {
+				isClickFlagSha = true;
+				long[] pattern = { 50, 200, 50, 200 };
+				vibrator.vibrate(pattern, -1);
+				curTXT.setText(ctx.getString(R.string.remind_shake_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+		} else if (curPostion == 2) {
+			if (!isClickFlagSou) {
+				isClickFlagSou = true;
+				curTXT.setText(ctx.getString(R.string.remind_sound_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						SnapshotSound s = new SnapshotSound(ctx);
+						s.playPushSetSound();
+					}
+				}).start();
+			}
 		}
 	}
 }
