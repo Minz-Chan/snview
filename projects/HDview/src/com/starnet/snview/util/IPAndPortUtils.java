@@ -71,7 +71,7 @@ public class IPAndPortUtils {
 			return isNetPort;
 		} else {
 			int port = Integer.valueOf(portString);
-			if ((port < 65535) && (port >= 0)) {
+			if ((port < 65535) && (port > 0)) {
 				isNetPort = true;
 				return isNetPort;
 			} else {

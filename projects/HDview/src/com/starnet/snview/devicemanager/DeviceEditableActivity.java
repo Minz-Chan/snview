@@ -103,10 +103,8 @@ public class DeviceEditableActivity extends BaseActivity {
 				String lUser = username_et.getText().toString();
 				// String chSum = channelnumber_et.getText().toString();
 				// String dfChl = defaultChannel_et.getText().toString();
-				String cName = DeviceEditableActivity.this
-						.getString(R.string.device_manager_collect_device);
-				if ((!dName.trim().equals("") && !svrIp.trim().equals("")
-						&& !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
+				String cName = DeviceEditableActivity.this.getString(R.string.device_manager_collect_device);
+				if ((!dName.trim().equals("") && !svrIp.trim().equals("") && !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);
 					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 					if (isPort && isIp) {
@@ -143,8 +141,7 @@ public class DeviceEditableActivity extends BaseActivity {
 								mPreviewDeviceItems.set(indexs.get(i), temp);
 							}
 
-							if (clickDeviceItem.isUsable()
-									&& noRadioButton.isChecked()) {
+							if (clickDeviceItem.isUsable() && noRadioButton.isChecked()) {
 								setNewPreviewDeviceItems();
 							}
 						}
@@ -155,21 +152,18 @@ public class DeviceEditableActivity extends BaseActivity {
 						DeviceEditableActivity.this.finish();
 					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else if (!isPort && isIp) {
-						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+//						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
+						String text = getString(R.string.device_manager_collect_add_not_ext65535);
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else {
 						String text = getString(R.string.device_manager_deviceeditable_ip_port_wrong);
-						Toast.makeText(DeviceEditableActivity.this, text,
-								Toast.LENGTH_SHORT).show();
+						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					}
 				} else {
 					String text = getString(R.string.device_manager_edit_notnull);
-					Toast.makeText(DeviceEditableActivity.this, text,
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 				}
 			}
 		});
