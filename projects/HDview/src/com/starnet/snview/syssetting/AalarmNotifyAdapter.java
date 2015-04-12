@@ -137,48 +137,7 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 		imgBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public void onClick(View v) {
-				// if (pos == 0) {
-				// if (isClickFlagAcc) {
-				// isClickFlagAcc = false;
-				// cnt.setText(ctx.getString(R.string.notify_accept_off));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-				// } else {
-				// isClickFlagAcc = true;
-				// cnt.setText(ctx.getString(R.string.notify_accept_open));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				// }
-				// } else if (pos == 1) {
-				// if (isClickFlagSha) {
-				// isClickFlagSha = false;
-				// cnt.setText(ctx.getString(R.string.remind_shake_off));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-				// } else {
-				// isClickFlagSha = true;
-				// long[] pattern = { 50, 200, 50, 200 };
-				// vibrator.vibrate(pattern, -1);
-				// cnt.setText(ctx.getString(R.string.remind_shake_open));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				// }
-				// } else if (pos == 2) {
-				// if (isClickFlagSou) {
-				// isClickFlagSou = false;
-				// cnt.setText(ctx.getString(R.string.remind_sound_off));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-				// } else {
-				// isClickFlagSou = true;
-				// cnt.setText(ctx.getString(R.string.remind_sound_open));
-				// imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				// new Thread(new Runnable() {
-				// @Override
-				// public void run() {
-				// SnapshotSound s = new SnapshotSound(ctx);
-				// s.playPushSetSound();
-				// }
-				// }).start();
-				// }
-				// }
-			}
+			public void onClick(View v) { }
 		});
 		return convertView;
 	}

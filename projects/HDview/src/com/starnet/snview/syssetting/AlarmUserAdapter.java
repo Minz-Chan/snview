@@ -6,9 +6,13 @@ import java.util.List;
 import com.starnet.snview.R;
 
 import android.content.Context;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
@@ -22,13 +26,19 @@ public class AlarmUserAdapter extends BaseAdapter {
 	private LayoutInflater flater;
 	private List<HashMap<String, Object>> mData;
 
+	private GestureDetector mGestureDetector;
+	private FilpOnGestureListener mGestureListener;
+
 	public AlarmUserAdapter(Context ctx, List<HashMap<String, Object>> mData,
 			boolean isAccept) {
 		this.ctx = ctx;
 		this.mData = mData;
 		this.isAccept = isAccept;
 		this.isClickFlag = isAccept;
-		flater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		flater = (LayoutInflater) ctx
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mGestureListener = new FilpOnGestureListener();
+		mGestureDetector = new GestureDetector(ctx, mGestureListener);
 	}
 
 	@Override
@@ -49,6 +59,9 @@ public class AlarmUserAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
+
+	private TextView curTxt;
+	private ImageButton curImgBtn;
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -71,18 +84,28 @@ public class AlarmUserAdapter extends BaseAdapter {
 				cnt.setText(ctx.getString(R.string.alarm_accept_off));
 				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
 			}
+
+			imgBtn.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					curTxt = cnt;
+					curImgBtn = imgBtn;
+					return mGestureDetector.onTouchEvent(event);
+				}
+			});
+
 			imgBtn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (isClickFlag) {
-						isClickFlag = false;
-						cnt.setText(ctx.getString(R.string.alarm_accept_off));
-						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-					} else {
-						isClickFlag = true;
-						cnt.setText(ctx.getString(R.string.alarm_accept_open));
-						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-					}
+//					if (isClickFlag) {
+//						isClickFlag = false;
+//						cnt.setText(ctx.getString(R.string.alarm_accept_off));
+//						imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+//					} else {
+//						isClickFlag = true;
+//						cnt.setText(ctx.getString(R.string.alarm_accept_open));
+//						imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+//					}
 				}
 			});
 		} else if (position == 1) {
@@ -104,5 +127,62 @@ public class AlarmUserAdapter extends BaseAdapter {
 
 	public void setClickFlag(boolean isClickFlag) {
 		this.isClickFlag = isClickFlag;
+	}
+
+	private final class FilpOnGestureListener implements OnGestureListener {
+
+		@Override
+		public boolean onDown(MotionEvent e) {
+			if (isClickFlag) {
+				isClickFlag = false;
+				curTxt.setText(ctx.getString(R.string.alarm_accept_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			} else {
+				isClickFlag = true;
+				curTxt.setText(ctx.getString(R.string.alarm_accept_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+			return false;
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
+			if (distanceX > 0) {// 左滑关闭
+				isClickFlag = false;
+				curTxt.setText(ctx.getString(R.string.alarm_accept_off));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
+			} else {// 右滑开启
+				isClickFlag = true;
+				curTxt.setText(ctx.getString(R.string.alarm_accept_open));
+				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}
+			return false;
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 }
