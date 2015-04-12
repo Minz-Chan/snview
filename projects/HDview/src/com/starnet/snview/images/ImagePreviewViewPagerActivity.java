@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -380,8 +381,12 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 
 				int w = GlobalApplication.getInstance().getScreenWidth();
 				int h = w * bg.getIntrinsicHeight() / bg.getIntrinsicWidth();
-
-				imageVideoContent.setBackground(bg);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+					imageVideoContent.setBackground(bg);
+			    } else {
+			    	imageVideoContent.setBackgroundDrawable(bg);
+			    }
+//				imageVideoContent.setBackground(bg);
 				imageVideoContent.setLayoutParams(new RelativeLayout.LayoutParams(w, h));
 				container.addView(video, LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 				
