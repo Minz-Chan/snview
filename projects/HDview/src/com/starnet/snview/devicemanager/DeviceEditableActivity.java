@@ -380,8 +380,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		String word4 = getString(R.string.device_manager_online_en);
 		String word1 = getString(R.string.device_manager_offline_en);
 		String wordLen = getString(R.string.device_manager_off_on_line_length);
-		String defaultChannel = String.valueOf(clickDeviceItem
-				.getDefaultChannel());
+		String defaultChannel = String.valueOf(clickDeviceItem.getDefaultChannel());
 		if (defaultChannel.equals("0")) {
 			defaultChannel = "1";
 		}

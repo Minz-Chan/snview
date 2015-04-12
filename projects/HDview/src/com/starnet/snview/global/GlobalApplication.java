@@ -197,5 +197,8 @@ public class GlobalApplication extends FrontiaApplication {
 	public void setLastPreviewItems(List<PreviewDeviceItem> lastPreviewItems) {
 		this.lastPreviewItems = lastPreviewItems;
 	}
-
+	
+	public void exit(){
+		System.exit(0);
+	}
 }

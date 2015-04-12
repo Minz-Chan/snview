@@ -402,6 +402,7 @@ public abstract class BaseActivity extends Activity {
 //												.killProcess(android.os.Process
 //														.myPid());
 										BaseActivity.this.finish();
+										GlobalApplication.getInstance().exit();
 									}
 								}).setNegativeButton(R.string.exit_dialog_dispose, null)
 						.show();
