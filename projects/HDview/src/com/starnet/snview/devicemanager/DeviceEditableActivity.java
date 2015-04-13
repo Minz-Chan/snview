@@ -103,6 +103,11 @@ public class DeviceEditableActivity extends BaseActivity {
 				String lUser = username_et.getText().toString();
 				// String chSum = channelnumber_et.getText().toString();
 				// String dfChl = defaultChannel_et.getText().toString();
+				if (lPass != null && (lPass.length() >= 16)) {
+					String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
+					Toast.makeText(DeviceEditableActivity.this, txt,Toast.LENGTH_SHORT).show();
+					return;
+				}
 				String cName = DeviceEditableActivity.this.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("") && !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);

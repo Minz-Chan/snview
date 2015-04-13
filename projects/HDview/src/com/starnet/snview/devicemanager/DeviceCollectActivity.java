@@ -269,6 +269,13 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				saveDeviceItem = getDeviceItemInfoFromUi();
+				String lPass = saveDeviceItem.getLoginPass();
+				if (lPass != null && (lPass.length() >= 16)) {
+					String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
+					Toast.makeText(DeviceCollectActivity.this, txt,Toast.LENGTH_SHORT).show();
+					return;
+				}
+				
 				String rName = saveDeviceItem.getDeviceName().trim();
 				String svIP = saveDeviceItem.getSvrIp().trim();
 				String port = saveDeviceItem.getSvrPort().trim();
