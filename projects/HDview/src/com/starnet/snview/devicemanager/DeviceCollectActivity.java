@@ -233,27 +233,55 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
 					showToast(getString(R.string.device_manager_conn_iden_notopen));
 				} else {
-					DeviceItem deviceItem = getDeviceItem();
-					if (deviceItem != null) {
-						String port = deviceItem.getSvrPort();
-						if (port != null) {
-							int portNum = Integer.valueOf(port);
-							if (portNum < 0 || portNum > 65533) {
-//								deviceItem.setSvrPort("8080");
-//								String p = getString(R.string.device_manager_port);
-								showToast(getString(R.string.device_manager_collect_add_not_ext65535));
-							}else {
-								String lgPass = deviceItem.getLoginPass();
-								if ((lgPass != null) && (lgPass.length() < 16)) {
-									showDialog(CONNIDENTIFYDIALOG);
-									conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
-									conIdenTask.setContext(DeviceCollectActivity.this);
-									conIdenTask.start();
-								} else {
-									showToast(getString(R.string.device_manager_collect_add_reinput_pass));
-								}
-							}
-						}						
+					
+					DeviceItem deviceItem = new DeviceItem();
+					String platName = getString(R.string.device_manager_collect_device);
+					List<String> infoList = getDeviceItemInfoFromEdx();
+					int index = checkIfExistNull(infoList);
+					if (index == -1) {
+						deviceItem.setPlatformUsername(platName);
+						deviceItem.setDeviceName(infoList.get(0));
+						deviceItem.setLoginPass(infoList.get(4));
+						deviceItem.setLoginUser(infoList.get(3));
+						deviceItem.setSvrPort(infoList.get(2));
+						deviceItem.setSvrIp(infoList.get(1));
+					} else if (index == 0) {
+						showToast(getString(R.string.device_manager_conn_iden_devicename_notnull));
+						return ;
+					} else if (index == 1) {
+						showToast(getString(R.string.device_manager_conn_iden_svrip_notnull));
+						return ;
+					} else if (index == 2) {
+						showToast(getString(R.string.device_manager_conn_iden_svrport_notnull));
+						return ;
+					} else {
+						showToast(getString(R.string.device_manager_conn_iden_username_notnull));
+						return ;
+					}
+					
+					String ip = deviceItem.getSvrIp();
+					if (ip == null || ip.trim().equals("") || !IPAndPortUtils.isIp(ip)) {
+						String text1 = getString(R.string.device_manager_deviceeditable_ip_wrong);
+						Toast.makeText(DeviceCollectActivity.this, text1,Toast.LENGTH_SHORT).show();
+						return ;
+					}
+					
+					String port = deviceItem.getSvrPort();
+					if (port == null || port.trim().equals("") || !IPAndPortUtils.isNetPort(port)) {
+						String text1 = getString(R.string.device_manager_collect_add_not_ext65535);
+						Toast.makeText(DeviceCollectActivity.this, text1,Toast.LENGTH_SHORT).show();
+						return ;
+					}
+					
+					String lgPass = deviceItem.getLoginPass();
+					if ((lgPass != null) && (lgPass.length() < 16)) {
+						showDialog(CONNIDENTIFYDIALOG);
+						conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
+						conIdenTask.setContext(DeviceCollectActivity.this);
+						conIdenTask.start();
+					} else {
+						showToast(getString(R.string.device_manager_collect_add_pswdnot_ext16));
+						return;
 					}
 				}
 			}
@@ -269,12 +297,6 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				saveDeviceItem = getDeviceItemInfoFromUi();
-				String lPass = saveDeviceItem.getLoginPass();
-				if (lPass != null && (lPass.length() >= 16)) {
-					String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
-					Toast.makeText(DeviceCollectActivity.this, txt,Toast.LENGTH_SHORT).show();
-					return;
-				}
 				
 				String rName = saveDeviceItem.getDeviceName().trim();
 				String svIP = saveDeviceItem.getSvrIp().trim();
@@ -282,8 +304,25 @@ public class DeviceCollectActivity extends BaseActivity {
 				String uName = saveDeviceItem.getLoginUser().trim();
 				if (!rName.equals("") && !svIP.equals("") && !port.equals("") && !uName.equals("")) {
 					boolean isIP = IPAndPortUtils.isIp(svIP);
+					if (!isIP) {
+						showToast(getString(R.string.device_manager_collect_ip_wrong));
+						return;
+					}
 					boolean isPort = IPAndPortUtils.isNetPort(port);
+					if (!isPort) {
+						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
+						return;
+					}
+					
 					if (isPort && isIP) {
+						
+						String lPass = saveDeviceItem.getLoginPass();
+						if (lPass != null && (lPass.length() >= 16)) {
+							String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
+							Toast.makeText(DeviceCollectActivity.this, txt,Toast.LENGTH_SHORT).show();
+							return;
+						}
+						
 						try {
 							if (chooseactivity_return_flag == 1) {// 表示未进行选择
 								if (!isConnPass) {
@@ -305,7 +344,6 @@ public class DeviceCollectActivity extends BaseActivity {
 							showToast(getString(R.string.device_manager_save_failed));
 						}
 					} else if (!isPort) {
-//						showToast(getString(R.string.device_manager_port_wrong));
 						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 					} else {
 						showToast(getString(R.string.device_manager_collect_ip_wrong));
