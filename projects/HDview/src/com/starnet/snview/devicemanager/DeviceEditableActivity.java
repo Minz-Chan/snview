@@ -207,28 +207,31 @@ public class DeviceEditableActivity extends BaseActivity {
 			deviceItem.setLoginUser(lUser);
 			
 			boolean isIP = IPAndPortUtils.isIp(svrIp);
-			if (!isIP) {
+			if ((svrIp==null)||svrIp.trim().equals("")||!isIP) {
 				String text1 = getString(R.string.device_manager_deviceeditable_ip_wrong);
 				Toast.makeText(DeviceEditableActivity.this, text1,Toast.LENGTH_SHORT).show();
 				return ;
 			}
 			
 			boolean isPort = IPAndPortUtils.isNetPort(svrPt);
-			if (!isPort) {
+			if ((svrPt==null)||svrPt.trim().equals("")||!isPort) {
 				showToasContent(getString(R.string.device_manager_collect_add_not_ext65535));
+				return;
 			}
 			
-			if ((lPass != null) && (lPass.length() < 16)) {
+			if ((lPass == null)||((lPass != null) && (lPass.length() < 16))) {
 				showDialog(CONNIDENPRG);
 				connIdenTask = new EditableDevConnIdentifyTask(mHandler,deviceItem);
 				connIdenTask.start();
 			} else {
 				showToasContent(getString(R.string.device_manager_collect_add_pswdnot_ext16));
+				return;
 			}
 			
 		}else {
 			String content = getString(R.string.device_manager_deviceedit_conn_info_null);
 			showToasContent(content);
+			return;
 		}
 	}
 
