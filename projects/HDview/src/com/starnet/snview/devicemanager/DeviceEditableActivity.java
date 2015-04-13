@@ -223,7 +223,7 @@ public class DeviceEditableActivity extends BaseActivity {
 				connIdenTask = new EditableDevConnIdentifyTask(mHandler,deviceItem);
 				connIdenTask.start();
 			} else {
-				showToasContent(getString(R.string.device_manager_collect_add_reinput_pass));
+				showToasContent(getString(R.string.device_manager_collect_add_pswdnot_ext16));
 			}
 			
 		}else {
