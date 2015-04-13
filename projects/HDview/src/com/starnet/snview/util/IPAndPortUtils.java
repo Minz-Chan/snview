@@ -64,18 +64,18 @@ public class IPAndPortUtils {
 	 * @return ：是网络端口号，返回true，如果不是，则返回FALSE；
 	 */
 	public static boolean isNetPort(String portString) {
-		boolean isNetPort = false;
+//		boolean isNetPort = false;
 		int len = portString.length();
 		if ((len > 5) || (len == 0)) {
-			isNetPort = true;
-			return isNetPort;
+//			isNetPort = true;
+			return false;
 		} else {
-			int port = Integer.valueOf(portString);
+			long port = Long.valueOf(portString);
 			if ((port < 65535) && (port > 0)) {
-				isNetPort = true;
-				return isNetPort;
+//				isNetPort = true;
+				return true;
 			} else {
-				return isNetPort;
+				return false;
 			}
 		}
 	}

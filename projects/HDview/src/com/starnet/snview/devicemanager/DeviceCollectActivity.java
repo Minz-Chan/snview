@@ -303,11 +303,13 @@ public class DeviceCollectActivity extends BaseActivity {
 				String port = saveDeviceItem.getSvrPort().trim();
 				String uName = saveDeviceItem.getLoginUser().trim();
 				if (!rName.equals("") && !svIP.equals("") && !port.equals("") && !uName.equals("")) {
+					
 					boolean isIP = IPAndPortUtils.isIp(svIP);
 					if (!isIP) {
 						showToast(getString(R.string.device_manager_collect_ip_wrong));
 						return;
 					}
+					
 					boolean isPort = IPAndPortUtils.isNetPort(port);
 					if (!isPort) {
 						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
