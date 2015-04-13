@@ -190,9 +190,9 @@
     <string name="device_manager_collect_ip_wrong">IP错误，请重新输入</string>
     <string name="device_manager_conn_iden_timout">连接验证超时&#8230;</string>
     <string name="device_manager_conn_iden_sucess">连接验证成功&#8230;</string>
-    <string name="device_manager_collect_add_not_ext16">不得超过16个字符</string>
+    <!-- <string name="device_manager_collect_add_not_ext16">不得超过16个字符</string> -->
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
-    <string name="device_manager_collect_add_reinput_pass">长度超过16，请重新输入密码</string>
+    <!-- <string name="device_manager_collect_add_reinput_pass">长度超过16，请重新输入密码</string> -->
     <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
     <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
