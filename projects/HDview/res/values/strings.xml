@@ -182,7 +182,7 @@
     <string name="device_manager_onealladd">一键全部加入设备列表</string>
     <string name="device_manager_connection_identify_cancel">取消</string>
     <string name="device_manager_scan_layout_start_scan">开始预览</string>
-    <string name="device_manager_port_wrong">端口号错误，请重新输入</string>
+    <!-- <string name="device_manager_port_wrong">端口号错误，请重新输入</string> -->
     <string name="device_manager_deviceview_delete_device">删除设备</string>
     <string name="device_listview_item_securityprotection">安全防护</string>
     <string name="device_listview_item_usable">启用状态</string>
@@ -211,7 +211,7 @@
     <string name="device_manager_add_scan_edit_layout_channel_number">通道数</string>
     <string name="device_manager_devicecollect_cover">已存在该设备，是否覆盖？</string>
     <string name="device_manager_deviceeditable_ip_wrong">服务器IP有错，请检查</string>
-    <string name="device_manager_deviceeditable_port_wrong">端口号有错，请检查</string>
+    <!-- <string name="device_manager_deviceeditable_port_wrong">端口号有错，请检查</string> -->
     <string name="device_manager_add_scan_edit_layout_default_channel">默认通道</string>
     <string name="device_manager_collect_null_wrong">包含有尚未填写的部分,请检查</string>
     <string name="device_manager_conn_iden_devicename_notnull">设备名称不可以为空</string>
