@@ -198,6 +198,7 @@
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
     <string name="device_manager_deviceedit_conniden_fail">链接验证失败</string>
     <string name="device_manager_deviceedit_conniden_succ">链接验证成功</string>
+    <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>
     <string name="device_manager_collect_add_not_ext65535">端口取值范围为1~65535</string>
     <string name="device_manager_deviceedit_conniden_timeout">链接验证超时</string>
     <string name="device_manager_conn_iden_svrip_notnull">服务器不可以为空</string>
