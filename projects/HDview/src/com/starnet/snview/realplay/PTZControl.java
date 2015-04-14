@@ -569,7 +569,7 @@ public class PTZControl {
 			Log.i(TAG, "android.os.Build.BRAND: " + android.os.Build.BRAND + ".");
 			String brand = android.os.Build.BRAND;
 			if (brand.equalsIgnoreCase("Meizu")) { // 若为魅族手机，则显示位置进行微调
-				lp.topMargin -= h;
+				lp.topMargin -= (h+5);
 			}
 		}
 		
