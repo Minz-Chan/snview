@@ -120,8 +120,13 @@ private static final String TAG = null;
 			
 			byte[] _sps = H264Decoder.extractSps(data, length);
 			byte[] sps = lvContainer.getVideoConfig().getSps();
-			System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
-			lvContainer.getVideoConfig().setSpsLen(_sps.length-4);
+			if (_sps != null && sps != null) {
+				System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
+				lvContainer.getVideoConfig().setSpsLen(_sps.length-4);
+			} else {
+				Log.d(TAG, "_sps:" + _sps + ", sps:" + sps);
+			}
+			
 			
 			if (lvContainer.isInRecording()) {
 				lvContainer.setCanStartRecord(true);

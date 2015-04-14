@@ -9,6 +9,13 @@
  */
 package com.starnet.snview.component.h264;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import android.util.Log;
+
 /**
  * @function     功能	  	解码h264码流
  *     本类用于对接收到的h264码流进行解码，解码前须调用init函数对解码器进
@@ -21,7 +28,8 @@ package com.starnet.snview.component.h264;
  * @description 修改说明	            首次增加
  */
 public class H264Decoder {
-	
+	private static final String TAG = "H264Decoder";
+
 	static {
 		System.loadLibrary("ffmpeg");
         System.loadLibrary("H264Decoder");
@@ -90,27 +98,58 @@ public class H264Decoder {
 		}
 		
 		byte[] p = IFrameData;
-		int pos1, pos2;
+		int pos1, pos2, step = -1;
 		
-		// find first sps start position
-		pos1 = 0;
-		while (!(p[pos1 + 0] == 0x00 && p[pos1 + 1] == 0x00
-				&& p[pos1 + 2] == 0x00 && p[pos1 + 3] == 0x01
-				&& p[pos1 + 4] == 0x67)) {
-			pos1++;
-		}
-		
-		// find next nal unit start position
-		pos2 = pos1+1;
-		while (!(p[pos2 + 0] == 0x00 && p[pos2 + 1] == 0x00
-				&& p[pos2 + 2] == 0x00 && p[pos2 + 3] == 0x01)) {
-			pos2++;
-		}
-		
-		if (pos2 < size) {
-			byte[] sps = new byte[pos2-pos1];
-			System.arraycopy(IFrameData, pos1, sps, 0, pos2-pos1);
-			return sps;
+		try {
+			// find I frame head info(0x0000000165). When found, it is valid I frame data
+			// and process continues. Otherwise, array will overflow and exception will be caught.
+			step = 0;
+			pos1 = 0;
+			while (!(p[pos1 + 0] == 0x00 && p[pos1 + 1] == 0x00
+					&& p[pos1 + 2] == 0x00 && p[pos1 + 3] == 0x01
+					&& p[pos1 + 4] == 0x65)) {
+				pos1++;
+			}
+			
+			// find first sps start position
+			step = 1;
+			pos1 = 0;
+			while (!(p[pos1 + 0] == 0x00 && p[pos1 + 1] == 0x00
+					&& p[pos1 + 2] == 0x00 && p[pos1 + 3] == 0x01
+					&& p[pos1 + 4] == 0x67)) {
+				pos1++;
+			}
+			
+			// find next nal unit start position
+			pos2 = pos1+1;
+			while (!(p[pos2 + 0] == 0x00 && p[pos2 + 1] == 0x00
+					&& p[pos2 + 2] == 0x00 && p[pos2 + 3] == 0x01)) {
+				pos2++;
+			}
+			
+			if (pos2 < size) {
+				byte[] sps = new byte[pos2-pos1];
+				System.arraycopy(IFrameData, pos1, sps, 0, pos2-pos1);
+				return sps;
+			}
+		} catch (Exception e) {
+			/*
+			File f = new File("/mnt/sdcard/IFrame20150414.data");
+			OutputStream out = null;
+			try {
+				out = new FileOutputStream(f);
+				out.write(IFrameData);
+				out.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}*/
+			if (step == 0) {
+				Log.d(TAG, "Found not I frame data start(0x0000000165).");
+			} else if (step == 1) {
+				Log.d(TAG, "Found not sps information.");
+			}
+			
+			e.printStackTrace();
 		}
 		
 		return null;

@@ -228,8 +228,12 @@ public class DataProcessServiceImpl implements DataProcessService {
 					
 					byte[] _sps = H264Decoder.extractSps(tmp, tmp.length);
 					byte[] sps = getPlaybackContainer().getVideoConfig().getSps();
-					System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
-					getPlaybackContainer().getVideoConfig().setSpsLen(_sps.length-4);
+					if (_sps != null && sps != null) {
+						System.arraycopy(_sps, 4, sps, 0, _sps.length-4);
+						getPlaybackContainer().getVideoConfig().setSpsLen(_sps.length-4);
+					} else {
+						Log.d(TAG, "_sps:" + _sps + ", sps:" + sps);
+					}
 					
 					if (getPlaybackContainer().isInRecording()) {
 						getPlaybackContainer().setCanStartRecord(true);
