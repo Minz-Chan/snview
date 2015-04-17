@@ -45,6 +45,7 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 	private boolean canTakePicture = false;
 	private boolean canStartRecord = false;
 	private boolean canTakeVideoSnapshot = false;
+//	private boolean canVideoUpdate = false;
 	private String mVideoSnapshotName;
 	
 	private Paint mPaint = new Paint();
@@ -116,6 +117,8 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 		
 		mOldWidthMeasureSpec = -1;
 		mOldHeightMeasureSpec = -1;
+		
+//		canVideoUpdate = true;
 	}
 	
 	public void setParent(PlaybackLiveViewItemContainer c) {
@@ -140,6 +143,10 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 	public void setStartRecord(boolean b) {
 		this.canStartRecord = b;
 	}
+	
+//	public void setVideoUpdate(boolean canVideoUpdate) {
+//		this.canVideoUpdate = canVideoUpdate;
+//	}
 	
 	public int[] getResolution() {
 		int[] r = new int[2];
@@ -194,6 +201,10 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 		Canvas canvas = mHolder.lockCanvas();
 		// 刷屏
 		if (mVideoBit != null && canvas != null) {
+//			if (!canVideoUpdate) {
+//				return;
+//			}
+			
         	/* 此处rewind用意
          	 * 4.2中对copyPixelsFromBuffer( )执行的缓冲区进行了调整，每次拷贝结束后，将下次拷贝
         	 * 的起始位置置为前一次拷贝结束时的位置。这样，如果对同一个ByteBuffer执行多次连续拷贝，
@@ -356,6 +367,7 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 
 	@Override
 	public void onContentReset() {	
+//		canVideoUpdate = false;
 		Canvas canvas = mHolder.lockCanvas();
 		if (canvas != null) {
 			canvas.drawColor(Color.BLACK);

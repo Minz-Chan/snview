@@ -479,9 +479,9 @@ public class PlaybackLiveViewItemContainer extends RelativeLayout {
 		
 		mWindowLayout.setWindowSelected(false);
 		mSurfaceView.onContentReset();
-		setWindowInfoContent(getString(R.string.connection_status_closed));
-		mProgressBar.setVisibility(View.INVISIBLE);
-		mRefresh.setVisibility(View.VISIBLE);
+//		setWindowInfoContent(getString(R.string.connection_status_closed));
+//		mProgressBar.setVisibility(View.INVISIBLE);
+//		mRefresh.setVisibility(View.VISIBLE);
 	}
 	
 	/**

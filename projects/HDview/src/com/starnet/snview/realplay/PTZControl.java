@@ -255,7 +255,7 @@ public class PTZControl {
 		public void OnAction(int clickCount, Object... params) {
 			mPtzReqSender.stopMove();
 		}
-	}, 300);
+	}, 50);
 	
 	private OnTouchListener mOnPTZFocalLengthListener = new OnTouchListener() {
 		

@@ -149,6 +149,7 @@ public class PlaybackActivity extends BaseActivity {
 					hasRecordFile = false;
 					mVideoContainer
 							.setWindowInfoContent(getString(R.string.playback_status_nonerecordfile));
+					mVideoContainer.reset(true);
 				} else {
 					if (list.size() > 0) {
 						isPlaying = true;
@@ -162,6 +163,7 @@ public class PlaybackActivity extends BaseActivity {
 						hasRecordFile = false;
 						mVideoContainer
 								.setWindowInfoContent(getString(R.string.playback_status_nonerecordfile));
+						mVideoContainer.reset(true);
 					}
 				}
 				break;
@@ -251,6 +253,7 @@ public class PlaybackActivity extends BaseActivity {
 				isPlaying = false;
 				setButtonToPlay();
 				updateTimebar(convertOWSPDateTime2Calendar(firstRecordFileStarttime));
+//				mVideoContainer.reset(true);
 				break;
 			case ACTION_STOP_FAIL:
 				mVideoContainer
@@ -685,7 +688,7 @@ public class PlaybackActivity extends BaseActivity {
 		switch (actionId) {
 		case PLAY_PAUSE:
 			if (isFirstIn) {
-				showTostContent(getString(R.string.playback_not_remoteinfo));
+				showTostContent(getString(R.string.playback_status_nonerecordfile));
 			} else {
 				String curTime = mTimebar.getCurrentTime();
 				playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
@@ -753,7 +756,7 @@ public class PlaybackActivity extends BaseActivity {
 			break;
 		case R.id.playback_landscape_pause_play_button:
 			if (isFirstIn) {
-				showTostContent(getString(R.string.playback_not_remoteinfo));
+				showTostContent(getString(R.string.playback_status_nonerecordfile));
 			} else {
 				String curTime = mPlaybackLandscapeToolbar.getTimeBar().getCurrentTime();
 				playOrPause(PlaybackUtils.getOWSPDateTime(curTime));
@@ -772,13 +775,14 @@ public class PlaybackActivity extends BaseActivity {
 
 	@SuppressWarnings("deprecation")
 	private void playOrPause(OWSPDateTime startTime) {
+//		mVideoContainer.getSurfaceView().setVideoUpdate(true);
 		boolean isOpen = NetWorkUtils.checkNetConnection(context);
 		if (isOpen) {
 			if (isPlaying) {// 如果正在进行播放,单击按钮进行暂停
 				if (hasRecordFile) {
 					pause();
 				} else {
-					showTostContent(getString(R.string.playback_not_remoteinfo));
+					showTostContent(getString(R.string.playback_status_nonerecordfile));
 				}
 			} else {
 				if (hasRecordFile) {
@@ -790,7 +794,7 @@ public class PlaybackActivity extends BaseActivity {
 					}
 					
 				} else {
-					showTostContent(getString(R.string.playback_not_remoteinfo));
+					showTostContent(getString(R.string.playback_status_nonerecordfile));
 				}
 			}
 		} else {
@@ -933,6 +937,9 @@ public class PlaybackActivity extends BaseActivity {
 	}
 
 	private void stop() {
+		if (!hasRecordFile) {
+			return;
+		}
 		mVideoContainer.setWindowInfoContent(getString(R.string.playback_status_stop_requesting));
 		action = PlaybackControlAction.STOP;
 		pbcTask.stop();
