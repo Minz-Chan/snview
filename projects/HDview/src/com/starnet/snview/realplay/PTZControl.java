@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.Toast;
 
 public class PTZControl {
 	private static final String TAG = "PTZControl";
@@ -320,15 +321,25 @@ public class PTZControl {
 			case R.id.ptz_pop_preset_call:
 				Log.i(TAG, "ptz_pop_preset_call, text:" + mPTZPresetEdit.getText().toString());
 				String num = mPTZPresetEdit.getText().toString();
-				if (num != null && !num.equals("")) {
+				if (num != null && !num.equals("")
+						&& isPresetPointValid(Integer.valueOf(num))) {
 					mPtzReqSender.gotoPresetPoint(Integer.valueOf(num));
+				} else {
+					Toast.makeText(mLiveActivity, mLiveActivity
+							.getString(R.string.toolbar_sub_dialog_prompt),
+							Toast.LENGTH_LONG).show();
 				}
 				break;
 			case R.id.ptz_pop_preset_set:
 				Log.i(TAG, "ptz_pop_preset_set, text:" + mPTZPresetEdit.getText().toString());
 				String num1 = mPTZPresetEdit.getText().toString();
-				if (num1 != null && !num1.equals("")) {
+				if (num1 != null && !num1.equals("")
+						&& isPresetPointValid(Integer.valueOf(num1))) {
 					mPtzReqSender.setPresetPoint(Integer.valueOf(num1));
+				} else {
+					Toast.makeText(mLiveActivity, mLiveActivity
+							.getString(R.string.toolbar_sub_dialog_prompt),
+							Toast.LENGTH_LONG).show();
 				}
 				break;
 			}
@@ -336,6 +347,10 @@ public class PTZControl {
 		}
 		
 	};
+	
+	private boolean isPresetPointValid(int num) {	
+		return num >= 1 && num <= 255;
+	}
 	
 	private boolean isPTZMode() {
 		return mLiveViewGroup.isPTZMode();

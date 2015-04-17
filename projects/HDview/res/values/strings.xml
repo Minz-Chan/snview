@@ -44,7 +44,8 @@
     <string name="toolbar_sub_menu_focus">聚焦</string>
     <string name="toolbar_sub_dialog_set">设置</string>
     <string name="toolbar_sub_dialog_call">调用</string>
-    <string name="toolbar_sub_dialog_hint">1~200</string>
+    <string name="toolbar_sub_dialog_hint">1~255</string>
+    <string name="toolbar_sub_dialog_prompt">预置点应为1~255中的数字</string>
     <string name="toolbar_quality_menu_high">高清</string>
     <string name="toolbar_sub_menu_aperture">光圈</string>
     <string name="toolbar_quality_menu_fluency">流畅</string>
