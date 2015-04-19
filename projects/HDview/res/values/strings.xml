@@ -197,11 +197,11 @@
     <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
     <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
-    <string name="device_manager_deviceedit_conniden_fail">链接验证失败</string>
-    <string name="device_manager_deviceedit_conniden_succ">链接验证成功</string>
+    <string name="device_manager_deviceedit_conniden_fail">连接验证失败</string>
+    <string name="device_manager_deviceedit_conniden_succ">连接验证成功</string>
     <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>
     <string name="device_manager_collect_add_not_ext65535">端口取值范围为1~65535</string>
-    <string name="device_manager_deviceedit_conniden_timeout">链接验证超时</string>
+    <string name="device_manager_deviceedit_conniden_timeout">连接验证超时</string>
     <string name="device_manager_conn_iden_svrip_notnull">服务器不可以为空</string>
     <string name="device_manager_add_scan_edit_layout_record_name">记录名</string>
     <string name="device_manager_add_scan_edit_layout_server_name">服务器</string>
@@ -219,9 +219,9 @@
     <string name="device_manager_conn_iden_wrong">连接验证失败，请检查用户名和密码</string>
     <string name="device_manager_please_identify">请进行连接验证,或选择"否"之后保存</string>
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>
-    <string name="device_manager_deviceedit_conn_info_null">含有空的信息，请补充后，再链接验证</string>
+    <string name="device_manager_deviceedit_conn_info_null">含有空的信息，请补充后，再连接验证</string>
     <string name="device_manager_deviceeditable_ip_port_wrong">端口号和服务器IP都有错，请检查</string>
-    <string name="device_manager_deviceedit_conning_and_wait">正在链接验证设备，请等待&#8230;</string>
+    <string name="device_manager_deviceedit_conning_and_wait">正在连接验证设备，请等待&#8230;</string>
     <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>
     <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
     <string name="image_manager_imagepreview_delete">删除</string>
