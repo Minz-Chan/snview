@@ -109,7 +109,6 @@ public class DeviceViewActivity extends BaseActivity {
 						bundle.putSerializable("clickDeviceItem",clickDeviceItem);
 						intent.putExtras(bundle);
 						startActivityForResult(intent, 20);
-
 					}
 				});
 

@@ -6,23 +6,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-//import java.util.ArrayList;
-//import java.util.List;
-
 import android.content.Context;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-
-//import com.starnet.snview.R;
-//import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.component.BufferSendManager;
 import com.starnet.snview.protocol.message.LoginRequest;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
 import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
-//import com.starnet.snview.syssetting.CloudAccount;
 
 public class EditableDevConnIdentifyTask {
 	private Socket client;
@@ -44,6 +36,7 @@ public class EditableDevConnIdentifyTask {
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	private final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
 
 	public EditableDevConnIdentifyTask(Handler handler, DeviceItem deviceItem) {
 		this.mHandler = handler;
@@ -114,10 +107,6 @@ public class EditableDevConnIdentifyTask {
 			isConnectedOver = true;
 			isOnWorkdIOErr = true;
 			Message msg = new Message();
-//			Bundle data = new Bundle();
-//			setWrongDevicetItem(1);
-//			setBundleData(data);
-//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnConnectionWrong && shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
@@ -153,10 +142,6 @@ public class EditableDevConnIdentifyTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-//			Bundle data = new Bundle();
-//			setWrongDevicetItem(1);
-//			setBundleData(data);
-//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdUnknwnHost) {
 				mHandler.sendMessage(msg);
@@ -170,10 +155,6 @@ public class EditableDevConnIdentifyTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-//			Bundle data = new Bundle();
-//			setWrongDevicetItem(1);
-//			setBundleData(data);
-//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdIOErr) {
 				mHandler.sendMessage(msg);
@@ -202,7 +183,6 @@ public class EditableDevConnIdentifyTask {
 	/** 获取网络连接验证的信息 */
 	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
-//		Bundle data = new Bundle();
 		Message msg = new Message();
 		InputStream in = client.getInputStream();
 		byte[] head = new byte[8];
@@ -214,12 +194,6 @@ public class EditableDevConnIdentifyTask {
 			if (!isCanceled) {
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_SUCCESS;
-//				byte[] recvData = new byte[len - 4];
-//				in.read(recvData);
-//				int channelNumber = recvData[80];
-//				setDevicetItem(channelNumber);
-//				setBundleData(data);
-//				msg.setData(data);
 				mHandler.sendMessage(msg);
 				exit();
 			}
@@ -228,19 +202,13 @@ public class EditableDevConnIdentifyTask {
 				exit();
 				shouldTimeOutOver = true;
 				msg.what = CONNECTIFYIDENTIFY_WRONG;
-//				setDevicetItem(defaultChannelNum);
-//				setBundleData(data);
-//				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
 		} else {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_WRONG;
-//				setDevicetItem(defaultChannelNum);
-//				setBundleData(data);
-//				msg.setData(data);
+				msg.what = CONNECTIFYIDENTIFY_USERPSWD_ERROR;
 				mHandler.sendMessage(msg);
 			}
 		}
@@ -326,11 +294,6 @@ public class EditableDevConnIdentifyTask {
 		}
 		if (!isCanceled && !shouldTimeOutOver) {
 			Message msg = new Message();
-//			Bundle data = new Bundle();
-//			mDeviceItem.setIdentify(true);
-//			mDeviceItem.setConnPass(false);
-//			setBundleData(data);
-//			msg.setData(data);
 			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
 				mHandler.sendMessage(msg);

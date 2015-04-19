@@ -51,6 +51,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	private final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -64,13 +65,15 @@ public class DeviceEditableActivity extends BaseActivity {
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				dimissPrg();
-				String txt2 = getString(R.string.device_manager_deviceedit_conniden_succ);
-				showToasContent(txt2);
+				showToasContent(getString(R.string.device_manager_deviceedit_conniden_succ));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				dimissPrg();
-				String txt3 = getString(R.string.device_manager_deviceedit_conniden_timeout);
-				showToasContent(txt3);
+				showToasContent(getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct));
+				break;
+			case CONNECTIFYIDENTIFY_USERPSWD_ERROR:
+				dimissPrg();
+				showToasContent(getString(R.string.device_manager_deviceedit_conniden_error));
 				break;
 			}
 		}
