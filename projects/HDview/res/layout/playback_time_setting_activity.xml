@@ -56,9 +56,9 @@
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignBottom="@+id/start_time"
             android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:contentDescription="@string/nothing"
             android:src="@drawable/channel_listview_account_sel" />
     </RelativeLayout>
@@ -226,6 +226,7 @@
         android:layout_above="@+id/frameLayout1"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/divider4" >
+ <!-- android:descendantFocusability="blocksDescendants" -->
     </ExpandableListView>
 
 </RelativeLayout>

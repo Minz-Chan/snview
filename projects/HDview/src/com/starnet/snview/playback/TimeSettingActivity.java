@@ -24,8 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -106,7 +109,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private final int REQUESTCODE = 0x0005;
 	private final int TIMESETTING = 0x0007;
 
-	private ExpandableListView cloudAccountView;
+	private ExpandableListView mExpandableListView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
 	
 	private String playback_endTime;
@@ -300,7 +303,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void setExtPandableListview() {
 		originCAs = downloadDatas();
 		actsAdapter = new AccountsPlayBackExpanableAdapter(mHandler,ctx, originCAs);
-		cloudAccountView.setAdapter(actsAdapter);
+		mExpandableListView.setAdapter(actsAdapter);
 	}
 
 	/** 加载星云平台用户数据 **/
@@ -352,6 +355,8 @@ public class TimeSettingActivity extends BaseActivity {
 	private void setListenersForWadgets() {
 
 		setVideoTypeOnClick();
+		
+		setListenerForChildExpandableListView();
 
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
@@ -360,7 +365,7 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		});
 
-		cloudAccountView.setOnGroupClickListener(new OnGroupClickListener() {
+		mExpandableListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
 				CloudAccount cA = (CloudAccount) parent.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
@@ -380,7 +385,7 @@ public class TimeSettingActivity extends BaseActivity {
 			public void onClick(View v) {
 				if (typePopupWindow != null && typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
-					cloudAccountView.setVisibility(View.VISIBLE);
+					mExpandableListView.setVisibility(View.VISIBLE);
 				}
 				startFlag = true;
 				endFlag = false;
@@ -402,7 +407,7 @@ public class TimeSettingActivity extends BaseActivity {
 			public void onClick(View v) {
 				if (typePopupWindow != null && typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
-					cloudAccountView.setVisibility(View.VISIBLE);
+					mExpandableListView.setVisibility(View.VISIBLE);
 				}
 				endFlag = true;
 				startFlag = false;
@@ -429,9 +434,9 @@ public class TimeSettingActivity extends BaseActivity {
 
 				if (typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
-					cloudAccountView.setVisibility(View.VISIBLE);
+					mExpandableListView.setVisibility(View.VISIBLE);
 				} else {
-					cloudAccountView.setVisibility(View.GONE);
+					mExpandableListView.setVisibility(View.GONE);
 					typePopupWindow.showAsDropDown(v);
 					typePopupWindow.setFocusable(false);
 					typePopupWindow.setOutsideTouchable(true);
@@ -463,6 +468,24 @@ public class TimeSettingActivity extends BaseActivity {
 				} else {
 					showToast(getString(R.string.playback_network_not_open));
 				}
+			}
+		});
+	}
+
+	private void setListenerForChildExpandableListView() {
+		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
+				showToast("这是一个点击测试");
+				return true;
+			}
+		});
+		
+		mExpandableListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				showToast("这是一个点击测试");
 			}
 		});
 	}
@@ -681,8 +704,8 @@ public class TimeSettingActivity extends BaseActivity {
 		remotePreView = findViewById(R.id.input_remote_type);
 		startTimeTxt = (TextView) findViewById(R.id.starttime);
 		starttimeView = findViewById(R.id.input_starttime_view);
-		cloudAccountView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
-		cloudAccountView.setGroupIndicator(null);
+		mExpandableListView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
+		mExpandableListView.setGroupIndicator(null);
 
 		typeSD = getString(R.string.playback_alarm_type1);
 		typeAll = getString(R.string.playback_alarm_type);
