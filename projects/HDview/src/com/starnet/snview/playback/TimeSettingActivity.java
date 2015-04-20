@@ -19,6 +19,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +54,8 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
+	
+	private static final String TAG = "TimeSettingActivity";
 	
 	public static final String PLAYBACK_TIMESETTING = "playback_timesetting";
 
@@ -183,8 +186,8 @@ public class TimeSettingActivity extends BaseActivity {
 													chanelList.get(j) .setSelected(true);
 													okFlag = true;
 													actsAdapter.setGroup(pos);
-													actsAdapter .setChild(clickChild);
-													actsAdapter .setDeviceItem(dList.get(clickChild));
+													actsAdapter.setChild(clickChild);
+													actsAdapter.setDeviceItem(dList.get(clickChild));
 													break;
 												}
 											}
@@ -234,17 +237,14 @@ public class TimeSettingActivity extends BaseActivity {
 				}.start();
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
-				//弹出一个默认通道。。。
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_wrong));
-				jumpOneChannelOnDialog(msg);
-				
+				jumpOneChannelOnDialog(msg);//弹出一个默认通道。。。
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				//弹出一个默认通道。。。
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_timeout));
-				jumpOneChannelOnDialog(msg);
+				jumpOneChannelOnDialog(msg);//弹出一个默认通道。。。
 				break;
 			default:
 				break;
@@ -273,7 +273,7 @@ public class TimeSettingActivity extends BaseActivity {
 		dItem.setIdentify(true);
 		List<Channel> channelList = new ArrayList<Channel>();
 		Channel chanel = new Channel();
-		chanel.setChannelName("通道1");
+		chanel.setChannelName(getString(R.string.playback_channel)+"1");
 		chanel.setSelected(false);
 		chanel.setChannelNo(1);
 		channelList.add(chanel);
@@ -306,7 +306,7 @@ public class TimeSettingActivity extends BaseActivity {
 		mExpandableListView.setAdapter(actsAdapter);
 	}
 
-	/** 加载星云平台用户数据 **/
+	/** 加载视频监控平台数据 **/
 	private List<CloudAccount> downloadDatas() {
 		//获取收藏设备，将收藏设备添加进远程回放中
 		List<CloudAccount> accounts = new ArrayList<CloudAccount>();
@@ -355,9 +355,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void setListenersForWadgets() {
 
 		setVideoTypeOnClick();
-		
 		setListenerForChildExpandableListView();
-
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -790,7 +788,8 @@ public class TimeSettingActivity extends BaseActivity {
 		curHour = c.get(Calendar.HOUR_OF_DAY);
 		curMint = c.get(Calendar.MINUTE);
 
-		yearAdapter = new NumericWheelAdapter(2009, Calendar.getInstance().get(Calendar.YEAR));
+		int curYear = Calendar.getInstance().get(Calendar.YEAR);
+		yearAdapter = new NumericWheelAdapter(curYear - 20, curYear);
 		year.setAdapter(yearAdapter);
 		year.setLabel(null);
 		year.setCyclic(true);
@@ -989,7 +988,7 @@ public class TimeSettingActivity extends BaseActivity {
 			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
 			String contentHm = hourTime + ":" + minTime;
 			String content = contentDate + " " + contentHm;
-			if (startFlag) {
+			if (startFlag) {//从设置开始时间开始
 				startTimeTxt.setText(content);
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
@@ -1002,35 +1001,45 @@ public class TimeSettingActivity extends BaseActivity {
 						content = newContDate + " " + contentHm;
 						endtimeTxt.setText(content);
 					}
+					isCanStartPlay = true;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} else if (endFlag) {
+			} else if (endFlag) {//从设置结束时间开始
 				endtimeTxt.setText(content);
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
 					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
 					if (dayDif < 0 || (dayDif >= 3)) {
-						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-						String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-						content = newContDate + " " + contentHm;
-						startTimeTxt.setText(content);
-					}else if(dayDif == 0){
-						long hourDif = TimeSettingUtils.getBetweenHours(startTime, endTime);
-						if (hourDif<=0) {
-							boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-							String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-							content = newContDate + " " + contentHm;
-							startTimeTxt.setText(content);
-						}
+						showToast(getString(R.string.playback_time_startEnd_notExt3));
+						isCanStartPlay = false;
+					}else {
+						isCanStartPlay = true;
 					}
+//					if (dayDif < 0 || (dayDif >= 3)) {
+//						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+//						String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+//						content = newContDate + " " + contentHm;
+//						startTimeTxt.setText(content);
+//					}else if(dayDif == 0){
+//						long hourDif = TimeSettingUtils.getBetweenHours(startTime, endTime);
+//						if (hourDif<=0) {
+//							boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+//							String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+//							content = newContDate + " " + contentHm;
+//							startTimeTxt.setText(content);
+//						}
+//					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					Log.i(TAG, "....Time setting exception...");
 				}
 			}
 		}
 	};
+	
+	private boolean isCanStartPlay = false;
 	
 	private String getTime(WheelView wv) {
 		int hourPos = wv.getCurrentItem();
@@ -1057,7 +1066,8 @@ public class TimeSettingActivity extends BaseActivity {
 	
 	private void setWheelViewPosition(String time) {//
 		int []pos = PlaybackUtils.getValidateTime(time);
-		int yearPos = pos[0]-2009;
+		int firstY = Integer.valueOf(year.getAdapter().getItem(0));
+		int yearPos = pos[0] - firstY;
 		int montPos = pos[1];
 		int daysPos = pos[2];
 		int hourPos = pos[3];
