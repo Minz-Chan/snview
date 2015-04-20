@@ -165,8 +165,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 
 				ReadWriteXmlUtils.writeAlarm(ad); // 持久化报警信息到文件中
 
-				showNotification(context, ad.getAlarmContent(), deviceName,
-						ad.getIp() + ":" + ad.getPort());
+				showNotification(context, ad.getAlarmContent(), deviceName, ad.getIp() + ":" + ad.getPort());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} catch (Exception e) {

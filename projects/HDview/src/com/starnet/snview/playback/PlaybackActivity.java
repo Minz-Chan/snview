@@ -1120,8 +1120,13 @@ public class PlaybackActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {
 		Log.d(TAG, "onDestroy()");
+		setStepOver();
 		super.onDestroy();
 		freeResource();
+	}
+	
+	private void setStepOver(){
+		GlobalApplication.getInstance().setStepOver(false);
 	}
 	
 	private void freeResource() {

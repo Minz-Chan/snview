@@ -197,4 +197,12 @@ public class GlobalApplication extends FrontiaApplication {
 	public void setLastPreviewItems(List<PreviewDeviceItem> lastPreviewItems) {
 		this.lastPreviewItems = lastPreviewItems;
 	}
+	
+	private boolean isStepOver = false;
+	public boolean isStepOver(){
+		return isStepOver;
+	}
+	public void setStepOver(boolean isStepOver){
+		this.isStepOver = isStepOver;
+	}
 }
