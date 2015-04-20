@@ -1,5 +1,6 @@
 package com.starnet.snview.playback;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,6 +45,7 @@ import com.starnet.snview.component.wheelview.widget.NumericWheelAdapter;
 import com.starnet.snview.component.wheelview.widget.OnWheelScrollListener;
 import com.starnet.snview.component.wheelview.widget.WheelView;
 import com.starnet.snview.devicemanager.DeviceItem;
+import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.playback.utils.PlaybackDeviceItem;
 import com.starnet.snview.playback.utils.TLV_V_SearchRecordRequest;
 import com.starnet.snview.playback.utils.TimeSettingUtils;
@@ -154,45 +156,61 @@ public class TimeSettingActivity extends BaseActivity {
 						if ((posi != 0) && (dList != null) && (dList.size() > 0)) {
 							Collections.sort(dList, new PinyinComparator());// 排序...
 						}
-						String userName = preferences.getString("username",null);
-						int channelNo = preferences.getInt("channelNo", 1) - 1;
-						if ((dList != null)){
-							for (int i = 0; i < dList.size(); i++) {
-								DeviceItem de = dList.get(i);
-								if (posi != 0 ) {
-									de.setConnPass(true);
-								}
-								List<Channel> chList = de.getChannelList();
-								if (chList != null && chList.size() > 0) {
-									for (int j = 0; j < chList.size(); j++) {
-										chList.get(j).setSelected(false);
+						if (GlobalApplication.getInstance().isStepOver()) {//表示直接从远程界面跳回
+							String userName = preferences.getString("username",null);
+							int channelNo = preferences.getInt("channelNo", 1) - 1;
+							if ((dList != null)){
+								for (int i = 0; i < dList.size(); i++) {
+									DeviceItem de = dList.get(i);
+									if (posi != 0 ) {
+										de.setConnPass(true);
+									}
+									List<Channel> chList = de.getChannelList();
+									if (chList != null && chList.size() > 0) {
+										for (int j = 0; j < chList.size(); j++) {
+											chList.get(j).setSelected(false);
+										}
 									}
 								}
 							}
-						}
-						if (netCA.getUsername().equals(userName)) {
-							String deviceNm = preferences.getString("deviceName", null);
+							if (netCA.getUsername().equals(userName)) {
+								String deviceNm = preferences.getString("deviceName", null);
+								if ((dList != null) && (dList.size() > 0)) {
+									for (int i = 0; i < dList.size(); i++) {
+										DeviceItem dItem = dList.get(i);
+										if ((netCA.isEnabled() && (posi!=0)&& dItem.getDeviceName().substring(4).equals(deviceNm))
+												|| ((posi==0) && dItem.getDeviceName().equals(deviceNm))) {
+											List<Channel> chanelList = dList.get(i).getChannelList();
+											if (chanelList != null && chanelList.size() > 0) {
+												for (int j = 0; j < chanelList .size(); j++) {
+													if (j == channelNo) {
+														clickGroup = pos;
+														clickChild = i;
+														chanelList.get(j) .setSelected(true);
+														okFlag = true;
+														actsAdapter.setGroup(pos);
+														actsAdapter.setChild(clickChild);
+														actsAdapter.setDeviceItem(dList.get(clickChild));
+														break;
+													}
+												}
+											}
+											break;
+										}
+									}
+								}
+							}
+						}else{//表示从其他菜单界面进入
 							if ((dList != null) && (dList.size() > 0)) {
 								for (int i = 0; i < dList.size(); i++) {
 									DeviceItem dItem = dList.get(i);
-									if ((netCA.isEnabled() && (posi!=0)&& dItem.getDeviceName().substring(4).equals(deviceNm))
-											|| ((posi==0) && dItem.getDeviceName().equals(deviceNm))) {
-										List<Channel> chanelList = dList.get(i).getChannelList();
+									if (dItem!=null) {
+										List<Channel> chanelList = dItem.getChannelList();
 										if (chanelList != null && chanelList.size() > 0) {
 											for (int j = 0; j < chanelList .size(); j++) {
-												if (j == channelNo) {
-													clickGroup = pos;
-													clickChild = i;
-													chanelList.get(j) .setSelected(true);
-													okFlag = true;
-													actsAdapter.setGroup(pos);
-													actsAdapter.setChild(clickChild);
-													actsAdapter.setDeviceItem(dList.get(clickChild));
-													break;
-												}
+												chanelList.get(j) .setSelected(false);
 											}
 										}
-										break;
 									}
 								}
 							}
@@ -251,8 +269,6 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		}
 	};
-	
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -439,8 +455,11 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.setFocusable(false);
 					typePopupWindow.setOutsideTouchable(true);
 					typePopupWindow.update();
-					
-					setTypeView(preferences.getInt("video_type", 0),true);
+					if (!GlobalApplication.getInstance().isStepOver()) {
+						setTypeView(0,true);
+					}else {
+						setTypeView(preferences.getInt("video_type", 0),true);
+					}
 				}
 			}
 		});
@@ -454,12 +473,26 @@ public class TimeSettingActivity extends BaseActivity {
 					}
 				}
 				
+				String startTime = startTimeTxt.getText().toString();
+				String overTime = endtimeTxt.getText().toString();
+				try {
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime, overTime);
+					if ((dayDif <= 0) || (dayDif > 3)) {
+						showToast(getString(R.string.playback_time_startEnd_notExt3));
+						return ;
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+					return ;
+				}
+				
 				if (typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
 				}				
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
-				}				
+				}
+			
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();
@@ -474,7 +507,7 @@ public class TimeSettingActivity extends BaseActivity {
 		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
-				showToast("这是一个点击测试");
+				showToast("This is a click Test...");
 				return true;
 			}
 		});
@@ -483,7 +516,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				showToast("这是一个点击测试");
+				showToast("This is a click Test...");
 			}
 		});
 	}
@@ -654,6 +687,7 @@ public class TimeSettingActivity extends BaseActivity {
 		bundle.putParcelable("srr", srr);
 		data.putExtras(bundle);
 		setResult(TIMESETTING, data);
+		GlobalApplication.getInstance().setStepOver(true);
 		TimeSettingActivity.this.finish();
 	}
 
@@ -711,20 +745,52 @@ public class TimeSettingActivity extends BaseActivity {
 		typeYDZC = getString(R.string.playback_alarm_type3);
 		typeKGLJG = getString(R.string.playback_alarm_type4);
 		
-		preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
-		boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite", false);
-		if (isAlreadyWrite) {
-			String startTime = preferences.getString("start_time", null);
-			String endTime = preferences.getString("end_time", null);
-			int vType = preferences.getInt("video_type", 0);
-			endtimeTxt.setText(endTime);
-			startTimeTxt.setText(startTime);
-			setTypeView(vType,false);
-		}else {
-			setCurrentTimeForTxt();
-		}		
+		boolean isStepOver = GlobalApplication.getInstance().isStepOver();
+		if (!isStepOver) {//如果从其他界面跳回，则使用默认值；
+			
+			//?????????????????????????????????????????????
+			setDefaultValueForTimeWidgets();
+			
+		}else{
+			preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
+			boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite", false);
+			if (isAlreadyWrite) {
+				String startTime = preferences.getString("start_time", null);
+				String endTime = preferences.getString("end_time", null);
+				int vType = preferences.getInt("video_type", 0);
+				endtimeTxt.setText(endTime);
+				startTimeTxt.setText(startTime);
+				setTypeView(vType,false);
+			}else {
+				setCurrentTimeForTxt();
+			}
+		}
 		initTimePopupWindow();
 		initTypePopWindow();
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void setDefaultValueForTimeWidgets(){
+		Date d = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String dateNowStr = sdf.format(d);
+		endtimeTxt.setText(dateNowStr);
+		Date startDate = new Date();
+		Calendar c = Calendar.getInstance();
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		if (day <= 4) {
+			startDate.setDate(1);
+			String dateStr = sdf.format(startDate);
+			startTimeTxt.setText(dateStr);
+		} else {
+			int tempDay = day - 3;
+			startDate.setDate(tempDay);
+			String dateStr = sdf.format(startDate);
+			startTimeTxt.setText(dateStr);
+		}
+		String typeShAll = getString(R.string.playback_alarm_type);
+		videoType.setText(typeShAll);
+//		setTypeView(0,true);
 	}
 
 	/** 对开始、结束时间设置为当前时间 **/
@@ -789,7 +855,7 @@ public class TimeSettingActivity extends BaseActivity {
 		curMint = c.get(Calendar.MINUTE);
 
 		int curYear = Calendar.getInstance().get(Calendar.YEAR);
-		yearAdapter = new NumericWheelAdapter(curYear - 20, curYear);
+		yearAdapter = new NumericWheelAdapter(curYear - 20, curYear + 20);
 		year.setAdapter(yearAdapter);
 		year.setLabel(null);
 		year.setCyclic(true);
@@ -869,10 +935,6 @@ public class TimeSettingActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-//		CloudAccount act = (CloudAccount)actsAdapter.getGroup(1);
-//		DeviceItemsTask task = new DeviceItemsTask();
-//		task.setCloudAccount(act);
-//		task.execute();
 		if (requestCode == REQUESTCODE) {
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
@@ -1011,7 +1073,7 @@ public class TimeSettingActivity extends BaseActivity {
 				String startTime = startTimeTxt.getText().toString();
 				try {
 					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
-					if (dayDif < 0 || (dayDif >= 3)) {
+					if (dayDif < 0 || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						isCanStartPlay = false;
 					}else {

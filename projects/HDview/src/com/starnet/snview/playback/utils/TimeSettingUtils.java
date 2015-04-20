@@ -17,6 +17,9 @@ public class TimeSettingUtils {
 		Date d1 = format.parse(dateStart);
 		Date d2 = format.parse(dateStop);
 		long diff = d2.getTime() - d1.getTime();// 毫秒ms
+		if (diff <= 0) {
+			return -1;
+		}
 		long diffDays = diff / (24 * 60 * 60 * 1000);
 		return diffDays;
 	}
