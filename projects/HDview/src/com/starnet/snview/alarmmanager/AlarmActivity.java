@@ -93,9 +93,29 @@ public class AlarmActivity extends BaseActivity {
 		navBackBtn.setVisibility(View.GONE);
 		List<AlarmDevice> alarmDevices = ReadWriteXmlUtils.readAlarms();
 		if (alarmDevices != null) {
-			alarmInfoList = getShowAlarmItems(alarmDevices);
+			alarmInfoList = getShowAlarmItems(sortAlarmDevice(alarmDevices));
 			setAdapterForListView();
 		}
+	}
+	
+	/**
+	 * 按时间排序，时间越新排在越靠前（报警信息写入时按时间先后顺序写入）
+	 * @param devices 从XML文件中读取出来的报警设备列表
+	 * @return 排序后的报警设备列表
+	 */
+	private List<AlarmDevice> sortAlarmDevice(List<AlarmDevice> devices) {
+		if (devices == null || devices.size() == 0) {
+			return devices;
+		}
+		
+		List<AlarmDevice> newDevices = new ArrayList<AlarmDevice>();
+		int size = devices.size();
+		
+		for (int i = size-1; i >= 0; i--) {
+			newDevices.add(devices.get(i));
+		}
+		
+		return newDevices;
 	}
 
 	private void initListener() {
@@ -123,7 +143,7 @@ public class AlarmActivity extends BaseActivity {
 								alarmInfoList.remove(groupPos);
 								listviewAdapter.notifyDataSetChanged();
 								restoreExpandedStatus();
-								ReadWriteXmlUtils.removeSpecifyAlarm(groupPos);
+								ReadWriteXmlUtils.removeSpecifyAlarm(getRealPosition(groupPos));
 							}
 						});
 				builder.setNegativeButton(
@@ -146,6 +166,15 @@ public class AlarmActivity extends BaseActivity {
 				return true;
 			}
 		});
+	}
+	
+	/**
+	 * 取得所选列表项在实际XML文件中对应的项索引
+	 * @param pos 列表项索引
+	 * @return 实际索引
+	 */
+	private int getRealPosition(int pos) {
+		return alarmInfoList.size()-1-pos;
 	}
 
 	/*** 获取展开列表的下标;postion：元素的个数；delPos：删除的位置 ***/
@@ -194,6 +223,7 @@ public class AlarmActivity extends BaseActivity {
 	private void setAdapterForListView() {
 		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
 		alarmListView.setAdapter(listviewAdapter);
+		/*
 		alarmListView.post(new Runnable() {
 			@Override
 			public void run() {
@@ -201,7 +231,7 @@ public class AlarmActivity extends BaseActivity {
 				// 0, 5000);
 				alarmListView.smoothScrollToPosition(alarmListView.getCount());
 			}
-		});
+		});*/
 	}
 
 //	@Override
@@ -230,7 +260,7 @@ public class AlarmActivity extends BaseActivity {
 		if ((alarmInfoList != null && alarmInfoList.size() > 0)) {
 			alarmInfoList.clear();
 		}
-		alarmInfoList = getShowAlarmItems(ReadWriteXmlUtils.readAlarms());
+		alarmInfoList = getShowAlarmItems(sortAlarmDevice(ReadWriteXmlUtils.readAlarms()));
 		listviewAdapter = new AlarmDeviceAdapter(alarmInfoList, mContext);
 		alarmListView.setAdapter(listviewAdapter);
 	}
