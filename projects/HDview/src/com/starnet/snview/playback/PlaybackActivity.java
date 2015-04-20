@@ -545,6 +545,7 @@ public class PlaybackActivity extends BaseActivity {
 	private void onRandomEvent(Calendar calendar) {
 		if (mVideoContainer.isInRecording()) {
 			showTostContent(getString(R.string.playback_msg_canot_random));
+			canUpdateTimebar = true;
 			return;
 		}
 		
