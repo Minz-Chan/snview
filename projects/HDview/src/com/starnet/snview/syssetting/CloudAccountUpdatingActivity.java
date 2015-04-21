@@ -65,7 +65,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	private String password;
 	private List<PreviewDeviceItem> previewDeviceItems; // 预览通道
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
-	
+
 	private Handler responseHandler = new Handler() {
 		@SuppressWarnings("deprecation")
 		@SuppressLint("SdCardPath")
@@ -122,10 +122,17 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 					port = portExt.getText().toString().trim();
 					username = userExt.getText().toString().trim();
 					password = passwordExt.getText().toString().trim();
-					if (!server.equals("") && !port.equals("")
-							&& !username.equals("") && !password.equals("")) {// 验证是否有为空的现象
+					if (!server.trim().equals("") && !port.trim().equals("")
+							&& !username.trim().equals("")
+							&& !password.trim().equals("")) {// 验证是否有为空的现象
 						boolean isPort = IPAndPortUtils.isNetPort(port);// 检测是否是网络端口号
 						if (isPort) {
+
+							if (username.trim().length()>=32) {
+								showToast(getString(R.string.system_setting_cloudaccount_ext32));
+								return;
+							}
+
 							identifyCloudAccount = new CloudAccount();
 							if (isenablYseRadioBtn.isChecked()) {
 								identifyCloudAccount.setEnabled(true);
@@ -139,7 +146,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 							requset4DeviceList();
 							synObj.suspend();// 挂起等待请求结果
 						} else {
-							showToast(getString(R.string.device_manager_editact_port_wrong));
+							showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 						}
 					} else {
 						showToast(getString(R.string.system_setting_cloudaccountsetedit_null_content));
@@ -184,14 +191,26 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		return result;
 	}
 
-	protected void saveNewAccountToXML() {//CloudAccount account
+	protected void saveNewAccountToXML() {// CloudAccount account
 		final CloudAccount account = getCloudAccount();
 		String server = account.getDomain().trim();
 		String port = account.getPort().trim();
 		String username = account.getUsername().trim();
 		String password = account.getPassword().trim();
-		if (!server.equals("") && !port.equals("") && !username.equals("")
-				&& !password.equals("")) {
+		if (!server.equals("") && !port.equals("") && !username.equals("") && !password.equals("")) {
+			
+			boolean isPort = IPAndPortUtils.isNetPort(port);// 检测是否是网络端口号
+			if (!isPort) {
+				showToast(getString(R.string.device_manager_collect_add_not_ext65535));
+				return;
+			}
+			
+			if (username.trim().length()>=32) {
+				showToast(getString(R.string.system_setting_cloudaccount_ext32));
+				return;
+			}
+			
+			
 			account.setRotate(false);
 			account.setExpanded(false);
 			if (isenablYseRadioBtn.isChecked()) {
@@ -205,8 +224,11 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 					CloudAccountUpdatingActivity.this.finish();
 				} else {
 					try {
-//						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH,clickCloudAccount, account);
-						ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickPostion, account);
+						// ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH,clickCloudAccount,
+						// account);
+						ReadWriteXmlUtils.replaceSpecifyCloudAccount(
+								CloudAccountAddingActivity.STARUSERSFILEPATH,
+								clickPostion, account);
 						notifyPreviewChange();
 						Intent intent = new Intent();
 						Bundle bundle = new Bundle();
@@ -220,23 +242,28 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 				}
 			} else {
 				try {
-					List<CloudAccount> cAList = ReadWriteXmlUtils.getCloudAccountList(CloudAccountAddingActivity.STARUSERSFILEPATH);
-					boolean result = judgeListContainCloudAccount(account,cAList); // 检测是否已经存在账户
+					List<CloudAccount> cAList = ReadWriteXmlUtils
+							.getCloudAccountList(CloudAccountAddingActivity.STARUSERSFILEPATH);
+					boolean result = judgeListContainCloudAccount(account,
+							cAList); // 检测是否已经存在账户
 					if (result) {
 						showToast(getString(R.string.device_manager_setting_setedit_contain_no_need));
 					} else {
-						new Thread(){
+						new Thread() {
 
 							@Override
 							public void run() {
 								try {
-									ReadWriteXmlUtils.replaceSpecifyCloudAccount(CloudAccountAddingActivity.STARUSERSFILEPATH, clickPostion, account);
+									ReadWriteXmlUtils
+											.replaceSpecifyCloudAccount(
+													CloudAccountAddingActivity.STARUSERSFILEPATH,
+													clickPostion, account);
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
 						}.start();
-						
+
 						notifyPreviewChange();
 						if (isenablNoRadioBtn.isChecked()) {
 							account.setEnabled(false);
@@ -263,21 +290,23 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 	}
 
 	private void notifyPreviewChange() {
-		if ((previewDeviceItems!=null)&&previewDeviceItems.size()>0) {
+		if ((previewDeviceItems != null) && previewDeviceItems.size() > 0) {
 			String userName = clickCloudAccount.getUsername();
 			for (PreviewDeviceItem item : previewDeviceItems) {
 				if (item.getPlatformUsername().equals(userName)) {
 					deletePDeviceItems.add(item);
 				}
 			}
-			
+
 			for (int i = 0; i < deletePDeviceItems.size(); i++) {
 				previewDeviceItems.remove(deletePDeviceItems.get(i));
 			}
-			
+
 			if (deletePDeviceItems.size() > 0) {
-				GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices(previewDeviceItems);
-				GlobalApplication.getInstance().getRealplayActivity().notifyPreviewDevicesContentChanged();
+				GlobalApplication.getInstance().getRealplayActivity()
+						.setPreviewDevices(previewDeviceItems);
+				GlobalApplication.getInstance().getRealplayActivity()
+						.notifyPreviewDevicesContentChanged();
 			}
 		}
 	}
@@ -286,7 +315,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		Intent intent = getIntent();
 		Bundle bundle = intent.getExtras();
 		if (bundle != null) {
-			clickCloudAccount = (CloudAccount) bundle.getSerializable("cloudAccount");
+			clickCloudAccount = (CloudAccount) bundle
+					.getSerializable("cloudAccount");
 			String server = clickCloudAccount.getDomain();
 			String port = clickCloudAccount.getPort();
 			String userName = clickCloudAccount.getUsername();
@@ -321,8 +351,10 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		isenablYseRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_yes_radioBtn);
 		isenablNoRadioBtn = (RadioButton) findViewById(R.id.cloudaccount_setting_isenable_no_radioBtn);
 		identifyBtn = (Button) findViewById(R.id.identify_cloudaccount_right);
-		clickPostion = Integer.valueOf(getIntent().getExtras().getString("clickPostion"));
-		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		clickPostion = Integer.valueOf(getIntent().getExtras().getString(
+				"clickPostion"));
+		previewDeviceItems = GlobalApplication.getInstance()
+				.getRealplayActivity().getPreviewDevices();
 	}
 
 	@Override
@@ -367,7 +399,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 		public void run() {
 			Message msg = new Message();
 			try {
-				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,username, password, "conn");
+				Document doc = ReadWriteXmlUtils.SendURLPost(server, port,
+						username, password, "conn");
 				String requestResult = ReadWriteXmlUtils.readXmlStatus(doc);
 				if (requestResult == null) // 请求成功，返回null
 				{
@@ -408,7 +441,8 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 			String iPass = identify_CloudAccount2.getPassword();
 			String iName = identify_CloudAccount2.getUsername();
 
-			if (sDman.equals(iDman) && sPort.equals(iPort)&& sPass.equals(iPass) && sName.equals(iName)) {
+			if (sDman.equals(iDman) && sPort.equals(iPort)
+					&& sPass.equals(iPass) && sName.equals(iName)) {
 				isEqual = true;
 			} else {
 				isEqual = false;

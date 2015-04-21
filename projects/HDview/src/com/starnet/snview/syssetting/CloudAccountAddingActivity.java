@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.CommonUtils;
+import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -82,10 +83,30 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 		case R.id.identify_cloudaccount_right:
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 			if (isOpen) {
-				showDialog(IDENTIFY_DIALOG);
+				
 				account = getCloudAccount();
-				task = new IdentifyTask(account);
-				task.execute();
+				String domain = account.getDomain();
+				String port = account.getPort();
+				String userName = account.getUsername();
+				String password = account.getPassword();
+				if (!domain.trim().equals("") && !port.trim().equals("") && !userName.trim().equals("") && !password.trim().equals("")) {
+					boolean isPort = IPAndPortUtils.isNetPort(account.getPort());
+					if (!isPort) {
+						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
+						return;
+					}
+					
+					if (account.getUsername().trim().length() >= 32) {
+						showToast(getString(R.string.system_setting_cloudaccount_ext32));
+						return;
+					}
+
+					showDialog(IDENTIFY_DIALOG);
+					task = new IdentifyTask(account);
+					task.execute();
+				}else {
+					showToast(getString(R.string.system_setting_cloudaccountsetting_null_content));
+				}
 			}else {
 				showToast(getString(R.string.system_setting_alarm_pushset_netnotopen));
 			}
@@ -108,6 +129,18 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 		String userName = account.getUsername();
 		String password = account.getPassword();
 		if (!domain.trim().equals("") && !port.trim().equals("") && !userName.trim().equals("") && !password.trim().equals("")) {
+			
+			boolean isPort = IPAndPortUtils.isNetPort(port);
+			if (!isPort) {
+				showToast(getString(R.string.device_manager_collect_add_not_ext65535));
+				return;
+			}
+			
+			if (userName.trim().length() >= 32) {
+				showToast(getString(R.string.system_setting_cloudaccount_ext32));
+				return;
+			}
+
 			try {
 				List<CloudAccount> cloudAcountList = ReadWriteXmlUtils.getCloudAccountList(STARUSERSFILEPATH);
 				boolean result = judgeListContainCloudAccount(account,cloudAcountList);

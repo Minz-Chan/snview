@@ -136,6 +136,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
+    <string name="system_setting_cloudaccount_ext32">用户名长度不能超过32位</string>
     <string name="system_setting_alarm_pushset_user_add_sucess">推送账户添加成功</string>
     <string name="system_setting_alarm_pushset_user_del_sucess">推送账户删除成功</string>
     <string name="system_setting_alarm_pushset_netnotopen">网络未打开，请打开后重试</string>
