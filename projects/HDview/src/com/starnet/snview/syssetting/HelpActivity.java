@@ -50,11 +50,13 @@ public class HelpActivity extends BaseActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		helpView.loadUrl("file:///android_asset/help/index_cn.html");
+		/*
 		if ("zh_CN".equals(Locale.getDefault().toString())) {
 			helpView.loadUrl("file:///android_asset/help/index_cn.html");
 		} else {
 			helpView.loadUrl("file:///android_asset/help/index_en.html");
-		}
+		}*/
 	}
 
 	@Override
