@@ -14,6 +14,8 @@ import com.starnet.snview.images.utils.PhotoView;
 import com.starnet.snview.images.utils.PhotoViewAttacher.OnViewTapListener;
 import com.starnet.snview.images.utils.SelfDefViewPager;
 import com.starnet.snview.images.utils.Util;
+import com.starnet.snview.util.ActivityUtility;
+import com.starnet.snview.util.BitmapUtils;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog.Builder;
@@ -22,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,6 +52,8 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 	private int showNum; // 导航栏中第几幅画面
 	private TextView imgNumInfoTitle; // 显示设备的数量，以及显示画面的序号
 	// private Button imagepreview_leftBtn; // 返回按钮
+	
+	private int mScreenWidth;
 
 	private SelfDefViewPager mPager; // 自定义的ViewPager可以判断是左滑，还是右滑
 	private SelfPagerAdapter mAdapter;
@@ -95,6 +100,8 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			int size = imgList.size();
 			Log.v(TAG, "imageList size " + size);
 		}
+		
+		mScreenWidth = ActivityUtility.getScreenSize(this).x;
 
 		int cur_pos = showNum - 1;
 		mPager = new SelfDefViewPager(context, imgNumInfoTitle, showSum);
@@ -356,11 +363,24 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 			final Image image = imgList.get(mPostion);
 			drawablePath = image.getImagePath();
 			if (image.getType() == ImageType.PICTURE) {
-				Bitmap mBitmap = BitmapFactory.decodeFile(drawablePath);
-				photoView.setImageBitmap(mBitmap);
-				photoView.setZoomable(true);
-				container.addView(photoView, LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-				photoView.setOnViewTapListener(onViewTapListener);
+				Bitmap bmp = null;
+				
+				try {
+					bmp = BitmapFactory.decodeFile(drawablePath);
+					photoView.setImageBitmap(bmp);
+				} catch (OutOfMemoryError e) {
+					Log.e(TAG, "Out of memory while loading file " + drawablePath);
+					e.printStackTrace();
+					photoView.setImageDrawable(getResources().getDrawable(R.color.black));
+				} finally {
+					photoView.setZoomable(true);
+					container.addView(photoView, LayoutParams.WRAP_CONTENT,
+							LayoutParams.WRAP_CONTENT);
+					photoView.setOnViewTapListener(onViewTapListener);
+				}				
+				
+				photoView.setTag(bmp); // 保持图片索引，销毁时进行内存释放
+				
 				return photoView;
 			} else {
 				String path = imgList.get(mPostion).getImagePath();
@@ -374,10 +394,32 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 				ImageButton playBtn = (ImageButton) video
 						.findViewById(R.id.images_video_play);
 				
-				Drawable bg = Drawable.createFromPath(jpgPath);// 设置的缩略图背景...
-				if (bg == null) {
-					bg = getResources().getDrawable(R.color.black);
+				
+				int a[] = BitmapUtils.getWidthAndHeight(jpgPath);  // get the width and height of bitmap file
+				int realBmpWidth = a[0], realBmpHeight = a[1];
+				
+				Drawable bg = null;
+				Bitmap bmp = null;
+				try {
+					if (realBmpWidth > mScreenWidth) { // 实际图像大于屏幕容纳的限度
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inJustDecodeBounds = false;
+						options.inSampleSize = realBmpWidth/mScreenWidth;
+						bmp = BitmapFactory.decodeFile(jpgPath, options);
+					} else {
+						bmp = BitmapFactory.decodeFile(jpgPath);
+					}
+				} catch (OutOfMemoryError e) {
+					Log.e(TAG, "Out of memory while loading file " + jpgPath);
+					e.printStackTrace();
+				} finally {
+					if (bmp != null) {
+						bg = new BitmapDrawable(bmp);
+					} else {
+						bg = getResources().getDrawable(R.color.black);
+					}
 				}
+				
 
 				int w = GlobalApplication.getInstance().getScreenWidth();
 				int h = w * bg.getIntrinsicHeight() / bg.getIntrinsicWidth();
@@ -422,6 +464,9 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 						startActivityForResult(intent, 10);
 					}
 				});
+				
+				video.setTag(bmp);
+				
 				return video;
 			}
 		}
@@ -437,6 +482,13 @@ public class ImagePreviewViewPagerActivity extends BaseActivity {
 
 		@Override
 		public void destroyItem(ViewGroup container, int position, Object object) {
+			// free the bitmap memory associated with view
+			Bitmap bmp = (Bitmap) ((View)object).getTag();
+			if (bmp != null && !bmp.isRecycled()) { 
+				bmp.recycle();
+				bmp = null;
+			}
+			System.gc();
 			container.removeView((View) object);
 		}
 

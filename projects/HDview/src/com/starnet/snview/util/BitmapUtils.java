@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -112,6 +113,23 @@ public class BitmapUtils {
         }
 
         return b2;
+    }
+    
+    /**
+     * Get the width and height of bitmap file
+     * @param bitmapPath file path of bitmap
+     * @return An two elements integer array (i.e. a), width 
+     *   was stored in a[0] and height was stored in a[1]   
+     */
+    public static int[] getWidthAndHeight(String bitmapPath) {
+    	int[] a = new int[]{0, 0};
+    	BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(bitmapPath, opts);
+        a[0] = opts.outWidth;
+        a[1] = opts.outHeight;
+    	
+    	return a;
     }
     
     /***保存下载的图像文件到指定的sdcard上**/

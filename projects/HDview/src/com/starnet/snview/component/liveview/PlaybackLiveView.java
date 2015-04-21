@@ -53,6 +53,8 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 	private int mOldWidthMeasureSpec;
 	private int mOldHeightMeasureSpec;
 	
+	private int mScreenWidth;
+	
 	
 	public PlaybackLiveView(Context context) {
 		super(context);
@@ -117,6 +119,10 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 		
 		mOldWidthMeasureSpec = -1;
 		mOldHeightMeasureSpec = -1;
+		
+		GlobalApplication g = GlobalApplication.getInstance();
+		mScreenWidth = g.getScreenWidth() < g.getScreenHeight() ? 
+				g.getScreenWidth() : g.getScreenHeight();
 		
 //		canVideoUpdate = true;
 	}
@@ -252,13 +258,23 @@ public class PlaybackLiveView extends SurfaceView implements OnLiveViewChangedLi
 			String fullImgPath = LocalFileUtils.getCaptureFileFullPath(fileName, true);
 			String fullThumbImgPath = LocalFileUtils.getThumbnailsFileFullPath(fileName, true);;
 			
+			// 获得视频快照
+			Bitmap snapshot = null;
+			if (width > mScreenWidth) {
+				int snapshotWidth = mScreenWidth;
+				int snapshotHeight = bmp.getHeight()*mScreenWidth/bmp.getWidth();
+				snapshot = BitmapUtils.extractMiniThumb(bmp, snapshotWidth, snapshotHeight, false);
+			} else {
+				snapshot = bmp;
+			}
+			
 			// 取得缩略图
 			int thumbnailHeight = THUMBNAIL_HEIGHT;
 			int thumbnailWidth = THUMBNAIL_HEIGHT * bmp.getWidth() / bmp.getHeight();
 			Bitmap thumbnail = BitmapUtils.extractMiniThumb(bmp, thumbnailWidth, thumbnailHeight, false); 
 			
 			// 保存拍照截图
-			if (saveBmpFile(bmp, fullImgPath)
+			if (saveBmpFile(snapshot, fullImgPath)
 					&& saveBmpFile(thumbnail, fullThumbImgPath)) {
 				//result = true;
 				Log.i(TAG, "Save pictures successfully !");
