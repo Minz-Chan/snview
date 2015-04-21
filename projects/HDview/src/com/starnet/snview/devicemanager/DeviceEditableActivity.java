@@ -369,8 +369,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 
-		mPreviewDeviceItems = GlobalApplication.getInstance()
-				.getRealplayActivity().getPreviewDevices();
+		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
 		record_et = (EditText) findViewById(R.id.et_device_add_record);

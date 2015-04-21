@@ -445,5 +445,12 @@
     <item name="playback_timesetting_type_move_sense" type="id" />
     <item name="playback_timesetting_type_switch" type="id" />
     
+    <item name="cloudaccount_info_server_ext" type="id" />
+    <item name="cloudaccount_info_port_ext" type="id" />
+    <item name="cloudaccount_info_username_ext" type="id" />
+    <item name="cloudaccount_info_pswd_ext" type="id" />
+    <item name="cloudaccount_info_no_radioBtn" type="id" />
+    <item name="cloudaccount_info_yes_radioBtn" type="id" />
+    
 </resources>
 

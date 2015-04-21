@@ -97,7 +97,8 @@ public class CloudAccountViewActivity extends BaseActivity {
 				bundle.putString("clickPostion", "" + pos);
 				bundle.putSerializable("cloudAccount", beforeEditCA);
 				intent.putExtras(bundle);
-				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdatingActivity.class);
+//				intent.setClass(CloudAccountViewActivity.this,CloudAccountUpdatingActivity.class);
+				intent.setClass(CloudAccountViewActivity.this,CloudAccountInfoActivity.class);
 				startActivityForResult(intent, UPDATINGUI);
 			}
 		});

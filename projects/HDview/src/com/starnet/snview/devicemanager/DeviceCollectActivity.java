@@ -604,20 +604,16 @@ public class DeviceCollectActivity extends BaseActivity {
 						String port = cloudAccount.getPort();
 						String usnm = cloudAccount.getUsername();
 						String pasd = cloudAccount.getPassword();
-						Document document = ReadWriteXmlUtils.SendURLPost(dman,
-								port, usnm, pasd, "conn");
-						String status = ReadWriteXmlUtils
-								.readXmlStatus(document);
+						Document document = ReadWriteXmlUtils.SendURLPost(dman,port, usnm, pasd, "conn");
+						String status = ReadWriteXmlUtils.readXmlStatus(document);
 						if (status == null) {// 加载成功...
-							List<DVRDevice> deviceList = ReadWriteXmlUtils
-									.readXmlDVRDevices(document);
+							List<DVRDevice> deviceList = ReadWriteXmlUtils.readXmlDVRDevices(document);
 							int deviceListSize = deviceList.size();
 							for (int j = 0; j < deviceListSize; j++) {
 								dvrDeviceList.add(deviceList.get(j));
 							}
 							if (dvrDeviceList.size() > 0) {
-								Collections.sort(dvrDeviceList,
-										new PinyinComparatorUtils());
+								Collections.sort(dvrDeviceList,new PinyinComparatorUtils());
 							}
 						} else {// 加载不成功...
 

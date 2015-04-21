@@ -191,7 +191,7 @@ public class DeviceInfoActivity extends BaseActivity {
 
 	private void superExtendsAndHidenView() {
 		super.setToolbarVisiable(false);
-		super.setTitleViewText("设备管理");
+		super.setTitleViewText(getString(R.string.common_drawer_device_management));
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.hideExtendButton();
