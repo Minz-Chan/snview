@@ -128,7 +128,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 						boolean isPort = IPAndPortUtils.isNetPort(port);// 检测是否是网络端口号
 						if (isPort) {
 
-							if (username.trim().length()>=32) {
+							if (username.trim().length()> 32) {
 								showToast(getString(R.string.system_setting_cloudaccount_ext32));
 								return;
 							}
@@ -205,7 +205,7 @@ public class CloudAccountUpdatingActivity extends BaseActivity {
 				return;
 			}
 			
-			if (username.trim().length()>=32) {
+			if (username.trim().length()> 32) {
 				showToast(getString(R.string.system_setting_cloudaccount_ext32));
 				return;
 			}

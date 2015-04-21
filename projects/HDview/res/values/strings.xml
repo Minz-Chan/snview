@@ -177,7 +177,7 @@
     <string name="device_manager_save_success">保存成功</string>
     <string name="device_manager_usable_flag">启用</string>
     <string name="device_manager_deviceview_cancel">取消</string>
-    <string name="device_manager_collect_device">收藏设备</string>
+    <string name="device_manager_collect_device">设备</string>
     <string name="device_manager_devicecollect_cancel">取消</string>
     <string name="device_manager_devicecollect_ensure">确定</string>
     <string name="device_manager_connection_identify_ok">确定</string>
@@ -198,7 +198,7 @@
     <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
     <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
-    <string name="device_manager_deviceedit_conniden_error">用户名和密码错误</string>
+    <string name="device_manager_deviceedit_conniden_error">用户名或密码错误</string>
     <string name="device_manager_deviceedit_conniden_fail">连接验证失败</string>
     <string name="device_manager_deviceedit_conniden_succ">连接验证成功</string>
     <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>

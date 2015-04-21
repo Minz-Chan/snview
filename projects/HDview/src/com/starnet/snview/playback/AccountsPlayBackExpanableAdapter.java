@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -134,8 +135,10 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		if (convertView == null) {
 			convertView = LayoutInflater.from(ctx).inflate(R.layout.playback_deviceitems_act, null);
 		}
+		LinearLayout tv_container = (LinearLayout)convertView.findViewById(R.id.tv_container);
 		List<DeviceItem> list = users.get(groupPosition).getDeviceList();
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
+//		Button txt = (Button) convertView.findViewById(R.id.channel_name);
 		txt.setText(list.get(childPosition).getDeviceName());
 		final Button stateBtn = (Button) convertView.findViewById(R.id.stateBtn);
 		DeviceItem item = users.get(groupPosition).getDeviceList().get(childPosition);
@@ -148,14 +151,84 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		final int group = groupPosition;
 		final int child = childPosition;
 		
-		txt.setOnClickListener(new OnClickListener() {
-			private boolean onTouchFlag = false;
+		tv_container.setOnClickListener(new OnClickListener() {
+			
 			@Override
 			public void onClick(View v) {
 				selectDeviceForPlayBack(group, child);
 			}
-			private void selectDeviceForPlayBack(final int group,
-					final int child) {
+			
+			private void selectDeviceForPlayBack(final int group,final int child) {
+				clickChild = child;
+				clickGroup = group;
+				Intent intent = new Intent();
+				clickUser = users.get(clickGroup);
+				List<DeviceItem> dList = clickUser.getDeviceList();
+				clickDItem = dList.get(clickChild);
+				intent.putExtra("group", clickGroup);
+				intent.putExtra("child", clickChild);
+				intent.putExtra("device", clickDItem);
+				if (clickGroup == 0) {
+					if (clickDItem.isConnPass()) {
+						intent.setClass(ctx,PlayBackChannelListViewActivity.class);
+						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
+					} else {// 进行联网验证
+						((TimeSettingActivity) ctx).showDialog(TimeSettingActivity.CONNECTIDENTIFY_PROGRESSBAR);
+						task = new ConnectionIdentifyTask(mHandler, clickUser, clickDItem, clickGroup, clickChild, false);
+						task.setContext(ctx);
+						task.setCancel(false);
+						task.start();
+					}
+				} else {
+					intent.setClass(ctx, PlayBackChannelListViewActivity.class);
+					((TimeSettingActivity) ctx).startActivityForResult(intent,REQ);
+				}
+			}
+		});
+		
+		stateBtn.setOnClickListener(new OnClickListener() {// 考虑收藏设备的联网验证情形
+			
+			@Override
+			public void onClick(View v) {
+				selectDeviceForPlayBack(group, child);
+			}
+
+			private void selectDeviceForPlayBack(final int group,final int child) {
+				clickChild = child;
+				clickGroup = group;
+				Intent intent = new Intent();
+				clickUser = users.get(clickGroup);
+				List<DeviceItem> dList = clickUser.getDeviceList();
+				clickDItem = dList.get(clickChild);
+				intent.putExtra("group", clickGroup);
+				intent.putExtra("child", clickChild);
+				intent.putExtra("device", clickDItem);
+				if (clickGroup == 0) {
+					if (clickDItem.isConnPass()) {
+						intent.setClass(ctx,PlayBackChannelListViewActivity.class);
+						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
+					} else {// 进行联网验证
+						((TimeSettingActivity) ctx).showDialog(TimeSettingActivity.CONNECTIDENTIFY_PROGRESSBAR);
+						task = new ConnectionIdentifyTask(mHandler, clickUser, clickDItem, clickGroup, clickChild, false);
+						task.setContext(ctx);
+						task.setCancel(false);
+						task.start();
+					}
+				} else {
+					intent.setClass(ctx, PlayBackChannelListViewActivity.class);
+					((TimeSettingActivity) ctx).startActivityForResult(intent,REQ);
+				}
+			}
+		});
+		
+		txt.setOnClickListener(new OnClickListener() {
+			private boolean onTouchFlag = false;
+			@Override
+			public void onClick(View v) {
+//				Toast.makeText(ctx, "test", Toast.LENGTH_SHORT).show();
+				selectDeviceForPlayBack(group, child);
+			}
+			private void selectDeviceForPlayBack(final int group,final int child) {
 				if(!onTouchFlag){
 //					Toast.makeText(ctx, child+"测试题", Toast.LENGTH_SHORT).show();
 					clickChild = child;
@@ -187,41 +260,6 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 			}
 		});
 		
-		stateBtn.setOnClickListener(new OnClickListener() {// 考虑收藏设备的联网验证情形
-			@SuppressWarnings("deprecation")
-			@Override
-			public void onClick(View v) {
-				selectDeviceForPlayBack(group, child);
-			}
-
-			private void selectDeviceForPlayBack(final int group,
-					final int child) {
-				clickChild = child;
-				clickGroup = group;
-				Intent intent = new Intent();
-				clickUser = users.get(clickGroup);
-				List<DeviceItem> dList = clickUser.getDeviceList();
-				clickDItem = dList.get(clickChild);
-				intent.putExtra("group", clickGroup);
-				intent.putExtra("child", clickChild);
-				intent.putExtra("device", clickDItem);
-				if (clickGroup == 0) {
-					if (clickDItem.isConnPass()) {
-						intent.setClass(ctx,PlayBackChannelListViewActivity.class);
-						((TimeSettingActivity) ctx).startActivityForResult(intent, REQ);
-					} else {// 进行联网验证
-						((TimeSettingActivity) ctx).showDialog(TimeSettingActivity.CONNECTIDENTIFY_PROGRESSBAR);
-						task = new ConnectionIdentifyTask(mHandler, clickUser, clickDItem, clickGroup, clickChild, false);
-						task.setContext(ctx);
-						task.setCancel(false);
-						task.start();
-					}
-				} else {
-					intent.setClass(ctx, PlayBackChannelListViewActivity.class);
-					((TimeSettingActivity) ctx).startActivityForResult(intent,REQ);
-				}
-			}
-		});
 		return convertView;
 	}
 

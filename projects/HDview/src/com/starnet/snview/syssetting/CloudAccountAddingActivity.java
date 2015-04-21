@@ -96,7 +96,7 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 						return;
 					}
 					
-					if (account.getUsername().trim().length() >= 32) {
+					if (account.getUsername().trim().length() > 32) {
 						showToast(getString(R.string.system_setting_cloudaccount_ext32));
 						return;
 					}
@@ -136,7 +136,7 @@ public class CloudAccountAddingActivity extends BaseActivity implements
 				return;
 			}
 			
-			if (userName.trim().length() >= 32) {
+			if (userName.trim().length() > 32) {
 				showToast(getString(R.string.system_setting_cloudaccount_ext32));
 				return;
 			}

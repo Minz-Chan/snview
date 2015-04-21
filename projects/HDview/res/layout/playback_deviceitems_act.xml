@@ -9,10 +9,12 @@
     <!-- android:descendantFocusability="blocksDescendants" -->
 
     <LinearLayout
+        android:id="@+id/tv_container"
         android:layout_width="0.0dip"
         android:layout_height="@dimen/channel_listview_device_item_height"
         android:layout_marginLeft="35sp"
-        android:layout_weight="0.6" />
+        android:layout_weight="1.0"
+        android:orientation="horizontal" />
 
     <!-- <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" > -->
     <!-- <ImageView android:background="@drawable/channel_listview_device" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/> -->
@@ -34,9 +36,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="8.4"
+        android:clickable="false"
         android:ellipsize="marquee"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:gravity="left"
         android:hint="@string/nothing"
         android:marqueeRepeatLimit="marquee_forever"
@@ -44,9 +47,9 @@
         android:textSize="@dimen/common_textsize_small_16sp" />
 
     <LinearLayout
-        android:layout_width="90dp"
+        android:layout_width="60dp"
         android:layout_height="30dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="5dp"
         android:gravity="center"
         android:orientation="horizontal" >
 
@@ -55,8 +58,8 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/channellist_select_empty"
-            android:focusable="false"
             android:clickable="false"
+            android:focusable="false"
             android:focusableInTouchMode="false" />
     </LinearLayout>
 

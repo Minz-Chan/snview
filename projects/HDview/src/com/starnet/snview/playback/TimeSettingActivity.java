@@ -507,7 +507,7 @@ public class TimeSettingActivity extends BaseActivity {
 		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
 			@Override
 			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
-				showToast("This is a click Test...");
+				//showToast("This is a click Test...");
 				return true;
 			}
 		});
@@ -516,7 +516,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				showToast("This is a click Test...");
+				//showToast("This is a click Test...");
 			}
 		});
 	}
