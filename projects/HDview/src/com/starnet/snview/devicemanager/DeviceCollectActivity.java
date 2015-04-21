@@ -115,6 +115,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		if (allLoad) {
 			dismissLoadPRG();
 			if (dvrList != null && dvrList.size() > 0) {
+				Collections.sort(dvrList, new PinyinComparatorUtils());
 				gotoDeviceChooseActivity();
 			}
 		}
@@ -124,8 +125,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		Bundle data = msg.getData();
 		int pos = data.getInt("position");
 		tasksFlag[pos] = true;
-		ArrayList<DVRDevice> list = data
-				.getParcelableArrayList("dvrDeviceList");
+		ArrayList<DVRDevice> list = data.getParcelableArrayList("dvrDeviceList");
 		if (list != null && list.size() > 0) {
 			int size = list.size();
 			for (int i = 0; i < size; i++) {
