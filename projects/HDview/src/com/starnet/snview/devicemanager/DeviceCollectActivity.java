@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -43,6 +45,7 @@ import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
+	private final String TAG = "DeviceCollectActivity";
 	// 用于从文档中获取所有的用户
 	private final int REQUESTCODE = 10; // 用于进入DeviceChooseActivity.java的请求码；
 	public static final int ALL_ADD = 0x0020;
@@ -60,7 +63,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 
 	private int chooseactivity_return_flag = 1;
-//	private EditText chooseEdt;
+	// private EditText chooseEdt;
 	private EditText portEdt;
 	private EditText recordEdt;
 	private EditText serverEdt;
@@ -74,7 +77,7 @@ public class DeviceCollectActivity extends BaseActivity {
 
 	private SynObject synObject = new SynObject();
 
-	private List<DVRDevice> dvrDeviceList = new ArrayList<DVRDevice>();// 保存全部数据
+	private List<DVRDevice> dvrList = new ArrayList<DVRDevice>();// 保存全部数据
 
 	private List<DeviceItem> collectDeviceItemList;//
 	private LoadCollectDeviceItemTask loadDataTask;
@@ -87,25 +90,112 @@ public class DeviceCollectActivity extends BaseActivity {
 	private ProgressDialog loadPrg;
 	private ProgressDialog idenPrg;
 
+	private boolean[] tasksFlag;
+	private ObtainDeviceTask[] obtainTasks;
+
+	private final int TIMEOUT = 0x0030;
+	private final int SRATUSNULL = 0x0032;
+	private final int TIMEOUTERROR = 0x0031;
+	private final int DOWNLOADEXCEPTION = 0x0033;
+	private final int DOWNLOADSUCCESSFUL = 0x0034;
+
+	private synchronized void getMessgeInfoForNull(Message msg,String flagStr) {
+		Bundle data = msg.getData();
+		int pos = data.getInt("position");
+		String name = data.getString("name");
+		tasksFlag[pos] = true;
+		
+		if (name.equals("timeout")||name.equals("timeouterror")) {
+			showToast(name+getString(R.string.device_collect_timeout));
+		}else {
+			showToast(name+getString(R.string.device_collect_failure));
+		}
+		
+		boolean allLoad = checkTasksFlag();
+		if (allLoad) {
+			dismissLoadPRG();
+			if (dvrList != null && dvrList.size() > 0) {
+				gotoDeviceChooseActivity();
+			}
+		}
+	}
+
+	private synchronized void getMessgeInfoWithData(Message msg) {
+		Bundle data = msg.getData();
+		int pos = data.getInt("position");
+		tasksFlag[pos] = true;
+		ArrayList<DVRDevice> list = data
+				.getParcelableArrayList("dvrDeviceList");
+		if (list != null && list.size() > 0) {
+			int size = list.size();
+			for (int i = 0; i < size; i++) {
+				dvrList.add(list.get(i));
+			}
+		}
+		boolean allLoad = checkTasksFlag();
+		if (allLoad) {
+			dismissLoadPRG();
+			Collections.sort(dvrList, new PinyinComparatorUtils());
+			gotoDeviceChooseActivity();
+		}
+	};
+
+	private void gotoDeviceChooseActivity() {
+		Intent intent = new Intent();
+		Bundle bundle = new Bundle();
+		bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrList);
+		intent.putExtras(bundle);
+		intent.setClass(DeviceCollectActivity.this, DeviceChooseActivity.class);
+		startActivityForResult(intent, REQUESTCODE);
+	}
+
+	private boolean checkTasksFlag() {
+		boolean result = true;
+		for (int i = 0; i < tasksFlag.length; i++) {
+			if (!tasksFlag[i]) {
+				result = false;
+				break;
+			}
+		}
+		return result;
+	}
+
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
-			case LOAD_SUCCESS:
-				if (synObject.getStatus() == SynObject.STATUS_RUN) {
-					return;
-				}
-				synObject.resume();// 解除线程挂起,向下继续执行...
-				dismissLoadPRG();
-				Intent intent = new Intent();
-				Bundle bundle = new Bundle();
-				bundle.putParcelableArrayList("dvrDeviceList",(ArrayList<? extends Parcelable>) dvrDeviceList);
-				intent.putExtras(bundle);
-				intent.setClass(DeviceCollectActivity.this,DeviceChooseActivity.class);
-				startActivityForResult(intent, REQUESTCODE);
+			case TIMEOUT:
+				getMessgeInfoForNull(msg,"timeout");
 				break;
+			case SRATUSNULL:
+				getMessgeInfoForNull(msg,"nul");
+				break;
+			case TIMEOUTERROR:
+				getMessgeInfoForNull(msg,"timeouterror");
+				break;
+			case DOWNLOADEXCEPTION:
+				getMessgeInfoForNull(msg,"downloadException");
+				break;
+			case DOWNLOADSUCCESSFUL:
+				getMessgeInfoWithData(msg);
+				break;
+			// case LOAD_SUCCESS:
+			// if (synObject.getStatus() == SynObject.STATUS_RUN) {
+			// return;
+			// }
+			// synObject.resume();// 解除线程挂起,向下继续执行...
+			// dismissLoadPRG();
+			// Intent intent = new Intent();
+			// Bundle bundle = new Bundle();
+			// bundle.putParcelableArrayList("dvrDeviceList",
+			// (ArrayList<? extends Parcelable>) dvrList);
+			// intent.putExtras(bundle);
+			// intent.setClass(DeviceCollectActivity.this,
+			// DeviceChooseActivity.class);
+			// startActivityForResult(intent, REQUESTCODE);
+			// break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				isIdentify = true;
 				isConnPass = false;
@@ -122,8 +212,10 @@ public class DeviceCollectActivity extends BaseActivity {
 				saveDeviceItem.setIdentify(true);
 				saveDeviceItem.setConnPass(true);
 				identifyDeviceItem = getIdentifyDeviceItem(msg);
-				saveDeviceItem.setChannelList(identifyDeviceItem.getChannelList());
-				saveDeviceItem.setChannelSum(identifyDeviceItem.getChannelSum());
+				saveDeviceItem.setChannelList(identifyDeviceItem
+						.getChannelList());
+				saveDeviceItem
+						.setChannelSum(identifyDeviceItem.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
@@ -162,7 +254,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
 		Bundle data = msg.getData();
-		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
+		DeviceItem dItem = (DeviceItem) data
+				.getSerializable("identifyDeviceItem");
 		return dItem;
 
 	}
@@ -231,9 +324,9 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
-					showToast(getString(R.string.device_manager_conn_iden_notopen));
+					showToast(getString(R.string.device_collect_network_not_conn));
 				} else {
-					
+
 					DeviceItem deviceItem = new DeviceItem();
 					String platName = getString(R.string.device_manager_collect_device);
 					List<String> infoList = getDeviceItemInfoFromEdx();
@@ -247,36 +340,40 @@ public class DeviceCollectActivity extends BaseActivity {
 						deviceItem.setSvrIp(infoList.get(1));
 					} else if (index == 0) {
 						showToast(getString(R.string.device_manager_conn_iden_devicename_notnull));
-						return ;
+						return;
 					} else if (index == 1) {
 						showToast(getString(R.string.device_manager_conn_iden_svrip_notnull));
-						return ;
+						return;
 					} else if (index == 2) {
 						showToast(getString(R.string.device_manager_conn_iden_svrport_notnull));
-						return ;
+						return;
 					} else {
 						showToast(getString(R.string.device_manager_conn_iden_username_notnull));
-						return ;
+						return;
 					}
-					
+
 					String ip = deviceItem.getSvrIp();
-					if (ip == null || ip.trim().equals("") || !IPAndPortUtils.isIp(ip)) {
+					if (ip == null || ip.trim().equals("")
+							|| !IPAndPortUtils.isIp(ip)) {
 						String text1 = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast.makeText(DeviceCollectActivity.this, text1,Toast.LENGTH_SHORT).show();
-						return ;
+						Toast.makeText(DeviceCollectActivity.this, text1,
+								Toast.LENGTH_SHORT).show();
+						return;
 					}
-					
+
 					String port = deviceItem.getSvrPort();
-					if (port == null || port.trim().equals("") || !IPAndPortUtils.isNetPort(port)) {
+					if (port == null || port.trim().equals("")
+							|| !IPAndPortUtils.isNetPort(port)) {
 						String text1 = getString(R.string.device_manager_collect_add_not_ext65535);
-						Toast.makeText(DeviceCollectActivity.this, text1,Toast.LENGTH_SHORT).show();
-						return ;
+						Toast.makeText(DeviceCollectActivity.this, text1,
+								Toast.LENGTH_SHORT).show();
+						return;
 					}
-					
+
 					String lgPass = deviceItem.getLoginPass();
 					if ((lgPass != null) && (lgPass.length() < 16)) {
 						showDialog(CONNIDENTIFYDIALOG);
-						conIdenTask = new DevConnIdenTask(mHandler,deviceItem);
+						conIdenTask = new DevConnIdenTask(mHandler, deviceItem);
 						conIdenTask.setContext(DeviceCollectActivity.this);
 						conIdenTask.start();
 					} else {
@@ -297,49 +394,55 @@ public class DeviceCollectActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				saveDeviceItem = getDeviceItemInfoFromUi();
-				
+
 				String rName = saveDeviceItem.getDeviceName().trim();
 				String svIP = saveDeviceItem.getSvrIp().trim();
 				String port = saveDeviceItem.getSvrPort().trim();
 				String uName = saveDeviceItem.getLoginUser().trim();
-				if (!rName.equals("") && !svIP.equals("") && !port.equals("") && !uName.equals("")) {
-					
+				if (!rName.equals("") && !svIP.equals("") && !port.equals("")
+						&& !uName.equals("")) {
+
 					boolean isIP = IPAndPortUtils.isIp(svIP);
 					if (!isIP) {
 						showToast(getString(R.string.device_manager_collect_ip_wrong));
 						return;
 					}
-					
+
 					boolean isPort = IPAndPortUtils.isNetPort(port);
 					if (!isPort) {
 						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 						return;
 					}
-					
+
 					if (isPort && isIP) {
-						
+
 						String lPass = saveDeviceItem.getLoginPass();
 						if (lPass != null && (lPass.length() >= 16)) {
 							String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
-							Toast.makeText(DeviceCollectActivity.this, txt,Toast.LENGTH_SHORT).show();
+							Toast.makeText(DeviceCollectActivity.this, txt,
+									Toast.LENGTH_SHORT).show();
 							return;
 						}
-						
+
 						try {
 							if (chooseactivity_return_flag == 1) {// 表示未进行选择
 								if (!isConnPass) {
 									setNoConnPassDeviceItem();
 								}
-								saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
+								saveDeviceItemToXML(saveDeviceItem,
+										DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
 							} else {
-								boolean isSame = judgeDevicItemIsSame(saveDeviceItem, chooseDeviceItem);
+								boolean isSame = judgeDevicItemIsSame(
+										saveDeviceItem, chooseDeviceItem);
 								if (isSame) {// 进行了选择
-									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);
+									saveDeviceItemToXML(saveDeviceItem,
+											DeviceViewActivity.AUTO_ADD);
 								} else {
 									if (!isConnPass) {
 										setNoConnPassDeviceItem();
 									}
-									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
+									saveDeviceItemToXML(saveDeviceItem,
+											DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
 								}
 							}
 						} catch (Exception e) {
@@ -357,23 +460,42 @@ public class DeviceCollectActivity extends BaseActivity {
 		});
 		chooseBtn.setOnClickListener(new OnClickListener() {
 			// 从网络获取数据，获取后，进入DeviceChooseActivity界面；单击返回后，则不进入；
+			@SuppressWarnings("deprecation")
 			@Override
 			public void onClick(View v) {
 				Context context = DeviceCollectActivity.this;
 				boolean isConn = NetWorkUtils.checkNetConnection(context);
 				if (isConn) {
 					try {
-						List<CloudAccount> cloudAccountList = ReadWriteXmlUtils
+						List<CloudAccount> actList = ReadWriteXmlUtils
 								.getCloudAccountList(CloudAccountInfoOpt.filePathOfCloudAccount);
-						int size = cloudAccountList.size();
+						int size = actList.size();
 						if (size > 0) {
-							boolean usable = checkAccountUsable(cloudAccountList);
+							boolean usable = checkAccountUsable(actList);
 							if (usable) {
-								if (dvrDeviceList.size() > 0) {
-									dvrDeviceList.clear();
+
+								if (dvrList != null && dvrList.size() > 0) {
+									dvrList.clear();
 								}
-								requestNetDataFromNet();
-								synObject.suspend();
+
+								List<CloudAccount> ecs = getUsableAccount(actList);
+								if (ecs != null && ecs.size() > 0) {
+									showDialog(LOADNETDATADIALOG);
+									int usableNum = ecs.size();
+									tasksFlag = new boolean[usableNum];
+									obtainTasks = new ObtainDeviceTask[usableNum];
+									for (int i = 0; i < usableNum; i++) {
+										tasksFlag[i] = false;
+										obtainTasks[i] = new ObtainDeviceTask(
+												mHandler, ecs.get(i), i);
+										obtainTasks[i].initialThread();
+										obtainTasks[i].startWork();
+									}
+								} else {
+									showToast(getString(R.string.device_manager_devicechoose_exam_open));
+								}
+								// requestNetDataFromNet();
+								// synObject.suspend();
 							} else {
 								showToast(getString(R.string.check_account_enabled));
 							}
@@ -384,10 +506,24 @@ public class DeviceCollectActivity extends BaseActivity {
 						showToast(getString(R.string.check_account_addable));
 					}
 				} else {
-					showToast(getString(R.string.network_not_conn));
+					showToast(getString(R.string.device_collect_network_not_conn));
 				}
 			}
 		});
+	}
+
+	private List<CloudAccount> getUsableAccount(List<CloudAccount> actList) {
+		List<CloudAccount> accounts = new ArrayList<CloudAccount>();
+		if (actList == null) {
+			return null;
+		}
+		for (int i = 0; i < actList.size(); i++) {
+			CloudAccount temp = actList.get(i);
+			if ((temp != null) && (temp.isEnabled())) {
+				accounts.add(temp);
+			}
+		}
+		return accounts;
 	}
 
 	protected void setNoConnPassDeviceItem() {
@@ -436,7 +572,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setLoginPass(pswd);
 		saveDeviceItem.setLoginUser(uName);
 		saveDeviceItem.setDeviceName(rName);
-		saveDeviceItem.setPlatformUsername(getString(R.string.device_manager_collect_device));
+		saveDeviceItem
+				.setPlatformUsername(getString(R.string.device_manager_collect_device));
 		saveDeviceItem.setUsable(yesRadioButton.isChecked());
 		saveDeviceItem.setIdentify(isIdentify);
 		saveDeviceItem.setConnPass(isConnPass);
@@ -450,7 +587,8 @@ public class DeviceCollectActivity extends BaseActivity {
 		final Intent intent = new Intent();
 		final int index = isContain(dItem);
 		if (index == -1) {
-			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,ChannelListActivity.filePath);
+			ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(dItem,
+					ChannelListActivity.filePath);
 			Bundle bundle = new Bundle();
 			intent.putExtra("replace", false);
 			bundle.putSerializable("saveDeviceItem", saveDeviceItem);
@@ -468,10 +606,13 @@ public class DeviceCollectActivity extends BaseActivity {
 						public void onClick(DialogInterface dialog, int which) {
 							try {
 								intent.putExtra("replace", true);
-								ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, index,dItem);
+								ReadWriteXmlUtils.replaceSpecifyDeviceItem(
+										ChannelListActivity.filePath, index,
+										dItem);
 								Bundle bundle = new Bundle();
 								bundle.putInt("index", index);
-								bundle.putSerializable("saveDeviceItem",saveDeviceItem);
+								bundle.putSerializable("saveDeviceItem",
+										saveDeviceItem);
 								intent.putExtras(bundle);
 								setResult(resultCode, intent);
 								DeviceCollectActivity.this.finish();
@@ -480,7 +621,8 @@ public class DeviceCollectActivity extends BaseActivity {
 							}
 						}
 					});
-			builder.setNegativeButton(R.string.device_manager_devicecollect_cancel, null);
+			builder.setNegativeButton(
+					R.string.device_manager_devicecollect_cancel, null);
 			builder.show();
 		}
 	}
@@ -488,7 +630,8 @@ public class DeviceCollectActivity extends BaseActivity {
 	private int isContain(DeviceItem dItem) {
 		int result = -1;
 		for (int i = 0; i < collectDeviceItemList.size(); i++) {
-			if (dItem.getDeviceName().equals(collectDeviceItemList.get(i).getDeviceName())) {
+			if (dItem.getDeviceName().equals(
+					collectDeviceItemList.get(i).getDeviceName())) {
 				result = i;
 				break;
 			}
@@ -496,11 +639,11 @@ public class DeviceCollectActivity extends BaseActivity {
 		return result;
 	}
 
-	@SuppressWarnings("deprecation")
-	private void requestNetDataFromNet() {
-		showDialog(LOADNETDATADIALOG);// 显示从网络的加载圈...
-		new ObtainDeviceDataFromNetThread(mHandler).start();
-	}
+	// @SuppressWarnings("deprecation")
+	// private void requestNetDataFromNet() {
+	// showDialog(LOADNETDATADIALOG);// 显示从网络的加载圈...
+	// new ObtainDeviceDataFromNetThread(mHandler).start();
+	// }
 
 	private boolean checkAccountUsable(List<CloudAccount> cloudAccountList) {
 		boolean usable = false;
@@ -523,7 +666,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		super.setToolbarVisiable(false);
 		identifyBtn = (Button) findViewById(R.id.conn_identify_btn);
 		portEdt = (EditText) findViewById(R.id.et_device_add_port);
-//		chooseEdt = (EditText) findViewById(R.id.device_add_choose_et);
+		// chooseEdt = (EditText) findViewById(R.id.device_add_choose_et);
 		recordEdt = (EditText) findViewById(R.id.et_device_add_record);
 		serverEdt = (EditText) findViewById(R.id.et_device_add_server);
 		chooseBtn = (Button) findViewById(R.id.device_add_button_state);
@@ -531,7 +674,7 @@ public class DeviceCollectActivity extends BaseActivity {
 		lgPswdEdt = (EditText) findViewById(R.id.et_device_add_password);
 		noRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_no_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.device_manager_isenable_yes_radioBtn);
-//		chooseEdt.setKeyListener(null);
+		// chooseEdt.setKeyListener(null);
 		context = DeviceCollectActivity.this;
 		loadDataTask = new LoadCollectDeviceItemTask();
 		loadDataTask.execute();
@@ -541,17 +684,22 @@ public class DeviceCollectActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case LOADNETDATADIALOG:
-			loadPrg = ProgressDialog.show(this, "", getString(R.string.loading_devicedata_wait), true, true);
+			loadPrg = ProgressDialog.show(this, "",
+					getString(R.string.loading_devicedata_wait), true, true);
 			loadPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
 					dismissLoadPRG();
-					synObject.resume();
+					// synObject.resume();
+					for (int i = 0; i < tasksFlag.length; i++) {
+						obtainTasks[i].setCancel(true);
+					}
 				}
 			});
 			return loadPrg;
 		case CONNIDENTIFYDIALOG:
-			idenPrg = ProgressDialog.show(this, "", getString(R.string.device_manager_conn_iden), true, true);
+			idenPrg = ProgressDialog.show(this, "",
+					getString(R.string.device_manager_conn_iden), true, true);
 			idenPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
@@ -564,85 +712,238 @@ public class DeviceCollectActivity extends BaseActivity {
 			return null;
 		}
 	}
-	
-	private void dismissIdenPRG(){
-		if (idenPrg!=null && idenPrg.isShowing()) {
+
+	private void dismissIdenPRG() {
+		if (idenPrg != null && idenPrg.isShowing()) {
 			idenPrg.dismiss();
 		}
 	}
-	
-	private void dismissLoadPRG(){
-		if (loadPrg!=null && loadPrg.isShowing()) {
+
+	private void dismissLoadPRG() {
+		if (loadPrg != null && loadPrg.isShowing()) {
 			loadPrg.dismiss();
 		}
 	}
 
-	class ObtainDeviceDataFromNetThread extends Thread {
-		private Handler handler;
+	private final class ObtainDeviceTask {
 
-		public ObtainDeviceDataFromNetThread(Handler handler) {
-			super();
+		private int position;
+		private Handler handler;
+		private Thread timeThread;
+		private Thread workThread;
+		private CloudAccount account;
+
+		private boolean isCancel = false;
+		private boolean timeThreadOver = false;
+		private boolean workThreadOver = false;
+
+		private boolean sendTimeOut = false;
+		private boolean sendTimeOutError = false;
+		private boolean sendDownloadFlag = false;
+		private boolean sendStatusNullFlag = false;
+		private boolean senddownLoadExceFlag = false;
+
+		private final int TIMEOUTCOUNT = 7;// 超时时间设置为7
+
+		public ObtainDeviceTask(Handler handler, CloudAccount account, int pos) {
 			this.handler = handler;
+			this.account = account;
+			this.position = pos;
 		}
 
-		@Override
-		public void run() {
-			super.run();
-			Message msg = new Message();
-			List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
-			try {
-				cloudAccountList = ReadWriteXmlUtils.getCloudAccountList(CloudAccountInfoOpt.filePathOfCloudAccount);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			int size = cloudAccountList.size();
-			try {
-				for (int i = 0; i < size; i++) {
-					CloudAccount cloudAccount = cloudAccountList.get(i);
-					if (cloudAccount.isEnabled()) {
-						String dman = cloudAccount.getDomain();
-						String port = cloudAccount.getPort();
-						String usnm = cloudAccount.getUsername();
-						String pasd = cloudAccount.getPassword();
-						Document document = ReadWriteXmlUtils.SendURLPost(dman,port, usnm, pasd, "conn");
-						String status = ReadWriteXmlUtils.readXmlStatus(document);
-						if (status == null) {// 加载成功...
-							List<DVRDevice> deviceList = ReadWriteXmlUtils.readXmlDVRDevices(document);
-							int deviceListSize = deviceList.size();
-							for (int j = 0; j < deviceListSize; j++) {
-								dvrDeviceList.add(deviceList.get(j));
+		public void initialThread() {
+			timeThread = new Thread() {
+				@Override
+				public void run() {
+					int timeCount = 0;
+					while (!isCancel && !timeThreadOver) {
+						try {
+							Thread.sleep(1000);
+							timeCount++;
+							if (timeCount == TIMEOUTCOUNT) {
+								timeThreadOver = true;
+								if (!isCancel && !sendTimeOut) {
+									onTimeOutWork();
+								}
 							}
-							if (dvrDeviceList.size() > 0) {
-								Collections.sort(dvrDeviceList,new PinyinComparatorUtils());
+						} catch (InterruptedException e) {
+							Log.i(TAG, "====Thread InterruptedException===");
+							timeThreadOver = true;
+							if (!isCancel && !sendTimeOutError) {
+								onTimeOutErrorWork();
 							}
-						} else {// 加载不成功...
-
 						}
 					}
 				}
-				msg.what = LOAD_SUCCESS;
-				handler.sendMessage(msg);
-			} catch (IOException e) {
-				e.printStackTrace();
-				if (dvrDeviceList.size() > 0) {
-					msg.what = LOAD_SUCCESS;
-					handler.sendMessage(msg);
-				} else {
-					msg.what = LOAD_WRONG;
+			};
+
+			workThread = new Thread() {
+				@Override
+				public void run() {
+					if (!isCancel && !workThreadOver) {
+						try {
+							startDownLoadDeviceData();
+						} catch (Exception e) {
+							e.printStackTrace();
+							downLoadDeviceDataException();
+						}
+					}
+				}
+			};
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		private void startDownLoadDeviceData() throws IOException,
+				DocumentException {
+			Document doc = ReadWriteXmlUtils.SendURLPost(account.getDomain(),
+					account.getPort(), account.getUsername(),
+					account.getPassword(), "con");
+			String status = ReadWriteXmlUtils.readXmlStatus(doc);
+			if (status == null) {// 加载成功...
+				if (!sendDownloadFlag && !isCancel) {
+					timeThreadOver = true;
+					sendTimeOut = true;
+					sendTimeOutError = true;
+					Message msg = new Message();
+					msg.what = DOWNLOADSUCCESSFUL;
+					Bundle data = new Bundle();
+					data.putInt("position", position);
+					data.putParcelableArrayList("dvrDeviceList",
+							(ArrayList) ReadWriteXmlUtils
+									.readXmlDVRDevices(doc));
+					msg.setData(data);
 					handler.sendMessage(msg);
 				}
-			} catch (DocumentException e) {
-				e.printStackTrace();
-				if (dvrDeviceList.size() > 0) {
-					msg.what = LOAD_SUCCESS;
-					handler.sendMessage(msg);
-				} else {
-					msg.what = LOAD_WRONG;
-					handler.sendMessage(msg);
-				}
+			} else {
+				onStatusNullWork();
 			}
 		}
+
+		private void downLoadDeviceDataException() {
+			sendTimeOut = true;
+			sendDownloadFlag = true;
+			sendTimeOutError = true;
+			sendStatusNullFlag = true;
+			if (!senddownLoadExceFlag && !isCancel) {
+				setMessage(DOWNLOADEXCEPTION);
+			}
+		}
+
+		private void onStatusNullWork() {
+			sendTimeOut = true;
+			sendDownloadFlag = true;
+			sendTimeOutError = true;
+			senddownLoadExceFlag = true;
+			if (!sendStatusNullFlag && !isCancel) {
+				setMessage(SRATUSNULL);
+			}
+		}
+
+		private void onTimeOutErrorWork() {
+			sendDownloadFlag = true;
+			sendStatusNullFlag = true;
+			senddownLoadExceFlag = true;
+			setMessage(TIMEOUTERROR);
+		}
+
+		private void onTimeOutWork() {
+			sendDownloadFlag = true;
+			sendStatusNullFlag = true;
+			senddownLoadExceFlag = true;
+			setMessage(TIMEOUT);
+		}
+
+		private void setMessage(int id) {
+			Message msg = new Message();
+			msg.what = id;
+			Bundle data = new Bundle();
+			data.putInt("position", position);
+			data.putString("name", account.getUsername());
+			msg.setData(data);
+			handler.sendMessage(msg);
+		}
+
+		public void setCancel(boolean isCancel) {
+			this.isCancel = isCancel;
+		}
+
+		public void startWork() {
+			timeThread.start();
+			workThread.start();
+		}
 	}
+
+	// private final class ObtainDeviceDataFromNetThread extends Thread {
+	//
+	// private Handler handler;
+	//
+	// public ObtainDeviceDataFromNetThread(Handler handler) {
+	// super();
+	// this.handler = handler;
+	// }
+	//
+	// @Override
+	// public void run() {
+	// super.run();
+	// Message msg = new Message();
+	// List<CloudAccount> cloudAccountList = new ArrayList<CloudAccount>();
+	// try {
+	// cloudAccountList = ReadWriteXmlUtils
+	// .getCloudAccountList(CloudAccountInfoOpt.filePathOfCloudAccount);
+	// } catch (Exception e1) {
+	// e1.printStackTrace();
+	// }
+	// int size = cloudAccountList.size();
+	// try {
+	// for (int i = 0; i < size; i++) {
+	// CloudAccount cloudAccount = cloudAccountList.get(i);
+	// if (cloudAccount.isEnabled()) {
+	// String dman = cloudAccount.getDomain();
+	// String port = cloudAccount.getPort();
+	// String usnm = cloudAccount.getUsername();
+	// String pasd = cloudAccount.getPassword();
+	// Document document = ReadWriteXmlUtils.SendURLPost(dman,
+	// port, usnm, pasd, "conn");
+	// String status = ReadWriteXmlUtils
+	// .readXmlStatus(document);
+	// if (status == null) {// 加载成功...
+	// List<DVRDevice> deviceList = ReadWriteXmlUtils
+	// .readXmlDVRDevices(document);
+	// int deviceListSize = deviceList.size();
+	// for (int j = 0; j < deviceListSize; j++) {
+	// dvrDeviceList.add(deviceList.get(j));
+	// }
+	// if (dvrDeviceList.size() > 0) {
+	// Collections.sort(dvrDeviceList,new PinyinComparatorUtils());
+	// }
+	// } else {// 加载不成功...
+	//
+	// }
+	// }
+	// }
+	// msg.what = LOAD_SUCCESS;
+	// handler.sendMessage(msg);
+	// } catch (IOException e) {
+	// e.printStackTrace();
+	// if (dvrDeviceList.size() > 0) {
+	// msg.what = LOAD_SUCCESS;
+	// handler.sendMessage(msg);
+	// } else {
+	// msg.what = LOAD_WRONG;
+	// handler.sendMessage(msg);
+	// }
+	// } catch (DocumentException e) {
+	// e.printStackTrace();
+	// if (dvrDeviceList.size() > 0) {
+	// msg.what = LOAD_SUCCESS;
+	// handler.sendMessage(msg);
+	// } else {
+	// msg.what = LOAD_WRONG;
+	// handler.sendMessage(msg);
+	// }
+	// }
+	// }
+	// }
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -652,6 +953,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				setResult(ALL_ADD);
 				DeviceCollectActivity.this.finish();
 			} else {
+				dismissLoadPRG();
 				if (data != null) {
 					Bundle bundle = data.getExtras();
 					if (bundle != null) {
@@ -671,7 +973,7 @@ public class DeviceCollectActivity extends BaseActivity {
 			Channel channel = new Channel();
 			String text = getString(R.string.device_manager_channel);
 			channel.setChannelName(text + "" + (i + 1));
-			channel.setChannelNo((i+1));
+			channel.setChannelNo((i + 1));
 			channel.setSelected(false);
 			channelList.add(channel);
 		}
@@ -685,14 +987,14 @@ public class DeviceCollectActivity extends BaseActivity {
 		saveDeviceItem.setChannelList(channelList);
 		chooseactivity_return_flag = bundle
 				.getInt("chooseactivity_return_flag");
-//		chooseEdt.setText(chooseDeviceItem.getDeviceName());
+		// chooseEdt.setText(chooseDeviceItem.getDeviceName());
 		recordEdt.setText(chooseDeviceItem.getDeviceName());
 		serverEdt.setText(chooseDeviceItem.getSvrIp());
 		portEdt.setText(chooseDeviceItem.getSvrPort());
 		lgUserEdt.setText(chooseDeviceItem.getLoginUser());
 		lgPswdEdt.setText(chooseDeviceItem.getLoginPass());
-//		dfChnlEdt.setText("" + chooseDeviceItem.getDefaultChannel());
-//		chooseEdt.setKeyListener(null);
+		// dfChnlEdt.setText("" + chooseDeviceItem.getDefaultChannel());
+		// chooseEdt.setKeyListener(null);
 		String platformUsername = getString(R.string.device_manager_collect_device);
 		chooseDeviceItem.setPlatformUsername(platformUsername);
 		// setIdentifyDeviceItem(saveDeviceItem);
@@ -723,6 +1025,10 @@ public class DeviceCollectActivity extends BaseActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		stopLoadDtaTask();
+	}
+
+	private void stopLoadDtaTask() {
 		if ((loadDataTask != null)
 				&& (loadDataTask.getStatus() == AsyncTask.Status.RUNNING)) {
 			loadDataTask.cancel(true); // 如果Task还在运行，则先取消它
@@ -731,7 +1037,25 @@ public class DeviceCollectActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void onRestart() {
-		super.onStart();
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			stopLoadDtaTask();
+			stopDownloadTasks();
+			dismissIdenPRG();
+			dismissLoadPRG();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
+
+	private void stopDownloadTasks() {
+		if (tasksFlag != null) {
+			for (int i = 0; i < tasksFlag.length; i++) {
+				if (obtainTasks[i] != null) {
+					obtainTasks[i].setCancel(true);
+				}
+			}
+		}
+	}
+
 }
