@@ -971,7 +971,7 @@ public class TimeSettingActivity extends BaseActivity {
 					actsAdapter.notifyDataSetChanged();
 				}
 			}
-			actsAdapter.notifyDataSetChanged();
+//			actsAdapter.notifyDataSetChanged();
 		}
 	}
 

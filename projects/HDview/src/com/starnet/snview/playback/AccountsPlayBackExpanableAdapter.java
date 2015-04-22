@@ -12,10 +12,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
@@ -23,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter {
 
@@ -222,14 +219,14 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		});
 		
 		txt.setOnClickListener(new OnClickListener() {
-			private boolean onTouchFlag = false;
+//			private boolean onTouchFlag = false;
 			@Override
 			public void onClick(View v) {
 //				Toast.makeText(ctx, "test", Toast.LENGTH_SHORT).show();
 				selectDeviceForPlayBack(group, child);
 			}
 			private void selectDeviceForPlayBack(final int group,final int child) {
-				if(!onTouchFlag){
+//				if(!onTouchFlag){
 //					Toast.makeText(ctx, child+"测试题", Toast.LENGTH_SHORT).show();
 					clickChild = child;
 					clickGroup = group;
@@ -255,8 +252,8 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 						intent.setClass(ctx, PlayBackChannelListViewActivity.class);
 						((TimeSettingActivity) ctx).startActivityForResult(intent,REQ);
 					}
-					onTouchFlag = true;
-				}
+//					onTouchFlag = true;
+//				}
 			}
 		});
 		
