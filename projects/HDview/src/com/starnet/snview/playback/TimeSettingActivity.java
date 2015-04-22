@@ -26,11 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -486,39 +483,39 @@ public class TimeSettingActivity extends BaseActivity {
 					return ;
 				}
 				
-				if (typePopupWindow.isShowing()) {
-					typePopupWindow.dismiss();
-				}				
-				if (timePopupWindow.isShowing()) {
-					timePopupWindow.dismiss();
-				}
-			
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();
 				} else {
 					showToast(getString(R.string.playback_network_not_open));
 				}
+				
+				if (typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+				}				
+				if (timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
+				}
 			}
 		});
 	}
 
 	private void setListenerForChildExpandableListView() {
-		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
-			@Override
-			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
-				//showToast("This is a click Test...");
-				return true;
-			}
-		});
-		
-		mExpandableListView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				//showToast("This is a click Test...");
-			}
-		});
+//		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
+//			@Override
+//			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
+//				//showToast("This is a click Test...");
+//				return true;
+//			}
+//		});
+//		
+//		mExpandableListView.setOnItemClickListener(new OnItemClickListener() {
+//
+//			@Override
+//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//				//showToast("This is a click Test...");
+//			}
+//		});
 	}
 
 	private void setVideoTypeOnClick() {
@@ -974,6 +971,7 @@ public class TimeSettingActivity extends BaseActivity {
 					actsAdapter.notifyDataSetChanged();
 				}
 			}
+			actsAdapter.notifyDataSetChanged();
 		}
 	}
 

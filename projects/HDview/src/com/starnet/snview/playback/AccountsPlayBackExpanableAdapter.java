@@ -102,7 +102,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	@Override
 	public boolean hasStableIds() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -281,7 +281,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
-		return true;
+		return false;
 	}
 
 	private ConnectionIdentifyTask task;

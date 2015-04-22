@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="8.4"
-        android:clickable="false"
+        android:clickable="true"
         android:ellipsize="marquee"
         android:focusable="false"
         android:focusableInTouchMode="false"
