@@ -1121,10 +1121,19 @@ public class PlaybackActivity extends BaseActivity {
 	protected void onDestroy() {
 		Log.d(TAG, "onDestroy()");
 		setStepOver();
+		writeFalseToSP();
 		super.onDestroy();
 		freeResource();
 	}
 	
+	private void writeFalseToSP() {
+		SharedPreferences sp = getSharedPreferences("step_over_xml", Context.MODE_PRIVATE);
+		Editor editor = sp.edit();
+		editor.putBoolean("step_over", false);
+		editor.commit();
+		Log.i(TAG, "++++Write isStep_over:=false");
+	}
+
 	private void setStepOver(){
 		GlobalApplication.getInstance().setStepOver(false);
 	}

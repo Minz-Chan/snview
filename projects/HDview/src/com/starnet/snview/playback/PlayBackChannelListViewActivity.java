@@ -8,9 +8,13 @@ import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 //import com.starnet.snview.playback.utils.ConstantUtils;
 
+import com.starnet.snview.global.GlobalApplication;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -91,6 +95,14 @@ public class PlayBackChannelListViewActivity extends Activity {
 		button_ok.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				
+				GlobalApplication.getInstance().setStepOver(true);
+				
+//				SharedPreferences sp = getSharedPreferences("step_over_xml", Context.MODE_PRIVATE);
+//				Editor editor = sp.edit();
+//				editor.putBoolean("step_over", true);
+//				editor.commit();
+				
 				PlaybackUtils.isClickOk = true;
 				isClickOk = true;
 				int channl = getChannelIndex();

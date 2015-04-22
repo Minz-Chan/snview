@@ -27,23 +27,23 @@ public final class R {
 		public static final int menuDrawerStyle = 0x7f010000;
 	}
 	public static final class color {
-		public static final int md__defaultBackground = 0x7f060000;
+		public static final int md__defaultBackground = 0x7f070000;
 	}
 	public static final class id {
-		public static final int bottom = 0x7f0701be;
-		public static final int end = 0x7f0701bf;
-		public static final int left = 0x7f0701c0;
-		public static final int mdActiveViewPosition = 0x7f070005;
-		public static final int mdContent = 0x7f070000;
-		public static final int mdMenu = 0x7f070001;
-		public static final int md__content = 0x7f070002;
-		public static final int md__drawer = 0x7f070004;
-		public static final int md__menu = 0x7f070003;
-		public static final int md__translationX = 0x7f070006;
-		public static final int md__translationY = 0x7f070007;
-		public static final int right = 0x7f0701c1;
-		public static final int start = 0x7f0701c2;
-		public static final int top = 0x7f0701c3;
+		public static final int bottom = 0x7f060003;
+		public static final int end = 0x7f060005;
+		public static final int left = 0x7f060000;
+		public static final int mdActiveViewPosition = 0x7f06000b;
+		public static final int mdContent = 0x7f060006;
+		public static final int mdMenu = 0x7f060007;
+		public static final int md__content = 0x7f060008;
+		public static final int md__drawer = 0x7f06000a;
+		public static final int md__menu = 0x7f060009;
+		public static final int md__translationX = 0x7f06000c;
+		public static final int md__translationY = 0x7f06000d;
+		public static final int right = 0x7f060002;
+		public static final int start = 0x7f060004;
+		public static final int top = 0x7f060001;
 	}
 	public static final class string {
 		public static final int md__drawerClosedIndicatorDesc = 0x7f080001;

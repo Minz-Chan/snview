@@ -26,8 +26,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -53,9 +56,9 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint({ "SimpleDateFormat", "HandlerLeak" })
 public class TimeSettingActivity extends BaseActivity {
-	
+
 	private static final String TAG = "TimeSettingActivity";
-	
+
 	public static final String PLAYBACK_TIMESETTING = "playback_timesetting";
 
 	private int dayNum;
@@ -100,7 +103,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private PlaybackDeviceItem loginItem;
 	private DeviceItem visitDevItem;
 	private Button startScanBtn;
-	
+
 	private boolean endFlag = false;
 	private boolean startFlag = false;
 	private final int LOAD_COLLECT_DATA_TIMEOUT = 0x0002;
@@ -113,11 +116,11 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private ExpandableListView mExpandableListView;
 	private AccountsPlayBackExpanableAdapter actsAdapter;
-	
+
 	private String playback_endTime;
 	private String playback_startTime;
 	private SharedPreferences preferences;
-	
+
 	private ProgressDialog connectIdentifyPrg = null;
 	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
@@ -130,121 +133,44 @@ public class TimeSettingActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case LOAD_COLLECT_DATA_TIMEOUT:
-				Bundle msgD = msg.getData();
-				CloudAccount netCA1 = (CloudAccount) msgD.getSerializable("netCA");
-				String reqExt = getString(R.string.playback_req_extime);
-				showToast(netCA1.getUsername() + reqExt);
-				int positi = msgD.getInt("position");
-				netCA1.setRotate(true);
-				originCAs.set(positi, netCA1);
-				actsAdapter.notifyDataSetChanged();
+				loadDataForTimeOut(msg);
 				break;
 			case LOAD_COLLECT_DATA_LOADSUC:
-				msgD = msg.getData();
-				final int posi = msgD.getInt("position");
-				String suc = msgD.getString("success");
-				if (suc.equals("Yes")) {
-					final int pos = Integer.valueOf(posi);
-					final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
-					netCA.setRotate(true);
-					if (netCA != null) {
-						List<DeviceItem> dList = netCA.getDeviceList();
-						
-						if ((posi != 0) && (dList != null) && (dList.size() > 0)) {
-							Collections.sort(dList, new PinyinComparator());// 排序...
-						}
-						if (GlobalApplication.getInstance().isStepOver()) {//表示直接从远程界面跳回
-							String userName = preferences.getString("username",null);
-							int channelNo = preferences.getInt("channelNo", 1) - 1;
-							if ((dList != null)){
-								for (int i = 0; i < dList.size(); i++) {
-									DeviceItem de = dList.get(i);
-									if (posi != 0 ) {
-										de.setConnPass(true);
-									}
-									List<Channel> chList = de.getChannelList();
-									if (chList != null && chList.size() > 0) {
-										for (int j = 0; j < chList.size(); j++) {
-											chList.get(j).setSelected(false);
-										}
-									}
-								}
-							}
-							if (netCA.getUsername().equals(userName)) {
-								String deviceNm = preferences.getString("deviceName", null);
-								if ((dList != null) && (dList.size() > 0)) {
-									for (int i = 0; i < dList.size(); i++) {
-										DeviceItem dItem = dList.get(i);
-										if ((netCA.isEnabled() && (posi!=0)&& dItem.getDeviceName().substring(4).equals(deviceNm))
-												|| ((posi==0) && dItem.getDeviceName().equals(deviceNm))) {
-											List<Channel> chanelList = dList.get(i).getChannelList();
-											if (chanelList != null && chanelList.size() > 0) {
-												for (int j = 0; j < chanelList .size(); j++) {
-													if (j == channelNo) {
-														clickGroup = pos;
-														clickChild = i;
-														chanelList.get(j) .setSelected(true);
-														okFlag = true;
-														actsAdapter.setGroup(pos);
-														actsAdapter.setChild(clickChild);
-														actsAdapter.setDeviceItem(dList.get(clickChild));
-														break;
-													}
-												}
-											}
-											break;
-										}
-									}
-								}
-							}
-						}else{//表示从其他菜单界面进入
-							if ((dList != null) && (dList.size() > 0)) {
-								for (int i = 0; i < dList.size(); i++) {
-									DeviceItem dItem = dList.get(i);
-									if (dItem!=null) {
-										List<Channel> chanelList = dItem.getChannelList();
-										if (chanelList != null && chanelList.size() > 0) {
-											for (int j = 0; j < chanelList .size(); j++) {
-												chanelList.get(j) .setSelected(false);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-					originCAs.set(pos, netCA);
-					actsAdapter.notifyDataSetChanged();
-				}
+				loadDataForSucess(msg);
 				break;
 			case LOAD_COLLECT_DATA_LOADFAI:
-				msgD = msg.getData();
+				Bundle msgD = msg.getData();
 				int posit = msgD.getInt("position");
-				CloudAccount netCA2 = (CloudAccount) msgD.getSerializable("netCA");
+				CloudAccount netCA2 = (CloudAccount) msgD
+						.getSerializable("netCA");
 				String fail = getString(R.string.playback_req_fail);
 				showToast(netCA2.getUsername() + fail);
 				netCA2.setRotate(true);
 				originCAs.set(posit, netCA2);
 				actsAdapter.notifyDataSetChanged();
 				break;
-			case CONNECTIFYIDENTIFY_SUCCESS://连接验证成功，弹出通道列表对话框
+			case CONNECTIFYIDENTIFY_SUCCESS:// 连接验证成功，弹出通道列表对话框
 				dissmissIdentifyDialog();
 				Bundle bundle = msg.getData();
 				Intent intent = new Intent();
 				int parentPos = bundle.getInt("parentPos");
 				final int childPos = bundle.getInt("childPos");
-				final DeviceItem deviceItem = (DeviceItem) bundle.getSerializable("identifyDeviceItem");
+				final DeviceItem deviceItem = (DeviceItem) bundle
+						.getSerializable("identifyDeviceItem");
 				intent.putExtra("group", parentPos);
 				intent.putExtra("child", childPos);
 				intent.putExtra("device", deviceItem);
 				intent.setClass(ctx, PlayBackChannelListViewActivity.class);
-				((TimeSettingActivity) ctx).startActivityForResult(intent, REQUESTCODE);
-				//开一个线程，修改保存已经验证后的设备
-				new Thread(){
+				((TimeSettingActivity) ctx).startActivityForResult(intent,
+						REQUESTCODE);
+				// 开一个线程，修改保存已经验证后的设备
+				new Thread() {
 					@Override
 					public void run() {
 						try {
-							ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, deviceItem);
+							ReadWriteXmlUtils.replaceSpecifyDeviceItem(
+									ChannelListActivity.filePath, childPos,
+									deviceItem);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -254,60 +180,152 @@ public class TimeSettingActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_WRONG:
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_wrong));
-				jumpOneChannelOnDialog(msg);//弹出一个默认通道。。。
+				jumpOneChannelOnDialog(msg);// 弹出一个默认通道。。。
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				dissmissIdentifyDialog();
 				showToast(getString(R.string.channel_manager_connect_timeout));
-				jumpOneChannelOnDialog(msg);//弹出一个默认通道。。。
+				jumpOneChannelOnDialog(msg);// 弹出一个默认通道。。。
 				break;
 			default:
 				break;
 			}
+		}
+
+		private synchronized void loadDataForSucess(Message msg) {
+			Bundle msgD = msg.getData();
+			final int posi = msgD.getInt("position");
+			String suc = msgD.getString("success");
+			if (suc.equals("Yes")) {
+				final int pos = Integer.valueOf(posi);
+				final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
+				netCA.setRotate(true);
+				if (netCA != null) {
+					List<DeviceItem> dList = netCA.getDeviceList();
+					if ((posi != 0) && (dList != null) && (dList.size() > 0)) {
+						Collections.sort(dList, new PinyinComparator());// 排序...
+					}
+					if (GlobalApplication.getInstance().isStepOver()) {// 表示直接从远程界面跳回
+						String userName = preferences.getString("username",null);
+						int channelNo = preferences.getInt("channelNo", 1) - 1;
+						if ((dList != null)) {
+							for (int i = 0; i < dList.size(); i++) {
+								DeviceItem de = dList.get(i);
+								if (posi != 0) {
+									de.setConnPass(true);
+								}
+								List<Channel> chList = de.getChannelList();
+								if (chList != null && chList.size() > 0) {
+									for (int j = 0; j < chList.size(); j++) {
+										chList.get(j).setSelected(false);
+									}
+								}
+							}
+						}
+						if (netCA.getUsername().equals(userName)) {
+							String deviceNm = preferences.getString("deviceName", null);
+							if ((dList != null) && (dList.size() > 0)) {
+								for (int i = 0; i < dList.size(); i++) {
+									DeviceItem dItem = dList.get(i);
+									if ((netCA.isEnabled() && (posi != 0) && dItem.getDeviceName().substring(4).equals(deviceNm))|| ((posi == 0) && dItem.getDeviceName().equals(deviceNm))) {
+										List<Channel> chanelList = dList.get(i).getChannelList();
+										if (chanelList != null && chanelList.size() > 0) {
+											for (int j = 0; j < chanelList.size(); j++) {
+												if (j == channelNo) {
+													clickGroup = pos;
+													clickChild = i;
+													chanelList.get(j).setSelected(true);
+													okFlag = true;
+													actsAdapter.setGroup(pos);
+													actsAdapter.setChild(clickChild);
+													actsAdapter.setDeviceItem(dList.get(clickChild));
+													break;
+												}
+											}
+										}
+										break;
+									}
+								}
+							}
+						}
+					} else {// 表示从其他菜单界面进入
+						if ((dList != null) && (dList.size() > 0)) {
+							for (int i = 0; i < dList.size(); i++) {
+								DeviceItem dItem = dList.get(i);
+								if (dItem != null) {
+									List<Channel> chanelList = dItem.getChannelList();
+									if (chanelList != null
+											&& chanelList.size() > 0) {
+										for (int j = 0; j < chanelList.size(); j++) {
+											chanelList.get(j).setSelected(false);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				originCAs.set(pos, netCA);
+				actsAdapter.notifyDataSetChanged();
+			}
+		}
+
+		private synchronized void loadDataForTimeOut(Message msg) {
+			Bundle msgD = msg.getData();
+			CloudAccount netCA1 = (CloudAccount) msgD.getSerializable("netCA");
+			String reqExt = getString(R.string.playback_req_extime);
+			showToast(netCA1.getUsername() + reqExt);
+			int positi = msgD.getInt("position");
+			netCA1.setRotate(true);
+			originCAs.set(positi, netCA1);
+			actsAdapter.notifyDataSetChanged();
 		}
 	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.playback_time_setting_activity);//playback_time_setting_activity_copy
+		setContentView(R.layout.playback_time_setting_activity);// playback_time_setting_activity_copy
 		initViews();
 		setExtPandableListview();
 		setListenersForWadgets();
 	}
-	
-	private void jumpOneChannelOnDialog(Message msg){
+
+	private void jumpOneChannelOnDialog(Message msg) {
 		Bundle bundle2 = msg.getData();
 		Intent intent2 = new Intent();
 		final int childPos = bundle2.getInt("childPos");
 		intent2.putExtra("group", bundle2.getInt("parentPos"));
 		intent2.putExtra("child", childPos);
-		final DeviceItem dItem = (DeviceItem) bundle2.getSerializable("identifyDeviceItem");
+		final DeviceItem dItem = (DeviceItem) bundle2
+				.getSerializable("identifyDeviceItem");
 		dItem.setIdentify(true);
 		List<Channel> channelList = new ArrayList<Channel>();
 		Channel chanel = new Channel();
-		chanel.setChannelName(getString(R.string.playback_channel)+"1");
+		chanel.setChannelName(getString(R.string.playback_channel) + "1");
 		chanel.setSelected(false);
 		chanel.setChannelNo(1);
 		channelList.add(chanel);
 		dItem.setChannelList(channelList);
 		intent2.putExtra("device", dItem);
 		intent2.setClass(ctx, PlayBackChannelListViewActivity.class);
-		((TimeSettingActivity) ctx).startActivityForResult(intent2, REQUESTCODE);
-		new Thread(){
+		((TimeSettingActivity) ctx)
+				.startActivityForResult(intent2, REQUESTCODE);
+		new Thread() {
 			@Override
 			public void run() {
 				try {
-					ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, dItem);
+					ReadWriteXmlUtils.replaceSpecifyDeviceItem(
+							ChannelListActivity.filePath, childPos, dItem);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}.start();
 	}
-	
-	private void dissmissIdentifyDialog(){
-		if ((connectIdentifyPrg != null) &&(connectIdentifyPrg.isShowing())) {
+
+	private void dissmissIdentifyDialog() {
+		if ((connectIdentifyPrg != null) && (connectIdentifyPrg.isShowing())) {
 			connectIdentifyPrg.dismiss();
 		}
 	}
@@ -315,16 +333,19 @@ public class TimeSettingActivity extends BaseActivity {
 	/** 为用户添加设备数据 **/
 	private void setExtPandableListview() {
 		originCAs = downloadDatas();
-		actsAdapter = new AccountsPlayBackExpanableAdapter(mHandler,ctx, originCAs);
+		actsAdapter = new AccountsPlayBackExpanableAdapter(mHandler, ctx,
+				originCAs);
 		mExpandableListView.setAdapter(actsAdapter);
 	}
 
 	/** 加载视频监控平台数据 **/
 	private List<CloudAccount> downloadDatas() {
-		//获取收藏设备，将收藏设备添加进远程回放中
+		// 获取收藏设备，将收藏设备添加进远程回放中
 		List<CloudAccount> accounts = new ArrayList<CloudAccount>();
-//		CloudAccount collectCA = PlaybackUtils.getCollectCloudAccount(getString(R.string.device_manager_collect_device));
-		CloudAccount collectCA = PlaybackUtils.getFirstCollectCloudAccount(getString(R.string.device_manager_collect_device));
+		// CloudAccount collectCA =
+		// PlaybackUtils.getCollectCloudAccount(getString(R.string.device_manager_collect_device));
+		CloudAccount collectCA = PlaybackUtils
+				.getFirstCollectCloudAccount(getString(R.string.device_manager_collect_device));
 		accounts.add(collectCA);
 		List<CloudAccount> netAccounts = PlaybackUtils.getCloudAccounts();
 		for (CloudAccount ca : netAccounts) {
@@ -333,20 +354,21 @@ public class TimeSettingActivity extends BaseActivity {
 		if (accounts != null) {
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 			int enableSize = PlaybackUtils.getEnableCACount(netAccounts);
-			tasks = new DeviceItemRequestTask[enableSize+1];
+			tasks = new DeviceItemRequestTask[enableSize + 1];
 			if (isOpen) {
 				int j = 0;
 				for (int i = 0; i < accounts.size(); i++) {
 					CloudAccount c = accounts.get(i);
 					if (c.isEnabled()) {
-						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler, i);
+						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler,
+								i);
 						tasks[j].start();
 						j++;
-					}else {
+					} else {
 						c.setRotate(true);
 					}
 				}
-			}else {
+			} else {
 				showToast(getString(R.string.network_not_conn));
 			}
 		}
@@ -378,8 +400,10 @@ public class TimeSettingActivity extends BaseActivity {
 
 		mExpandableListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
-			public boolean onGroupClick(ExpandableListView parent, View v,int groupPosition, long id) {
-				CloudAccount cA = (CloudAccount) parent.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
+			public boolean onGroupClick(ExpandableListView parent, View v,
+					int groupPosition, long id) {
+				CloudAccount cA = (CloudAccount) parent
+						.getExpandableListAdapter().getGroup(groupPosition);// 获取用户账号信息
 				if (cA.isRotate()) {
 					if (cA.isExpanded()) {// 判断列表是否已经展开
 						cA.setExpanded(false);
@@ -453,9 +477,9 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.setOutsideTouchable(true);
 					typePopupWindow.update();
 					if (!GlobalApplication.getInstance().isStepOver()) {
-						setTypeView(0,true);
-					}else {
-						setTypeView(preferences.getInt("video_type", 0),true);
+						setTypeView(0, true);
+					} else {
+						setTypeView(preferences.getInt("video_type", 0), true);
 					}
 				}
 			}
@@ -464,25 +488,31 @@ public class TimeSettingActivity extends BaseActivity {
 		startScanBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (tasks!=null) {
+				if (tasks != null) {
 					for (int i = 0; i < tasks.length; i++) {
 						tasks[i].setThreadOver(true);
 					}
 				}
-				
+
 				String startTime = startTimeTxt.getText().toString();
 				String overTime = endtimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime, overTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,overTime);
 					if ((dayDif <= 0) || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
-						return ;
+						return;
 					}
 				} catch (ParseException e) {
 					e.printStackTrace();
-					return ;
+					return;
 				}
-				
+				if (typePopupWindow.isShowing()) {
+					typePopupWindow.dismiss();
+				}
+				if (timePopupWindow.isShowing()) {
+					timePopupWindow.dismiss();
+				}
+
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();
@@ -503,30 +533,32 @@ public class TimeSettingActivity extends BaseActivity {
 	private void setListenerForChildExpandableListView() {
 //		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
 //			@Override
-//			public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
-//				//showToast("This is a click Test...");
+//			public boolean onChildClick(ExpandableListView parent, View v,
+//					int groupPosition, int childPosition, long id) {
+//				// showToast("This is a click Test...");
 //				return true;
 //			}
 //		});
-//		
+//
 //		mExpandableListView.setOnItemClickListener(new OnItemClickListener() {
 //
 //			@Override
-//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				//showToast("This is a click Test...");
+//			public void onItemClick(AdapterView<?> parent, View view,
+//					int position, long id) {
+//				// showToast("This is a click Test...");
 //			}
 //		});
 	}
 
 	private void setVideoTypeOnClick() {
-		
+
 		((View) staBtn0.getParent()).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				setStateForAll();
 			}
 		});
-		
+
 		staBtn0.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -546,21 +578,21 @@ public class TimeSettingActivity extends BaseActivity {
 				setStateForHand();
 			}
 		});
-		
+
 		((View) staBtn2.getParent()).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				setStateForTiming();
 			}
 		});
-		
+
 		staBtn2.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				setStateForTiming();
 			}
 		});
-		
+
 		((View) staBtn3.getParent()).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -573,8 +605,7 @@ public class TimeSettingActivity extends BaseActivity {
 				setStateForMove();
 			}
 		});
-		
-		
+
 		((View) staBtn4.getParent()).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -650,16 +681,19 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void setDataToPlayActivity() {
-		
+
 		Bundle bundle = new Bundle();
 		Intent data = new Intent();
 		srr = getSearchRecordRequestInfo();
 		loginItem = new PlaybackDeviceItem();
-		if (visitDevItem!=null) {
-			if (visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_online_en))||
-					visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_offline_en))) {
-				loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
-			}else {
+		if (visitDevItem != null) {
+			if (visitDevItem.getDeviceName().contains(
+					ctx.getString(R.string.device_manager_online_en))
+					|| visitDevItem.getDeviceName().contains(
+							ctx.getString(R.string.device_manager_offline_en))) {
+				loginItem.setDeviceRecordName(visitDevItem.getDeviceName()
+						.substring(4));
+			} else {
 				loginItem.setDeviceRecordName(visitDevItem.getDeviceName());
 			}
 			loginItem.setPlatformUsername(visitDevItem.getPlatformUsername());
@@ -669,7 +703,7 @@ public class TimeSettingActivity extends BaseActivity {
 			loginItem.setSvrPort(visitDevItem.getSvrPort());
 			bundle.putParcelable("loginItem", loginItem);
 		}
-		
+
 		preferences = getSharedPreferences(PLAYBACK_TIMESETTING, MODE_PRIVATE);
 		Editor editor = preferences.edit();
 		editor.putBoolean("isAlreadyWrite", true);
@@ -680,7 +714,7 @@ public class TimeSettingActivity extends BaseActivity {
 		editor.putString("username", loginItem.getPlatformUsername());
 		editor.putString("deviceName", loginItem.getDeviceRecordName());
 		editor.putInt("channelNo", srr.getChannel());
-		editor.commit();		
+		editor.commit();
 		bundle.putParcelable("srr", srr);
 		data.putExtras(bundle);
 		setResult(TIMESETTING, data);
@@ -692,7 +726,8 @@ public class TimeSettingActivity extends BaseActivity {
 		TLV_V_SearchRecordRequest srr = new TLV_V_SearchRecordRequest();
 		String startTime = (String) startTimeTxt.getText();
 		String endTime = (String) endtimeTxt.getText();
-		visitDevItem = (DeviceItem) actsAdapter.getChild(clickGroup, clickChild);
+		visitDevItem = (DeviceItem) actsAdapter
+				.getChild(clickGroup, clickChild);
 
 		playback_endTime = endTime;
 		playback_startTime = startTime;
@@ -703,12 +738,13 @@ public class TimeSettingActivity extends BaseActivity {
 		getRecordTypeAcc(vType);
 		int channel = 0;
 		if (visitDevItem != null) {
-			channel = TimeSettingUtils.getScanChannel(visitDevItem.getChannelList());
+			channel = TimeSettingUtils.getScanChannel(visitDevItem
+					.getChannelList());
 		}
 		srr.setStartTime(sTime);
 		srr.setEndTime(eTime);
 		srr.setCount(255);
-		srr.setChannel(channel+1);
+		srr.setChannel(channel + 1);
 		srr.setDeviceId(0);
 		srr.setRecordType(recordType);
 		srr.setReserve(new int[] { 0, 0, 0 });
@@ -741,33 +777,35 @@ public class TimeSettingActivity extends BaseActivity {
 		typeDsh = getString(R.string.playback_alarm_type2);
 		typeYDZC = getString(R.string.playback_alarm_type3);
 		typeKGLJG = getString(R.string.playback_alarm_type4);
-		
+
 		boolean isStepOver = GlobalApplication.getInstance().isStepOver();
-		if (!isStepOver) {//如果从其他界面跳回，则使用默认值；
-			
-			//?????????????????????????????????????????????
+		if (!isStepOver) {// 如果从其他界面跳回，则使用默认值；
+
+			// ?????????????????????????????????????????????
 			setDefaultValueForTimeWidgets();
-			
-		}else{
-			preferences = getSharedPreferences("playback_timesetting", MODE_PRIVATE);
-			boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite", false);
+
+		} else {
+			preferences = getSharedPreferences("playback_timesetting",
+					MODE_PRIVATE);
+			boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite",
+					false);
 			if (isAlreadyWrite) {
 				String startTime = preferences.getString("start_time", null);
 				String endTime = preferences.getString("end_time", null);
 				int vType = preferences.getInt("video_type", 0);
 				endtimeTxt.setText(endTime);
 				startTimeTxt.setText(startTime);
-				setTypeView(vType,false);
-			}else {
+				setTypeView(vType, false);
+			} else {
 				setCurrentTimeForTxt();
 			}
 		}
 		initTimePopupWindow();
 		initTypePopWindow();
 	}
-	
+
 	@SuppressWarnings("deprecation")
-	private void setDefaultValueForTimeWidgets(){
+	private void setDefaultValueForTimeWidgets() {
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String dateNowStr = sdf.format(d);
@@ -787,7 +825,7 @@ public class TimeSettingActivity extends BaseActivity {
 		}
 		String typeShAll = getString(R.string.playback_alarm_type);
 		videoType.setText(typeShAll);
-//		setTypeView(0,true);
+		// setTypeView(0,true);
 	}
 
 	/** 对开始、结束时间设置为当前时间 **/
@@ -816,22 +854,24 @@ public class TimeSettingActivity extends BaseActivity {
 	private void initTypePopWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.type_popupwindow, null);
-		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT);
 		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		View view2 = typePopupWindow.getContentView();
-				
+
 		staBtn0 = (Button) view2.findViewById(R.id.stateBtn0);
 		staBtn1 = (Button) view2.findViewById(R.id.stateBtn1);
 		staBtn2 = (Button) view2.findViewById(R.id.stateBtn2);
 		staBtn3 = (Button) view2.findViewById(R.id.stateBtn3);
 		staBtn4 = (Button) view2.findViewById(R.id.stateBtn4);
-		
+
 	}
 
 	private void initTimePopupWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.time_dialog, null);
-		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
+		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT);
 		View view2 = timePopupWindow.getContentView();
 
 		year = (WheelView) view2.findViewById(R.id.year);
@@ -878,7 +918,7 @@ public class TimeSettingActivity extends BaseActivity {
 		minute.setAdapter(minuteAdapter);
 		minute.setLabel(null);
 		minute.setCyclic(true);
-		
+
 		year.setCurrentItem(curyear);
 		month.setCurrentItem(curMonth - 1);
 		day.setCurrentItem(curDate - 1);
@@ -933,26 +973,34 @@ public class TimeSettingActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUESTCODE) {
+			GlobalApplication.getInstance().setStepOver(true);
+			
+			SharedPreferences sp = getSharedPreferences("step_over_xml", Context.MODE_PRIVATE);
+			Editor editor = sp.edit();
+			editor.putBoolean("step_over", true);
+			editor.commit();
+			Log.i(TAG, "++++Write isStep_over:=true");
+			
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
-				if (okFlag) {					
+				if (okFlag) {
 					for (int i = 0; i < actsAdapter.getGroupCount(); i++) {
-						CloudAccount account = (CloudAccount)actsAdapter.getGroup(i);
-						if (account!=null) {
+						CloudAccount account = (CloudAccount) actsAdapter.getGroup(i);
+						if (account != null) {
 							List<DeviceItem> deviceItems = account.getDeviceList();
-							if (deviceItems!=null&&deviceItems.size()>0) {
+							if (deviceItems != null && deviceItems.size() > 0) {
 								for (int j = 0; j < deviceItems.size(); j++) {
 									DeviceItem item = deviceItems.get(j);
 									List<Channel> cList = item.getChannelList();
-									if (cList!=null&&cList.size()>0) {
+									if (cList != null && cList.size() > 0) {
 										for (Channel channel : cList) {
 											channel.setSelected(false);
 										}
 									}
 								}
-							}							
+							}
 						}
-					}					
+					}
 					actsAdapter.setOkFlag(true);
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
@@ -971,7 +1019,6 @@ public class TimeSettingActivity extends BaseActivity {
 					actsAdapter.notifyDataSetChanged();
 				}
 			}
-//			actsAdapter.notifyDataSetChanged();
 		}
 	}
 
@@ -996,35 +1043,35 @@ public class TimeSettingActivity extends BaseActivity {
 		}
 		return recordType;
 	}
-	
-	private void setTypeView(int vType,boolean visible){
-		
+
+	private void setTypeView(int vType, boolean visible) {
+
 		String typeShAll = getString(R.string.playback_alarm_type);
 		String typeShD = getString(R.string.playback_alarm_type1);
 		String typeDsh = getString(R.string.playback_alarm_type2);
 		String typeYDZC = getString(R.string.playback_alarm_type3);
 		String typeKGLJG = getString(R.string.playback_alarm_type4);
-		
-		if(vType == 0){
+
+		if (vType == 0) {
 			videoType.setText(typeShAll);
-			if(visible){
+			if (visible) {
 				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
-			}			
-		}else if(vType == 1){
+			}
+		} else if (vType == 1) {
 			videoType.setText(typeKGLJG);
-			if(visible)
+			if (visible)
 				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
-		}else if(vType == 2){
+		} else if (vType == 2) {
 			videoType.setText(typeYDZC);
-			if(visible)
+			if (visible)
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
-		}else if(vType == 4){
+		} else if (vType == 4) {
 			videoType.setText(typeDsh);
-			if(visible)
+			if (visible)
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
-		}else if(vType == 8){
+		} else if (vType == 8) {
 			videoType.setText(typeShD);
-			if(visible)
+			if (visible)
 				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
 		}
 	}
@@ -1042,22 +1089,25 @@ public class TimeSettingActivity extends BaseActivity {
 			int moNum = Integer.valueOf(monNums);
 			dayNum = setwheelDay(yNum, moNum);
 			day.setAdapter(new NumericWheelAdapter(1, dayNum, "%02d"));
-			String dayTime = getDayTime(yNum,moNum,day);
+			String dayTime = getDayTime(yNum, moNum, day);
 			String hourTime = getTime(hour);
 			String minTime = getTime(minute);
 			String contentDate = yearNum + "-" + monNums + "-" + dayTime;
 			String contentHm = hourTime + ":" + minTime;
 			String content = contentDate + " " + contentHm;
-			if (startFlag) {//从设置开始时间开始
+			if (startFlag) {// 从设置开始时间开始
 				startTimeTxt.setText(content);
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
-					if (dayDif <= 0 || (dayDif >= 3)) {//结束时间不变
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
+							endTime);
+					if (dayDif <= 0 || (dayDif >= 3)) {// 结束时间不变
 						int dayTimeNum = Integer.valueOf(dayTime);
 						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-						String newContDate = TimeSettingUtils.setStartDate(isLeaapYear, dayTimeNum, yearNum,moNum, monNums);
+						String newContDate = TimeSettingUtils.setStartDate(
+								isLeaapYear, dayTimeNum, yearNum, moNum,
+								monNums);
 						content = newContDate + " " + contentHm;
 						endtimeTxt.setText(content);
 					}
@@ -1065,32 +1115,36 @@ public class TimeSettingActivity extends BaseActivity {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-			} else if (endFlag) {//从设置结束时间开始
+			} else if (endFlag) {// 从设置结束时间开始
 				endtimeTxt.setText(content);
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
+							endTime);
 					if (dayDif < 0 || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						isCanStartPlay = false;
-					}else {
+					} else {
 						isCanStartPlay = true;
 					}
-//					if (dayDif < 0 || (dayDif >= 3)) {
-//						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-//						String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-//						content = newContDate + " " + contentHm;
-//						startTimeTxt.setText(content);
-//					}else if(dayDif == 0){
-//						long hourDif = TimeSettingUtils.getBetweenHours(startTime, endTime);
-//						if (hourDif<=0) {
-//							boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-//							String newContDate = TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-//							content = newContDate + " " + contentHm;
-//							startTimeTxt.setText(content);
-//						}
-//					}
+					// if (dayDif < 0 || (dayDif >= 3)) {
+					// boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+					// String newContDate =
+					// TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+					// content = newContDate + " " + contentHm;
+					// startTimeTxt.setText(content);
+					// }else if(dayDif == 0){
+					// long hourDif =
+					// TimeSettingUtils.getBetweenHours(startTime, endTime);
+					// if (hourDif<=0) {
+					// boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
+					// String newContDate =
+					// TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
+					// content = newContDate + " " + contentHm;
+					// startTimeTxt.setText(content);
+					// }
+					// }
 				} catch (Exception e) {
 					e.printStackTrace();
 					Log.i(TAG, "....Time setting exception...");
@@ -1098,23 +1152,24 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		}
 	};
-	
+
 	private boolean isCanStartPlay = false;
-	
+
 	private String getTime(WheelView wv) {
 		int hourPos = wv.getCurrentItem();
 		String time = wv.getAdapter().getItem(hourPos);
 		return time;
 	}
-	
-	private String getDayTime(int yearNum,int monthNum,WheelView wv) {
+
+	private String getDayTime(int yearNum, int monthNum, WheelView wv) {
 		int pos = wv.getCurrentItem();
 		if (monthNum == 2) {
 			if (pos >= 28) {
 				pos = pos - 3;
 				day.setCurrentItem(pos);
 			}
-		} else if ((monthNum == 4)||(monthNum == 6)||(monthNum == 9)||(monthNum == 11)){
+		} else if ((monthNum == 4) || (monthNum == 6) || (monthNum == 9)
+				|| (monthNum == 11)) {
 			if (pos >= 30) {
 				pos = pos - 2;
 				day.setCurrentItem(pos);
@@ -1123,9 +1178,9 @@ public class TimeSettingActivity extends BaseActivity {
 		String time = wv.getAdapter().getItem(pos);
 		return time;
 	}
-	
+
 	private void setWheelViewPosition(String time) {//
-		int []pos = PlaybackUtils.getValidateTime(time);
+		int[] pos = PlaybackUtils.getValidateTime(time);
 		int firstY = Integer.valueOf(year.getAdapter().getItem(0));
 		int yearPos = pos[0] - firstY;
 		int montPos = pos[1];
@@ -1133,8 +1188,8 @@ public class TimeSettingActivity extends BaseActivity {
 		int hourPos = pos[3];
 		int minuPos = pos[4];
 		year.setCurrentItem(yearPos);
-		month.setCurrentItem(montPos-1);
-		day.setCurrentItem(daysPos-1);
+		month.setCurrentItem(montPos - 1);
+		day.setCurrentItem(daysPos - 1);
 		hour.setCurrentItem(hourPos);
 		minute.setCurrentItem(minuPos);
 	}
@@ -1143,7 +1198,8 @@ public class TimeSettingActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case CONNECTIDENTIFY_PROGRESSBAR:
-			connectIdentifyPrg = ProgressDialog.show(this, "", getString(R.string.device_manager_conn_iden), true, true);
+			connectIdentifyPrg = ProgressDialog.show(this, "",
+					getString(R.string.device_manager_conn_iden), true, true);
 			connectIdentifyPrg.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override

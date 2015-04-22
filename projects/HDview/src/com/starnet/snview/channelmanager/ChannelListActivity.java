@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -797,6 +796,7 @@ public class ChannelListActivity extends BaseActivity {
 	private void initView() {
 
 		titleView = super.getTitleView();
+		titleView.setSingleLine(true);
 		List<PreviewDeviceItem> previews = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
 		if ((previews == null) || (previews != null && previews.size() == 0)) {
 			titleView.setText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
