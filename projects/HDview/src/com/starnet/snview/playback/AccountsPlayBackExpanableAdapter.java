@@ -137,8 +137,7 @@ public class AccountsPlayBackExpanableAdapter extends BaseExpandableListAdapter 
 		TextView txt = (TextView) convertView.findViewById(R.id.channel_name);
 		// Button txt = (Button) convertView.findViewById(R.id.channel_name);
 		txt.setText(list.get(childPosition).getDeviceName());
-		final Button stateBtn = (Button) convertView
-				.findViewById(R.id.stateBtn);
+		final Button stateBtn = (Button) convertView.findViewById(R.id.stateBtn);
 
 		/*
 		 * DeviceItem item =

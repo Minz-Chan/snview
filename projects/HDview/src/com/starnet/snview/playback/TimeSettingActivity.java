@@ -26,11 +26,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -61,6 +58,8 @@ public class TimeSettingActivity extends BaseActivity {
 
 	public static final String PLAYBACK_TIMESETTING = "playback_timesetting";
 
+	private boolean isFirstIn;
+
 	private int dayNum;
 	private int curyear;
 	private int curMonth;
@@ -76,7 +75,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private WheelView minute;
 	private View endtimeView;
 	private View starttimeView;
-	private View remotePreView;
+	private View videoTypeView;
 	private TextView endtimeTxt;
 	private TextView startTimeTxt;
 	private PopupWindow typePopupWindow;
@@ -198,7 +197,8 @@ public class TimeSettingActivity extends BaseActivity {
 			String suc = msgD.getString("success");
 			if (suc.equals("Yes")) {
 				final int pos = Integer.valueOf(posi);
-				final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
+				final CloudAccount netCA = (CloudAccount) msgD
+						.getSerializable("netCA");
 				netCA.setRotate(true);
 				if (netCA != null) {
 					List<DeviceItem> dList = netCA.getDeviceList();
@@ -206,7 +206,8 @@ public class TimeSettingActivity extends BaseActivity {
 						Collections.sort(dList, new PinyinComparator());// 排序...
 					}
 					if (GlobalApplication.getInstance().isStepOver()) {// 表示直接从远程界面跳回
-						String userName = preferences.getString("username",null);
+						String userName = preferences.getString("username",
+								null);
 						int channelNo = preferences.getInt("channelNo", 1) - 1;
 						if ((dList != null)) {
 							for (int i = 0; i < dList.size(); i++) {
@@ -223,22 +224,35 @@ public class TimeSettingActivity extends BaseActivity {
 							}
 						}
 						if (netCA.getUsername().equals(userName)) {
-							String deviceNm = preferences.getString("deviceName", null);
+							String deviceNm = preferences.getString(
+									"deviceName", null);
 							if ((dList != null) && (dList.size() > 0)) {
 								for (int i = 0; i < dList.size(); i++) {
 									DeviceItem dItem = dList.get(i);
-									if ((netCA.isEnabled() && (posi != 0) && dItem.getDeviceName().substring(4).equals(deviceNm))|| ((posi == 0) && dItem.getDeviceName().equals(deviceNm))) {
-										List<Channel> chanelList = dList.get(i).getChannelList();
-										if (chanelList != null && chanelList.size() > 0) {
-											for (int j = 0; j < chanelList.size(); j++) {
+									if ((netCA.isEnabled() && (posi != 0) && dItem
+											.getDeviceName().substring(4)
+											.equals(deviceNm))
+											|| ((posi == 0) && dItem
+													.getDeviceName().equals(
+															deviceNm))) {
+										List<Channel> chanelList = dList.get(i)
+												.getChannelList();
+										if (chanelList != null
+												&& chanelList.size() > 0) {
+											for (int j = 0; j < chanelList
+													.size(); j++) {
 												if (j == channelNo) {
 													clickGroup = pos;
 													clickChild = i;
-													chanelList.get(j).setSelected(true);
+													chanelList.get(j)
+															.setSelected(true);
 													okFlag = true;
 													actsAdapter.setGroup(pos);
-													actsAdapter.setChild(clickChild);
-													actsAdapter.setDeviceItem(dList.get(clickChild));
+													actsAdapter
+															.setChild(clickChild);
+													actsAdapter
+															.setDeviceItem(dList
+																	.get(clickChild));
 													break;
 												}
 											}
@@ -253,11 +267,13 @@ public class TimeSettingActivity extends BaseActivity {
 							for (int i = 0; i < dList.size(); i++) {
 								DeviceItem dItem = dList.get(i);
 								if (dItem != null) {
-									List<Channel> chanelList = dItem.getChannelList();
+									List<Channel> chanelList = dItem
+											.getChannelList();
 									if (chanelList != null
 											&& chanelList.size() > 0) {
 										for (int j = 0; j < chanelList.size(); j++) {
-											chanelList.get(j).setSelected(false);
+											chanelList.get(j)
+													.setSelected(false);
 										}
 									}
 								}
@@ -459,7 +475,7 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		});
 
-		remotePreView.setOnClickListener(new OnClickListener() {
+		videoTypeView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
@@ -477,9 +493,39 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.setOutsideTouchable(true);
 					typePopupWindow.update();
 					if (!GlobalApplication.getInstance().isStepOver()) {
-						setTypeView(0, true);
+						if (isFirstIn) {
+							setTypeView(0, true);
+						} else {
+							if (hasSelectedAll) {
+								setTypeView(0, true);
+							} else if (hasSelectedManulOP) {
+								setTypeView(8, true);
+							} else if (hasSelectedMoveDetec) {
+								setTypeView(2, true);
+							} else if (hasSelectedSwitchAlarm) {
+								setTypeView(1, true);
+							} else if (hasSelectedTimingOP) {
+								setTypeView(4, true);
+							}
+						}
+						isFirstIn = false;
 					} else {
-						setTypeView(preferences.getInt("video_type", 0), true);
+						if (isFirstIn) {
+							setTypeView(preferences.getInt("video_type", 0), true);
+						} else {
+							if (hasSelectedAll) {
+								setTypeView(0, true);
+							} else if (hasSelectedManulOP) {
+								setTypeView(8, true);
+							} else if (hasSelectedMoveDetec) {
+								setTypeView(2, true);
+							} else if (hasSelectedSwitchAlarm) {
+								setTypeView(1, true);
+							} else if (hasSelectedTimingOP) {
+								setTypeView(4, true);
+							}
+						}
+						isFirstIn = false;
 					}
 				}
 			}
@@ -497,7 +543,8 @@ public class TimeSettingActivity extends BaseActivity {
 				String startTime = startTimeTxt.getText().toString();
 				String overTime = endtimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,overTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
+							overTime);
 					if ((dayDif <= 0) || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						return;
@@ -519,10 +566,10 @@ public class TimeSettingActivity extends BaseActivity {
 				} else {
 					showToast(getString(R.string.playback_network_not_open));
 				}
-				
+
 				if (typePopupWindow.isShowing()) {
 					typePopupWindow.dismiss();
-				}				
+				}
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
 				}
@@ -530,24 +577,32 @@ public class TimeSettingActivity extends BaseActivity {
 		});
 	}
 
+	private boolean hasSelectedAll;
+	private boolean hasSelectedManulOP;
+	private boolean hasSelectedTimingOP;
+	private boolean hasSelectedMoveDetec;
+	private boolean hasSelectedSwitchAlarm;
+
 	private void setListenerForChildExpandableListView() {
-//		mExpandableListView.setOnChildClickListener(new OnChildClickListener() {
-//			@Override
-//			public boolean onChildClick(ExpandableListView parent, View v,
-//					int groupPosition, int childPosition, long id) {
-//				// showToast("This is a click Test...");
-//				return true;
-//			}
-//		});
-//
-//		mExpandableListView.setOnItemClickListener(new OnItemClickListener() {
-//
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view,
-//					int position, long id) {
-//				// showToast("This is a click Test...");
-//			}
-//		});
+		// mExpandableListView.setOnChildClickListener(new
+		// OnChildClickListener() {
+		// @Override
+		// public boolean onChildClick(ExpandableListView parent, View v,
+		// int groupPosition, int childPosition, long id) {
+		// // showToast("This is a click Test...");
+		// return true;
+		// }
+		// });
+		//
+		// mExpandableListView.setOnItemClickListener(new OnItemClickListener()
+		// {
+		//
+		// @Override
+		// public void onItemClick(AdapterView<?> parent, View view,
+		// int position, long id) {
+		// // showToast("This is a click Test...");
+		// }
+		// });
 	}
 
 	private void setVideoTypeOnClick() {
@@ -627,6 +682,13 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+
+		hasSelectedAll = false;
+		hasSelectedManulOP = false;
+		hasSelectedTimingOP = false;
+		hasSelectedMoveDetec = false;
+		hasSelectedSwitchAlarm = true;
+
 	}
 
 	protected void setStateForMove() {
@@ -636,6 +698,13 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+
+		hasSelectedAll = false;
+		hasSelectedManulOP = false;
+		hasSelectedTimingOP = false;
+		hasSelectedMoveDetec = true;
+		hasSelectedSwitchAlarm = false;
+
 	}
 
 	protected void setStateForTiming() {
@@ -645,6 +714,13 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+
+		hasSelectedAll = false;
+		hasSelectedManulOP = false;
+		hasSelectedTimingOP = true;
+		hasSelectedMoveDetec = false;
+		hasSelectedSwitchAlarm = false;
+
 	}
 
 	protected void setStateForHand() {
@@ -654,15 +730,28 @@ public class TimeSettingActivity extends BaseActivity {
 		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
 		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+
+		hasSelectedAll = false;
+		hasSelectedManulOP = true;
+		hasSelectedTimingOP = false;
+		hasSelectedMoveDetec = false;
+		hasSelectedSwitchAlarm = false;
+
 	}
 
 	protected void setStateForAll() {
 		videoType.setText(typeAll);
 		staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
-		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
-		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
-		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
-		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
+
+		hasSelectedAll = true;
+		hasSelectedManulOP = false;
+		hasSelectedTimingOP = false;
+		hasSelectedMoveDetec = false;
+		hasSelectedSwitchAlarm = false;
 	}
 
 	/** 开始进行回放操作 **/
@@ -756,6 +845,7 @@ public class TimeSettingActivity extends BaseActivity {
 	}
 
 	private void initViews() {
+		isFirstIn = true;
 		super.setToolbarVisiable(false);
 		super.getRightButton().setVisibility(View.GONE);
 		super.getExtendButton().setVisibility(View.GONE);
@@ -766,7 +856,7 @@ public class TimeSettingActivity extends BaseActivity {
 		endtimeView = findViewById(R.id.input_endtime_view);
 		videoType = (TextView) findViewById(R.id.video_type);
 		startScanBtn = (Button) findViewById(R.id.startScan);
-		remotePreView = findViewById(R.id.input_remote_type);
+		videoTypeView = findViewById(R.id.input_remote_type);
 		startTimeTxt = (TextView) findViewById(R.id.starttime);
 		starttimeView = findViewById(R.id.input_starttime_view);
 		mExpandableListView = (ExpandableListView) findViewById(R.id.cloudaccountExtListview);
@@ -974,20 +1064,23 @@ public class TimeSettingActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUESTCODE) {
 			GlobalApplication.getInstance().setStepOver(true);
-			
-			SharedPreferences sp = getSharedPreferences("step_over_xml", Context.MODE_PRIVATE);
+
+			SharedPreferences sp = getSharedPreferences("step_over_xml",
+					Context.MODE_PRIVATE);
 			Editor editor = sp.edit();
 			editor.putBoolean("step_over", true);
 			editor.commit();
 			Log.i(TAG, "++++Write isStep_over:=true");
-			
+
 			if (data != null) {
 				okFlag = data.getBooleanExtra("okBtn", false);
 				if (okFlag) {
 					for (int i = 0; i < actsAdapter.getGroupCount(); i++) {
-						CloudAccount account = (CloudAccount) actsAdapter.getGroup(i);
+						CloudAccount account = (CloudAccount) actsAdapter
+								.getGroup(i);
 						if (account != null) {
-							List<DeviceItem> deviceItems = account.getDeviceList();
+							List<DeviceItem> deviceItems = account
+									.getDeviceList();
 							if (deviceItems != null && deviceItems.size() > 0) {
 								for (int j = 0; j < deviceItems.size(); j++) {
 									DeviceItem item = deviceItems.get(j);
@@ -1005,7 +1098,8 @@ public class TimeSettingActivity extends BaseActivity {
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					int tempCh = data.getIntExtra("chnl", 0);
-					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,clickChild);
+					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,
+							clickChild);
 					List<Channel> channels = visitDItem.getChannelList();
 					for (int i = 0; i < channels.size(); i++) {
 						if (i == tempCh) {
@@ -1056,6 +1150,10 @@ public class TimeSettingActivity extends BaseActivity {
 			videoType.setText(typeShAll);
 			if (visible) {
 				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
+				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);
 			}
 		} else if (vType == 1) {
 			videoType.setText(typeKGLJG);
