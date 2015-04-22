@@ -15,7 +15,7 @@
         android:layout_marginLeft="35sp"
         android:layout_weight="1.0"
         android:orientation="horizontal" />
-
+<!--  -->
     <!-- <LinearLayout android:gravity="center" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" > -->
     <!-- <ImageView android:background="@drawable/channel_listview_device" android:layout_width="wrap_content" android:layout_height="wrap_content" android:contentDescription="@string/nothing"/> -->
     <!-- </LinearLayout> -->

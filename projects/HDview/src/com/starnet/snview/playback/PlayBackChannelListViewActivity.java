@@ -8,6 +8,8 @@ import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 //import com.starnet.snview.playback.utils.ConstantUtils;
 
+import com.starnet.snview.global.GlobalApplication;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -91,6 +93,8 @@ public class PlayBackChannelListViewActivity extends Activity {
 		button_ok.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				
+				GlobalApplication.getInstance().setStepOver(true);
 				PlaybackUtils.isClickOk = true;
 				isClickOk = true;
 				int channl = getChannelIndex();
