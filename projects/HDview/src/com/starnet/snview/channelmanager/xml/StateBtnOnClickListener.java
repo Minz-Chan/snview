@@ -92,23 +92,23 @@ public class StateBtnOnClickListener implements OnClickListener {
 		} else {
 			titleView.setText(context.getString(R.string.navigation_title_channel_list) + "(" + number + ")");// 设置列表标题名
 		}
-
+		//主要是对收藏设备的一种修改？？？？（不通过--->通过）
 		if (selectCloudAccount.getUsername().equals(CollectDeviceParams.COLLECTDEVICENAME_CHANNEL_TOUCH)) {
-			new Thread() {
-				@Override
-				public void run() {
-					super.run();
-					List<DeviceItem> deviceList = selectCloudAccount.getDeviceList();
-					int size = deviceList.size();
-					for (int i = 0; i < size; i++) {
-						try {
-							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i),ChannelListActivity.filePath);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}.start();
+//			new Thread() {
+//				@Override
+//				public void run() {
+//					super.run();
+//					List<DeviceItem> deviceList = selectCloudAccount.getDeviceList();
+//					int size = deviceList.size();
+//					for (int i = 0; i < size; i++) {
+//						try {
+//							ReadWriteXmlUtils.addNewDeviceItemToCollectEquipmentXML(deviceList.get(i),ChannelListActivity.filePath);
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//			}.start();
 		}
 		List<PreviewDeviceItem> touchPreviewItem = ExpandableListViewUtils.getPreviewChannelList(cloudAccountList);
 		GlobalApplication.getInstance().getRealplayActivity().setPreviewDevices_copy(touchPreviewItem);

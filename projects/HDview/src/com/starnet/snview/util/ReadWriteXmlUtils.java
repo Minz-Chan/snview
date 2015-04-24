@@ -679,7 +679,7 @@ public class ReadWriteXmlUtils {
 	 * @Description 增加新的设备到收藏设备文档中
 	 */
 	@SuppressWarnings("unchecked")
-	public static String addNewDeviceItemToCollectEquipmentXML(
+	public synchronized static String addNewDeviceItemToCollectEquipmentXML(
 			DeviceItem dItem, String filePath) throws Exception {
 
 		String saveResult = "";
@@ -712,13 +712,11 @@ public class ReadWriteXmlUtils {
 		sEle.addAttribute("loginPass", dItem.getLoginPass());
 		sEle.addAttribute("platformusername", dItem.getPlatformUsername());
 
-		sEle.addAttribute("defaultChannel",
-				String.valueOf(dItem.getDefaultChannel()));
+		sEle.addAttribute("defaultChannel",String.valueOf(dItem.getDefaultChannel()));
 		sEle.addAttribute("serverIP", dItem.getSvrIp());
 		sEle.addAttribute("serverPort", dItem.getSvrPort());
 		sEle.addAttribute("deviceType", String.valueOf(dItem.getDeviceType()));
-		sEle.addAttribute("isSecurityProtectionOpen",
-				String.valueOf(dItem.isSecurityProtectionOpen()));
+		sEle.addAttribute("isSecurityProtectionOpen",String.valueOf(dItem.isSecurityProtectionOpen()));
 		sEle.addAttribute("isExpanded", String.valueOf(dItem.isExpanded()));
 		sEle.addAttribute("isIdentify", String.valueOf(dItem.isIdentify()));
 		sEle.addAttribute("isConnPass", String.valueOf(dItem.isConnPass()));
