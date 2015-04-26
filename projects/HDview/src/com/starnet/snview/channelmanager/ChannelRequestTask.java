@@ -16,11 +16,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.channelmanager.xml.PinyinComparator;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("SdCardPath")
@@ -332,7 +332,7 @@ public class ChannelRequestTask {
 			if (channeNumber != 0) {
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE + (j + 1));
+					channel.setChannelName(context.getString(R.string.device_manager_collect_device) + (j + 1));
 					channel.setSelected(false);
 					channel.setChannelNo((j+1));
 					channelList.add(channel);

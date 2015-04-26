@@ -105,9 +105,9 @@ public class TimeSettingActivity extends BaseActivity {
 
 	private boolean endFlag = false;
 	private boolean startFlag = false;
-	private final int LOAD_COLLECT_DATA_TIMEOUT = 0x0002;
-	private final int LOAD_COLLECT_DATA_LOADSUC = 0x0003;
-	private final int LOAD_COLLECT_DATA_LOADFAI = 0x0004;
+	public static final int LOAD_COLLECT_DATA_TIMEOUT = 0x0002;
+	public static final int LOAD_COLLECT_DATA_LOADSUC = 0x0003;
+	public static final int LOAD_COLLECT_DATA_LOADFAI = 0x0004;
 	private DeviceItemRequestTask[] tasks;
 	private List<CloudAccount> originCAs;
 	private final int REQUESTCODE = 0x0005;
@@ -197,8 +197,7 @@ public class TimeSettingActivity extends BaseActivity {
 			String suc = msgD.getString("success");
 			if (suc.equals("Yes")) {
 				final int pos = Integer.valueOf(posi);
-				final CloudAccount netCA = (CloudAccount) msgD
-						.getSerializable("netCA");
+				final CloudAccount netCA = (CloudAccount) msgD.getSerializable("netCA");
 				netCA.setRotate(true);
 				if (netCA != null) {
 					List<DeviceItem> dList = netCA.getDeviceList();
@@ -206,8 +205,7 @@ public class TimeSettingActivity extends BaseActivity {
 						Collections.sort(dList, new PinyinComparator());// 排序...
 					}
 					if (GlobalApplication.getInstance().isStepOver()) {// 表示直接从远程界面跳回
-						String userName = preferences.getString("username",
-								null);
+						String userName = preferences.getString("username",null);
 						int channelNo = preferences.getInt("channelNo", 1) - 1;
 						if ((dList != null)) {
 							for (int i = 0; i < dList.size(); i++) {
@@ -224,35 +222,22 @@ public class TimeSettingActivity extends BaseActivity {
 							}
 						}
 						if (netCA.getUsername().equals(userName)) {
-							String deviceNm = preferences.getString(
-									"deviceName", null);
+							String deviceNm = preferences.getString("deviceName", null);
 							if ((dList != null) && (dList.size() > 0)) {
 								for (int i = 0; i < dList.size(); i++) {
 									DeviceItem dItem = dList.get(i);
-									if ((netCA.isEnabled() && (posi != 0) && dItem
-											.getDeviceName().substring(4)
-											.equals(deviceNm))
-											|| ((posi == 0) && dItem
-													.getDeviceName().equals(
-															deviceNm))) {
-										List<Channel> chanelList = dList.get(i)
-												.getChannelList();
-										if (chanelList != null
-												&& chanelList.size() > 0) {
-											for (int j = 0; j < chanelList
-													.size(); j++) {
+									if ((netCA.isEnabled() && (posi != 0) && dItem.getDeviceName().substring(4).equals(deviceNm))|| ((posi == 0) && dItem.getDeviceName().equals(deviceNm))) {
+										List<Channel> chanelList = dList.get(i).getChannelList();
+										if (chanelList != null && chanelList.size() > 0) {
+											for (int j = 0; j < chanelList.size(); j++) {
 												if (j == channelNo) {
 													clickGroup = pos;
 													clickChild = i;
-													chanelList.get(j)
-															.setSelected(true);
+													chanelList.get(j).setSelected(true);
 													okFlag = true;
 													actsAdapter.setGroup(pos);
-													actsAdapter
-															.setChild(clickChild);
-													actsAdapter
-															.setDeviceItem(dList
-																	.get(clickChild));
+													actsAdapter.setChild(clickChild);
+													actsAdapter.setDeviceItem(dList.get(clickChild));
 													break;
 												}
 											}
@@ -376,8 +361,7 @@ public class TimeSettingActivity extends BaseActivity {
 				for (int i = 0; i < accounts.size(); i++) {
 					CloudAccount c = accounts.get(i);
 					if (c.isEnabled()) {
-						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler,
-								i);
+						tasks[j] = new DeviceItemRequestTask(ctx, c, mHandler,i);
 						tasks[j].start();
 						j++;
 					} else {
@@ -543,8 +527,7 @@ public class TimeSettingActivity extends BaseActivity {
 				String startTime = startTimeTxt.getText().toString();
 				String overTime = endtimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
-							overTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,overTime);
 					if ((dayDif <= 0) || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						return;
@@ -776,12 +759,8 @@ public class TimeSettingActivity extends BaseActivity {
 		srr = getSearchRecordRequestInfo();
 		loginItem = new PlaybackDeviceItem();
 		if (visitDevItem != null) {
-			if (visitDevItem.getDeviceName().contains(
-					ctx.getString(R.string.device_manager_online_en))
-					|| visitDevItem.getDeviceName().contains(
-							ctx.getString(R.string.device_manager_offline_en))) {
-				loginItem.setDeviceRecordName(visitDevItem.getDeviceName()
-						.substring(4));
+			if (visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_online_en))|| visitDevItem.getDeviceName().contains(ctx.getString(R.string.device_manager_offline_en))) {
+				loginItem.setDeviceRecordName(visitDevItem.getDeviceName().substring(4));
 			} else {
 				loginItem.setDeviceRecordName(visitDevItem.getDeviceName());
 			}
@@ -870,15 +849,12 @@ public class TimeSettingActivity extends BaseActivity {
 
 		boolean isStepOver = GlobalApplication.getInstance().isStepOver();
 		if (!isStepOver) {// 如果从其他界面跳回，则使用默认值；
-
 			// ?????????????????????????????????????????????
 			setDefaultValueForTimeWidgets();
 
 		} else {
-			preferences = getSharedPreferences("playback_timesetting",
-					MODE_PRIVATE);
-			boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite",
-					false);
+			preferences = getSharedPreferences("playback_timesetting",MODE_PRIVATE);
+			boolean isAlreadyWrite = preferences.getBoolean("isAlreadyWrite",false);
 			if (isAlreadyWrite) {
 				String startTime = preferences.getString("start_time", null);
 				String endTime = preferences.getString("end_time", null);
@@ -944,8 +920,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void initTypePopWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.type_popupwindow, null);
-		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		typePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		typePopupWindow.setAnimationStyle(R.style.PopupAnimation);
 		View view2 = typePopupWindow.getContentView();
 
@@ -960,8 +935,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void initTimePopupWindow() {
 		LayoutInflater inflater = LayoutInflater.from(ctx);
 		View view = inflater.inflate(R.layout.time_dialog, null);
-		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		timePopupWindow = new PopupWindow(view, LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT);
 		View view2 = timePopupWindow.getContentView();
 
 		year = (WheelView) view2.findViewById(R.id.year);
@@ -1046,8 +1020,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK
-				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 			backAndLeftOperation();
 		}
 		return super.onKeyDown(keyCode, event);
@@ -1065,8 +1038,7 @@ public class TimeSettingActivity extends BaseActivity {
 		if (requestCode == REQUESTCODE) {
 			GlobalApplication.getInstance().setStepOver(true);
 
-			SharedPreferences sp = getSharedPreferences("step_over_xml",
-					Context.MODE_PRIVATE);
+			SharedPreferences sp = getSharedPreferences("step_over_xml",Context.MODE_PRIVATE);
 			Editor editor = sp.edit();
 			editor.putBoolean("step_over", true);
 			editor.commit();
@@ -1076,8 +1048,7 @@ public class TimeSettingActivity extends BaseActivity {
 				okFlag = data.getBooleanExtra("okBtn", false);
 				if (okFlag) {
 					for (int i = 0; i < actsAdapter.getGroupCount(); i++) {
-						CloudAccount account = (CloudAccount) actsAdapter
-								.getGroup(i);
+						CloudAccount account = (CloudAccount) actsAdapter.getGroup(i);
 						if (account != null) {
 							List<DeviceItem> deviceItems = account
 									.getDeviceList();
@@ -1098,8 +1069,7 @@ public class TimeSettingActivity extends BaseActivity {
 					clickGroup = data.getIntExtra("group", 0);
 					clickChild = data.getIntExtra("child", 0);
 					int tempCh = data.getIntExtra("chnl", 0);
-					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,
-							clickChild);
+					visitDItem = (DeviceItem) actsAdapter.getChild(clickGroup,clickChild);
 					List<Channel> channels = visitDItem.getChannelList();
 					for (int i = 0; i < channels.size(); i++) {
 						if (i == tempCh) {

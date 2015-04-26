@@ -10,7 +10,6 @@ import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -93,7 +92,7 @@ public class StateBtnOnClickListener implements OnClickListener {
 			titleView.setText(context.getString(R.string.navigation_title_channel_list) + "(" + number + ")");// 设置列表标题名
 		}
 		//主要是对收藏设备的一种修改？？？？（不通过--->通过）
-		if (selectCloudAccount.getUsername().equals(CollectDeviceParams.COLLECTDEVICENAME_CHANNEL_TOUCH)) {
+		if (selectCloudAccount.getUsername().equals(context.getString(R.string.device_manager_collect_device))) {
 //			new Thread() {
 //				@Override
 //				public void run() {

@@ -12,12 +12,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 
@@ -35,9 +35,9 @@ public class DeviceItemRequestTask {
 	private boolean isRequestTimeOut;
 	private boolean isTimeThreadOver;
 	private boolean isStartWorkRequest;
-	private final int TIMEOUT = 0x0002;
-	private final int LOADSUC = 0x0003;
-	private final int LOADFAI = 0x0004;
+//	private final int TIMEOUT = 0x0002;
+//	private final int LOADSUC = 0x0003;
+//	private final int LOADFAI = 0x0004;
 
 	public DeviceItemRequestTask(Context ctx,CloudAccount reqCA, Handler mHandler, final int pos) {
 		this.pos = pos;
@@ -107,7 +107,7 @@ public class DeviceItemRequestTask {
 		reqCA.setDeviceList(its);
 		Message msg = new Message();
 		Bundle data = new Bundle();
-		msg.what = LOADSUC;
+		msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_LOADSUC;
 		data.putInt("position", pos);
 		data.putString("success", "Yes");
 		data.putSerializable("netCA", reqCA);
@@ -125,7 +125,7 @@ public class DeviceItemRequestTask {
 		if (!isCanceled && !isDocumentOpt) {
 			isDocumentOpt = true;
 			Message msg = new Message();
-			msg.what = LOADFAI;
+			msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_LOADFAI;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -141,7 +141,7 @@ public class DeviceItemRequestTask {
 		if (!isCanceled && !isRequestTimeOut) {
 			isDocumentOpt = true;
 			Message msg = new Message();
-			msg.what = LOADFAI;
+			msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_LOADFAI;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -168,7 +168,7 @@ public class DeviceItemRequestTask {
 				isRequestTimeOut = true;
 				isTimeThreadOver = true;
 				isStartWorkRequest = true;
-				msg.what = LOADSUC;
+				msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_LOADSUC;
 				data.putInt("position", pos);
 				data.putString("success", "Yes");
 				data.putSerializable("netCA", netAct);
@@ -185,7 +185,7 @@ public class DeviceItemRequestTask {
 				isTimeThreadOver = true;
 				isStartWorkRequest = true;
 				Message msg = new Message();
-				msg.what = LOADFAI;
+				msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_LOADFAI;
 				Bundle data = new Bundle();
 				data.putInt("position", pos);
 				data.putSerializable("netCA", reqCA);
@@ -205,7 +205,7 @@ public class DeviceItemRequestTask {
 		isStartWorkRequest = true;
 		if (!isCanceled && !threadOver) {
 			Message msg = new Message();
-			msg.what = TIMEOUT;
+			msg.what = TimeSettingActivity.LOAD_COLLECT_DATA_TIMEOUT;
 			Bundle data = new Bundle();
 			data.putInt("position", pos);
 			data.putSerializable("netCA", reqCA);
@@ -276,7 +276,7 @@ public class DeviceItemRequestTask {
 			if (channeNumber != 0) {
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE + (j + 1));
+					channel.setChannelName(ctx.getString(R.string.device_manager_collect_device) + (j + 1));
 					channel.setSelected(false);
 					channel.setChannelNo((j + 1));
 					channelList.add(channel);

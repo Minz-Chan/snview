@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
 
+import com.starnet.snview.R;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 import java.io.IOException;
@@ -32,17 +33,20 @@ public class CloudAccountInfoOpt {
 	private String username;
 	private String password;
 	private String deviceName;
+	private Context context;
 
-	public CloudAccountInfoOpt(String domain,String port, String username, String password, String deviceName) {
+	public CloudAccountInfoOpt(Context context,String domain,String port, String username, String password, String deviceName) {
 		super();
 		this.domain = domain;
 		this.port = port;
 		this.username = username;
 		this.password = password;
 		this.deviceName = deviceName;
+		this.context = context;
 	}
 	
-	public CloudAccountInfoOpt() {
+	public CloudAccountInfoOpt(Context context) {
+		this.context = context;
 	}
 
 	public CloudAccount getCloudAccountFromURL() throws IOException, DocumentException{
@@ -98,7 +102,7 @@ public class CloudAccountInfoOpt {
 			int channeNumber = Integer.valueOf(channelSum);
 			for (int j = 0; j < channeNumber; j++) {
 				Channel channel = new Channel();
-				channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE+(j+1));
+				channel.setChannelName(context.getString(R.string.device_manager_collect_device)+(j+1));
 				channel.setSelected(false);
 				channel.setChannelNo((j+1));
 				channelList.add(channel);

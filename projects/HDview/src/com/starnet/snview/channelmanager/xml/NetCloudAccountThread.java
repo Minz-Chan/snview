@@ -6,14 +6,15 @@ import java.util.List;
 import org.dom4j.Document;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
 import com.starnet.snview.devicemanager.DeviceItem;
 import com.starnet.snview.syssetting.CloudAccount;
-import com.starnet.snview.util.CollectDeviceParams;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 /**
@@ -34,6 +35,7 @@ public class NetCloudAccountThread extends Thread {
 	private Handler netHandler;
 	private CloudAccount cAccount;
 	private final int STARCLOUNDDOWNLOADSUC = 10;
+	private Context context;
 	
 	@Override
 	public void run() {//线程的执行方法
@@ -129,7 +131,7 @@ public class NetCloudAccountThread extends Thread {
 			if(channeNumber != 0){
 				for (int j = 0; j < channeNumber; j++) {
 					Channel channel = new Channel();
-					channel.setChannelName(CollectDeviceParams.DEFAULT_CHANNELNAMEFOR_COLLECTDEVICE+(j+1));
+					channel.setChannelName(context.getString(R.string.device_manager_collect_device)+(j+1));
 					channel.setSelected(false);
 					channel.setChannelNo((j+1));
 					channelList.add(channel);
@@ -142,10 +144,11 @@ public class NetCloudAccountThread extends Thread {
 		return cloudAccount;
 	}
 
-	public NetCloudAccountThread(CloudAccount cAccount,Handler netHandler,int postition) {
+	public NetCloudAccountThread(Context context ,CloudAccount cAccount,Handler netHandler,int postition) {
 		super();
 		this.cAccount = cAccount;
 		this.netHandler = netHandler;
 		this.postition = postition;
+		this.context = context;
 	}
 }

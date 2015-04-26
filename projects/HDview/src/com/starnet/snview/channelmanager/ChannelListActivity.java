@@ -965,7 +965,7 @@ public class ChannelListActivity extends BaseActivity {
 	/** 从设置界面中获取用户信息 */
 	private List<CloudAccount> getCloudAccountInfoFromUI() {
 		List<CloudAccount> accoutInfo = new ArrayList<CloudAccount>();
-		accoutInfo = new CloudAccountInfoOpt().getCloudAccountInfoFromUI(getString(R.string.device_manager_collect_device));
+		accoutInfo = new CloudAccountInfoOpt(this).getCloudAccountInfoFromUI(getString(R.string.device_manager_collect_device));
 		return accoutInfo;
 	}
 
