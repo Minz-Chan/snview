@@ -1199,31 +1199,13 @@ public class TimeSettingActivity extends BaseActivity {
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
-							endTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime,endTime);
 					if (dayDif < 0 || (dayDif > 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						isCanStartPlay = false;
 					} else {
 						isCanStartPlay = true;
 					}
-					// if (dayDif < 0 || (dayDif >= 3)) {
-					// boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-					// String newContDate =
-					// TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-					// content = newContDate + " " + contentHm;
-					// startTimeTxt.setText(content);
-					// }else if(dayDif == 0){
-					// long hourDif =
-					// TimeSettingUtils.getBetweenHours(startTime, endTime);
-					// if (hourDif<=0) {
-					// boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
-					// String newContDate =
-					// TimeSettingUtils.setEndDateTime(isLeaapYear,dayTime,yNum,moNum,yearNum,monNums);
-					// content = newContDate + " " + contentHm;
-					// startTimeTxt.setText(content);
-					// }
-					// }
 				} catch (Exception e) {
 					e.printStackTrace();
 					Log.i(TAG, "....Time setting exception...");

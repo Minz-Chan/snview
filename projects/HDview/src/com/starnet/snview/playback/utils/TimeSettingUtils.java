@@ -17,8 +17,15 @@ public class TimeSettingUtils {
 		Date d1 = format.parse(dateStart);
 		Date d2 = format.parse(dateStop);
 		long diff = d2.getTime() - d1.getTime();// 毫秒ms
-		if (diff <= 0) {
+		if (diff < 0) {
 			return -1;
+		}else if (diff == 0) {
+			long dis = getBetweenMinutes(dateStart,dateStop);
+			if (dis <= 0) {
+				return -1;
+			}else {
+				return 3;
+			}
 		}
 		long diffDays = diff / (24 * 60 * 60 * 1000);
 		return diffDays;
