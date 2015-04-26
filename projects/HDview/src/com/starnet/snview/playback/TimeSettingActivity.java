@@ -125,6 +125,8 @@ public class TimeSettingActivity extends BaseActivity {
 	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 	public static final int CONNECTIDENTIFY_PROGRESSBAR = 0x11220033;
+	
+	private boolean isAllSelectState = false;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -390,7 +392,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private void setListenersForWadgets() {
 
 		setVideoTypeOnClick();
-		setListenerForChildExpandableListView();
+//		setListenerForChildExpandableListView();
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -478,10 +480,19 @@ public class TimeSettingActivity extends BaseActivity {
 					typePopupWindow.update();
 					if (!GlobalApplication.getInstance().isStepOver()) {
 						if (isFirstIn) {
-							setTypeView(0, true);
+							if (isAllSelectState) {
+								setTypeView(0, true);
+							}else {
+								setStateForAllForNull();
+							}
 						} else {
 							if (hasSelectedAll) {
-								setTypeView(0, true);
+//								setTypeView(0, true);
+								if (isAllSelectState) {
+									setTypeView(0, true);
+								}else {
+									setStateForAllForNull();
+								}
 							} else if (hasSelectedManulOP) {
 								setTypeView(8, true);
 							} else if (hasSelectedMoveDetec) {
@@ -542,19 +553,14 @@ public class TimeSettingActivity extends BaseActivity {
 				if (timePopupWindow.isShowing()) {
 					timePopupWindow.dismiss();
 				}
+				
+				mExpandableListView.setVisibility(View.VISIBLE);
 
 				boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 				if (isOpen) {
 					startPlayBack();
 				} else {
 					showToast(getString(R.string.playback_network_not_open));
-				}
-
-				if (typePopupWindow.isShowing()) {
-					typePopupWindow.dismiss();
-				}
-				if (timePopupWindow.isShowing()) {
-					timePopupWindow.dismiss();
 				}
 			}
 		});
@@ -566,34 +572,18 @@ public class TimeSettingActivity extends BaseActivity {
 	private boolean hasSelectedMoveDetec;
 	private boolean hasSelectedSwitchAlarm;
 
-	private void setListenerForChildExpandableListView() {
-		// mExpandableListView.setOnChildClickListener(new
-		// OnChildClickListener() {
-		// @Override
-		// public boolean onChildClick(ExpandableListView parent, View v,
-		// int groupPosition, int childPosition, long id) {
-		// // showToast("This is a click Test...");
-		// return true;
-		// }
-		// });
-		//
-		// mExpandableListView.setOnItemClickListener(new OnItemClickListener()
-		// {
-		//
-		// @Override
-		// public void onItemClick(AdapterView<?> parent, View view,
-		// int position, long id) {
-		// // showToast("This is a click Test...");
-		// }
-		// });
-	}
-
 	private void setVideoTypeOnClick() {
 
 		((View) staBtn0.getParent()).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				setStateForAll();
+				if (isAllSelectState) {
+					isAllSelectState = false;
+					setStateForAllForNull();
+				}else {
+					isAllSelectState = true;
+					setStateForAll();
+				}
 			}
 		});
 
@@ -736,17 +726,32 @@ public class TimeSettingActivity extends BaseActivity {
 		hasSelectedMoveDetec = false;
 		hasSelectedSwitchAlarm = false;
 	}
+	
+	private void setStateForAllForNull(){
+		videoType.setText(getString(R.string.playback_alarm_type_null));
+		staBtn0.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn1.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn2.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn3.setBackgroundResource(R.drawable.channellist_select_empty);
+		staBtn4.setBackgroundResource(R.drawable.channellist_select_empty);
+
+		hasSelectedAll = true;
+		hasSelectedManulOP = false;
+		hasSelectedTimingOP = false;
+		hasSelectedMoveDetec = false;
+		hasSelectedSwitchAlarm = false;
+	}
 
 	/** 开始进行回放操作 **/
 	private void startPlayBack() {
-		if (!okFlag) {// if (!okFlag) {
-			showToast(ctx.getString(R.string.playback_content_null));
-		} else {
-			String vType = videoType.getText().toString();
-			int rTyPe = getRecordTypeAcc(vType);
-			if (rTyPe == -1) {
-				showToast(ctx.getString(R.string.playback_videotype_null));
-			} else {
+		String vType = videoType.getText().toString();
+		int rTyPe = getRecordTypeAcc(vType);
+		if (rTyPe == -1) {
+			showToast(ctx.getString(R.string.playback_videotype_null));
+		}else {
+			if (!okFlag) {// if (!okFlag) {
+				showToast(ctx.getString(R.string.playback_content_null));
+			}else {
 				setDataToPlayActivity();
 			}
 		}
@@ -872,6 +877,7 @@ public class TimeSettingActivity extends BaseActivity {
 
 	@SuppressWarnings("deprecation")
 	private void setDefaultValueForTimeWidgets() {
+		isAllSelectState = true;
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String dateNowStr = sdf.format(d);
@@ -1119,6 +1125,7 @@ public class TimeSettingActivity extends BaseActivity {
 		if (vType == 0) {
 			videoType.setText(typeShAll);
 			if (visible) {
+				isAllSelectState = true;
 				staBtn0.setBackgroundResource(R.drawable.channellist_select_alled);
 				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
@@ -1127,17 +1134,21 @@ public class TimeSettingActivity extends BaseActivity {
 			}
 		} else if (vType == 1) {
 			videoType.setText(typeKGLJG);
+			isAllSelectState = false;
 			if (visible)
 				staBtn4.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else if (vType == 2) {
+			isAllSelectState = false;
 			videoType.setText(typeYDZC);
 			if (visible)
 				staBtn3.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else if (vType == 4) {
+			isAllSelectState = false;
 			videoType.setText(typeDsh);
 			if (visible)
 				staBtn2.setBackgroundResource(R.drawable.channellist_select_alled);
 		} else if (vType == 8) {
+			isAllSelectState = false;
 			videoType.setText(typeShD);
 			if (visible)
 				staBtn1.setBackgroundResource(R.drawable.channellist_select_alled);

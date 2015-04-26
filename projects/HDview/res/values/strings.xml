@@ -316,6 +316,7 @@
     <string name="playback_setting_end_time">结束时间</string>
     <string name="playback_setting_video_type">视频类型</string>
     <string name="playback_alarm_type">全部</string>
+    <string name="playback_alarm_type_null">请选择视频类型</string>
     <string name="playback_alarm_type1">手动录像</string>
     <string name="playback_alarm_type2">定时录像</string>
     <string name="playback_req_fail"> 用户请求失败</string>
