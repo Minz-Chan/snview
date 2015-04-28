@@ -777,17 +777,12 @@ public class ChannelListActivity extends BaseActivity {
 				}
 			}
 		}
-
 		return previewChannelList2;
 	}
 
-	private boolean isLikePreviewItem(PreviewDeviceItem preview1,
-			PreviewDeviceItem preview2) {
+	private boolean isLikePreviewItem(PreviewDeviceItem preview1,PreviewDeviceItem preview2) {
 		boolean isLike = false;
-		if (preview1.getPlatformUsername().equals(
-				preview2.getPlatformUsername())
-				&& preview1.getDeviceRecordName().equals(
-						preview2.getDeviceRecordName())) {
+		if (preview1.getPlatformUsername().equals(preview2.getPlatformUsername()) && preview1.getDeviceRecordName().equals(preview2.getDeviceRecordName())) {
 			isLike = true;
 		}
 		return isLike;
@@ -864,8 +859,6 @@ public class ChannelListActivity extends BaseActivity {
 		} else {
 			showToast(getString(R.string.channel_manager_channellistview_netnotopen));
 		}
-		
-//		preItemsInApplication = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(getString(R.string.common_last_devicelist_path));
 	}
 
 	private void copyOriginPreviewItems() {
@@ -881,19 +874,6 @@ public class ChannelListActivity extends BaseActivity {
 			tp.setSvrPort(pi.getSvrPort());
 			oriPreviewChnlsBackup.add(tp);
 		}
-		
-//		preItemsInApplication = new ArrayList<PreviewDeviceItem>();
-//		for (PreviewDeviceItem pi : oriPreviewChnls) {
-//			PreviewDeviceItem tp = new PreviewDeviceItem();
-//			tp.setChannel(pi.getChannel());
-//			tp.setDeviceRecordName(pi.getDeviceRecordName());
-//			tp.setLoginPass(pi.getLoginPass());
-//			tp.setLoginUser(pi.getLoginUser());
-//			tp.setPlatformUsername(pi.getPlatformUsername());
-//			tp.setSvrIp(pi.getSvrIp());
-//			tp.setSvrPort(pi.getSvrPort());
-//			preItemsInApplication.add(tp);
-//		}
 	}
 
 	private void copyCloudAccountEnable() {
@@ -910,8 +890,7 @@ public class ChannelListActivity extends BaseActivity {
 		Toast.makeText(ChannelListActivity.this, content, Toast.LENGTH_SHORT).show();
 	}
 
-	private List<PreviewDeviceItem> getPreviewChannelList(
-			List<CloudAccount> cloudAccounts) {
+	private List<PreviewDeviceItem> getPreviewChannelList(List<CloudAccount> cloudAccounts) {
 		List<PreviewDeviceItem> previewList = new ArrayList<PreviewDeviceItem>();
 		if ((cloudAccounts == null) || (cloudAccounts.size() < 1)) {
 			showToast(getString(R.string.channel_manager_channellistview_loadfail));

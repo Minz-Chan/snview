@@ -190,7 +190,7 @@
     <string name="device_listview_item_usable">启用状态</string>
     <string name="device_manager_conn_identify_channel_btn">连接验证</string>
     <string name="device_manager_collect_ip_wrong">IP错误，请重新输入</string>
-    <string name="device_manager_conn_iden_timout">连接验证超时&#8230;</string>
+    <string name="device_manager_conn_iden_timout">连接验证超时，请检查服务器和端口号</string>
     <string name="device_manager_conn_iden_sucess">连接验证成功&#8230;</string>
     <!-- <string name="device_manager_collect_add_not_ext16">不得超过16个字符</string> -->
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
@@ -198,14 +198,14 @@
     <string name="device_manager_edit_notnull">选项不能为空，请补充完整</string>
     <string name="device_manager_editact_port_wrong">端口号错误，请重置</string>
     <string name="device_manager_deCh_chNum">默认通道的数字应小于通道数量</string>
-    <string name="device_manager_deviceedit_conniden_error">用户名或密码错误</string>
+    <string name="device_manager_deviceedit_conniden_error">请检查用户名或密码</string>
     <string name="device_manager_deviceedit_conniden_fail">连接验证失败</string>
     <string name="device_manager_deviceedit_conniden_succ">连接验证成功</string>
     <string name="device_manager_collect_username_ext32">用户名长度不能超过32位</string>
     <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>
     <string name="device_manager_collect_add_not_ext65535">端口取值范围为1~65535</string>
     <string name="device_manager_deviceedit_conniden_timeout">连接验证超时</string>
-    <string name="device_manager_deviceedit_conniden_timeout_ip_port_correct">连接验证超时，请检查网络地址和端口是否正确</string>
+    <string name="device_manager_deviceedit_conniden_timeout_ip_port_correct">连接验证超时，请检查服务器和端口是否正确</string>
     <string name="device_manager_conn_iden_svrip_notnull">服务器不可以为空</string>
     <string name="device_manager_add_scan_edit_layout_record_name">记录名</string>
     <string name="device_manager_add_scan_edit_layout_server_name">服务器</string>
@@ -221,6 +221,8 @@
     <string name="device_manager_collect_null_wrong">包含有尚未填写的部分,请检查</string>
     <string name="device_manager_conn_iden_devicename_notnull">设备名称不可以为空</string>
     <string name="device_manager_conn_iden_wrong">连接验证失败，请检查用户名和密码</string>
+    <string name="device_manager_conn_iden_exception">连接验证失败，请检查服务器和端口号</string>
+    <string name="device_manager_conn_iden_ip_port_error">连接验证失败，请检查服务器和端口号</string>
     <string name="device_manager_please_identify">请进行连接验证,或选择"否"之后保存</string>
     <string name="device_manager_devicechoose_exam_open">请检查是否开启视频监控服务平台</string>
     <string name="device_manager_devicechoose_adding_and_wait">正在添加设备，请等待</string>

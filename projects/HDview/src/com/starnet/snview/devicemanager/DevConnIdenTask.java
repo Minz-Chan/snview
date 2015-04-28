@@ -31,7 +31,7 @@ public class DevConnIdenTask {
 	private Handler mHandler;
 	private boolean isCanceled;
 	private Thread timeOutThread;
-	private final int timeOut = 7;
+	private final int timeOut = 8;
 	private DeviceItem mDeviceItem;
 	private Thread connectionThread;
 	private BufferSendManager sender;
@@ -42,9 +42,9 @@ public class DevConnIdenTask {
 	private boolean shouldTimeOutOver = false;
 	private boolean isOnWorkdIOErr;
 	private boolean isOnWorkdUnknwnHost;
-	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
-	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
-	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+//	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
+//	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
+//	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 
 	public DevConnIdenTask(Handler handler, DeviceItem deviceItem) {
 		this.mHandler = handler;
@@ -95,8 +95,7 @@ public class DevConnIdenTask {
 						isOnWorkdUnknwnHost = true;
 						isConnectedOver = true;
 						isOnWorkdIOErr = true;
-						if (!isCanceled && !shouldTimeOutOver
-								&& !isConnectedOver && !isOnConnectionWrong) {
+						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver && !isOnConnectionWrong) {
 							exit();
 							onConnectionWrong();
 						}
@@ -119,7 +118,7 @@ public class DevConnIdenTask {
 			setWrongDevicetItem(1);
 			setBundleData(data);
 			msg.setData(data);
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_IP_PORT;
 			if (!isCanceled && !isOnConnectionWrong && shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
 			}
@@ -158,7 +157,7 @@ public class DevConnIdenTask {
 			setWrongDevicetItem(1);
 			setBundleData(data);
 			msg.setData(data);
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_PORT;
 			if (!isCanceled && !isOnWorkdUnknwnHost) {
 				mHandler.sendMessage(msg);
 			}
@@ -175,7 +174,7 @@ public class DevConnIdenTask {
 			setWrongDevicetItem(1);
 			setBundleData(data);
 			msg.setData(data);
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdIOErr) {
 				mHandler.sendMessage(msg);
 			}
@@ -196,6 +195,7 @@ public class DevConnIdenTask {
 				getConnectionIdentifyInfo();
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
 			return;
 		}
 	}
@@ -214,7 +214,7 @@ public class DevConnIdenTask {
 		if (len == 140) {// 连接成功
 			if (!isCanceled) {
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_SUCCESS;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_SUCCESS;
 				byte[] recvData = new byte[len - 4];
 				in.read(recvData);
 				int channelNumber = recvData[80];
@@ -228,17 +228,27 @@ public class DevConnIdenTask {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_WRONG;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_WRONG;
 				setDevicetItem(defaultChannelNum);
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
 			}
-		} else {
+		} else if (len == 0) {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_WRONG;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_PSUN;
+				setDevicetItem(defaultChannelNum);
+				setBundleData(data);
+				msg.setData(data);
+				mHandler.sendMessage(msg);
+			}
+		}else {
+			if (!isCanceled) {
+				exit();
+				shouldTimeOutOver = true;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_IP_PORT;
 				setDevicetItem(defaultChannelNum);
 				setBundleData(data);
 				msg.setData(data);
@@ -333,7 +343,7 @@ public class DevConnIdenTask {
 			mDeviceItem.setConnPass(false);
 			setBundleData(data);
 			msg.setData(data);
-			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
+			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
 			}

@@ -48,26 +48,35 @@ public class DeviceEditableActivity extends BaseActivity {
 	private ProgressDialog connIdenPrg;
 	private final int CONNIDENPRG = 0x0003;
 	private EditableDevConnIdentifyTask connIdenTask;
-	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
-	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
-	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
-	private final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
+	public static final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
+	public static final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
+	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
+	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;
+	public static final int CONNECTIFYIDENTIFY_PORT_ERROR = 0x0016;
 
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			switch (msg.what) {
+			case CONNECTIFYIDENTIFY_HOST_ERROR:
+				dimissPrg();
+				showToasContent(getString(R.string.device_manager_conn_iden_ip_port_error));
+				break;
 			case CONNECTIFYIDENTIFY_WRONG:
 				dimissPrg();
-				String txt = getString(R.string.device_manager_deviceedit_conniden_fail);
-				showToasContent(txt);
+				showToasContent(getString(R.string.device_manager_deviceedit_conniden_fail));
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				dimissPrg();
 				showToasContent(getString(R.string.device_manager_deviceedit_conniden_succ));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
+				dimissPrg();
+				showToasContent(getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct));
+				break;
+			case CONNECTIFYIDENTIFY_PORT_ERROR:
 				dimissPrg();
 				showToasContent(getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct));
 				break;

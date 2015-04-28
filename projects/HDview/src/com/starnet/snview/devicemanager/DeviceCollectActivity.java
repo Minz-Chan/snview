@@ -58,9 +58,13 @@ public class DeviceCollectActivity extends BaseActivity {
 	private boolean isIdentify = false; // 是否进行了验证
 	private RadioButton yesRadioButton;
 	private DevConnIdenTask conIdenTask;
-	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
-	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
-	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	public static final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
+	public static final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
+	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
+	public static final int CONNECTIFYIDENTIFY_ERROR_PSUN = 0x0014;
+	public static final int CONNECTIFYIDENTIFY_ERROR_PORT = 0x0015;
+	public static final int CONNECTIFYIDENTIFY_ERROR_IP_PORT = 0x0016;
+	public static final int CONNECTIFYIDENTIFY_EXCEPTION = 0x0017;
 
 	private int chooseactivity_return_flag = 1;
 	// private EditText chooseEdt;
@@ -181,29 +185,27 @@ public class DeviceCollectActivity extends BaseActivity {
 			case DOWNLOADSUCCESSFUL:
 				getMessgeInfoWithData(msg);
 				break;
-			// case LOAD_SUCCESS:
-			// if (synObject.getStatus() == SynObject.STATUS_RUN) {
-			// return;
-			// }
-			// synObject.resume();// 解除线程挂起,向下继续执行...
-			// dismissLoadPRG();
-			// Intent intent = new Intent();
-			// Bundle bundle = new Bundle();
-			// bundle.putParcelableArrayList("dvrDeviceList",
-			// (ArrayList<? extends Parcelable>) dvrList);
-			// intent.putExtras(bundle);
-			// intent.setClass(DeviceCollectActivity.this,
-			// DeviceChooseActivity.class);
-			// startActivityForResult(intent, REQUESTCODE);
-			// break;
-			case CONNECTIFYIDENTIFY_WRONG:
-				isIdentify = true;
-				isConnPass = false;
-				dismissIdenPRG();
-				saveDeviceItem.setIdentify(isIdentify);
-				saveDeviceItem.setConnPass(isConnPass);
-				setSaveDeviceItem();
+			case CONNECTIFYIDENTIFY_ERROR_PSUN:
+				connectifyWrong();
 				showToast(getString(R.string.device_manager_conn_iden_wrong));
+				break;
+			case CONNECTIFYIDENTIFY_ERROR_PORT:
+				connectifyWrong();
+				showToast(getString(R.string.device_manager_conn_iden_ip_port_error));
+				break;
+			case CONNECTIFYIDENTIFY_ERROR_IP_PORT:
+				connectifyWrong();
+				showToast(getString(R.string.device_manager_conn_iden_ip_port_error));
+				break;
+			case CONNECTIFYIDENTIFY_WRONG:
+				connectifyWrong();
+				showToast(getString(R.string.device_manager_conn_iden_wrong));
+				break;
+			case CONNECTIFYIDENTIFY_EXCEPTION:
+				dismissIdenPRG();
+				dismissLoadPRG();
+				connectifyWrong();
+				showToast(getString(R.string.device_manager_conn_iden_exception));
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				isIdentify = true;
@@ -219,17 +221,21 @@ public class DeviceCollectActivity extends BaseActivity {
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				isIdentify = true;
-				isConnPass = false;
-				dismissIdenPRG();
-				saveDeviceItem.setIdentify(isIdentify);
-				saveDeviceItem.setConnPass(isConnPass);
-				setSaveDeviceItem();
+				connectifyWrong();
 				showToast(getString(R.string.device_manager_conn_iden_timout));
 				break;
 			default:
 				break;
 			}
+		}
+
+		private void connectifyWrong() {
+			isIdentify = true;
+			isConnPass = false;
+			dismissIdenPRG();
+			saveDeviceItem.setIdentify(isIdentify);
+			saveDeviceItem.setConnPass(isConnPass);
+			setSaveDeviceItem();
 		}
 	};
 
@@ -326,7 +332,6 @@ public class DeviceCollectActivity extends BaseActivity {
 				if (!NetWorkUtils.checkNetConnection(DeviceCollectActivity.this)) {
 					showToast(getString(R.string.device_collect_network_not_conn));
 				} else {
-
 					DeviceItem deviceItem = new DeviceItem();
 					String platName = getString(R.string.device_manager_collect_device);
 					List<String> infoList = getDeviceItemInfoFromEdx();
@@ -945,6 +950,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		dismissLoadPRG();
 		if ((requestCode == REQUESTCODE)) {
 			if (resultCode == ALL_ADD) {
 				setResult(ALL_ADD);

@@ -27,16 +27,10 @@ public class EditableDevConnIdentifyTask {
 	private Thread connectionThread;
 	private BufferSendManager sender;
 	private boolean isOnConnectionWrong;
-//	private CloudAccount clickCloudAccount;
-//	private final int defaultChannelNum = 1;
 	private boolean isConnectedOver = false;
 	private boolean shouldTimeOutOver = false;
 	private boolean isOnWorkdIOErr;
 	private boolean isOnWorkdUnknwnHost;
-	private final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
-	private final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
-	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
-	private final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
 
 	public EditableDevConnIdentifyTask(Handler handler, DeviceItem deviceItem) {
 		this.mHandler = handler;
@@ -107,7 +101,7 @@ public class EditableDevConnIdentifyTask {
 			isConnectedOver = true;
 			isOnWorkdIOErr = true;
 			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnConnectionWrong && shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
 			}
@@ -142,7 +136,7 @@ public class EditableDevConnIdentifyTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_HOST_ERROR;
 			if (!isCanceled && !isOnWorkdUnknwnHost) {
 				mHandler.sendMessage(msg);
 			}
@@ -155,7 +149,7 @@ public class EditableDevConnIdentifyTask {
 			shouldTimeOutOver = true;
 			isConnectedOver = true;
 			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_WRONG;
+			msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
 			if (!isCanceled && !isOnWorkdIOErr) {
 				mHandler.sendMessage(msg);
 			}
@@ -193,7 +187,7 @@ public class EditableDevConnIdentifyTask {
 		if (len == 140) {// 连接成功
 			if (!isCanceled) {
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_SUCCESS;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
 				mHandler.sendMessage(msg);
 				exit();
 			}
@@ -201,14 +195,21 @@ public class EditableDevConnIdentifyTask {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_WRONG;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
 				mHandler.sendMessage(msg);
 			}
-		} else {
+		} else if (len == 0) {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = CONNECTIFYIDENTIFY_USERPSWD_ERROR;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_USERPSWD_ERROR;
+				mHandler.sendMessage(msg);
+			}
+		}else {
+			if (!isCanceled) {
+				exit();
+				shouldTimeOutOver = true;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_PORT_ERROR;
 				mHandler.sendMessage(msg);
 			}
 		}
@@ -294,19 +295,13 @@ public class EditableDevConnIdentifyTask {
 		}
 		if (!isCanceled && !shouldTimeOutOver) {
 			Message msg = new Message();
-			msg.what = CONNECTIFYIDENTIFY_TIMEOUT;
+			msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_TIMEOUT;
 			if (!shouldTimeOutOver) {
 				mHandler.sendMessage(msg);
 			}
 		}
 		shouldTimeOutOver = true;
 	}
-
-//	private void setBundleData(Bundle data) {
-//		data.putSerializable("identifyDeviceItem", mDeviceItem);
-//		data.putString("deviceName", mDeviceItem.getDeviceName());
-//		data.putSerializable("clickCloudAccount", clickCloudAccount);
-//	}
 
 	public void setContext(Context context) {
 		this.context = context;
