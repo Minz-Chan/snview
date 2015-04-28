@@ -353,21 +353,21 @@ public class DeviceCollectActivity extends BaseActivity {
 					}
 
 					String ip = deviceItem.getSvrIp();
-					if (ip == null || ip.trim().equals("")
-							|| !IPAndPortUtils.isIp(ip)) {
-						String text1 = getString(R.string.device_manager_deviceeditable_ip_wrong);
-						Toast.makeText(DeviceCollectActivity.this, text1,
-								Toast.LENGTH_SHORT).show();
+					if (ip == null || ip.trim().equals("") || !IPAndPortUtils.isIp(ip)) {
+						showToast(getString(R.string.device_manager_deviceeditable_ip_wrong));
 						return;
 					}
 
 					String port = deviceItem.getSvrPort();
-					if (port == null || port.trim().equals("")
-							|| !IPAndPortUtils.isNetPort(port)) {
-						String text1 = getString(R.string.device_manager_collect_add_not_ext65535);
-						Toast.makeText(DeviceCollectActivity.this, text1,
-								Toast.LENGTH_SHORT).show();
+					if (port == null || port.trim().equals("") || !IPAndPortUtils.isNetPort(port)) {
+						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 						return;
+					}
+					
+					String lgUserName = deviceItem.getLoginUser();
+					if ((lgUserName != null) && (lgUserName.length() > 32)) {
+						showToast(getString(R.string.device_manager_collect_username_ext32));
+						return ;
 					}
 
 					String lgPass = deviceItem.getLoginPass();
@@ -399,8 +399,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				String svIP = saveDeviceItem.getSvrIp().trim();
 				String port = saveDeviceItem.getSvrPort().trim();
 				String uName = saveDeviceItem.getLoginUser().trim();
-				if (!rName.equals("") && !svIP.equals("") && !port.equals("")
-						&& !uName.equals("")) {
+				if (!rName.equals("") && !svIP.equals("") && !port.equals("") && !uName.equals("")) {
 
 					boolean isIP = IPAndPortUtils.isIp(svIP);
 					if (!isIP) {
@@ -413,36 +412,34 @@ public class DeviceCollectActivity extends BaseActivity {
 						showToast(getString(R.string.device_manager_collect_add_not_ext65535));
 						return;
 					}
+					
+					if ((uName != null) && (uName.length() > 32)) {
+						showToast(getString(R.string.device_manager_collect_username_ext32));
+						return ;
+					}
+					
+					String lPass = saveDeviceItem.getLoginPass();
+					if (lPass != null && (lPass.length() >= 16)) {
+						showToast(getString(R.string.device_manager_collect_add_pswdnot_ext16));
+						return;
+					}
 
 					if (isPort && isIP) {
-
-						String lPass = saveDeviceItem.getLoginPass();
-						if (lPass != null && (lPass.length() >= 16)) {
-							String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
-							Toast.makeText(DeviceCollectActivity.this, txt,
-									Toast.LENGTH_SHORT).show();
-							return;
-						}
-
 						try {
 							if (chooseactivity_return_flag == 1) {// 表示未进行选择
 								if (!isConnPass) {
 									setNoConnPassDeviceItem();
 								}
-								saveDeviceItemToXML(saveDeviceItem,
-										DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
+								saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.SEMI_AUTO_ADD);// 验证通过后保存用户信息
 							} else {
-								boolean isSame = judgeDevicItemIsSame(
-										saveDeviceItem, chooseDeviceItem);
+								boolean isSame = judgeDevicItemIsSame(saveDeviceItem, chooseDeviceItem);
 								if (isSame) {// 进行了选择
-									saveDeviceItemToXML(saveDeviceItem,
-											DeviceViewActivity.AUTO_ADD);
+									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);
 								} else {
 									if (!isConnPass) {
 										setNoConnPassDeviceItem();
 									}
-									saveDeviceItemToXML(saveDeviceItem,
-											DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
+									saveDeviceItemToXML(saveDeviceItem,DeviceViewActivity.AUTO_ADD);// 验证通过后保存用户信息
 								}
 							}
 						} catch (Exception e) {

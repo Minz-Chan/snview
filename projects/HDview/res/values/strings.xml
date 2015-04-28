@@ -201,6 +201,7 @@
     <string name="device_manager_deviceedit_conniden_error">用户名或密码错误</string>
     <string name="device_manager_deviceedit_conniden_fail">连接验证失败</string>
     <string name="device_manager_deviceedit_conniden_succ">连接验证成功</string>
+    <string name="device_manager_collect_username_ext32">用户名长度不能超过32位</string>
     <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>
     <string name="device_manager_collect_add_not_ext65535">端口取值范围为1~65535</string>
     <string name="device_manager_deviceedit_conniden_timeout">连接验证超时</string>

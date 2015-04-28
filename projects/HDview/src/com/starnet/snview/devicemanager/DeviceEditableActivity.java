@@ -111,13 +111,27 @@ public class DeviceEditableActivity extends BaseActivity {
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("") && !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
 					boolean isIp = IPAndPortUtils.isIp(svrIp);
 					boolean isPort = IPAndPortUtils.isNetPort(svrPt);
+					if (!isIp) {
+						showToasContent(getString(R.string.device_manager_deviceeditable_ip_wrong));
+						return ;
+					}
+					
+					if (!isPort) {
+						showToasContent(getString(R.string.device_manager_collect_add_not_ext65535));
+						return ;
+					}
+					
+					if (lUser!=null&&(lUser.length() > 32)) {
+						showToasContent(getString(R.string.device_manager_collect_username_ext32));
+						return ;
+					}
+					
+					if (lPass != null && (lPass.length() >= 16)) {
+						showToasContent(getString(R.string.device_manager_collect_add_pswdnot_ext16));
+						return;
+					}
+					
 					if (isPort && isIp) {
-						
-						if (lPass != null && (lPass.length() >= 16)) {
-							String txt = getString(R.string.device_manager_collect_add_pswdnot_ext16);
-							Toast.makeText(DeviceEditableActivity.this, txt,Toast.LENGTH_SHORT).show();
-							return;
-						}
 						
 						clickDeviceItem.setSvrIp(svrIp);
 						clickDeviceItem.setSvrPort(svrPt);
@@ -165,13 +179,10 @@ public class DeviceEditableActivity extends BaseActivity {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
 						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else if (!isPort && isIp) {
-//						String text = getString(R.string.device_manager_deviceeditable_port_wrong);
 						String text = getString(R.string.device_manager_collect_add_not_ext65535);
 						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
 					} else {
 						String text1 = getString(R.string.device_manager_deviceeditable_ip_wrong);
-//						String text2 = getString(R.string.device_manager_collect_add_not_ext65535);
-//						String text = text1+text2;
 						Toast.makeText(DeviceEditableActivity.this, text1,Toast.LENGTH_SHORT).show();
 					}
 				} else {
@@ -219,6 +230,11 @@ public class DeviceEditableActivity extends BaseActivity {
 			boolean isPort = IPAndPortUtils.isNetPort(svrPt);
 			if ((svrPt==null)||svrPt.trim().equals("")||!isPort) {
 				showToasContent(getString(R.string.device_manager_collect_add_not_ext65535));
+				return;
+			}
+			
+			if (lUser!=null&&(lUser.length()>32)) {
+				showToasContent(getString(R.string.device_manager_collect_username_ext32));
 				return;
 			}
 			

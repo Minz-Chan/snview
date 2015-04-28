@@ -98,8 +98,7 @@ public class DeviceViewActivity extends BaseActivity {
 	private void setListeners() {
 		mListView.setOnItemClickListener(new OnItemClickListener() { // 进入该设备的信息查看界面
 					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
+					public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 						clickPosition = position;
 						clickDeviceItem = deviceItemList.get(position);
 						Intent intent = new Intent();
