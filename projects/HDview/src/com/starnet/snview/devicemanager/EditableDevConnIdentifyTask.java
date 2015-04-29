@@ -6,9 +6,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+
 import com.starnet.snview.component.BufferSendManager;
 import com.starnet.snview.protocol.message.LoginRequest;
 import com.starnet.snview.protocol.message.OwspBegin;
@@ -17,7 +20,7 @@ import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 
 public class EditableDevConnIdentifyTask {
-	
+	private static final String TAG = "EditableDevConnIdentifyTask";
 	private Socket client;
 	private Context context;
 	private Handler mHandler;
@@ -59,7 +62,7 @@ public class EditableDevConnIdentifyTask {
 						if (timeCount == timeOut) {
 							canRun = false;
 							if (!isCanceled) {// && !shouldTimeOutOver
-								exit();
+								closeConnection();
 								onTimeOut();
 							}
 						}
@@ -84,7 +87,7 @@ public class EditableDevConnIdentifyTask {
 						isOnWorkdIOErr = true;
 						if (!isCanceled && !shouldTimeOutOver
 								&& !isConnectedOver && !isOnConnectionWrong) {
-							exit();
+							closeConnection();
 							onConnectionWrong();
 						}
 						shouldTimeOutOver = true;
@@ -175,46 +178,95 @@ public class EditableDevConnIdentifyTask {
 		}
 	}
 
+	
+	 
+	/* The length within OWSP header encoded using BIG_ENDIAN */
+	private final int RESPONSE_VALIDATE_SUCC = 140;	// len = sizeof(SEQ) + TLV(VersionInfoReq) + TLV(DVSInfoReq)
+													// 	  + TLV(ChannelRsp) + TLV(StreamDataFormat) = 140
+	private final int RESPONSE_VALIDATE_FAIL = 20;	// len = sizeof(SEQ) + TLV(VersionInfoReq) + TLV(LoginRsp) = 20
+	
 	/** 获取网络连接验证的信息 */
 	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
-		Message msg = new Message();
 		InputStream in = client.getInputStream();
-		byte[] head = new byte[8];
-		in.read(head);
-		ByteBuffer headBuffer = ByteBuffer.allocate(8).wrap(head);
-		headBuffer.order(ByteOrder.BIG_ENDIAN);
-		int len = headBuffer.getInt();
-		if (len == 140) {// 连接成功
-			if (!isCanceled) {
-				shouldTimeOutOver = true;
+		int packetLength = parsePacketHeader(in);
+		
+		if (!isCanceled) {
+			Message msg = Message.obtain();
+			shouldTimeOutOver = true;
+			if (packetLength == RESPONSE_VALIDATE_SUCC) {
+				Log.d(TAG, "Validattion result: success !!!");
 				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
-				mHandler.sendMessage(msg);
-				exit();
-			}
-		} else if (len == 20) {//用户名和密码错误？？？
-			if (!isCanceled) {
-				exit();
-				shouldTimeOutOver = true;
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
-				mHandler.sendMessage(msg);
-			}
-		} else if (len == 0) {
-			if (!isCanceled) {
-				exit();
-				shouldTimeOutOver = true;
+			} else if (packetLength == RESPONSE_VALIDATE_FAIL) {
+				Log.d(TAG, "Validattion result: fail !!!");
 				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_USERPSWD_ERROR;
-				mHandler.sendMessage(msg);
+				msg.arg1 = parseLoginResponse(in); // error code of login	
+				Log.d(TAG, "Login error code: " + msg.arg1);
+			} else { // 0, connection may be closed rapidly by remote host;
+					 // Otherwise, client connect to the port of other service
+					 // or unexpected data is returned
+				Log.d(TAG, "Validattion result: unknown error !!!");
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
 			}
-		}else {
-			if (!isCanceled) {
-				exit();
-				shouldTimeOutOver = true;
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_PORT_ERROR;//未知异常。。。
-				mHandler.sendMessage(msg);
-			}
+			mHandler.sendMessage(msg);
 		}
+		
+		closeConnection();
 	}
+	
+	
+	private final int OWSP_HEADER_LEN = 8;
+	/**
+	 * Parse the packet header
+	 * @param in The stream provide the read data
+	 * @return Packet length that is defined in OWSP protocol
+	 */
+	private int parsePacketHeader(InputStream in) {
+		byte[] packetHeader = null;
+		ByteBuffer header = null;
+		int packetLength = 0;
+		try {
+			packetHeader = new byte[OWSP_HEADER_LEN];
+			in.read(packetHeader);
+			
+			header = ByteBuffer.wrap(packetHeader);
+			header.order(ByteOrder.BIG_ENDIAN);
+			packetLength = header.getInt(); // Actually, getUnsingedInt() should be called
+		} catch (IOException e) {
+			packetLength = -1;
+			e.printStackTrace();
+		}
+		
+		return packetLength;
+	}
+	
+	/**
+	 * Parse the login response.
+	 * @param in The stream provide the read data
+	 * @return -1, error occurs while parsing; otherwise, return 
+	 * 	error code responded by server.  
+	 */
+	private int parseLoginResponse(InputStream in) {
+		byte[] packetBody = null;
+		ByteBuffer body = null;
+		int result = -1;
+		try {
+			packetBody = new byte[RESPONSE_VALIDATE_FAIL-4];
+			in.read(packetBody);
+			
+			body = ByteBuffer.wrap(packetBody);
+			body.order(ByteOrder.LITTLE_ENDIAN);
+			body.position((4+4)+4);  // skip TLV(VersionInfoReq) + TL
+			result = body.getShort();  // Actually, getUnsighedShort() should be called
+		} catch (IOException e) {
+			result = -1;
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+	
+	
 
 	/** 设置验证后的设备 ***/
 //	private void setWrongDevicetItem(int channelNumber) {
@@ -318,10 +370,10 @@ public class EditableDevConnIdentifyTask {
 		shouldTimeOutOver = true;
 		isConnectedOver = true;
 		isOnWorkdIOErr = true;
-		exit();
+		closeConnection();
 	}
 
-	private void exit() {
+	private void closeConnection() {
 		if ((client != null) && client.isConnected()) {
 			try {
 				client.close();
