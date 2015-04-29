@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
+import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.util.IPAndPortUtils;
 
@@ -54,39 +55,90 @@ public class DeviceEditableActivity extends BaseActivity {
 	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
 	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;
 	public static final int CONNECTIFYIDENTIFY_PORT_ERROR = 0x0016;
+	public static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
 
 	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
+			
+			dimissPrg();
+			
+			String prompt = null;
 			switch (msg.what) {
 			case CONNECTIFYIDENTIFY_HOST_ERROR:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_conn_iden_ip_port_error));
+				prompt = getString(R.string.device_manager_conn_iden_ip_port_error);
 				break;
 			case CONNECTIFYIDENTIFY_WRONG:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_deviceedit_conniden_fail));
+				prompt = getString(R.string.device_manager_deviceedit_conniden_fail);
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_deviceedit_conniden_succ));
+				prompt = getString(R.string.device_manager_deviceedit_conniden_succ);
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct));
+				prompt = getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct);
 				break;
 			case CONNECTIFYIDENTIFY_PORT_ERROR:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct));
+				prompt = getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct);
 				break;
 			case CONNECTIFYIDENTIFY_USERPSWD_ERROR:
-				dimissPrg();
-				showToasContent(getString(R.string.device_manager_deviceedit_conniden_error));
+				prompt = getString(R.string.device_manager_deviceedit_conniden_error);
+				break;
+			case CONNECTIFYIDENTIFY_LOGIN_FAIL:
+				prompt = getErrorMessage(msg.arg1);
 				break;
 			}
+			
+			showToasContent(prompt);
 		}
 	};
+	
+	private String getErrorMessage(int errorCode) {
+		String errorMessage = null;
+		switch (errorCode) {
+		case 0:  // 兼容旧版，登录服务器失败，原因即用户或密码错误
+			errorMessage = getString(R.string.connection_response_user_pwd_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_SUCC:				// 登录服务器成功
+			errorMessage = getString(R.string.connection_response_login_success);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_USER_PWD_ERROR:		// 用户名或密码错
+			errorMessage = getString(R.string.connection_response_user_pwd_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_PDA_VERSION_ERROR:	// 版本不一致
+			errorMessage = getString(R.string.connection_response_pda_version_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_MAX_USER_ERROR:	    // 已达最大用户数
+			errorMessage = getString(R.string.connection_response_max_user_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_OFFLINE:		// 设备已经离线
+			errorMessage = getString(R.string.connection_response_device_offline);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_HAS_EXIST:	// 设备已经存在
+			errorMessage = getString(R.string.connection_response_device_has_exist);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_OVERLOAD:		// 设备性能超载(设备忙)
+			errorMessage = getString(R.string.connection_response_device_overload);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_INVALID_CHANNLE:		// 设备不支持的通道
+			errorMessage = getString(R.string.connection_response_invalid_channel);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_PROTOCOL_ERROR:		// 协议解析出错
+			errorMessage = getString(R.string.connection_response_protocol_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_NOT_START_ENCODE:	// 未启动编码
+			errorMessage = getString(R.string.connection_response_not_start_encode);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_TASK_DISPOSE_ERROR:	// 任务处理过程出错
+			errorMessage = getString(R.string.connection_response_task_dispose_error);
+			break;
+		default: 
+			errorMessage = getString(R.string.connection_response_unknown_error);
+			break;
+		}
+		
+		return errorMessage;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
