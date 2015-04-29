@@ -17,6 +17,7 @@ import com.starnet.snview.protocol.message.PhoneInfoRequest;
 import com.starnet.snview.protocol.message.VersionInfoRequest;
 
 public class EditableDevConnIdentifyTask {
+	
 	private Socket client;
 	private Context context;
 	private Handler mHandler;
@@ -191,7 +192,7 @@ public class EditableDevConnIdentifyTask {
 				mHandler.sendMessage(msg);
 				exit();
 			}
-		} else if (len == 20) {
+		} else if (len == 20) {//用户名和密码错误？？？
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
@@ -209,7 +210,7 @@ public class EditableDevConnIdentifyTask {
 			if (!isCanceled) {
 				exit();
 				shouldTimeOutOver = true;
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_PORT_ERROR;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_PORT_ERROR;//未知异常。。。
 				mHandler.sendMessage(msg);
 			}
 		}
