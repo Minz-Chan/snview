@@ -49,13 +49,12 @@ public class DeviceEditableActivity extends BaseActivity {
 	private ProgressDialog connIdenPrg;
 	private final int CONNIDENPRG = 0x0003;
 	private EditableDevConnIdentifyTask connIdenTask;
-	public static final int CONNECTIFYIDENTIFY_WRONG = 0x0012;
-	public static final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
-	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
-	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;
-	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;
-	public static final int CONNECTIFYIDENTIFY_PORT_ERROR = 0x0016;
-	public static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
+	public static final int CONNECTIFYIDENTIFY_WRONG = 0x0012;//
+	public static final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;//
+	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;//
+	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;//
+	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;//
+	private static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -76,9 +75,6 @@ public class DeviceEditableActivity extends BaseActivity {
 				prompt = getString(R.string.device_manager_deviceedit_conniden_succ);
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
-				prompt = getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct);
-				break;
-			case CONNECTIFYIDENTIFY_PORT_ERROR:
 				prompt = getString(R.string.device_manager_deviceedit_conniden_timeout_ip_port_correct);
 				break;
 			case CONNECTIFYIDENTIFY_USERPSWD_ERROR:

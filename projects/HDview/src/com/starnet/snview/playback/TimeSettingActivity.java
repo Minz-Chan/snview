@@ -1280,6 +1280,13 @@ public class TimeSettingActivity extends BaseActivity {
 	@Override
 	protected void onDestroy() {
 		showToastFlag = false;
+		if (tasks!=null) {
+			for (int i = 0; i < tasks.length; i++) {
+				if (tasks[i] != null) {
+					tasks[i].setCanceled(true);
+				}
+			}
+		}
 		super.onDestroy();
 	}
 }

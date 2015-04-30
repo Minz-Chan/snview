@@ -157,7 +157,7 @@ public class DevConnIdenTask {
 			setWrongDevicetItem(1);
 			setBundleData(data);
 			msg.setData(data);
-			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_PORT;
+			msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_IP_PORT;
 			if (!isCanceled && !isOnWorkdUnknwnHost) {
 				mHandler.sendMessage(msg);
 			}

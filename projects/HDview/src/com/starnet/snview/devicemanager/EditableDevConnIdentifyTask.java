@@ -186,7 +186,6 @@ public class EditableDevConnIdentifyTask {
 	private final int RESPONSE_VALIDATE_FAIL = 20;	// len = sizeof(SEQ) + TLV(VersionInfoReq) + TLV(LoginRsp) = 20
 	
 	/** 获取网络连接验证的信息 */
-	@SuppressWarnings("static-access")
 	private void getConnectionIdentifyInfo() throws IOException {
 		InputStream in = client.getInputStream();
 		int packetLength = parsePacketHeader(in);

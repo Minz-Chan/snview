@@ -36,12 +36,12 @@ import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.channelmanager.xml.CloudAccountInfoOpt;
 import com.starnet.snview.channelmanager.xml.DVRDevice;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.util.IPAndPortUtils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.PinyinComparatorUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
-import com.starnet.snview.util.SynObject;
 
 @SuppressLint("SdCardPath")
 public class DeviceCollectActivity extends BaseActivity {
@@ -62,10 +62,10 @@ public class DeviceCollectActivity extends BaseActivity {
 	public static final int CONNECTIFYIDENTIFY_SUCCESS = 0x0011;
 	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 	public static final int CONNECTIFYIDENTIFY_ERROR_PSUN = 0x0014;
-	public static final int CONNECTIFYIDENTIFY_ERROR_PORT = 0x0015;
 	public static final int CONNECTIFYIDENTIFY_ERROR_IP_PORT = 0x0016;
 	public static final int CONNECTIFYIDENTIFY_EXCEPTION = 0x0017;
-
+	private static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0018;
+	
 	private int chooseactivity_return_flag = 1;
 	// private EditText chooseEdt;
 	private EditText portEdt;
@@ -74,16 +74,12 @@ public class DeviceCollectActivity extends BaseActivity {
 	private EditText lgUserEdt;
 	private EditText lgPswdEdt;
 
-	private final int LOAD_SUCCESS = 2;
-	private final int LOAD_WRONG = 100;
 	private final int LOADNETDATADIALOG = 1;
 	private final int CONNIDENTIFYDIALOG = 5;
 
-	private SynObject synObject = new SynObject();
-
 	private List<DVRDevice> dvrList = new ArrayList<DVRDevice>();// 保存全部数据
 
-	private List<DeviceItem> collectDeviceItemList;//
+	private List<DeviceItem> collectDeviceItemList;
 	private LoadCollectDeviceItemTask loadDataTask;
 
 	private Context context;
@@ -189,10 +185,6 @@ public class DeviceCollectActivity extends BaseActivity {
 				connectifyWrong();
 				showToast(getString(R.string.device_manager_conn_iden_wrong));
 				break;
-			case CONNECTIFYIDENTIFY_ERROR_PORT:
-				connectifyWrong();
-				showToast(getString(R.string.device_manager_conn_iden_ip_port_error));
-				break;
 			case CONNECTIFYIDENTIFY_ERROR_IP_PORT:
 				connectifyWrong();
 				showToast(getString(R.string.device_manager_conn_iden_ip_port_error));
@@ -210,21 +202,21 @@ public class DeviceCollectActivity extends BaseActivity {
 			case CONNECTIFYIDENTIFY_SUCCESS:
 				isIdentify = true;
 				isConnPass = true;
-				dismissIdenPRG();
 				saveDeviceItem.setIdentify(true);
 				saveDeviceItem.setConnPass(true);
 				identifyDeviceItem = getIdentifyDeviceItem(msg);
-				saveDeviceItem.setChannelList(identifyDeviceItem
-						.getChannelList());
-				saveDeviceItem
-						.setChannelSum(identifyDeviceItem.getChannelSum());
+				saveDeviceItem.setChannelList(identifyDeviceItem.getChannelList());
+				saveDeviceItem.setChannelSum(identifyDeviceItem.getChannelSum());
 				showToast(getString(R.string.device_manager_conn_iden_sucess));
+				dismissIdenPRG();
+				dismissLoadPRG();
 				break;
 			case CONNECTIFYIDENTIFY_TIMEOUT:
 				connectifyWrong();
 				showToast(getString(R.string.device_manager_conn_iden_timout));
 				break;
-			default:
+			case CONNECTIFYIDENTIFY_LOGIN_FAIL:
+				showToast(getErrorMessage(msg.arg1));
 				break;
 			}
 		}
@@ -238,6 +230,53 @@ public class DeviceCollectActivity extends BaseActivity {
 			setSaveDeviceItem();
 		}
 	};
+	
+	private String getErrorMessage(int errorCode) {
+		String errorMessage = null;
+		switch (errorCode) {
+		case 0:  // 兼容旧版，登录服务器失败，原因即用户或密码错误
+			errorMessage = getString(R.string.connection_response_user_pwd_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_SUCC:				// 登录服务器成功
+			errorMessage = getString(R.string.connection_response_login_success);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_USER_PWD_ERROR:		// 用户名或密码错
+			errorMessage = getString(R.string.connection_response_user_pwd_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_PDA_VERSION_ERROR:	// 版本不一致
+			errorMessage = getString(R.string.connection_response_pda_version_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_MAX_USER_ERROR:	    // 已达最大用户数
+			errorMessage = getString(R.string.connection_response_max_user_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_OFFLINE:		// 设备已经离线
+			errorMessage = getString(R.string.connection_response_device_offline);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_HAS_EXIST:	// 设备已经存在
+			errorMessage = getString(R.string.connection_response_device_has_exist);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_DEVICE_OVERLOAD:		// 设备性能超载(设备忙)
+			errorMessage = getString(R.string.connection_response_device_overload);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_INVALID_CHANNLE:		// 设备不支持的通道
+			errorMessage = getString(R.string.connection_response_invalid_channel);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_PROTOCOL_ERROR:		// 协议解析出错
+			errorMessage = getString(R.string.connection_response_protocol_error);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_NOT_START_ENCODE:	// 未启动编码
+			errorMessage = getString(R.string.connection_response_not_start_encode);
+			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_TASK_DISPOSE_ERROR:	// 任务处理过程出错
+			errorMessage = getString(R.string.connection_response_task_dispose_error);
+			break;
+		default: 
+			errorMessage = getString(R.string.connection_response_unknown_error);
+			break;
+		}
+		
+		return errorMessage;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -260,8 +299,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	/*** 获取验证后的收藏设备 ***/
 	private DeviceItem getIdentifyDeviceItem(Message msg) {
 		Bundle data = msg.getData();
-		DeviceItem dItem = (DeviceItem) data
-				.getSerializable("identifyDeviceItem");
+		DeviceItem dItem = (DeviceItem) data.getSerializable("identifyDeviceItem");
 		return dItem;
 
 	}
