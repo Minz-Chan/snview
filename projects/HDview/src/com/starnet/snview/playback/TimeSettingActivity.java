@@ -126,6 +126,7 @@ public class TimeSettingActivity extends BaseActivity {
 	private final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;
 	public static final int CONNECTIDENTIFY_PROGRESSBAR = 0x11220033;
 	
+	private boolean showToastFlag = true;
 	private boolean isAllSelectState = false;
 
 	private Handler mHandler = new Handler() {
@@ -134,21 +135,24 @@ public class TimeSettingActivity extends BaseActivity {
 			super.handleMessage(msg);
 			switch (msg.what) {
 			case LOAD_COLLECT_DATA_TIMEOUT:
-				loadDataForTimeOut(msg);
+				if (showToastFlag) {
+					loadDataForTimeOut(msg);
+				}
 				break;
 			case LOAD_COLLECT_DATA_LOADSUC:
 				loadDataForSucess(msg);
 				break;
 			case LOAD_COLLECT_DATA_LOADFAI:
-				Bundle msgD = msg.getData();
-				int posit = msgD.getInt("position");
-				CloudAccount netCA2 = (CloudAccount) msgD
-						.getSerializable("netCA");
-				String fail = getString(R.string.playback_req_fail);
-				showToast(netCA2.getUsername() + fail);
-				netCA2.setRotate(true);
-				originCAs.set(posit, netCA2);
-				actsAdapter.notifyDataSetChanged();
+				if (showToastFlag) {
+					Bundle msgD = msg.getData();
+					int posit = msgD.getInt("position");
+					CloudAccount netCA2 = (CloudAccount) msgD.getSerializable("netCA");
+					String fail = getString(R.string.playback_req_fail);
+					showToast(netCA2.getUsername() + fail);
+					netCA2.setRotate(true);
+					originCAs.set(posit, netCA2);
+					actsAdapter.notifyDataSetChanged();
+				}
 				break;
 			case CONNECTIFYIDENTIFY_SUCCESS:// 连接验证成功，弹出通道列表对话框
 				dissmissIdentifyDialog();
@@ -1259,8 +1263,7 @@ public class TimeSettingActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case CONNECTIDENTIFY_PROGRESSBAR:
-			connectIdentifyPrg = ProgressDialog.show(this, "",
-					getString(R.string.device_manager_conn_iden), true, true);
+			connectIdentifyPrg = ProgressDialog.show(this, "", getString(R.string.device_manager_conn_iden), true, true);
 			connectIdentifyPrg.setOnCancelListener(new OnCancelListener() {
 				@SuppressWarnings("deprecation")
 				@Override
@@ -1272,5 +1275,11 @@ public class TimeSettingActivity extends BaseActivity {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		showToastFlag = false;
+		super.onDestroy();
 	}
 }
