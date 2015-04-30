@@ -196,9 +196,11 @@ public class EditableDevConnIdentifyTask {
 			if (packetLength == RESPONSE_VALIDATE_SUCC) {
 				Log.d(TAG, "Validattion result: success !!!");
 				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
+				
+				Log.d(TAG, "Channel count: " + parseDVSInfoRequest(in));
 			} else if (packetLength == RESPONSE_VALIDATE_FAIL) {
 				Log.d(TAG, "Validattion result: fail !!!");
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_USERPSWD_ERROR;
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_LOGIN_FAIL;
 				msg.arg1 = parseLoginResponse(in); // error code of login	
 				Log.d(TAG, "Login error code: " + msg.arg1);
 			} else { // 0, connection may be closed rapidly by remote host;
@@ -263,6 +265,34 @@ public class EditableDevConnIdentifyTask {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Parse DVS information when client logins successfully
+	 * @param in The stream provide the read data
+	 * @return The channel count of remote device
+	 */
+	private int parseDVSInfoRequest(InputStream in) {
+		byte[] packetBody = null;
+		ByteBuffer body = null;
+		int count = -1;
+		try {
+			packetBody = new byte[RESPONSE_VALIDATE_SUCC-4];
+			in.read(packetBody);
+			
+			body = ByteBuffer.wrap(packetBody);
+			body.order(ByteOrder.LITTLE_ENDIAN);
+			body.position((4+4)+ (4+68));  // skip TLV(VersionInfoReq) + (TL+offset)
+			count = body.get() & 0xff;	// Get the channel count, and restore it to origin 
+										// value. Because byte is signed which ranges from 
+										// -128 to 127, but 'channel count' is an unsigned
+										// byte (0~255) in the definition of protocol.
+		} catch (IOException e) {
+			count = -1;
+			e.printStackTrace();
+		}
+		
+		return count;
 	}
 	
 	

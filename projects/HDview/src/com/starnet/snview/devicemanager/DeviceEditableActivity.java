@@ -54,7 +54,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	public static final int CONNECTIFYIDENTIFY_TIMEOUT = 0x0013;//
 	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;//
 	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;//
-	private static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
+	public static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
 
 	private Handler mHandler = new Handler() {
 		@Override
