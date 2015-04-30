@@ -190,7 +190,7 @@
     <string name="device_listview_item_usable">启用状态</string>
     <string name="device_manager_conn_identify_channel_btn">连接验证</string>
     <string name="device_manager_collect_ip_wrong">IP错误，请重新输入</string>
-    <string name="device_manager_conn_iden_timout">连接验证超时，请检查服务器和端口号</string>
+    <string name="device_manager_conn_iden_timout">连接验证失败，请检查服务器和端口号</string>
     <string name="device_manager_conn_iden_sucess">连接验证成功&#8230;</string>
     <!-- <string name="device_manager_collect_add_not_ext16">不得超过16个字符</string> -->
     <string name="device_manager_devicechoose_adding_success">添加成功</string>
@@ -205,7 +205,7 @@
     <string name="device_manager_collect_add_pswdnot_ext16">密码长度为0~16位</string>
     <string name="device_manager_collect_add_not_ext65535">端口取值范围为1~65535</string>
     <string name="device_manager_deviceedit_conniden_timeout">连接验证超时</string>
-    <string name="device_manager_deviceedit_conniden_timeout_ip_port_correct">连接验证超时，请检查服务器和端口是否正确</string>
+    <string name="device_manager_deviceedit_conniden_timeout_ip_port_correct">连接验证失败，请检查服务器和端口是否正确</string>
     <string name="device_manager_conn_iden_svrip_notnull">服务器不可以为空</string>
     <string name="device_manager_add_scan_edit_layout_record_name">记录名</string>
     <string name="device_manager_add_scan_edit_layout_server_name">服务器</string>

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import com.starnet.snview.R;
 import com.starnet.snview.channelmanager.Channel;
@@ -25,6 +26,8 @@ import com.starnet.snview.protocol.message.VersionInfoRequest;
 import com.starnet.snview.syssetting.CloudAccount;
 
 public class DevConnIdenTask {
+	
+	private final String TAG = "DevConnIdenTask";
 	
 	private Socket client;
 	private Context context;
@@ -72,7 +75,7 @@ public class DevConnIdenTask {
 						if (timeCount == timeOut) {
 							canRun = false;
 							if (!isCanceled) {// && !shouldTimeOutOver
-								exit();
+								closeConnection();
 								onTimeOut();
 							}
 						}
@@ -96,7 +99,7 @@ public class DevConnIdenTask {
 						isConnectedOver = true;
 						isOnWorkdIOErr = true;
 						if (!isCanceled && !shouldTimeOutOver && !isConnectedOver && !isOnConnectionWrong) {
-							exit();
+							closeConnection();
 							onConnectionWrong();
 						}
 						shouldTimeOutOver = true;
@@ -199,10 +202,129 @@ public class DevConnIdenTask {
 			return;
 		}
 	}
+	
+	
+	
+	/* The length within OWSP header encoded using BIG_ENDIAN */
+	private final int RESPONSE_VALIDATE_SUCC = 140;	// len = sizeof(SEQ) + TLV(VersionInfoReq) + TLV(DVSInfoReq)
+													// 	  + TLV(ChannelRsp) + TLV(StreamDataFormat) = 140
+	private final int RESPONSE_VALIDATE_FAIL = 20;	// len = sizeof(SEQ) + TLV(VersionInfoReq) + TLV(LoginRsp) = 20
+
+	private final int OWSP_HEADER_LEN = 8;
+
+	private void getConnectionIdentifyInfo() throws IOException{
+		InputStream in = client.getInputStream();
+		int packetLength = parsePacketHeader(in);
+		
+		if (!isCanceled) {
+			Message msg = Message.obtain();
+			Bundle data = new Bundle();
+			shouldTimeOutOver = true;
+			isOnWorkdIOErr = true;
+			int channelNumber = 1;
+			if (packetLength == RESPONSE_VALIDATE_SUCC) {
+				Log.d(TAG, "Validattion result: success !!!");
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
+				channelNumber = parseDVSInfoRequest(in);//???接口				
+			} else if (packetLength == RESPONSE_VALIDATE_FAIL) {
+				Log.d(TAG, "Validattion result: fail !!!");
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_USERPSWD_ERROR;
+				msg.arg1 = parseLoginResponse(in); // error code of login	
+				Log.d(TAG, "Login error code: " + msg.arg1);
+				channelNumber = defaultChannelNum;				
+			} else { // 0, connection may be closed rapidly by remote host;
+					 // Otherwise, client connect to the port of other service
+					 // or unexpected data is returned
+				Log.d(TAG, "Validattion result: unknown error !!!");
+				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
+				channelNumber = defaultChannelNum;
+			}
+			setDevicetItem(channelNumber);
+			setBundleData(data);
+			msg.setData(data);
+			mHandler.sendMessage(msg);
+		}
+		
+		closeConnection();
+		
+	}
+	
+	private int parseDVSInfoRequest(InputStream in) {
+		byte[] packetBody = null;
+		ByteBuffer body = null;
+		int count = -1;
+		try {
+			packetBody = new byte[RESPONSE_VALIDATE_SUCC-4];
+			in.read(packetBody);
+			
+			body = ByteBuffer.wrap(packetBody);
+			body.order(ByteOrder.LITTLE_ENDIAN);
+			body.position((4+4)+ (4+68));  // skip TLV(VersionInfoReq) + (TL+offset)
+			count = body.get() & 0xff;	// Get the channel count, and restore it to origin 
+										// value. Because byte is signed which ranges from 
+										// -128 to 127, but 'channel count' is an unsigned
+										// byte (0~255) in the definition of protocol.
+		} catch (IOException e) {
+			count = -1;
+			e.printStackTrace();
+		}
+		
+		return count;
+	}
+	
+	/**
+	 * Parse the packet header
+	 * @param in The stream provide the read data
+	 * @return Packet length that is defined in OWSP protocol
+	 */
+	private int parsePacketHeader(InputStream in) {
+		byte[] packetHeader = null;
+		ByteBuffer header = null;
+		int packetLength = 0;
+		try {
+			packetHeader = new byte[OWSP_HEADER_LEN];
+			in.read(packetHeader);
+			
+			header = ByteBuffer.wrap(packetHeader);
+			header.order(ByteOrder.BIG_ENDIAN);
+			packetLength = header.getInt(); // Actually, getUnsingedInt() should be called
+		} catch (IOException e) {
+			packetLength = -1;
+			e.printStackTrace();
+		}
+		
+		return packetLength;
+	}
+	
+	/**
+	 * Parse the login response.
+	 * @param in The stream provide the read data
+	 * @return -1, error occurs while parsing; otherwise, return 
+	 * 	error code responded by server.  
+	 */
+	private int parseLoginResponse(InputStream in) {
+		byte[] packetBody = null;
+		ByteBuffer body = null;
+		int result = -1;
+		try {
+			packetBody = new byte[RESPONSE_VALIDATE_FAIL-4];
+			in.read(packetBody);
+			
+			body = ByteBuffer.wrap(packetBody);
+			body.order(ByteOrder.LITTLE_ENDIAN);
+			body.position((4+4)+4);  // skip TLV(VersionInfoReq) + TL
+			result = body.getShort();  // Actually, getUnsighedShort() should be called
+		} catch (IOException e) {
+			result = -1;
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 
 	/** 获取网络连接验证的信息 */
 	@SuppressWarnings("static-access")
-	private void getConnectionIdentifyInfo() throws IOException {
+	private void getConnectionIdentifyInfo2() throws IOException {
 		Bundle data = new Bundle();
 		Message msg = new Message();
 		InputStream in = client.getInputStream();
@@ -222,11 +344,11 @@ public class DevConnIdenTask {
 				setBundleData(data);
 				msg.setData(data);
 				mHandler.sendMessage(msg);
-				exit();
+				closeConnection();
 			}
 		} else if (len == 20) {
 			if (!isCanceled) {
-				exit();
+				closeConnection();
 				shouldTimeOutOver = true;
 				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_WRONG;
 				setDevicetItem(defaultChannelNum);
@@ -236,7 +358,7 @@ public class DevConnIdenTask {
 			}
 		} else if (len == 0) {
 			if (!isCanceled) {
-				exit();
+				closeConnection();
 				shouldTimeOutOver = true;
 				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_PSUN;
 				setDevicetItem(defaultChannelNum);
@@ -246,7 +368,7 @@ public class DevConnIdenTask {
 			}
 		}else {
 			if (!isCanceled) {
-				exit();
+				closeConnection();
 				shouldTimeOutOver = true;
 				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_ERROR_IP_PORT;
 				setDevicetItem(defaultChannelNum);
@@ -371,10 +493,10 @@ public class DevConnIdenTask {
 		shouldTimeOutOver = true;
 		isConnectedOver = true;
 		isOnWorkdIOErr = true;
-		exit();
+		closeConnection();
 	}
 
-	private void exit() {
+	private void closeConnection() {
 		if ((client != null) && client.isConnected()) {
 			try {
 				client.close();

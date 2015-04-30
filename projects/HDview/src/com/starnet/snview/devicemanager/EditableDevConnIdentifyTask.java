@@ -193,6 +193,7 @@ public class EditableDevConnIdentifyTask {
 		if (!isCanceled) {
 			Message msg = Message.obtain();
 			shouldTimeOutOver = true;
+			isOnWorkdIOErr = true;
 			if (packetLength == RESPONSE_VALIDATE_SUCC) {
 				Log.d(TAG, "Validattion result: success !!!");
 				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
