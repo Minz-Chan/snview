@@ -184,6 +184,10 @@ public class Connection extends DemuxingIoHandler {
 		this.isDisposed = isDisposed;
 	}
 	
+	public boolean isDisposed() {
+		return isDisposed;
+	}
+	
 	public StatusListener getStatusListener() {
 		return mConnectionListener;
 	}

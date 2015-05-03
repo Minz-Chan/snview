@@ -1,6 +1,7 @@
 package com.starnet.snview.component.liveview;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.starnet.snview.component.VideoPager;
@@ -325,7 +326,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		@Override
 		public boolean onLongClick(View v) {
 			Log.d(TAG, "on long click");
-			Toast.makeText(context, "Long Press", Toast.LENGTH_LONG).show();
+			//Toast.makeText(context, "Long Press", Toast.LENGTH_LONG).show();
 			return true;
 		}
 	};
@@ -868,17 +869,35 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			}
 		}
 		
-		for (LiveViewItemContainer c2 : mToBeRemovedLiveviews) {
+		Iterator<LiveViewItemContainer> itToBeRemovedLiveviews = mToBeRemovedLiveviews.iterator();
+		while (itToBeRemovedLiveviews.hasNext()) {
+			LiveViewItemContainer c2 = itToBeRemovedLiveviews.next();
 			if (!mCurrentLiveviews.contains(c2)) {
-				if (c2.isConnected() || c2.isConnecting()) {
-					c2.stopPreview(false);
-					c2.reset(true);
-				}
+				stopPreview(c2);
+				itToBeRemovedLiveviews.remove();	// use Iterator.remove() instead of ArrayList.remove(x)
+													// to avoid java.util.ConcurrentModificationException
 			}
 		}
+//		for (LiveViewItemContainer c2 : mToBeRemovedLiveviews) {
+//			if (!mCurrentLiveviews.contains(c2)) {
+//				stopPreview(c2);
+//				mToBeRemovedLiveviews.remove(c2)
+//			}
+//		}
 		
 		// Highlight border when preview starts
 		highlightLiveviewBorder();
+	}
+	
+	private void stopPreview(LiveViewItemContainer c) {
+		if (c == null) {
+			return;
+		}
+		
+		if (c.isConnected() || c.isConnecting()) {
+			c.stopPreview(false);
+			c.reset(true);
+		}
 	}
 	
 	public void stopPreviewCurrentScreen() {
@@ -936,6 +955,14 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				|| mToBeRemovedLiveviews == null
 				|| mDevices == null) {
 			return;
+		}
+		
+		// Make sure all connection in removed table is closed
+		for (LiveViewItemContainer c : mToBeRemovedLiveviews) {
+			stopPreview(c);
+			if (debug) {
+				Log.d(TAG, "UnremovedLiveviews: " + c);
+			}
 		}
 		
 		// Manage the LiveViewItemContainer added and removed

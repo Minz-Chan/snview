@@ -62,6 +62,10 @@ private static final String TAG = null;
 			connection = (Connection) session.getAttribute(CONNECTION);
 		}
 		
+		if (connection.isDisposed()) {
+			session.close(true);
+		}
+		
 		if (h264 == null) {
 			h264 = connection.getH264decoder();
 			h264.setOnResolutionChangeListener(new OnResolutionChangeListener() {
