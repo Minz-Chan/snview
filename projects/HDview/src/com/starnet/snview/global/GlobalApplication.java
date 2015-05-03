@@ -44,6 +44,14 @@ public class GlobalApplication extends FrontiaApplication {
 		return singleton;
 	}
 	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		
+		CrashHandler ch = CrashHandler.getInstance();
+		ch.init(this);
+	}
+	
 	public void init(Activity activity) {
 		mRealplayActivity = (RealplayActivity) activity;
 		
@@ -185,10 +193,8 @@ public class GlobalApplication extends FrontiaApplication {
 		this.mCurrentActivity = currentActivity;
 	}
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-	}
+	
+	
 
 	public List<PreviewDeviceItem> getLastPreviewItems() {
 		return lastPreviewItems;

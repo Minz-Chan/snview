@@ -20,6 +20,7 @@
     <string name="common_connection_wrong_check_port_domain">连接失败，请检查域名和端口设置</string>
     <string name="common_request_outtime_check_port_server">设备列表请求超时，请检查端口和服务器</string>
     <string name="common_last_devicelist_path">/data/data/com.starnet.snview/LastDevicesList.xml</string>
+    <string name="global_exception_prompt">程序出现异常，即将退出</string> 
     <string name="channel_load_timeout">账户数据加载超时</string>
     <string name="channel_load_exception">账户数据加载失败</string>
     <string name="channel_listview_device_layout_ok">确定</string>
