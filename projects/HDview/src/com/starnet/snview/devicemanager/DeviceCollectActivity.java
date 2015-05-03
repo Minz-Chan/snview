@@ -64,7 +64,7 @@ public class DeviceCollectActivity extends BaseActivity {
 	public static final int CONNECTIFYIDENTIFY_ERROR_PSUN = 0x0014;
 	public static final int CONNECTIFYIDENTIFY_ERROR_IP_PORT = 0x0016;
 	public static final int CONNECTIFYIDENTIFY_EXCEPTION = 0x0017;
-	private static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0018;
+	public static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0018;
 	
 	private int chooseactivity_return_flag = 1;
 	// private EditText chooseEdt;
@@ -216,6 +216,7 @@ public class DeviceCollectActivity extends BaseActivity {
 				showToast(getString(R.string.device_manager_conn_iden_timout));
 				break;
 			case CONNECTIFYIDENTIFY_LOGIN_FAIL:
+				dismissIdenPRG();
 				showToast(getErrorMessage(msg.arg1));
 				break;
 			}

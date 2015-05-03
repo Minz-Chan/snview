@@ -224,11 +224,11 @@ public class DevConnIdenTask {
 			int channelNumber = 1;
 			if (packetLength == RESPONSE_VALIDATE_SUCC) {
 				Log.d(TAG, "Validattion result: success !!!");
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_SUCCESS;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_SUCCESS;
 				channelNumber = parseDVSInfoRequest(in);//???接口				
 			} else if (packetLength == RESPONSE_VALIDATE_FAIL) {
 				Log.d(TAG, "Validattion result: fail !!!");
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_USERPSWD_ERROR;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_LOGIN_FAIL;
 				msg.arg1 = parseLoginResponse(in); // error code of login	
 				Log.d(TAG, "Login error code: " + msg.arg1);
 				channelNumber = defaultChannelNum;				
@@ -236,7 +236,7 @@ public class DevConnIdenTask {
 					 // Otherwise, client connect to the port of other service
 					 // or unexpected data is returned
 				Log.d(TAG, "Validattion result: unknown error !!!");
-				msg.what = DeviceEditableActivity.CONNECTIFYIDENTIFY_WRONG;
+				msg.what = DeviceCollectActivity.CONNECTIFYIDENTIFY_WRONG;
 				channelNumber = defaultChannelNum;
 			}
 			setDevicetItem(channelNumber);
