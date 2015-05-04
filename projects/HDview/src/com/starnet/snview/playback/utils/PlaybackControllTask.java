@@ -83,7 +83,7 @@ public class PlaybackControllTask {
 		// Audio play thread
 		audioPlayThread = new HandlerThread("audioPlayThread");
 		audioPlayThread.start();
-		audioPlayHandler = new AudioHandler(audioPlayThread.getLooper());
+		audioPlayHandler = new AudioHandler(context, audioPlayThread.getLooper());
 		
 		// Video play thread
 		videoPlayThread = new HandlerThread("videoPlayThread", android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);

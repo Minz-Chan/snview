@@ -7,6 +7,7 @@ import android.util.Log;
 public class MP4Recorder {
 	private static final String TAG = "MP4Recorder";
 	private static HashMap<Long, Boolean> status = new HashMap<Long, Boolean>();
+	private static HashMap<String, Long> locks = new HashMap<String, Long>();
 	
 	static {
 		System.loadLibrary("H264SpsParser");
@@ -31,10 +32,11 @@ public class MP4Recorder {
 			int height, int framerate, int AVCProfileIndication,
 			int profile_compat, int AVCLevelIndication) {
     	Log.d(TAG, "createRecordFile, width:" +  width + ", height:" + height);
-    	long fileHandler = MP4CreateRecordFile(filename, width, height, framerate,
+    	long fileHandle = MP4CreateRecordFile(filename, width, height, framerate,
     			AVCProfileIndication, profile_compat, AVCLevelIndication);
-    	status.put(Long.valueOf(fileHandler), Boolean.valueOf(true));
-    	return fileHandler;
+    	status.put(Long.valueOf(fileHandle), Boolean.valueOf(true));
+    	locks.put(String.valueOf(fileHandle), Long.valueOf(fileHandle));
+    	return fileHandle;
     }
     
     /**
@@ -45,11 +47,19 @@ public class MP4Recorder {
      * @return 1，成功；0，失败
      */
     public static int packVideo(long fileHandle, byte[] data, int size) {
-    	return MP4PackVideo(fileHandle, data, size);
+    	int result = 0;
+    	synchronized (locks.get(String.valueOf(fileHandle))) {
+    		result = MP4PackVideo(fileHandle, data, size);
+    	}
+    	return result;
     }
     
     public static int packAudio(long fileHandle, byte[] data, int size) {
-    	return MP4PackAudio(fileHandle, data, size);
+    	int result = 0;
+    	synchronized (locks.get(String.valueOf(fileHandle))) {
+    		result = MP4PackAudio(fileHandle, data, size);
+    	}
+    	return result;
     }
     
     /**
@@ -59,6 +69,7 @@ public class MP4Recorder {
      */
     public static int closeRecordFile(long fileHandle) {
     	status.remove(Long.valueOf(fileHandle));
+    	locks.remove(String.valueOf(fileHandle));
     	return MP4CloseRecordFile(fileHandle);
     }
     

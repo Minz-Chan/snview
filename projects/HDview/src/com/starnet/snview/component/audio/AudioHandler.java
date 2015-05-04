@@ -1,5 +1,10 @@
 package com.starnet.snview.component.audio;
 
+import com.starnet.snview.component.h264.MP4Recorder;
+import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
+import com.starnet.snview.playback.PlaybackActivity;
+
+import android.content.Context;
 import android.media.AudioFormat;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +16,7 @@ public class AudioHandler extends Handler {
 	public static final int MSG_BUFFER_FULL = 0x12340001;
 	public static final int MSG_AUDIOPLAYER_INIT = 0x12340002;
 	
+	private Context context;
 	
 	private AudioPlayer audioPlayer;
 	private AudioBufferQueue bufferQueue;
@@ -18,8 +24,9 @@ public class AudioHandler extends Handler {
 	private byte[] alawData = new byte[AudioBufferQueue.BUFFER_SIZE];
 	private byte[] pcmData = new byte[AudioBufferQueue.BUFFER_SIZE*2];
 	
-	public AudioHandler(Looper looper) {
+	public AudioHandler(Context context, Looper looper) {
 		super(looper);			
+		this.context = context;
 		bufferQueue = new AudioBufferQueue(this);
 	}
 
@@ -47,6 +54,11 @@ public class AudioHandler extends Handler {
 			t1 = System.currentTimeMillis();
 			audioPlayer.playAudioTrack(pcmData, 0, pcmData.length);
 			Log.i(TAG, "$$$audio play consume:" + (System.currentTimeMillis()-t1));
+			
+			if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+				Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
+				MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
+			}
 		} else {
 			Log.i(TAG, "Read " + readByte + " byte(s) from audio buffer queue");
 		}
@@ -64,6 +76,14 @@ public class AudioHandler extends Handler {
 	
 	public AudioBufferQueue getBufferQueue() {
 		return bufferQueue;
+	}
+	
+	private PlaybackLiveViewItemContainer getPlaybackContainer() {
+		return getPlaybackActivity().getVideoContainer();
+	}
+
+	private PlaybackActivity getPlaybackActivity() {
+		return (PlaybackActivity) context;
 	}
 	
 	

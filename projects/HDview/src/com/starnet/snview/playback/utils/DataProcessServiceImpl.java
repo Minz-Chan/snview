@@ -321,10 +321,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
 				
-				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-					Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
-					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
-				} 
+//				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+//					Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
+//					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
+//				} 
 				
 				aHandler.getBufferQueue().write(alawData);
 //				getPlaybackContainer().getAudioBufferQueue().write(alawData);
