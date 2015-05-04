@@ -383,6 +383,10 @@ public class Connection extends DemuxingIoHandler {
     }
     
     public void sendControlRequest(int cmdCode) {
+    	if (session == null) {
+    		return;
+    	}
+    	
     	ControlRequest c = new ControlRequest();
     	c.setDeviceId(1);
     	c.setChannel(channel);

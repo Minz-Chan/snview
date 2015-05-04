@@ -1183,6 +1183,10 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		}
 		
 		private boolean isVelocityMeetScrollCondition(MotionEvent e1, MotionEvent e2) {
+			if (e1 == null || e2 == null) {
+				return false;
+			}
+			
 			float timeInSeconds = (float) ((e2.getEventTime() - e1.getEventTime()) / 1000.0);
 			int velocityX = (int) (Math.abs(e2.getX() - e1.getX()) / timeInSeconds);
 			int velocityY = (int) (Math.abs(e2.getY() - e1.getY()) / timeInSeconds);
