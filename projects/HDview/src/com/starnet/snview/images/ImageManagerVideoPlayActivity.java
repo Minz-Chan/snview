@@ -105,13 +105,23 @@ public class ImageManagerVideoPlayActivity extends Activity implements
 	TimerTask mTimerTask = new TimerTask() {				//通过定时器和Handler来更新进度条 
         @Override  
         public void run() {  
-            if(mMediaPlayer==null)  {
-            	mTimerTask.cancel();
-            	return;  
-            }                
-            if (mMediaPlayer.isPlaying()){
-            	mHandler.sendEmptyMessage(0);
-            }
+        	try {
+        		if(mMediaPlayer==null)  {
+                	mTimerTask.cancel();
+                	return;  
+                }                
+                if (mMediaPlayer.isPlaying()){
+                	mHandler.sendEmptyMessage(0);
+                }
+        	} catch (IllegalStateException e) {
+        		Log.e(TAG, "media player status is error");
+        		e.printStackTrace();
+        	}
+        	 catch (Exception e) {
+        		 Log.e(TAG, "Uncaught error");
+        		 e.printStackTrace();
+        	}
+            
         }  
     };  
     
