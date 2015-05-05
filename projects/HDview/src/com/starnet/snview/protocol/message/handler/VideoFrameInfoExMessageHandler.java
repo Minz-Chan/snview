@@ -13,8 +13,8 @@ public class VideoFrameInfoExMessageHandler implements
 		MessageHandler<VideoFrameInfoEx> {
 	private static final String TAG = "VideoFrameInfoExMessageHandler";
 	
-	private AttributeKey ONE_IFRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBuffer");
-	private AttributeKey ONE_IFRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBufferSize");
+	private AttributeKey ONE_FRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBuffer");
+	private AttributeKey ONE_FRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBufferSize");
 	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
 
 	@Override
@@ -25,9 +25,9 @@ public class VideoFrameInfoExMessageHandler implements
 		session.setAttribute(DATA_EXCEED_64KB, Boolean.valueOf(true));
 		
 		Integer oneIFrameDataSize = Integer.valueOf(message.getDataSize());
-		session.setAttribute(ONE_IFRAME_BUFFER_SIZE, oneIFrameDataSize);
+		session.setAttribute(ONE_FRAME_BUFFER_SIZE, oneIFrameDataSize);
 		
-		IoBuffer oneIFrameBuffer = (IoBuffer) session.getAttribute(ONE_IFRAME_BUFFER);
+		IoBuffer oneIFrameBuffer = (IoBuffer) session.getAttribute(ONE_FRAME_BUFFER);
 		if (oneIFrameBuffer == null) {
 			oneIFrameBuffer = IoBuffer.allocate(message.getDataSize());
 		}
@@ -35,7 +35,7 @@ public class VideoFrameInfoExMessageHandler implements
 		if (oneIFrameBuffer.remaining() < oneIFrameDataSize) {
 			oneIFrameBuffer.expand(oneIFrameDataSize);
 		}
-		session.setAttribute(ONE_IFRAME_BUFFER, oneIFrameBuffer);
+		session.setAttribute(ONE_FRAME_BUFFER, oneIFrameBuffer);
 		
 	}
 

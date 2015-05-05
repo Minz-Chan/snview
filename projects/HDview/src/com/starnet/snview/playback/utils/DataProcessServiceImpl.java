@@ -1,18 +1,14 @@
 package com.starnet.snview.playback.utils;
 
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import org.apache.mina.core.buffer.IoBuffer;
 
 import com.starnet.snview.component.audio.AudioHandler;
-import com.starnet.snview.component.h264.AVConfig;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.h264.H264DecodeUtil.OnResolutionChangeListener;
 import com.starnet.snview.component.h264.H264Decoder;
-import com.starnet.snview.component.h264.MP4Recorder;
-import com.starnet.snview.component.liveview.PlaybackLiveView;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
@@ -32,8 +28,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 	
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
-	private IoBuffer oneIFrameBuffer;
-	private int oneIFrameDataSize;
+	private IoBuffer oneFrameBuffer;
+	private int oneFrameDataSize;
 	
 	private Handler handler;
 
@@ -65,13 +61,13 @@ public class DataProcessServiceImpl implements DataProcessService {
 			}
 		});
 		
-		oneIFrameBuffer = IoBuffer.allocate(65536);
+		oneFrameBuffer = IoBuffer.allocate(65536);
 		handler = ((PlaybackActivity) context).getHandler();
 	}
 	
-	private boolean isPlaying() {
-		return getPlaybackActivity().isPlaying();
-	}
+//	private boolean isPlaying() {
+//		return getPlaybackActivity().isPlaying();
+//	}
 	
 //	private boolean isOnPlayControl() {
 //		return getPlaybackActivity().isOnPlayControl();
@@ -85,9 +81,9 @@ public class DataProcessServiceImpl implements DataProcessService {
 		return getPlaybackActivity().getAction();
 	}
 
-	private PlaybackLiveView getPlaybackLiveView() {
-		return getPlaybackContainer().getSurfaceView();
-	}
+//	private PlaybackLiveView getPlaybackLiveView() {
+//		return getPlaybackContainer().getSurfaceView();
+//	}
 
 	private PlaybackLiveViewItemContainer getPlaybackContainer() {
 		return getPlaybackActivity().getVideoContainer();
@@ -155,10 +151,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "video time: "  + time);
 				Log.i(TAG, "video time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
-				oneIFrameDataSize = -1;
-				oneIFrameBuffer.clear();
-				if (oneIFrameBuffer.remaining() < 0xFFFF) {
-					oneIFrameBuffer.expand(0xFFFF);
+				oneFrameDataSize = -1;
+				oneFrameBuffer.clear();
+				if (oneFrameBuffer.remaining() < 0xFFFF) {
+					oneFrameBuffer.expand(0xFFFF);
 				}				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_PFRAME_DATA) {
 				// 若第1帧接到的不是I帧，则后续的P帧不处理
@@ -172,31 +168,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						tlv_Header.getTlv_len());
 				
 				Log.i(TAG, "$$$Frame data P:" + tmp.length);
-
-				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-					requestVideoRecord(tmp.clone());
-				} 
-				
-				
-				int count = 0;
-				while (vHandler.isAlive() && 
-						vHandler.getBufferQueue().write(tmp) == 0) {
-					Log.i(TAG, "video write queue full111...");
-					try {
-						if (count == 5) {
-							count = 0;
-							Message msg = Message.obtain();
-							msg.what = VideoHandler.MSG_BUFFER_PROCESS;
-							vHandler.sendMessage(msg);
-						}
-						
-						Thread.sleep(10);
-						count++;
-					} catch (Exception e) {
-						e.printStackTrace();
-						break;
-					} 
-				}
+				processFrameData(tmp, false);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_IFRAME_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_IFRAME_DATA");
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
@@ -225,44 +197,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 					}
 				}
 
-				oneIFrameBuffer.put(tmp);
-
-				Log.i(TAG, "$$$oneIFrameDataSize:" + oneIFrameDataSize + ", remaining:" + oneIFrameBuffer.remaining() + ", pos:" + oneIFrameBuffer.position());
-				if (oneIFrameDataSize == -1 // The data size of I Frame is less than 65536
-						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
-				) {
-					Log.i(TAG, "$$$IFrame decode start");
-					byte[] toBeWritten = oneIFrameBuffer.flip().array();
-					
-					Log.d(TAG, "Video data size , toBeWritten.length:" + toBeWritten.length);
-					
-					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-						requestVideoRecord(toBeWritten.clone());
-					} 
-					
-					
-					int count = 0;					
-					while (vHandler.isAlive() && 
-							vHandler.getBufferQueue().write(toBeWritten.clone()) == 0) {
-						Log.i(TAG, "video write queue full222...");
-						try {
-							if (count == 5) {
-								count = 0;
-								Message msg = Message.obtain();
-								msg.what = VideoHandler.MSG_BUFFER_PROCESS;
-								vHandler.sendMessage(msg);
-							}
-							
-							Thread.sleep(10);
-							count++;
-						} catch (Exception e) {
-							e.printStackTrace();
-							break;
-						} 
-					}
-					
-					isIFrameFinished = true;
-				}
+				processFrameData(tmp, true);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_INFO");
 				TLV_V_AudioInfo audioInfo = (TLV_V_AudioInfo) ByteArray2Object
@@ -285,43 +220,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 						tlv_Header.getTlv_len());
 				
 				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-//					Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
-//					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
-					requestAudioRecord(alawData.clone());
+					requestAudioRecord(alawData.clone(), alawData.length);
 				} 
 				
 				aHandler.getBufferQueue().write(alawData);
-				
-				
-//				getPlaybackContainer().getAudioBufferQueue().write(alawData);
-//				byte[] pcmData = new byte[alawData.length*2];
-//
-//				audioCodec.g711aDecode(alawData, alawData.length, pcmData, pcmData.length);
-//				getAudioPlayer().playAudioTrack(pcmData, 0, pcmData.length);
-				
-				/*
-				if (count < 800) {
-					try {
-						audioWriter.write(pcmData);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				} else {
-					try {
-						audioWriter.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					
-					Log.i(TAG, "$$$audioWriter close...");
-				}
-				
-				count++;*/
-
-				
-//				PlaybackControllTaskUtils.saveBytesToFile(tmp);//Test 
-				
-//				audioPlayer.playAudioTrack(tmp, 0, tmp.length);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_STREAM_FORMAT_INFO");
 				TLV_V_StreamDataFormat tlv_V_StreamDataFormat = (TLV_V_StreamDataFormat) ByteArray2Object
@@ -410,56 +312,54 @@ public class DataProcessServiceImpl implements DataProcessService {
 				}
 				oldSecond = second;
 				
-				oneIFrameDataSize = (int) tlv_V_VideoFrameInfoEx.getDataSize();
-				oneIFrameBuffer.clear();
-				if (oneIFrameBuffer.remaining() < oneIFrameDataSize) {
-					oneIFrameBuffer.expand(oneIFrameDataSize);
+				oneFrameDataSize = (int) tlv_V_VideoFrameInfoEx.getDataSize();
+				oneFrameBuffer.clear();
+				if (oneFrameBuffer.remaining() < oneFrameDataSize) {
+					oneFrameBuffer.expand(oneFrameDataSize);
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_PLAY_RECORD_RSP) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_PLAY_RECORD_RSP");
 				TLV_V_PlayRecordResponse prr = (TLV_V_PlayRecordResponse) ByteArray2Object.convert2Object(TLV_V_PlayRecordResponse.class, data,flag, OWSP_LEN.TLV_V_PlayRecordResponse);
 				int result = prr.getResult();
 				PlaybackControlAction action = getAction();
-//				if (isOnPlayControl()) {
-					if (result == 1) {//表示请求成功
-						if (action == PlaybackControlAction.PLAY) {
-							returnValue = PlaybackActivity.ACTION_PLAY_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_SUCC);
-						} else if (action == PlaybackControlAction.PAUSE) {
-							returnValue = PlaybackActivity.ACTION_PAUSE_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_SUCC);
-							break;
-						} else if (action == PlaybackControlAction.RESUME) {
-							returnValue = PlaybackActivity.ACTION_RESUME_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_SUCC);
-						} else if (action == PlaybackControlAction.RANDOM_PLAY) {
-							returnValue = PlaybackActivity.ACTION_RANDOM_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_SUCC);
-						} else if (action == PlaybackControlAction.STOP) {
-							returnValue = PlaybackActivity.ACTION_STOP_SUCC;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_SUCC);
-						}
-					}else {//表示暂停失败
-						if (action == PlaybackControlAction.PLAY) {
-							returnValue = PlaybackActivity.ACTION_PLAY_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_FAIL);
-							break;
-						} else if (action == PlaybackControlAction.PAUSE) {
-							returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
-						} else if (action == PlaybackControlAction.RESUME) {
-							returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
-							break;
-						} else if (action == PlaybackControlAction.RANDOM_PLAY) {
-							returnValue = PlaybackActivity.ACTION_RANDOM_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_FAIL);
-						} else if (action == PlaybackControlAction.STOP) {
-							returnValue = PlaybackActivity.ACTION_STOP_FAIL;
-							sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_FAIL);
-						}
+				if (result == 1) {//表示请求成功
+					if (action == PlaybackControlAction.PLAY) {
+						returnValue = PlaybackActivity.ACTION_PLAY_SUCC;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_SUCC);
+					} else if (action == PlaybackControlAction.PAUSE) {
+						returnValue = PlaybackActivity.ACTION_PAUSE_SUCC;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_SUCC);
+						break;
+					} else if (action == PlaybackControlAction.RESUME) {
+						returnValue = PlaybackActivity.ACTION_RESUME_SUCC;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_SUCC);
+					} else if (action == PlaybackControlAction.RANDOM_PLAY) {
+						returnValue = PlaybackActivity.ACTION_RANDOM_SUCC;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_SUCC);
+					} else if (action == PlaybackControlAction.STOP) {
+						returnValue = PlaybackActivity.ACTION_STOP_SUCC;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_SUCC);
 					}
-//				}
+				}else {//表示暂停失败
+					if (action == PlaybackControlAction.PLAY) {
+						returnValue = PlaybackActivity.ACTION_PLAY_FAIL;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_FAIL);
+						break;
+					} else if (action == PlaybackControlAction.PAUSE) {
+						returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
+					} else if (action == PlaybackControlAction.RESUME) {
+						returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
+						break;
+					} else if (action == PlaybackControlAction.RANDOM_PLAY) {
+						returnValue = PlaybackActivity.ACTION_RANDOM_FAIL;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_RANDOM_FAIL);
+					} else if (action == PlaybackControlAction.STOP) {
+						returnValue = PlaybackActivity.ACTION_STOP_FAIL;
+						sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_FAIL);
+					}
+				}
 				
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_RECORD_EOF) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_RECORD_EOF");
@@ -508,23 +408,63 @@ public class DataProcessServiceImpl implements DataProcessService {
 		lastVideoTimestamp = videoTimestamp;		
 	}
 	
-	private void requestAudioRecord(byte[] alawData) {
+	private void processFrameData(byte[] tmp, boolean isIFrame) {
+		oneFrameBuffer.put(tmp);
+		if (oneFrameDataSize == -1 // The data size of I Frame is less than 65536
+				|| oneFrameBuffer.position() >= oneFrameDataSize // The all I Frame data has been collected
+		) {
+			int frameLength = oneFrameBuffer.position();
+			byte[] toBeWritten = oneFrameBuffer.flip().array();
+			
+			Log.d(TAG, "Video data size , frameLength:" + frameLength);
+			
+			if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+				requestVideoRecord(toBeWritten.clone(), frameLength);
+			} 
+			
+			int count = 0;					
+			while (vHandler.isAlive() && 
+					vHandler.getBufferQueue().write(toBeWritten.clone()) == 0) {
+				Log.i(TAG, "video write queue full222...");
+				try {
+					if (count == 5) {
+						count = 0;
+						Message msg = Message.obtain();
+						msg.what = VideoHandler.MSG_BUFFER_PROCESS;
+						vHandler.sendMessage(msg);
+					}
+					
+					Thread.sleep(10);
+					count++;
+				} catch (Exception e) {
+					e.printStackTrace();
+					break;
+				} 
+			}
+			
+			if (isIFrame) {
+				isIFrameFinished = true;
+			}
+		}
+	}
+	
+	private void requestAudioRecord(byte[] alawData, int len) {
 		Bundle b = new Bundle();
 		b.putByteArray("AUDIO_DATA", alawData);
+		b.putInt("FRAME_LENGTH", len);
 		Message msg = Message.obtain();
 		msg.what = RecordHandler.MSG_AUDIO_RECORD;
 		msg.setData(b);
 		rHandler.sendMessage(msg);
-
 	}
 	
-	private void requestVideoRecord(byte[] videoData) {
+	private void requestVideoRecord(byte[] videoData, int len) {
 		Bundle b = new Bundle();
 		b.putByteArray("VIDEO_DATA", videoData);
+		b.putInt("FRAME_LENGTH", len);
 		Message msg = Message.obtain();
 		msg.what = RecordHandler.MSG_VIDEO_RECORD;
 		msg.setData(b);
 		rHandler.sendMessage(msg);
-
 	}	
 }

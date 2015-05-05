@@ -24,8 +24,8 @@ public class VideoFrameDataMessageHandler implements MessageHandler<VideoFrameDa
 private static final String TAG = null;
 
 	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
-	private AttributeKey ONE_IFRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBuffer");
-	private AttributeKey ONE_IFRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneIFrameBufferSize");
+	private AttributeKey ONE_FRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBuffer");
+	private AttributeKey ONE_FRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBufferSize");
 	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
 	
 	
@@ -45,14 +45,14 @@ private static final String TAG = null;
 		int length = data.length;
 		Boolean dataExceed64kb = (Boolean) session.getAttribute(DATA_EXCEED_64KB);
 		if (dataExceed64kb != null && dataExceed64kb) {
-			IoBuffer oneIFrameBuffer = (IoBuffer) session.getAttribute(ONE_IFRAME_BUFFER);
-			Integer oneIFrameDataSize = (Integer) session.getAttribute(ONE_IFRAME_BUFFER_SIZE);
+			IoBuffer oneFrameBuffer = (IoBuffer) session.getAttribute(ONE_FRAME_BUFFER);
+			Integer oneFrameDataSize = (Integer) session.getAttribute(ONE_FRAME_BUFFER_SIZE);
 			
-			oneIFrameBuffer.put(message.getData());
+			oneFrameBuffer.put(message.getData());
 			
-			if (oneIFrameBuffer.position() >= oneIFrameDataSize) {
-				data = oneIFrameBuffer.flip().array();
-				length = oneIFrameDataSize;
+			if (oneFrameBuffer.position() >= oneFrameDataSize) {
+				data = oneFrameBuffer.flip().array();
+				length = oneFrameDataSize;
 			} else {
 				return;
 			}
