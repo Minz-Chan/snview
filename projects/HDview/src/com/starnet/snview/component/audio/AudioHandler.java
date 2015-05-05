@@ -54,11 +54,6 @@ public class AudioHandler extends Handler {
 			t1 = System.currentTimeMillis();
 			audioPlayer.playAudioTrack(pcmData, 0, pcmData.length);
 			Log.i(TAG, "$$$audio play consume:" + (System.currentTimeMillis()-t1));
-			
-			if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-				Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
-				MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
-			}
 		} else {
 			Log.i(TAG, "Read " + readByte + " byte(s) from audio buffer queue");
 		}

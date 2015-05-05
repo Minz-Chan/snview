@@ -7,6 +7,7 @@ import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.playback.PlaybackActivity;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -16,6 +17,8 @@ public class VideoHandler extends Handler {
 	private static final String TAG = "VideoPlayHandler";
 	public static final int MSG_BUFFER_PROCESS = 0x11110001;
 	public static final int MSG_VIDEOPLAYER_INIT = 0x11110002;
+	public static final int MSG_VIDEO_RECORD = 0x11110003;
+	public static final int MSG_AUDIO_RECORD = 0x11110004;
 	
 	private Context context;
 	
@@ -35,14 +38,15 @@ public class VideoHandler extends Handler {
 		isAlive = true;
 	}
 
-
 	@Override
 	public void handleMessage(Message msg) {
 		switch(msg.what) {
-		case MSG_BUFFER_PROCESS:			
+		case MSG_BUFFER_PROCESS:		
+			Log.d(TAG, "MSG_BUFFER_PROCESS");
 			processVideoData();
 			break;
 		case MSG_VIDEOPLAYER_INIT:
+			Log.d(TAG, "MSG_VIDEOPLAYER_INIT");
 			h264decoder.init(msg.arg1, msg.arg2);
 			videoView.init(msg.arg1, msg.arg2);
 			break;
@@ -75,12 +79,6 @@ public class VideoHandler extends Handler {
 			videoView.onContentUpdated();					
 		}
 		Log.d(TAG, "$$$XFramedecode consume: " + (System.currentTimeMillis()-t1));
-		
-		if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-			Log.d(TAG, "MP4Recorder.packVideo, data size:" + vData.length);
-			int r = MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), vData, vData.length);
-			Log.d(TAG, "MP4Recorder.packVideo result:" + r);
-		} 
 	}
 	
 	public void onResolutionChanged(int newWidth, int newHeight) {
@@ -92,13 +90,13 @@ public class VideoHandler extends Handler {
 		return bufferQueue;
 	}
 
-	private PlaybackLiveViewItemContainer getPlaybackContainer() {
-		return getPlaybackActivity().getVideoContainer();
-	}
-
-	private PlaybackActivity getPlaybackActivity() {
-		return (PlaybackActivity) context;
-	}
+//	private PlaybackLiveViewItemContainer getPlaybackContainer() {
+//		return getPlaybackActivity().getVideoContainer();
+//	}
+//
+//	private PlaybackActivity getPlaybackActivity() {
+//		return (PlaybackActivity) context;
+//	}
 
 	public H264DecodeUtil getH264Decoder() {
 		return h264decoder;

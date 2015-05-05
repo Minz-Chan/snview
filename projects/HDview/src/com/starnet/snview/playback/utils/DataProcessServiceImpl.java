@@ -17,6 +17,7 @@ import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
 import com.starnet.snview.playback.PlaybackControlAction;
+import com.starnet.snview.playback.RecordHandler;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -28,7 +29,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 
 	private String TAG = "DataProcessServiceImpl";
 	private Context context;
-	private String conn_name;
 	
 	private H264DecodeUtil h264;
 	private boolean isIFrameFinished = false;
@@ -41,12 +41,14 @@ public class DataProcessServiceImpl implements DataProcessService {
 	
 	private AudioHandler aHandler;
 	private VideoHandler vHandler;
+	private RecordHandler rHandler;
 	
-	public DataProcessServiceImpl(Context context, AudioHandler audioHandler, VideoHandler videoHandler) {
+	public DataProcessServiceImpl(Context context, AudioHandler audioHandler, VideoHandler videoHandler, RecordHandler recordHandler) {
 		super();
 		this.context = context;
 		this.aHandler = audioHandler;
 		this.vHandler = videoHandler;
+		this.rHandler = recordHandler;
 		h264 = vHandler.getH264Decoder();
 		h264.init(352, 288);
 		h264.setOnResolutionChangeListener(new OnResolutionChangeListener() {
@@ -107,7 +109,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 	 */
 	@Override
 	public int process(byte[] data, int length) {
-//		PlaybackLiveView playbackVideo = getPlaybackLiveView();
 		int returnValue = 0;
 		int nLeft = length - 4; // 未处理的字节数
 		int nLen_hdr = OWSP_LEN.TLV_HEADER;
@@ -172,9 +173,10 @@ public class DataProcessServiceImpl implements DataProcessService {
 				
 				Log.i(TAG, "$$$Frame data P:" + tmp.length);
 
-//				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-//					MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), tmp, tmp.length);
-//				} 
+				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+					requestVideoRecord(tmp.clone());
+				} 
+				
 				
 				int count = 0;
 				while (vHandler.isAlive() && 
@@ -184,7 +186,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 						if (count == 5) {
 							count = 0;
 							Message msg = Message.obtain();
-							msg.what =VideoHandler.MSG_BUFFER_PROCESS;
+							msg.what = VideoHandler.MSG_BUFFER_PROCESS;
 							vHandler.sendMessage(msg);
 						}
 						
@@ -195,23 +197,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 						break;
 					} 
 				}
-				
-//				int result = 0;
-//				try {
-//					long t1 = System.currentTimeMillis();
-//					
-//					result = h264.decodePacket(tmp, tmp.length,
-//							playbackVideo.retrievetDisplayBuffer());
-//					
-//					Log.i(TAG, "$$$PFramedecode consume: " + (System.currentTimeMillis()-t1));
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//
-//				if (result == 1) {
-//					Log.i(TAG, "*********************** update video: P Frame  *************************");
-//					playbackVideo.onContentUpdated();					
-//				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_VIDEO_IFRAME_DATA) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_VIDEO_IFRAME_DATA");
 				byte[] tmp = (byte[]) ByteArray2Object.convert2Object(
@@ -247,22 +232,18 @@ public class DataProcessServiceImpl implements DataProcessService {
 						|| oneIFrameBuffer.position() >= oneIFrameDataSize // The all I Frame data has been collected
 				) {
 					Log.i(TAG, "$$$IFrame decode start");
-					/*
-					int dataSize = oneIFrameBuffer.position();
-					ByteBuffer buf = ByteBuffer.allocate(dataSize);
-					buf.put(oneIFrameBuffer.flip().array(), 0, dataSize);
-					byte[] toBeWritten = buf.array();*/
 					byte[] toBeWritten = oneIFrameBuffer.flip().array();
 					
 					Log.d(TAG, "Video data size , toBeWritten.length:" + toBeWritten.length);
 					
-//					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-//						MP4Recorder.packVideo(getPlaybackContainer().getRecordFileHandler(), toBeWritten, toBeWritten.length);
-//					} 
+					if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+						requestVideoRecord(toBeWritten.clone());
+					} 
+					
 					
 					int count = 0;					
 					while (vHandler.isAlive() && 
-							vHandler.getBufferQueue().write(toBeWritten) == 0) {
+							vHandler.getBufferQueue().write(toBeWritten.clone()) == 0) {
 						Log.i(TAG, "video write queue full222...");
 						try {
 							if (count == 5) {
@@ -281,24 +262,6 @@ public class DataProcessServiceImpl implements DataProcessService {
 					}
 					
 					isIFrameFinished = true;
-//					int result = 0;
-//					try {
-//						long t1 = System.currentTimeMillis();
-//						result = h264.decodePacket(oneIFrameBuffer.array(),
-//								oneIFrameBuffer.position(),
-//								playbackVideo.retrievetDisplayBuffer());
-//						Log.i(TAG, "$$$IFramedecode consume: " + (System.currentTimeMillis()-t1));
-//
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-//
-//					isIFrameFinished = true;
-//					if (result == 1) {
-//						playbackVideo.onContentUpdated();
-//						Log.i(TAG,
-//								"*********************** update video: I Frame  *************************");
-//					}
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_INFO) {
 				Log.i(TAG, "######TLV TYPE: TLV_T_AUDIO_INFO");
@@ -321,12 +284,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 						TLV_V_AudioData.class, data, flag,
 						tlv_Header.getTlv_len());
 				
-//				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
+				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
 //					Log.d(TAG, "MP4Recorder.packAudio, data size:" + alawData.length);
 //					MP4Recorder.packAudio(getPlaybackContainer().getRecordFileHandler(), alawData, alawData.length);
-//				} 
+					requestAudioRecord(alawData.clone());
+				} 
 				
 				aHandler.getBufferQueue().write(alawData);
+				
+				
 //				getPlaybackContainer().getAudioBufferQueue().write(alawData);
 //				byte[] pcmData = new byte[alawData.length*2];
 //
@@ -473,30 +439,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 							returnValue = PlaybackActivity.ACTION_STOP_SUCC;
 							sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_SUCC);
 						}
-//						if (isInRandomPlay()) {
-//							returnValue = PlaybackActivity.RANDOM_PLAYRECORDREQ_SUCC;
-//							sendMsgToPlayActivity(PlaybackActivity.RANDOM_PLAYRECORDREQ_SUCC);
-//							break;
-//						}
-						
-//						if (isPlaying()) {//通知PlaybackActivity的变化
-//							returnValue = PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC;
-//							sendMsgToPlayActivity(PlaybackActivity.PAUSE_PLAYRECORDREQ_SUCC);
-//							break;
-//						} else {
-//							returnValue = PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC;
-//							sendMsgToPlayActivity(PlaybackActivity.RESUME_PLAYRECORDREQ_SUCC);
-//						}
 					}else {//表示暂停失败
-//						if (isPlaying()) {
-//							returnValue = PlaybackActivity.ACTION_PAUSE_FAIL;
-//							sendMsgToPlayActivity(PlaybackActivity.ACTION_PAUSE_FAIL);
-//							break;
-//						} else {
-//							returnValue = PlaybackActivity.ACTION_RESUME_FAIL;
-//							sendMsgToPlayActivity(PlaybackActivity.ACTION_RESUME_FAIL);
-//							break;
-//						}
 						if (action == PlaybackControlAction.PLAY) {
 							returnValue = PlaybackActivity.ACTION_PLAY_FAIL;
 							sendMsgToPlayActivity(PlaybackActivity.ACTION_PLAY_FAIL);
@@ -565,4 +508,23 @@ public class DataProcessServiceImpl implements DataProcessService {
 		lastVideoTimestamp = videoTimestamp;		
 	}
 	
+	private void requestAudioRecord(byte[] alawData) {
+		Bundle b = new Bundle();
+		b.putByteArray("AUDIO_DATA", alawData);
+		Message msg = Message.obtain();
+		msg.what = RecordHandler.MSG_AUDIO_RECORD;
+		msg.setData(b);
+		rHandler.sendMessage(msg);
+
+	}
+	
+	private void requestVideoRecord(byte[] videoData) {
+		Bundle b = new Bundle();
+		b.putByteArray("VIDEO_DATA", videoData);
+		Message msg = Message.obtain();
+		msg.what = RecordHandler.MSG_VIDEO_RECORD;
+		msg.setData(b);
+		rHandler.sendMessage(msg);
+
+	}	
 }

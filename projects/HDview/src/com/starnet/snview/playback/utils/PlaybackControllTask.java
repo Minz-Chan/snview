@@ -11,6 +11,7 @@ import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.audio.AudioPlayer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
+import com.starnet.snview.playback.RecordHandler;
 import com.starnet.snview.protocol.message.OWSPDateTime;
 import com.starnet.snview.protocol.message.OwspBegin;
 import com.starnet.snview.protocol.message.OwspEnd;
@@ -59,8 +60,10 @@ public class PlaybackControllTask {
 	private Thread timeThread;
 	private HandlerThread videoPlayThread;
 	private HandlerThread audioPlayThread;
+	private HandlerThread recordThread;
 	private AudioHandler audioPlayHandler;
 	private VideoHandler videoPlayHandler;
+	private RecordHandler recordHandler;
 
 	private DataProcessService service;
 	private InputStream receiver = null;
@@ -92,7 +95,11 @@ public class PlaybackControllTask {
 				videoPlayThread.getLooper(), ((PlaybackActivity) context)
 						.getVideoContainer().getSurfaceView());
 		
-		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler);
+		recordThread = new HandlerThread("recordThread");
+		recordThread.start();
+		recordHandler = new RecordHandler(context, recordThread.getLooper());
+		
+		service = new DataProcessServiceImpl(context, audioPlayHandler, videoPlayHandler, recordHandler);
 		controller = new PlaybackController();
 	}
 	
@@ -287,6 +294,9 @@ public class PlaybackControllTask {
 				videoPlayThread.quit();
 				videoPlayHandler.setAlive(false);
 			}
+			if ((recordThread != null) && recordThread.isAlive()) {
+				recordThread.quit();
+			}			
 			
 			if (client != null && !client.isClosed() && client.isConnected()) {
 				client.close();
