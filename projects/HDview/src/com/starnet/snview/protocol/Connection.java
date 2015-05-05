@@ -477,12 +477,11 @@ public class Connection extends DemuxingIoHandler {
 		
 		if (isValid()) {
 			mConnectionListener.OnConnectionClosed(mLiveViewItem);
-			Log.i(TAG, "####$$$$");
-			//mLiveViewItem.reset();
 		}
 
-		if (mH264decoder != null) {
-			//mH264decoder.uninit();
+		if (mLiveViewItem != null 
+				&& mLiveViewItem.isInRecording()) {
+			mLiveViewItem.stopMP4Record();
 		}
 	}
 
