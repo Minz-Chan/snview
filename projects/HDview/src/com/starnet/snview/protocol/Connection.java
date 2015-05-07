@@ -135,7 +135,14 @@ public class Connection extends DemuxingIoHandler {
     }
     
     private void initConnector() {
-    	connector = new NioSocketConnector();
+    	try {
+    		connector = new NioSocketConnector();
+    	} catch (Exception e) {
+    		connector = null;
+    		Log.e(TAG, "Failed to create NioSocketConnector !!!");
+    		e.printStackTrace();
+    	}
+    	
         //connector.getFilterChain().addLast("owsp-codec", new ProtocolCodecFilter(new OwspMessageFactory()));
         connector.getFilterChain().addLast("owsp-codec", new OwspProtocolCodecFilter(new OwspFactory()));
         connector.getFilterChain().addLast("tlv-codec", new ProtocolCodecFilter(new TlvMessageFactory()));
@@ -248,6 +255,11 @@ public class Connection extends DemuxingIoHandler {
     	if (connector.isDisposed()) {
     		initConnector();
     		isDisposed = false;
+    	}
+    	
+    	if (connector == null) { // new NioSocketConnector error
+    		isDisposed = true;
+    		return;
     	}
     	
     	if (isValid()) {

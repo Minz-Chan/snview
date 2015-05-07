@@ -318,7 +318,13 @@ public class LiveViewItemContainer extends RelativeLayout {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				conn.connect();
+				try {
+					conn.connect();
+				} catch (Exception e) {
+					Log.e(TAG, "Connect failed !!!!!!!!!!!!!!!!");
+					e.printStackTrace();
+				}
+				
 			}
 		}).start();
 	}
