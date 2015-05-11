@@ -346,22 +346,20 @@ public class LiveViewItemContainer extends RelativeLayout {
 	 * @param canUpdateViewAfterClosed 停止后连接状态是否可被更新
 	 */
 	public void stopPreview(boolean canUpdateViewAfterClosed) {
-		final Connection conn = getConnection();
+		// 若开启了录像，则停止录像
+		if (isInRecording()) {
+			stopMP4Record();
+		}
 		
+		final Connection conn = getConnection();
 		if (!canUpdateViewAfterClosed) {
 			setConnection(null);
 		}
-		
 		if (conn.isConnected()) {
 			conn.disconnect();
 		} else {
 			conn.setDisposed(true); // 若为非连接状态，则可能处于连接初始化阶段，
 									// 此时将其设置为disposed状态
-		}
-
-		// 若开启了录像，则停止录像
-		if (getSurfaceView().isStartRecord()) {
-			stopMP4Record();
 		}
 	}
 	
