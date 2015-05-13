@@ -17,8 +17,8 @@ public class MP4Recorder {
 	private static native long MP4CreateRecordFile(String filename, int width,
 			int height, int framerate, int AVCProfileIndication,
 			int profile_compat, int AVCLevelIndication);
-    private static native int MP4PackVideo(long fileHandle, byte[] nal, int nalLen);
-    private static native int MP4PackAudio(long fileHandle, byte[] data, int len);
+    private static native int MP4PackVideo(long fileHandle, byte[] nal, int nalLen, int duration);
+    private static native int MP4PackAudio(long fileHandle, byte[] data, int len, int duration);
     private static native int MP4CloseRecordFile(long fileHandle);
     
     
@@ -44,20 +44,21 @@ public class MP4Recorder {
      * @param fileHandle 文件句柄
      * @param data 一帧视频数据（可为0x67,0x68,0x06,0x65,...等类型）
      * @param size 数据帧长度
+     * * @param duration 帧持续时间（timeTick=90000)
      * @return 1，成功；0，失败
      */
-    public static int packVideo(long fileHandle, byte[] data, int size) {
+    public static int packVideo(long fileHandle, byte[] data, int size, int duration) {
     	int result = 0;
     	synchronized (locks.get(String.valueOf(fileHandle))) {
-    		result = MP4PackVideo(fileHandle, data, size);
+    		result = MP4PackVideo(fileHandle, data, size, duration);
     	}
     	return result;
     }
     
-    public static int packAudio(long fileHandle, byte[] data, int size) {
+    public static int packAudio(long fileHandle, byte[] data, int size, int duration) {
     	int result = 0;
     	synchronized (locks.get(String.valueOf(fileHandle))) {
-    		result = MP4PackAudio(fileHandle, data, size);
+    		result = MP4PackAudio(fileHandle, data, size, duration);
     	}
     	return result;
     }

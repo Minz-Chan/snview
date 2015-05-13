@@ -46,13 +46,14 @@ public class RecordHandler extends Handler {
 
 		byte[] alawData = data.getByteArray("AUDIO_DATA");
 		int len = data.getInt("FRAME_LENGTH");
+		int duration = data.getInt("DURATION");
 		if (alawData != null) {
 			if (getPlaybackContainer().isInRecording()
 					&& getPlaybackContainer().canStartRecord()) {
 				Log.d(TAG, "MP4Recorder.packAudio, data size:"
 						+ alawData.length);
 				MP4Recorder.packAudio(getPlaybackContainer()
-						.getRecordFileHandler(), alawData, len);
+						.getRecordFileHandler(), alawData, len, duration);
 			}
 		}
 	}
@@ -65,13 +66,14 @@ public class RecordHandler extends Handler {
 
 		byte[] videoData = data.getByteArray("VIDEO_DATA");
 		int len = data.getInt("FRAME_LENGTH");
+		int duration = data.getInt("DURATION");
 		if (videoData != null) {
 			if (getPlaybackContainer().isInRecording()
 					&& getPlaybackContainer().canStartRecord()) {
 				Log.d(TAG, "MP4Recorder.packVideo, data size:"
 						+ videoData.length);
 				int r = MP4Recorder.packVideo(getPlaybackContainer()
-						.getRecordFileHandler(), videoData, len);
+						.getRecordFileHandler(), videoData, len, duration);
 				Log.d(TAG, "MP4Recorder.packVideo result:" + r);
 			}
 		}

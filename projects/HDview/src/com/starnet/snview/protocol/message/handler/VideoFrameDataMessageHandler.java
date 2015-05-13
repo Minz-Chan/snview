@@ -12,6 +12,7 @@ import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.h264.H264DecodeUtil.OnResolutionChangeListener;
 import com.starnet.snview.component.h264.H264Decoder;
 import com.starnet.snview.component.h264.MP4Recorder;
+import com.starnet.snview.component.h264.MP4RecorderUtil;
 import com.starnet.snview.component.liveview.LiveView;
 import com.starnet.snview.component.liveview.LiveViewItemContainer;
 import com.starnet.snview.component.liveview.OnLiveViewChangedListener;
@@ -27,6 +28,8 @@ private static final String TAG = null;
 	private AttributeKey ONE_FRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBuffer");
 	private AttributeKey ONE_FRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBufferSize");
 	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
+	private AttributeKey CURR_VIDEO_TIMESTAMP = new AttributeKey(VideoFrameInfoExMessageHandler.class, "currentVideoTimestamp");
+	private AttributeKey PRE_VIDEO_TIMESTAMP = new AttributeKey(VideoFrameInfoExMessageHandler.class, "pretVideoTimestamp");
 	
 	
 	private H264DecodeUtil h264;
@@ -35,6 +38,8 @@ private static final String TAG = null;
 	private Connection connection;
 	
 	private boolean isDataArrived = false;
+	
+	
 	
 	
 	@Override
@@ -147,7 +152,23 @@ private static final String TAG = null;
 		Log.i(TAG, "decode consume: " + (System.currentTimeMillis()-t1));
 		
 		if (lvContainer.isInRecording() && lvContainer.canStartRecord()) {
-			MP4Recorder.packVideo(lvContainer.getRecordFileHandler(), data, length);
+			int framerate = lvContainer.getVideoConfig() != null ? lvContainer
+					.getVideoConfig().getFramerate() : 25;
+			long currFrameTimestamp = getCurrVideoTimestamp(session);
+			long preFrameTimestamp = getPreVideoTimestamp(session);
+			
+			if (currFrameTimestamp != -1 && preFrameTimestamp != -1) {
+				int duration = MP4RecorderUtil.calcVideoDuration(
+						currFrameTimestamp, preFrameTimestamp, framerate);
+				MP4Recorder.packVideo(lvContainer.getRecordFileHandler(), data,
+						length, duration);
+				Log.d(TAG,
+						"MP4Recorder.packVideo, handler:"
+								+ lvContainer.getRecordFileHandler()
+								+ ", duration:" + duration);
+				
+				session.setAttribute(PRE_VIDEO_TIMESTAMP, currFrameTimestamp);
+			}
 		}
 		
 		// 更新视频显示
@@ -157,5 +178,19 @@ private static final String TAG = null;
 		}
 	}
 
+	private long getCurrVideoTimestamp(IoSession session) {
+		Long t = (Long) session.getAttribute(CURR_VIDEO_TIMESTAMP);
+		if (t != null) {
+			return t.longValue();
+		}
+		return -1;
+	}
 	
+	private long getPreVideoTimestamp(IoSession session) {
+		Long t = (Long) session.getAttribute(PRE_VIDEO_TIMESTAMP);
+		if (t != null) {
+			return t.longValue();
+		}
+		return -1;
+	}
 }

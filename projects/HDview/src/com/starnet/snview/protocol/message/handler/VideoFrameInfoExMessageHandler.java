@@ -16,6 +16,7 @@ public class VideoFrameInfoExMessageHandler implements
 	private AttributeKey ONE_FRAME_BUFFER = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBuffer");
 	private AttributeKey ONE_FRAME_BUFFER_SIZE = new AttributeKey(VideoFrameInfoExMessageHandler.class, "oneFrameBufferSize");
 	private AttributeKey DATA_EXCEED_64KB = new AttributeKey(VideoFrameInfoExMessageHandler.class, "dataExceed64Kb");
+	private AttributeKey CURR_VIDEO_TIMESTAMP = new AttributeKey(VideoFrameInfoExMessageHandler.class, "currentVideoTimestamp");
 
 	@Override
 	public void handleMessage(IoSession session, VideoFrameInfoEx message)
@@ -37,6 +38,10 @@ public class VideoFrameInfoExMessageHandler implements
 		}
 		session.setAttribute(ONE_FRAME_BUFFER, oneIFrameBuffer);
 		
+		Long currVideoTimestamp = (Long) session.getAttribute(CURR_VIDEO_TIMESTAMP);
+		if (currVideoTimestamp != null) {
+			session.setAttribute(CURR_VIDEO_TIMESTAMP, Long.valueOf(message.getTime()));
+		}
 	}
 
 }

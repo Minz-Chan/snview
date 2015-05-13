@@ -18,6 +18,8 @@ public class StreamDataFormatMessageHandler implements
 	private static final String TAG = "StreamDataFormatMessageHandler";
 
 	private AttributeKey CONNECTION = new AttributeKey(Connection.class, "connection");
+	private AttributeKey CURR_VIDEO_TIMESTAMP = new AttributeKey(VideoFrameInfoExMessageHandler.class, "currentVideoTimestamp");
+	private AttributeKey PRE_VIDEO_TIMESTAMP = new AttributeKey(VideoFrameInfoExMessageHandler.class, "pretVideoTimestamp");
 	private H264DecodeUtil h264;
 	
 	private Connection connection;
@@ -39,6 +41,9 @@ public class StreamDataFormatMessageHandler implements
 			lvContainer = connection.getLiveViewItemContainer();
 		}
 		
+		
+		session.setAttribute(CURR_VIDEO_TIMESTAMP, Long.valueOf(0));
+		session.setAttribute(PRE_VIDEO_TIMESTAMP, Long.valueOf(0));
 		
 		int width = message.getVideoDataFormat().getWidth();
 		int height = message.getVideoDataFormat().getHeight();

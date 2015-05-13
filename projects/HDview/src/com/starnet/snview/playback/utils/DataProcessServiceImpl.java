@@ -9,6 +9,7 @@ import com.starnet.snview.component.audio.AudioHandler;
 import com.starnet.snview.component.h264.H264DecodeUtil;
 import com.starnet.snview.component.h264.H264DecodeUtil.OnResolutionChangeListener;
 import com.starnet.snview.component.h264.H264Decoder;
+import com.starnet.snview.component.h264.MP4RecorderUtil;
 import com.starnet.snview.component.liveview.PlaybackLiveViewItemContainer;
 import com.starnet.snview.component.video.VideoHandler;
 import com.starnet.snview.playback.PlaybackActivity;
@@ -136,6 +137,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
 				
+				currVideoFrameTimestamp = time;
+				
 				checkVideoRecorderStatus(time);
 				
 				// 更新时间轴
@@ -211,6 +214,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
 				
+				currAudioFrameTimestamp = time;
+				
 				Log.i(TAG, "audio time: "  + time);
 				Log.i(TAG, "audio time: " + day + " " + hour + ":" + minute + ":" + second + "." + millisecond);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_AUDIO_DATA) {
@@ -220,8 +225,15 @@ public class DataProcessServiceImpl implements DataProcessService {
 						tlv_Header.getTlv_len());
 				
 				if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-					requestAudioRecord(alawData.clone(), alawData.length);
-				} 
+					requestAudioRecord(alawData.clone(), alawData.length,
+							MP4RecorderUtil.calcAudioDuration(
+									currAudioFrameTimestamp,
+									preAudioFrameTimestamp, alawData.length));
+					preAudioFrameTimestamp = currAudioFrameTimestamp;
+				} else {
+					currAudioFrameTimestamp = 0;
+					preAudioFrameTimestamp = 0;
+				}
 				
 				aHandler.getBufferQueue().write(alawData);
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_STREAM_FORMAT_INFO) {
@@ -269,6 +281,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 					handler.sendMessage(msg);
 					
 					lastVideoTimestamp = 0;
+					
+					preAudioFrameTimestamp = 0;
+					currAudioFrameTimestamp = 0;
+					preVideoFrameTimestamp = 0;
+					currVideoFrameTimestamp = 0;
 				}
 			} else if (tlv_Header.getTlv_type() == TLV_T_Command.TLV_T_LOGIN_ANSWER) {//TLV_T_LOGIN_ANSWER
 				Log.i(TAG, "######TLV TYPE: TLV_T_LOGIN_ANSWER");
@@ -298,6 +315,8 @@ public class DataProcessServiceImpl implements DataProcessService {
 				int minute = (int) ((time / (1000*60)) % 60);
 				int second = (int) ((time / (1000) % 60));
 				int millisecond = (int) (time % 1000);
+				
+				currVideoFrameTimestamp = time;
 				
 				checkVideoRecorderStatus(time);
 				
@@ -339,6 +358,11 @@ public class DataProcessServiceImpl implements DataProcessService {
 					} else if (action == PlaybackControlAction.STOP) {
 						returnValue = PlaybackActivity.ACTION_STOP_SUCC;
 						sendMsgToPlayActivity(PlaybackActivity.ACTION_STOP_SUCC);
+						
+						preAudioFrameTimestamp = 0;
+						currAudioFrameTimestamp = 0;
+						preVideoFrameTimestamp = 0;
+						currVideoFrameTimestamp = 0;
 					}
 				}else {//表示暂停失败
 					if (action == PlaybackControlAction.PLAY) {
@@ -419,8 +443,21 @@ public class DataProcessServiceImpl implements DataProcessService {
 			Log.d(TAG, "Video data size , frameLength:" + frameLength);
 			
 			if (getPlaybackContainer().isInRecording() && getPlaybackContainer().canStartRecord()) {
-				requestVideoRecord(toBeWritten.clone(), frameLength);
-			} 
+				int framerate = 0;
+				if (getPlaybackContainer().getVideoConfig() != null) {
+					framerate = getPlaybackContainer().getVideoConfig().getFramerate();
+				} else {
+					framerate = 25;
+				}
+				requestVideoRecord(toBeWritten.clone(), frameLength,
+						MP4RecorderUtil.calcVideoDuration(
+								currVideoFrameTimestamp,
+								preVideoFrameTimestamp, framerate));
+				preVideoFrameTimestamp = currVideoFrameTimestamp;
+			} else {
+				currVideoFrameTimestamp = 0;
+				preVideoFrameTimestamp = 0;
+			}
 			
 			int count = 0;					
 			while (vHandler.isAlive() && 
@@ -448,20 +485,36 @@ public class DataProcessServiceImpl implements DataProcessService {
 		}
 	}
 	
-	private void requestAudioRecord(byte[] alawData, int len) {
+	private long preAudioFrameTimestamp = 0;
+	private long currAudioFrameTimestamp = 0;
+//	private int calcAudioDuration(long currFrameTimestamp, long preFrameTimestamp, int audioFrameSize) {
+//		int duration = 0;
+//		
+//		if (preFrameTimestamp == 0) {  // 首帧 
+//			duration = 8000 / (8000/audioFrameSize);  // 音频录制1秒相当于8000tick, 8000 / 帧率
+//		} else {
+//			duration = (int) ((currFrameTimestamp-preFrameTimestamp)*8000/1000);
+//		}
+//		return duration;
+//	}
+	private void requestAudioRecord(byte[] alawData, int len, int duration) {
 		Bundle b = new Bundle();
 		b.putByteArray("AUDIO_DATA", alawData);
 		b.putInt("FRAME_LENGTH", len);
+		b.putInt("DURATION", duration);
 		Message msg = Message.obtain();
 		msg.what = RecordHandler.MSG_AUDIO_RECORD;
 		msg.setData(b);
 		rHandler.sendMessage(msg);
 	}
 	
-	private void requestVideoRecord(byte[] videoData, int len) {
+	private long preVideoFrameTimestamp = 0;
+	private long currVideoFrameTimestamp = 0;
+	private void requestVideoRecord(byte[] videoData, int len, int duration) {
 		Bundle b = new Bundle();
 		b.putByteArray("VIDEO_DATA", videoData);
 		b.putInt("FRAME_LENGTH", len);
+		b.putInt("DURATION", duration);
 		Message msg = Message.obtain();
 		msg.what = RecordHandler.MSG_VIDEO_RECORD;
 		msg.setData(b);
