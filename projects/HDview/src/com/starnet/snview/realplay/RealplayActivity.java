@@ -918,7 +918,7 @@ public class RealplayActivity extends BaseActivity {
 	public void updateUIElementsStatus(boolean autoUpdate) {		
 		// 更新录像按钮状态
 		if (autoUpdate) {
-			bVideoRecordPressed = mLiveviewGroup.getSelectedLiveview().getSurfaceView().isStartRecord();
+			bVideoRecordPressed = mLiveviewGroup.getSelectedLiveview().isInRecording();
 		}
 		
 		if (!getApp().isIsFullMode()) {
