@@ -75,6 +75,10 @@ public class LoginResponseMessageHandler implements
 			lvContainer.setWindowInfoContent(R.string.connection_response_task_dispose_error);
 			lvContainer.setIsResponseError(true);
 			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_NO_PERMISSION:  		// 无权限
+			lvContainer.setWindowInfoContent(R.string.connection_response_no_permission);
+			lvContainer.setIsResponseError(true);
+			break;
 		default: // 兼容旧版，登录服务器失败，原因即用户或密码错误
 			lvContainer.setWindowInfoContent(R.string.connection_response_user_pwd_error);
 			lvContainer.setIsResponseError(true);

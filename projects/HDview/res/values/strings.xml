@@ -255,6 +255,7 @@
     <string name="connection_response_protocol_error">协议解析出错</string>
     <string name="connection_response_not_start_encode">未启动编码</string>
     <string name="connection_response_task_dispose_error">任务处理过程异常</string>
+    <string name="connection_response_no_permission">无权限</string>
     <string name="connection_response_unsupported_codec">不支持的视频格式</string>
     <string name="connection_response_unknown_error">登录失败，未知错误</string>
     <string name="exit_dialog_ensure">确定</string>

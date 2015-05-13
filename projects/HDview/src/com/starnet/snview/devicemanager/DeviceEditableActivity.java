@@ -128,6 +128,9 @@ public class DeviceEditableActivity extends BaseActivity {
 		case Constants.RESPONSE_CODE._RESPONSECODE_TASK_DISPOSE_ERROR:	// 任务处理过程出错
 			errorMessage = getString(R.string.connection_response_task_dispose_error);
 			break;
+		case Constants.RESPONSE_CODE._RESPONSECODE_NO_PERMISSION:  		// 无权限
+			errorMessage = getString(R.string.connection_response_no_permission);
+			break;
 		default: 
 			errorMessage = getString(R.string.connection_response_unknown_error);
 			break;

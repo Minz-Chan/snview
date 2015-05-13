@@ -43,6 +43,7 @@ public final class Constants {
 		static final int _RESPONSECODE_PROTOCOL_ERROR = 0X0A;		//协议解析出错
 		static final int _RESPONSECODE_NOT_START_ENCODE =0X0B;		//未启动编码
 		static final int _RESPONSECODE_TASK_DISPOSE_ERROR = 0X0C;	//任务处理过程出错
+		static final int _RESPONSECODE_NO_PERMISSION = 0X0D;		// 无权限
 	}
 	
 	public interface OWSP_ACTION_CODE {
