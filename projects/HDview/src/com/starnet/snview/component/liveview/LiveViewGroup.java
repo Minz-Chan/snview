@@ -26,7 +26,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Toast;
 
 public class LiveViewGroup extends QuarteredViewGroup {
 	private static final String TAG = "LiveViewGroup";
@@ -91,9 +90,12 @@ public class LiveViewGroup extends QuarteredViewGroup {
 	private ClickEventUtils mPreviewCallDelay = new ClickEventUtils(new OnActionListener() {
 		@Override
 		public void OnAction(int clickCount, Object... params) {
+			if (debug) {
+				Log.d(TAG, "PreviewCallDelay: A preview request was executed...");
+			}
 			previewCurrentScreen();
 		}
-	}, 200);
+	}, 600);
 	
 	
 	private GestureDetector directionGestureDetector;
@@ -161,7 +163,8 @@ public class LiveViewGroup extends QuarteredViewGroup {
 			currentSelectedItemIndex = getCurrentScreenItemStartIndex();
 			Log.d(TAG, "onScreenChanged, currentSelectedItemIndex:" + currentSelectedItemIndex);
 			updatePageInfo();
-			previewCurrentScreen();
+			//previewCurrentScreen();
+			mPreviewCallDelay.makeContinuousClickCalledOnce(LiveViewGroup.this.hashCode(), new Object());
 			
 			updateLandToolbarPagerIndicator();
 			mHandler.sendEmptyMessage(Constants.SCREEN_CHANGE);
@@ -557,12 +560,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		this.context = context;
 		init();
 	}
-	
-	private void log(String msg) {
-		if (debug) {
-			Log.d(TAG, msg);
-		}
-	}
 
 	public void init() {
 		mPager = getRP().getPager();
@@ -803,10 +800,6 @@ public class LiveViewGroup extends QuarteredViewGroup {
 				prepareCurrentScreenLiveViews(devices);
 			}
 		}
-	}
-	
-	private void findLiveviewsToBeRemoved(List<PreviewDeviceItem> oldDevices, List<PreviewDeviceItem> newDevices) {
-		mToBeRemovedLiveviews = null;
 	}
 	
 	public boolean isPTZMode() {

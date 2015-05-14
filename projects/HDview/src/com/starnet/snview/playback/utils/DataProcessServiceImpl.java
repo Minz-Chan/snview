@@ -426,7 +426,7 @@ public class DataProcessServiceImpl implements DataProcessService {
 	private long lastVideoTimestamp = 0;
 	private void checkVideoRecorderStatus(long videoTimestamp) {
 		long delta = (videoTimestamp - lastVideoTimestamp) / 1000;
-		if (lastVideoTimestamp != 0 && delta >= 60) { // 若视频时间戳间隔超过1分钟，说明录像源已变更
+		if (lastVideoTimestamp != 0 && delta >= 10) { // 若视频时间戳间隔超过10秒，说明录像源已变更
 			getPlaybackActivity().stopMP4RecordIfInRecording();
 		}
 		lastVideoTimestamp = videoTimestamp;		

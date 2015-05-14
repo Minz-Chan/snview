@@ -287,12 +287,15 @@ public class Connection extends DemuxingIoHandler {
             		if (isValid()) {
             			mConnectionListener.OnConnectionFailed(mLiveViewItem);
             		}
+        		} else {
+        			disposeConnector();
         		}
         	} else {
         		if (session == null) { // 连接建立失败
         			if (isValid()) {
         				mConnectionListener.OnConnectionFailed(mLiveViewItem);
         			}
+        			disposeConnector();
         		}
         	}
         	
@@ -473,6 +476,7 @@ public class Connection extends DemuxingIoHandler {
 		Log.i(TAG, "Close the session");
 		cause.printStackTrace();
 		session.close(true);
+		disposeConnector();
 	}
 
 	@Override
@@ -485,7 +489,7 @@ public class Connection extends DemuxingIoHandler {
 	@Override
 	public void sessionClosed(IoSession session) throws Exception {
 		Log.i(TAG, "Session " + session.getId() + " is closed...");
-		connector.dispose();
+		disposeConnector();
 		
 		if (isValid()) {
 			mConnectionListener.OnConnectionClosed(mLiveViewItem);
@@ -501,6 +505,14 @@ public class Connection extends DemuxingIoHandler {
 	protected void finalize() throws Throwable {
 		Log.i(TAG,  this + "@finalized");
 		super.finalize();
+		disposeConnector();
+	}
+	
+	private void disposeConnector() {
+		if (connector != null && !connector.isDisposed()) {
+			Log.d(TAG, "###connector(" + connector + ") is disposed...");
+			connector.dispose();
+		}
 	}
 	
 	
