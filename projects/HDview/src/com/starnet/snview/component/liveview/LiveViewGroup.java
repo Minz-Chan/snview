@@ -1028,6 +1028,7 @@ public class LiveViewGroup extends QuarteredViewGroup {
 					getSubViewByItemIndex(i);
 			c.setItemIndex(i);
 			c.setPreviewItem(devices.get(i)); // load connection info
+			c.updateWindowInfoText();
 			mCurrentLiveviews.add(c);
 		}
 	}

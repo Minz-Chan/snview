@@ -472,6 +472,15 @@ public class LiveViewItemContainer extends RelativeLayout {
 		
 	}
 	
+	/**
+	 * 切屏时更新视频控件显示文字
+	 */
+	public void updateWindowInfoText() {
+		if (mPreviewItem != null && mPreviewItem.getDeviceRecordName() != null) {
+			setWindowInfoText(mPreviewItem.getDeviceRecordName());
+		}
+	}
+	
 	public void setWindowInfoContent(int resid) {
 		setWindowInfoContent(getString(resid));
 	}
