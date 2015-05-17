@@ -66,6 +66,13 @@ public class DeviceScanActivity extends BaseActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 10) {
+			if (resultCode == DeviceEditableActivity.RESULT_CODE_EXPCETION) {
+				Toast.makeText(this,
+						getString(R.string.device_manager_unknown_exception),
+						Toast.LENGTH_LONG).show();
+				return;
+			}
+			
 			if (data != null) {
 				Bundle bundle = data.getExtras();
 				if (bundle != null) {

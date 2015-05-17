@@ -348,7 +348,7 @@ public class DeviceViewActivity extends BaseActivity {
 		switch (id) {
 		case LOAD_COLLECT_DEVICEITEM:
 			String text = getString(R.string.system_setting_loading_collect_device_data);
-			loadDataPrg = ProgressDialog.show(this, "", text, true, true);
+			loadDataPrg = ProgressDialog.show(this, "", text, true, false);
 			loadDataPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {

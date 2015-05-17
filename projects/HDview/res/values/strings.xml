@@ -232,6 +232,7 @@
     <string name="device_manager_deviceedit_conning_and_wait">正在连接验证设备，请等待&#8230;</string>
     <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>
     <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
+    <string name="device_manager_unknown_exception">程序异常，请重新启动程序后尝试操作！</string>
     
     <string name="device_collect_timeout">加载超时</string>
     <string name="device_collect_failure">加载失败</string>

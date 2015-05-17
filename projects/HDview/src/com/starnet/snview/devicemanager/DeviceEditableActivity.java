@@ -55,6 +55,8 @@ public class DeviceEditableActivity extends BaseActivity {
 	public static final int CONNECTIFYIDENTIFY_USERPSWD_ERROR = 0x0014;//
 	public static final int CONNECTIFYIDENTIFY_HOST_ERROR = 0x0015;//
 	public static final int CONNECTIFYIDENTIFY_LOGIN_FAIL = 0x0017;
+	
+	public static final int RESULT_CODE_EXPCETION = 0x1234001;
 
 	private Handler mHandler = new Handler() {
 		@Override
@@ -143,8 +145,13 @@ public class DeviceEditableActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.device_manager_editable_acitivity);
-		superChangeViewFromBase();
-		setListeners();
+		try {
+			superChangeViewFromBase();
+			setListeners();
+		} catch (Exception e) {
+			e.printStackTrace();
+			setResult(RESULT_CODE_EXPCETION);
+		}
 	}
 
 	private void setListeners() {
