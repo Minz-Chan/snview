@@ -785,9 +785,14 @@ public class LiveViewGroup extends QuarteredViewGroup {
 		mToBeRemovedLiveviews.clear();
 		if (relayout) {
 			if (oldDevicesSize != mDevices.size() || mDevices.size() == 1) {
-				// When device size is 1, then mode must be single
-				regenerateLayout(mDevices.size() > 1 ? getScreenMode() : MODE.SINGLE
-						, mDevices.size(), 0);
+				if (getScreenMode() != null) {
+					// When device size is 1, then mode must be single
+					regenerateLayout(mDevices.size() > 1 ? getScreenMode() : MODE.SINGLE
+							, mDevices.size(), 0);
+				} else { // When first time use application, there has no any device selected
+					regenerateLayout(MODE.MULTIPLE, mDevices.size(), 0);
+				}
+				
 			} else { // Do not need to regenerate layout, just update
 					 // LiveItemItemContainers in current screen
 				if (getScreenMode() != null) { 

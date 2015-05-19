@@ -360,11 +360,16 @@ public class RealplayActivity extends BaseActivity {
 
 	@Override
 	protected void onStop() {
-//		if (liveViewManager != null) {
-//			liveViewManager.closeAllConnection(true);
-//		}
-		mLiveviewGroup.stopPreviewCurrentScreen();		
+		Log.d(TAG, "onStop()");
+		mLiveviewGroup.stopPreviewCurrentScreen();
+		savePreviewStatus();
 		super.onStop();
+	}
+	
+	@Override
+	protected void onPause() {
+		Log.d(TAG, "onPause()");
+		super.onPause();
 	}
 
 	@Override
@@ -1187,6 +1192,7 @@ public class RealplayActivity extends BaseActivity {
 	}
 	
 	private void savePreviewStatus() {
+		Log.d(TAG, "savePreviewStatus()");
 		SharedPreferences sharedPreferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		Editor editor = sharedPreferences.edit();

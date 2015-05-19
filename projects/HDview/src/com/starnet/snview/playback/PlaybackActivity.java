@@ -1114,6 +1114,7 @@ public class PlaybackActivity extends BaseActivity {
 	@Override
 	public void onPause() {
 		Log.d(TAG, "onPause()");
+		stopMP4RecordIfInRecording();
 		super.onPause();
 	}
 
@@ -1125,7 +1126,7 @@ public class PlaybackActivity extends BaseActivity {
 		super.onDestroy();
 		freeResource();
 	}
-	
+
 	private void writeFalseToSP() {
 		SharedPreferences sp = getSharedPreferences("step_over_xml", Context.MODE_PRIVATE);
 		Editor editor = sp.edit();
@@ -1149,6 +1150,7 @@ public class PlaybackActivity extends BaseActivity {
 		PlaybackActivity.this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				Log.d(TAG, "stopMP4RecordIfInRecording() -> isInRecording()" + mVideoContainer.isInRecording());
 				if (mVideoContainer.isInRecording()) {
 					setRecordButtonSelected(false);
 					mVideoContainer.stopMP4Record();
