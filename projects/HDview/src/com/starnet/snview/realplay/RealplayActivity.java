@@ -1184,9 +1184,9 @@ public class RealplayActivity extends BaseActivity {
 	
 	@Override
 	protected void onDestroy() {		
-//		liveViewManager.closeAllConnection(false);
+		Log.d(TAG, "onDestroy()");
 		mLiveviewGroup.stopPreviewCurrentScreen();
-		savePreviewStatus();
+		//savePreviewStatus();
 		H264Decoder.uninit(0); // 回收所有解码器资源
 		super.onDestroy();
 	}

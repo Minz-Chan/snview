@@ -1,6 +1,7 @@
 package com.starnet.snview.util;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +39,7 @@ import com.starnet.snview.syssetting.CloudAccount;
 
 @SuppressLint("SdCardPath")
 public class ReadWriteXmlUtils {
-	protected static final String TAG = "AlarmPersistenceUtils";
+	protected static final String TAG = "ReadWriteXmlUtils";
 	public static final String previewFilePath = "/data/data/com.starnet.snview/previewItem_list.xml";//预览通道账户的信息文件
 	public final static String ALARMS_PERSISTANCE_PATH = "/data/data/com.starnet.snview/ALARMS_PERSISTANCE_FILE.xml";
 
@@ -1769,6 +1770,7 @@ public class ReadWriteXmlUtils {
 	 * @throws IOException
 	 */
 	public static boolean writePreviewItemListInfoToXML( List<PreviewDeviceItem> previewDeviceItemList, String filePath) throws IOException {
+		Log.d(TAG, "writePreviewItemListInfoToXML(), start writing...");
 		boolean result = false;
 		File file = new File(filePath);
 		if (!file.exists()) {
@@ -1806,8 +1808,10 @@ public class ReadWriteXmlUtils {
 		FileWriter writer = new FileWriter(file);
 		XMLWriter xmlWriter = new XMLWriter(writer, opf);
 		xmlWriter.write(document);
+		xmlWriter.close();
 		writer.close();
 		result = true;
+		Log.d(TAG, "writePreviewItemListInfoToXML(), finish writing...");
 		return result;
 	}
 	
