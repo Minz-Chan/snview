@@ -1115,6 +1115,7 @@ public class PlaybackActivity extends BaseActivity {
 	public void onPause() {
 		Log.d(TAG, "onPause()");
 		stopMP4RecordIfInRecording();
+		bVideoRecordPressed = false;
 		super.onPause();
 	}
 
