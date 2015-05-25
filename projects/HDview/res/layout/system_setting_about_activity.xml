@@ -52,14 +52,6 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/corp_content_txt_chi"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/system_setting_corp_content_txt_chi"
-                android:textColor="@color/system_setting_about_noIsenable" />
-
-            <TextView
                 android:id="@+id/corp_content_txt_eng"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

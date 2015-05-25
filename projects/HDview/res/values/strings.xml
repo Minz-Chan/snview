@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">SNview</string>
+    <string name="app_name">HDview</string>
     <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
         active position is saved through configuration changes.\nAdditionally, if the menu is open, a back press will
         close it.</string>
@@ -9,7 +9,7 @@
         if the menu is open, a back press will close it.</string>
 
     <!-- 菜单 -->
-    <string name="common_drawer_top">SNview  </string>
+    <string name="common_drawer_top">HDview  </string>
     <string name="common_drawer_sys_setting">系统配置</string>
     <string name="common_drawer_remote_playback">远程回放</string>
     <string name="common_obtain_device_wrong">获取设备失败</string>
@@ -159,7 +159,7 @@
     <string name="system_setting_cloudaccountsetedit_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_cloudaccountsetting_null_content">包含有未填写的信息，请检查</string>
     <string name="system_setting_alarm_pushset_domain_port_wrong">域名或者端口号错误，请检查后再进行验证</string>
-    <string name="system_setting_corp_content_txt_eng">Copyright © 2010&#8211;2015 Star&#8211;netsecurity</string>
+    <string name="system_setting_corp_content_txt_eng">Copyright © 2010&#8211;2015 </string>
     <string name="device_manager">设备管理</string>
     <string name="device_manager_ip">设备IP</string>
     <string name="device_manager_choose">选择</string>
