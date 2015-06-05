@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.starnet.snview"
+    package="com.video.hdview"
     android:versionCode="73"
     android:versionName="6.2.9" >
 
@@ -31,14 +31,14 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
-        android:name="com.starnet.snview.global.GlobalApplication"
+        android:name="com.video.hdview.global.GlobalApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         
-        <!-- com.starnet.snview.playback.PlaybackTestActivity -->
+        <!-- com.video.hdview.playback.PlaybackTestActivity -->
         <activity
-            android:name="com.starnet.snview.global.SplashActivity" 
+            android:name="com.video.hdview.global.SplashActivity" 
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" >
@@ -49,157 +49,157 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.starnet.snview.global.GuideActivity"
+            android:name="com.video.hdview.global.GuideActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.SystemNewFuncActivity"
+            android:name="com.video.hdview.syssetting.SystemNewFuncActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.realplay.RealplayActivity"
+            android:name="com.video.hdview.realplay.RealplayActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:theme="@style/SampleTheme"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.starnet.snview.images.ImagesManagerActivity"
+            android:name="com.video.hdview.images.ImagesManagerActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.playback.PlaybackActivity"
+            android:name="com.video.hdview.playback.PlaybackActivity"
             android:launchMode="singleTop"
 			android:configChanges="orientation|screenSize"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.alarmmanager.AlarmActivity"
+            android:name="com.video.hdview.alarmmanager.AlarmActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.alarmmanager.AlarmImageActivity"
+            android:name="com.video.hdview.alarmmanager.AlarmImageActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" /> <!-- @android:style/Theme.Dialog -->
         <activity
-            android:name="com.starnet.snview.alarmmanager.AlarmContentActivity"
+            android:name="com.video.hdview.alarmmanager.AlarmContentActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" /> <!-- android:theme="@android:style/Theme.Dialog" -->
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceViewActivity"
+            android:name="com.video.hdview.devicemanager.DeviceViewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.channelmanager.ChannelListActivity"
+            android:name="com.video.hdview.channelmanager.ChannelListActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.channelmanager.ChannelListViewActivity"
+            android:name="com.video.hdview.channelmanager.ChannelListViewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/channel_listview_titlebarstyle" />
         <activity
-            android:name="com.starnet.snview.syssetting.SystemSettingActivity"
+            android:name="com.video.hdview.syssetting.SystemSettingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         
         <activity
-            android:name="com.starnet.snview.syssetting.CloudAccountInfoActivity"
+            android:name="com.video.hdview.syssetting.CloudAccountInfoActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.AboutActivity"
+            android:name="com.video.hdview.syssetting.AboutActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.CloudAccountViewActivity"
+            android:name="com.video.hdview.syssetting.CloudAccountViewActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.CloudAccountAddingActivity"
+            android:name="com.video.hdview.syssetting.CloudAccountAddingActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.HelpActivity"
+            android:name="com.video.hdview.syssetting.HelpActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceCollectActivity"
+            android:name="com.video.hdview.devicemanager.DeviceCollectActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceChooseActivity"
+            android:name="com.video.hdview.devicemanager.DeviceChooseActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.CloudAccountUpdatingActivity"
+            android:name="com.video.hdview.syssetting.CloudAccountUpdatingActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceScanActivity"
+            android:name="com.video.hdview.devicemanager.DeviceScanActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceInfoActivity"
+            android:name="com.video.hdview.devicemanager.DeviceInfoActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.devicemanager.DeviceEditableActivity"
+            android:name="com.video.hdview.devicemanager.DeviceEditableActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" /> <!--  -->
 
         <activity
-            android:name="com.starnet.snview.images.ImagePreviewViewPagerActivity"
+            android:name="com.video.hdview.images.ImagePreviewViewPagerActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.images.ImageManagerVideoPlayActivity"
+            android:name="com.video.hdview.images.ImageManagerVideoPlayActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmPushManagerActivity"
+            android:name="com.video.hdview.syssetting.AlarmPushManagerActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmAccountsPreviewActivity"
+            android:name="com.video.hdview.syssetting.AlarmAccountsPreviewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmAccountsAddActivity"
+            android:name="com.video.hdview.syssetting.AlarmAccountsAddActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmAccountsAddingActivity"
+            android:name="com.video.hdview.syssetting.AlarmAccountsAddingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.syssetting.AlarmAccountsEditingActivity"
+            android:name="com.video.hdview.syssetting.AlarmAccountsEditingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.playback.TimeSettingActivity"
+            android:name="com.video.hdview.playback.TimeSettingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SampleTheme" />
         <activity
-            android:name="com.starnet.snview.playback.PlayBackChannelListViewActivity"
+            android:name="com.video.hdview.playback.PlayBackChannelListViewActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/channel_listview_titlebarstyle" />
 
-        <receiver android:name="com.starnet.snview.alarmmanager.OnAlarmMessageArrivedReceiver" >
+        <receiver android:name="com.video.hdview.alarmmanager.OnAlarmMessageArrivedReceiver" >
             <intent-filter>
-                <action android:name="com.starnet.snview.action.ALARM_MESSAGE_ARRIVED" />
+                <action android:name="com.video.hdview.action.ALARM_MESSAGE_ARRIVED" />
             </intent-filter>
         </receiver>
 
@@ -208,7 +208,7 @@
             android:name="api_key"
             android:value="EIAswaeFPPggZZ95AruWxj6Y" />
         <!-- push应用定义消息receiver声明 -->
-        <receiver android:name="com.starnet.snview.alarmmanager.AlarmReceiver" >
+        <receiver android:name="com.video.hdview.alarmmanager.AlarmReceiver" >
             <intent-filter>
 
                 <!-- 接收push消息 -->
@@ -254,7 +254,7 @@
         </service>
         <!-- push结束 -->
 
-        <service android:name="com.starnet.snview.syssetting.AlarmPushSettingService" > <!-- android:process="remote" -->
+        <service android:name="com.video.hdview.syssetting.AlarmPushSettingService" > <!-- android:process="remote" -->
             <intent-filter>
                 <action android:name="syssetting.AlarmPushSettingService" />
             </intent-filter>

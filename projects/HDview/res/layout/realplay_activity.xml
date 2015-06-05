@@ -5,18 +5,18 @@
 
    <View android:id="@id/realplay_divider_1" android:layout_width="fill_parent" android:layout_height="1.0px" android:background="@color/realplay_divider_2" android:layout_alignParentBottom="true" />
    <FrameLayout android:id="@id/realplay_controlbar" android:background="@drawable/liveview_extend_bar" android:layout_width="fill_parent" android:layout_height="@dimen/toolbar_height" android:layout_above="@id/realplay_divider_1" >
-       <com.starnet.snview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+       <com.video.hdview.component.VideoPager android:id="@id/pager" android:fadingEdge="horizontal" android:fadingEdgeLength="0.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" />
        <include android:id="@id/quality_controlbar_menu" layout="@layout/quality_controlbar_menu" />
        <include android:id="@id/ptz_controlbar_menu" layout="@layout/ptz_controlbar_menu"/>            
    </FrameLayout>
     
    <RelativeLayout android:id="@id/realplay_container" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_above="@id/realplay_controlbar" android:layout_alignParentTop="true">
 <!-- 		<FrameLayout android:id="@id/video_region" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_marginTop="50.0dip"> -->
-<!-- 		    <com.starnet.snview.component.SurfaceViewSingleLayout android:id="@id/video_single_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone" /> -->
-<!-- 		    <com.starnet.snview.component.SurfaceViewMultiLayout android:id="@id/video_multi_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone" />  -->
+<!-- 		    <com.video.hdview.component.SurfaceViewSingleLayout android:id="@id/video_single_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone" /> -->
+<!-- 		    <com.video.hdview.component.SurfaceViewMultiLayout android:id="@id/video_multi_layout" android:layout_width="fill_parent" android:layout_height="fill_parent" android:visibility="gone" />  -->
 <!-- 		</FrameLayout> -->
 		
-<!-- 		<com.starnet.snview.realplay.VideoPager android:id="@+id/video_pager" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_marginTop="50.0dip" /> -->
+<!-- 		<com.video.hdview.realplay.VideoPager android:id="@+id/video_pager" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_marginTop="50.0dip" /> -->
 		<FrameLayout android:id="@+id/video_region" android:background="@color/view_bg" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" />
 		
 		<LinearLayout android:id="@id/ptz_pop_frame" android:visibility="gone" android:gravity="center_horizontal" android:orientation="vertical" android:clickable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/portrait_pop_frame_bottom_margin" android:layout_alignParentBottom="true">

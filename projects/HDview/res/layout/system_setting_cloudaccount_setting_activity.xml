@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:inputType="text"
-            android:text="xy.star-netsecurity.com" />
+            android:text="" />
     </LinearLayout>
 
     <LinearLayout

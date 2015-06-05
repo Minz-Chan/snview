@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:gravity="center" >
 
-        <com.starnet.snview.images.utils.PhotoView
+        <com.video.hdview.images.utils.PhotoView
             android:id="@+id/imagepreview_imageView"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"

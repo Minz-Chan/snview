@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:background="#FFFFFF" >
 
-    <com.starnet.snview.syssetting.CornerListView
+    <com.video.hdview.syssetting.CornerListView
         android:id="@+id/alarmNotifyListView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         android:background="@drawable/system_setting_listview_shape"
         android:cacheColorHint="#00000000" />
 
-    <com.starnet.snview.syssetting.CornerListView
+    <com.video.hdview.syssetting.CornerListView
         android:id="@+id/alarmUserListView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
