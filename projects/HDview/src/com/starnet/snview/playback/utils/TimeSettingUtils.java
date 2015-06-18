@@ -11,6 +11,8 @@ import com.starnet.snview.channelmanager.Channel;
 
 @SuppressLint("SimpleDateFormat")
 public class TimeSettingUtils {
+	
+	private static final long THREE_TIME_MILLIO_SECONDS = 3 * 24 * 60 * 60 *1000;
 
 	public static long getBetweenDays(String dateStart, String dateStop) throws ParseException {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -26,6 +28,8 @@ public class TimeSettingUtils {
 			}else {
 				return 3;
 			}
+		}else if (diff > THREE_TIME_MILLIO_SECONDS){
+			return -1;
 		}
 		long diffDays = diff / (24 * 60 * 60 * 1000);
 		return diffDays;

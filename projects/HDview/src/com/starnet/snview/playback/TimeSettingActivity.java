@@ -1183,8 +1183,7 @@ public class TimeSettingActivity extends BaseActivity {
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,
-							endTime);
+					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
 					if (dayDif <= 0 || (dayDif >= 3)) {// 结束时间不变
 						int dayTimeNum = Integer.valueOf(dayTime);
 						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
