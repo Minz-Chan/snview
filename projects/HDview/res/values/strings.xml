@@ -108,6 +108,7 @@
     <string name="system_setting_alarminfo_remind_shake">报警推送震动</string>
     <string name="system_setting_alarminfo_remind_sound">报警推送声音</string>
     <string name="system_setting_alarm_pushset_user_del">确认删除账户</string>
+    <string name="system_setting_pushset_save_alarminfo">保存报警推送设置</string>
     <string name="system_setting_pushset_clear_alarminfo">清除报警信息</string>
     <string name="system_setting_pushset_clear_alarm_fai">请您稍后重试</string>
     <string name="system_setting_corp_rights_txt">All Rights Reserved</string>

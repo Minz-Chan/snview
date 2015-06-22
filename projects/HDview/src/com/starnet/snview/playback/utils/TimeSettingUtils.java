@@ -12,7 +12,7 @@ import com.starnet.snview.channelmanager.Channel;
 @SuppressLint("SimpleDateFormat")
 public class TimeSettingUtils {
 	
-	private static final long THREE_TIME_MILLIO_SECONDS = 3 * 24 * 60 * 60 *1000;
+	private static final long THREE_TIME_MILLI_SECONDS = 259200000;//3 * 24 * 60 * 60 *1000
 
 	public static long getBetweenDays(String dateStart, String dateStop) throws ParseException {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -22,13 +22,14 @@ public class TimeSettingUtils {
 		if (diff < 0) {
 			return -1;
 		}else if (diff == 0) {
-			long dis = getBetweenMinutes(dateStart,dateStop);
-			if (dis <= 0) {
-				return -1;
-			}else {
-				return 3;
-			}
-		}else if (diff > THREE_TIME_MILLIO_SECONDS){
+			return -1;
+//			long dis = getBetweenMinutes(dateStart,dateStop);
+//			if (dis <= 0) {
+//				return -1;
+//			}else {
+//				return 3;
+//			}
+		}else if (diff > THREE_TIME_MILLI_SECONDS){
 			return -1;
 		}
 		long diffDays = diff / (24 * 60 * 60 * 1000);

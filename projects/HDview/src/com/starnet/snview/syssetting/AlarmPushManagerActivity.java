@@ -40,7 +40,8 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	private SharedPreferences sp;
 	private List<CloudAccount> ps;
 	private List<CloudAccount> ca;
-	private Button clearAlarmInfBtn;
+	private Button saveAlarmInfBtn;
+	private Button clearAlarmInfBtn;	
 	private HashMap<String, Object> map;
 	private final int REQUESTCODE = 0x0001;
 	private CornerListView alarmUserListView;// 报警账户的listView
@@ -62,12 +63,23 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	}
 
 	private void setListeners() {
-		super.getLeftButton().setOnClickListener(new OnClickListener() {
+		
+		saveAlarmInfBtn.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
 				startPushSettingService();
 				saveSettingsToSharedPreference();
 				saveStarnetAndAlarmPushAccounts();
+				AlarmPushManagerActivity.this.finish();
+			}
+		});
+		
+		super.getLeftButton().setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+//				startPushSettingService();
+//				saveSettingsToSharedPreference();
+//				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
 			}
 		});
@@ -109,8 +121,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		isSound = alarmNotifyAdapter.isClickFlagSou();
 		isAllAcc = alarmNotifyAdapter.isClickFlagAcc();
 
-		Editor edt = ctx.getSharedPreferences("ALARM_PUSHSET_FILE",
-				Context.MODE_PRIVATE).edit();
+		Editor edt = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE).edit();
 		edt.putBoolean("isAccept", isAcc);
 		edt.putBoolean("isShake", isShake);
 		edt.putBoolean("isSound", isSound);
@@ -153,6 +164,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.setTitleViewText(getString(R.string.system_setting_alarm_pushset));
 
 		ctx = AlarmPushManagerActivity.this;
+		saveAlarmInfBtn = (Button) findViewById(R.id.saveAlarmInfBtn);
 		clearAlarmInfBtn = (Button) findViewById(R.id.clearAlarmInfBtn);
 		alarmUserListView = (CornerListView) findViewById(R.id.alarmUserListView);
 		alarmNotifyListView = (CornerListView) findViewById(R.id.alarmNotifyListView);
@@ -254,6 +266,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			}
 			PushManager.setTags(ctx.getApplicationContext(), rTags);// 注册星云平台账户
 		}
+		
 	}
 
 	private void setAlarmUserAdapter(boolean isAccept) {
@@ -291,24 +304,20 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		map.put("text", getString(R.string.system_setting_alarminfo_accept));
 		settingList.add(map);
 		map = new HashMap<String, Object>();
-		map.put("text",
-				getString(R.string.system_setting_alarminfo_remind_shake));
+		map.put("text", getString(R.string.system_setting_alarminfo_remind_shake));
 		settingList.add(map);
 		map = new HashMap<String, Object>();
-		map.put("text",
-				getString(R.string.system_setting_alarminfo_remind_sound));
+		map.put("text", getString(R.string.system_setting_alarminfo_remind_sound));
 		settingList.add(map);
-		alarmNotifyAdapter = new AalarmNotifyAdapter(this, settingList,
-				isAllAcc, isShake, isSound);
+		alarmNotifyAdapter = new AalarmNotifyAdapter(this, settingList, isAllAcc, isShake, isSound);
 		alarmNotifyListView.setAdapter(alarmNotifyAdapter);
-	}
+	} 
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		HashMap<String, Object> map2 = new HashMap<String, Object>();
-		List<CloudAccount> accounts = ReadWriteXmlUtils
-				.getAlarmPushUsersFromXML();
+		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
 		String content = "";
 		if (accounts == null || (accounts != null && accounts.size() == 0)) {
 			content = getString(R.string.system_setting_alarmuser_null);
@@ -331,11 +340,10 @@ public class AlarmPushManagerActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK
-				&& event.getAction() == KeyEvent.ACTION_DOWN) {
-			 startPushSettingService();
-			saveSettingsToSharedPreference();
-			saveStarnetAndAlarmPushAccounts();
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+//			startPushSettingService();
+//			saveSettingsToSharedPreference();
+//			saveStarnetAndAlarmPushAccounts();
 			this.finish();
 		}
 		return true;
