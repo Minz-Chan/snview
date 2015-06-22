@@ -20,6 +20,15 @@
         android:layout_margin="20dip"
         android:background="@drawable/system_setting_listview_shape"
         android:cacheColorHint="#00000000" />
+    
+    <Button
+        android:id="@+id/saveAlarmInfBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="40.0dp"
+        android:layout_margin="20dip"
+        android:background="@drawable/pushset_save_btn_selector"
+        android:text="@string/system_setting_pushset_save_alarminfo"
+         />
 
     <Button
         android:id="@+id/clearAlarmInfBtn"

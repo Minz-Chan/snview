@@ -52,7 +52,6 @@ public class AlarmPushSettingService extends Service {
 			new Thread() {
 				@Override
 				public void run() {
-					super.run();
 					while (isAccept && AlarmReceiver.relFlag == -1) {
 						getSettingsSP();
 						Log.v(TAG, "AlarmPushSettingService onStart relFlag ......");

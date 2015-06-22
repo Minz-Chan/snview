@@ -160,8 +160,7 @@ public class TimeSettingActivity extends BaseActivity {
 				Intent intent = new Intent();
 				int parentPos = bundle.getInt("parentPos");
 				final int childPos = bundle.getInt("childPos");
-				final DeviceItem deviceItem = (DeviceItem) bundle
-						.getSerializable("identifyDeviceItem");
+				final DeviceItem deviceItem = (DeviceItem) bundle.getSerializable("identifyDeviceItem");
 				intent.putExtra("group", parentPos);
 				intent.putExtra("child", childPos);
 				intent.putExtra("device", deviceItem);
@@ -173,9 +172,7 @@ public class TimeSettingActivity extends BaseActivity {
 					@Override
 					public void run() {
 						try {
-							ReadWriteXmlUtils.replaceSpecifyDeviceItem(
-									ChannelListActivity.filePath, childPos,
-									deviceItem);
+							ReadWriteXmlUtils.replaceSpecifyDeviceItem(ChannelListActivity.filePath, childPos, deviceItem);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

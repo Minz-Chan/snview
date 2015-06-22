@@ -24,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmActivity;
 import com.starnet.snview.devicemanager.DeviceViewActivity;
@@ -363,7 +364,6 @@ public abstract class BaseActivity extends Activity {
         }
     }
     
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -371,35 +371,27 @@ public abstract class BaseActivity extends Activity {
                 mMenuDrawer.toggleMenu();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onBackPressed() {
     	closeMenuDrawer();
-
         super.onBackPressed();
     }
-    
-    
-	
+    	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		
 		if (mIsBackPressedExitEventValid) {
-			if (keyCode == KeyEvent.KEYCODE_BACK
-					&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 				new AlertDialog.Builder(this)
 						.setMessage(getString(R.string.exit_dialog_content))
 						.setPositiveButton(getString(R.string.exit_dialog_ensure),
 								new DialogInterface.OnClickListener() {
 									@Override
-									public void onClick(DialogInterface dialog,
-											int which) {
-//										android.os.Process
-//												.killProcess(android.os.Process
-//														.myPid());
+									public void onClick(DialogInterface dialog, int which) {										
+										shutDownBaiduPushService();
 										BaseActivity.this.finish();
 									}
 								}).setNegativeButton(R.string.exit_dialog_dispose, null)
@@ -408,9 +400,12 @@ public abstract class BaseActivity extends Activity {
 			} else {
 				return super.onKeyDown(keyCode, event);
 			}
-		} 
-		
+		}
 		return super.onKeyDown(keyCode, event);
+	}
+	/*关闭百度推送服务***/
+	private void shutDownBaiduPushService(){
+		PushManager.stopWork(getBaseContext());
 	}
 	
 	private void initMenuDrawer() {

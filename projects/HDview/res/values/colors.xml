@@ -21,6 +21,8 @@
     <color name="images_listview_date_info_layout_bg">#FFF2F2F2</color>
     <color name="images_date_textview">#FF666666</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="normal_lawngreen">#32cd32</color><!-- #32cd32 -->
+    <color name="pressed_lawngreen">#228b22</color><!-- #32cd32 -->
     <color name="base_toolbar_sub_menu_text">#ffc9c9c9</color>
     
     <color name="channel_listview_account_item_bg_collapsed">#C0222222</color>
