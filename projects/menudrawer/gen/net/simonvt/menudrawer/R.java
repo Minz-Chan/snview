@@ -156,35 +156,35 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class color {
         /**  The default background of the menu. 
          */
-        public static int md__defaultBackground=0x7f030000;
+        public static int md__defaultBackground=0x7f020000;
     }
     public static final class id {
-        public static int bottom=0x7f020003;
-        public static int end=0x7f020005;
-        public static int left=0x7f020000;
+        public static int bottom=0x7f030008;
+        public static int end=0x7f030009;
+        public static int left=0x7f03000a;
         /**  Used with View#setTag(int) to specify a position for the active view. 
          */
-        public static int mdActiveViewPosition=0x7f02000b;
+        public static int mdActiveViewPosition=0x7f030005;
         /**  ID used when defining the content layout in XML. 
          */
-        public static int mdContent=0x7f020006;
+        public static int mdContent=0x7f030000;
         /**  ID used when defining the menu layout in XML. 
          */
-        public static int mdMenu=0x7f020007;
+        public static int mdMenu=0x7f030001;
         /**  The ID of the content container. 
          */
-        public static int md__content=0x7f020008;
+        public static int md__content=0x7f030002;
         /**  The ID of the drawer. 
          */
-        public static int md__drawer=0x7f02000a;
+        public static int md__drawer=0x7f030004;
         /**  The ID of the menu container. 
          */
-        public static int md__menu=0x7f020009;
-        public static int md__translationX=0x7f02000c;
-        public static int md__translationY=0x7f02000d;
-        public static int right=0x7f020002;
-        public static int start=0x7f020004;
-        public static int top=0x7f020001;
+        public static int md__menu=0x7f030003;
+        public static int md__translationX=0x7f030006;
+        public static int md__translationY=0x7f030007;
+        public static int right=0x7f03000b;
+        public static int start=0x7f03000c;
+        public static int top=0x7f03000d;
     }
     public static final class string {
         public static int md__drawerClosedIndicatorDesc=0x7f040001;
@@ -254,7 +254,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdActiveIndicator
         */
-        public static final int MenuDrawer_mdActiveIndicator = 3;
+        public static int MenuDrawer_mdActiveIndicator = 3;
         /**
           <p>
           @attr description
@@ -270,7 +270,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdAllowIndicatorAnimation
         */
-        public static final int MenuDrawer_mdAllowIndicatorAnimation = 9;
+        public static int MenuDrawer_mdAllowIndicatorAnimation = 9;
         /**
           <p>
           @attr description
@@ -282,7 +282,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdContentBackground
         */
-        public static final int MenuDrawer_mdContentBackground = 0;
+        public static int MenuDrawer_mdContentBackground = 0;
         /**
           <p>
           @attr description
@@ -298,7 +298,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDrawOverlay
         */
-        public static final int MenuDrawer_mdDrawOverlay = 14;
+        public static int MenuDrawer_mdDrawOverlay = 14;
         /**
           <p>
           @attr description
@@ -314,7 +314,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDrawerClosedUpContentDescription
         */
-        public static final int MenuDrawer_mdDrawerClosedUpContentDescription = 13;
+        public static int MenuDrawer_mdDrawerClosedUpContentDescription = 13;
         /**
           <p>
           @attr description
@@ -330,7 +330,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDrawerOpenUpContentDescription
         */
-        public static final int MenuDrawer_mdDrawerOpenUpContentDescription = 12;
+        public static int MenuDrawer_mdDrawerOpenUpContentDescription = 12;
         /**
           <p>
           @attr description
@@ -342,7 +342,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDropShadow
         */
-        public static final int MenuDrawer_mdDropShadow = 7;
+        public static int MenuDrawer_mdDropShadow = 7;
         /**
           <p>
           @attr description
@@ -359,7 +359,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDropShadowColor
         */
-        public static final int MenuDrawer_mdDropShadowColor = 6;
+        public static int MenuDrawer_mdDropShadowColor = 6;
         /**
           <p>
           @attr description
@@ -375,7 +375,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDropShadowEnabled
         */
-        public static final int MenuDrawer_mdDropShadowEnabled = 4;
+        public static int MenuDrawer_mdDropShadowEnabled = 4;
         /**
           <p>
           @attr description
@@ -393,7 +393,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdDropShadowSize
         */
-        public static final int MenuDrawer_mdDropShadowSize = 5;
+        public static int MenuDrawer_mdDropShadowSize = 5;
         /**
           <p>
           @attr description
@@ -409,7 +409,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdMaxAnimationDuration
         */
-        public static final int MenuDrawer_mdMaxAnimationDuration = 10;
+        public static int MenuDrawer_mdMaxAnimationDuration = 10;
         /**
           <p>
           @attr description
@@ -421,7 +421,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdMenuBackground
         */
-        public static final int MenuDrawer_mdMenuBackground = 1;
+        public static int MenuDrawer_mdMenuBackground = 1;
         /**
           <p>
           @attr description
@@ -439,7 +439,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdMenuSize
         */
-        public static final int MenuDrawer_mdMenuSize = 2;
+        public static int MenuDrawer_mdMenuSize = 2;
         /**
           <p>
           @attr description
@@ -462,7 +462,7 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdPosition
         */
-        public static final int MenuDrawer_mdPosition = 15;
+        public static int MenuDrawer_mdPosition = 15;
         /**
           <p>
           @attr description
@@ -474,7 +474,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdSlideDrawable
         */
-        public static final int MenuDrawer_mdSlideDrawable = 11;
+        public static int MenuDrawer_mdSlideDrawable = 11;
         /**
           <p>
           @attr description
@@ -492,6 +492,6 @@ containing a value of this type.
           <p>This is a private symbol.
           @attr name net.simonvt.menudrawer:mdTouchBezelSize
         */
-        public static final int MenuDrawer_mdTouchBezelSize = 8;
+        public static int MenuDrawer_mdTouchBezelSize = 8;
     };
 }
