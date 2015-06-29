@@ -1,5 +1,6 @@
 package com.starnet.snview.alarmmanager;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Bundle;
+import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
@@ -22,7 +25,10 @@ import android.util.Log;
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.syssetting.AalarmNotifyAdapter;
+import com.starnet.snview.syssetting.AlarmPushManagerActivity;
 import com.starnet.snview.syssetting.AlarmPushSettingService;
+import com.starnet.snview.syssetting.AlarmUserAdapter;
 import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -45,7 +51,10 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	/** TAG to Log */
 	public static final String TAG = AlarmReceiver.class.getSimpleName();
 	public static int ERROR_CODE;
-
+	
+	public static boolean applicationOver = false;
+	public static boolean serviceOpenStatus = false;  // true, opened; false, closed
+	public static HashMap<String, Boolean> tagsStatus = new HashMap<String, Boolean>(); // <tagString, tagRegisterStatus>
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
 	 * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -66,24 +75,23 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 * @return none
 	 */
 	@Override
-	public void onBind(Context context, int errorCode, String appid,
-			String userId, String channelId, String requestId) {
-		String responseString = "onBind errorCode=" + errorCode + " appid="
-				+ appid + " userId=" + userId + " channelId=" + channelId
-				+ " requestId=" + requestId;
+	public void onBind(Context context, int errorCode, String appid, String userId, String channelId, String requestId) {
+		String responseString = "onBind errorCode=" + errorCode + " appid=" + appid + " userId=" + userId + " channelId=" + channelId + " requestId=" + requestId;
 		Log.d(TAG, responseString);
-
+//		AlarmPushManagerActivity.isFirstInCurrentActivity = false;
 		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
 			relFlag = 1;
-			delFlag = 1;
 			Utils.setBind(context, true);
 		} else {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
-			AlarmPushSettingService.setCtx(context);
+//			AlarmPushSettingService.setCtx(context);
 			if (!started) {
 //				startRegOrDelService(context);// 开启服务
 			}
+		}
+		if(!applicationOver){
+			updateAlarmPushManagerActivityUI(context,errorCode);
 		}
 	}
 
@@ -98,10 +106,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 *            自定义内容,为空或者json字符串
 	 */
 	@Override
-	public void onMessage(Context context, String message,
-			String customContentString) {
-		String messageString = "透传消息 message=\"" + message
-				+ "\" customContentString=" + customContentString;
+	public void onMessage(Context context, String message, String customContentString) {
+		String messageString = "透传消息 message=\"" + message + "\" customContentString=" + customContentString;
 		Log.d(TAG, messageString);
 
 		if (!TextUtils.isEmpty(message)) {
@@ -116,13 +122,10 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 				JSONObject messageJsonObj = new JSONObject(message);
 				JSONObject customContentJsonObj = null;
 
-				if (messageJsonObj.isNull("custom_content")
-						|| TextUtils.isEmpty(messageJsonObj
-								.getString("custom_content"))) {
+				if (messageJsonObj.isNull("custom_content") || TextUtils.isEmpty(messageJsonObj.getString("custom_content"))) {
 					return;
 				} else {
-					customContentJsonObj = new JSONObject(
-							messageJsonObj.getString("custom_content"));
+					customContentJsonObj = new JSONObject(messageJsonObj.getString("custom_content"));
 				}
 
 				if (!customContentJsonObj.isNull("device_name")) {
@@ -130,28 +133,23 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 					deviceName = Base64Util.snDecode(de); // 需先BASE64解密
 				}
 				if (!customContentJsonObj.isNull("alarm_time")) {
-					alarmTime = Base64Util.snDecode(customContentJsonObj
-							.getString("alarm_time"));
+					alarmTime = Base64Util.snDecode(customContentJsonObj.getString("alarm_time"));
 				}
 				if (!customContentJsonObj.isNull("alarm_type")) {
-					alarmType = Base64Util.snDecode(customContentJsonObj
-							.getString("alarm_type"));
+					alarmType = Base64Util.snDecode(customContentJsonObj.getString("alarm_type"));
 				}
 				if (!customContentJsonObj.isNull("alarm_content")) {
-					alarmContent = Base64Util.snDecode(customContentJsonObj
-							.getString("alarm_content"));
+					alarmContent = Base64Util.snDecode(customContentJsonObj.getString("alarm_content"));
 				}
 				if (!customContentJsonObj.isNull("push_user")) {
 					pushUserUrl = Base64Util.snDecode(customContentJsonObj
 							.getString("push_user"));
 				}
 				if (!customContentJsonObj.isNull("image_path")) {
-					imageUrl = Base64Util.snDecode(customContentJsonObj
-							.getString("image_path"));
+					imageUrl = Base64Util.snDecode(customContentJsonObj.getString("image_path"));
 				}
 				if (!customContentJsonObj.isNull("video_url")) {
-					videoUrl = Base64Util.snDecode(customContentJsonObj
-							.getString("video_url"));
+					videoUrl = Base64Util.snDecode(customContentJsonObj.getString("video_url"));
 				}
 
 				AlarmDevice ad = new AlarmDevice();
@@ -197,8 +195,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		String userPattern = "([a-zA-Z0-9]{1,16})";
 		String passwordPattern = "([a-zA-Z0-9]{0,32})";
 		String imageUrlPattern = "([a-zA-z]+://[^\\s]*)";
-		Pattern pattern = Pattern.compile(userPattern + ":" + passwordPattern
-				+ "@" + imageUrlPattern);
+		Pattern pattern = Pattern.compile(userPattern + ":" + passwordPattern + "@" + imageUrlPattern);
 		Matcher matcher = pattern.matcher(imageUrl);
 		if (matcher.find()) {
 			ad.setImageUrl(matcher.group(3));
@@ -243,8 +240,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 					+ schemePattern + "://" + ipPattern + ":" + portPattern
 					+ "/" + channelPattern);
 		} else { // no user and password
-			pattern = Pattern.compile(schemePattern + "://" + ipPattern + ":"
-					+ portPattern + "/" + channelPattern);
+			pattern = Pattern.compile(schemePattern + "://" + ipPattern + ":" + portPattern + "/" + channelPattern);
 		}
 		Matcher matcher = pattern.matcher(videoUrl);
 		if (matcher.find()) {
@@ -297,9 +293,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			ad.setPusherPassword(matcher.group(2));
 			ad.setPusherDomain(matcher.group(3));
 		} else {
-			throw new IllegalStateException(
-					"Invalid PushUser url, which should match pattern"
-							+ "[username]:[password]@[Domain/IP]");
+			throw new IllegalStateException("Invalid PushUser url, which should match pattern" + "[username]:[password]@[Domain/IP]");
 		}
 		return ad;
 	}
@@ -307,24 +301,18 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	public static final int NOTIFICATION_ID = 0x00001234;
 
 	@SuppressWarnings("deprecation")
-	private void showNotification(Context context, String title,
-			String contentTitle, String contentText) {
+	private void showNotification(Context context, String title, String contentTitle, String contentText) {
 		Intent intent = new Intent(OnAlarmMessageArrivedReceiver.ACTION);
-		PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0,
-				intent, 0);
-		Notification notification = new Notification(R.drawable.ic_launcher,
-				title, System.currentTimeMillis());
-		notification.setLatestEventInfo(context, contentTitle, contentText,
-				contentIntent);
-		NotificationManager notificationManager = (NotificationManager) context
-				.getSystemService(Context.NOTIFICATION_SERVICE);
+		PendingIntent contentIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+		Notification notification = new Notification(R.drawable.ic_launcher, title, System.currentTimeMillis());
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.notify(NOTIFICATION_ID, notification);
 		controlSoundAndShake(context);
 	}
 
 	private void controlSoundAndShake(Context ctx) {
-		SharedPreferences sp = ctx
-				.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+		SharedPreferences sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
 		boolean isShake = sp.getBoolean("isShake", true);
 		boolean isSound = sp.getBoolean("isSound", true);
 		final Context ct = ctx;
@@ -338,8 +326,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			}).start();
 		}
 		if (isShake) {
-			Vibrator vibrator = (Vibrator) ctx
-					.getSystemService(Context.VIBRATOR_SERVICE);
+			Vibrator vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
 			long[] pattern = { 50, 200, 50, 200 };
 			vibrator.vibrate(pattern, -1);
 		}
@@ -358,10 +345,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 *            自定义内容，为空或者json字符串
 	 */
 	@Override
-	public void onNotificationClicked(Context context, String title,
-			String description, String customContentString) {
-		String notifyString = "通知点击 title=\"" + title + "\" description=\""
-				+ description + "\" customContent=" + customContentString;
+	public void onNotificationClicked(Context context, String title, String description, String customContentString) {
+		String notifyString = "通知点击 title=\"" + title + "\" description=\"" + description + "\" customContent=" + customContentString;
 		Log.d(TAG, notifyString);
 	}
 
@@ -380,24 +365,33 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 *            分配给对云推送的请求的id
 	 */
 	@Override
-	public void onSetTags(Context context, int errorCode,
-			List<String> sucessTags, List<String> failTags, String requestId) {
-		String responseString = "onSetTags errorCode=" + errorCode
-				+ " sucessTags=" + sucessTags + " failTags=" + failTags
-				+ " requestId=" + requestId;
+	public void onSetTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
+		String responseString = "onSetTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
+		Log.d(TAG, responseString);
 		if (errorCode == 0) {// 注册成功
 			relFlag = 1;
 			saveTagSuccOrFail(context, true);
 			closeRegOrDelService(context);
-		} else {// 注册失败
+			for(String str:sucessTags){
+				tagsStatus.put(str, true);
+			}
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
+		} else {// 注册标签失败
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
-			AlarmPushSettingService.setCtx(context);
+//			AlarmPushSettingService.setCtx(context);
 			if (!started) {
 //				startRegOrDelService(context);// 开启服务
 			}
 		}
-		Log.d(TAG, responseString);
+		
+		//对标签的设置结果进行返回处理
+		
 	}
 
 	/**
@@ -415,25 +409,32 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 *            分配给对云推送的请求的id
 	 */
 	@Override
-	public void onDelTags(Context context, int errorCode,
-			List<String> sucessTags, List<String> failTags, String requestId) {
-		String responseString = "onDelTags errorCode=" + errorCode
-				+ " sucessTags=" + sucessTags + " failTags=" + failTags
-				+ " requestId=" + requestId;
+	public void onDelTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
+		String responseString = "onDelTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
+		Log.d(TAG, responseString);
 		if (errorCode == 0) {// 注册成功
 			delFlag = 1;
+			
 			saveTagSuccOrFail(context, true);
 			closeRegOrDelService(context);
+			
+			for(String str:sucessTags){
+				tagsStatus.put(str, true);
+			}
+			
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
 		} else {
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
-			AlarmPushSettingService.setCtx(context);
-			if (!started) {
-//				startRegOrDelService(context);// 开启重新注册或者删除的服务
-			}
 		}
-		Log.d(TAG, responseString);
+		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
+
 
 	/**
 	 * listTags() 的回调函数。
@@ -448,12 +449,9 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 *            分配给对云推送的请求的id
 	 */
 	@Override
-	public void onListTags(Context context, int errorCode, List<String> tags,
-			String requestId) {
-		String responseString = "onListTags errorCode=" + errorCode + " tags="
-				+ tags;
+	public void onListTags(Context context, int errorCode, List<String> tags, String requestId) {
+		String responseString = "onListTags errorCode=" + errorCode + " tags=" + tags;
 		Log.d(TAG, responseString);
-
 	}
 
 	/**
@@ -468,13 +466,17 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	 */
 	@Override
 	public void onUnbind(Context context, int errorCode, String requestId) {
-		String responseString = "onUnbind errorCode=" + errorCode
-				+ " requestId = " + requestId;
+		String responseString = "onUnbind errorCode=" + errorCode + " requestId = " + requestId;
 		Log.d(TAG, responseString);
-
 		// 解绑定成功，设置未绑定flag，
 		if (errorCode == 0) {
 			Utils.setBind(context, false);
+		}else{
+			
+		}
+		AlarmPushManagerActivity.isFirstInCurrentActivity = false;
+		if(!applicationOver){
+			updateAlarmPushManagerActivityUI(context,errorCode);
 		}
 	}
 
@@ -491,17 +493,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		edt.commit();
 	}
 
-	/** 开启服务进程 **/
-//	private void startRegOrDelService(Context ctx) {
-//		if (intentService == null) {
-//			intentService = new Intent("syssetting.AlarmPushSettingService");
-//		}
-//		if (!started) {
-//			started = true;
-//		}
-//		ctx.getApplicationContext().startService(intentService);
-//	}
-
+	/** 关闭服务进程 **/
 	private void closeRegOrDelService(Context ctx) {
 		if (started) {
 			ctx.getApplicationContext().stopService(intentService);
@@ -510,4 +502,39 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	
 	public static int relFlag = - 1;
 	public static int delFlag = - 1;
+	
+	private static boolean isFirstStart = true;
+	
+	private void updateAlarmPushManagerActivityUI(Context context,int errorCode){
+		Message msg = new Message();
+		Bundle data = new Bundle();
+		data.putInt("errorCode",errorCode);
+		data.putBoolean("remind_push_all_accept", false);
+		msg.setData(data);
+		if(AalarmNotifyAdapter.isStartOrStopWork){
+			AlarmPushManagerActivity.mHandler.sendMessage(msg);
+		}
+	}
+	private void updateAlarmPushManagerActivityUIWithSetOrDelTags(Context context, List<String> sucessTags, List<String> failTags,int errorCode) {
+		
+		Message msg = new Message();
+		Bundle data = new Bundle();
+		data.putInt("errorCode",errorCode);
+		data.putBoolean("remind_push_all_accept", true);
+		msg.setData(data);
+		if(AlarmUserAdapter.isSetOrDelTags){
+			AlarmPushManagerActivity.mHandler.sendMessage(msg);
+		}
+		
+		
+		if(isFirstStart){
+			isFirstStart = false;
+		}else{
+//			Intent intent = new Intent();
+//			intent.putExtra("errorCode",errorCode);
+//	        intent.setClass(context.getApplicationContext(), AlarmPushManagerActivity.class);
+//	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//	        context.getApplicationContext().startActivity(intent);
+		}
+	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.baidu.android.pushservice.PushManager;
-import com.starnet.snview.alarmmanager.AlarmReceiver;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -43,40 +42,40 @@ public class AlarmPushSettingService extends Service {
 	@Override
 	public void onStart(Intent intent, int startId) {
 		Log.v(TAG, "AlarmPushSettingService onStart......");
-		getSettingsSP();
-		if (!isAllAcc) {
-			if (ctx!=null) {
-				PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
-			}
-		} else {
-			new Thread() {
-				@Override
-				public void run() {
-					while (isAccept && AlarmReceiver.relFlag == -1) {
-						getSettingsSP();
-						Log.v(TAG, "AlarmPushSettingService onStart relFlag ......");
-						try {
-							if (ctx!=null) {
-								saveAllAccounts();
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-					while (!isAccept && AlarmReceiver.delFlag == -1) {
-						getSettingsSP();
-						Log.v(TAG, "AlarmPushSettingService onStart delFlag......");
-						try {
-							if (ctx!=null) {
-								delPushUserAndSaveStarnetUser();
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}.start();
-		}
+//		getSettingsSP();
+//		if (!isAllAcc) {
+//			if (ctx!=null) {
+//				PushManager.stopWork(ctx.getApplicationContext());// 关闭百度推送服务
+//			}
+//		} else {
+//			new Thread() {
+//				@Override
+//				public void run() {
+//					while (isAccept && AlarmReceiver.relFlag == -1) {
+//						getSettingsSP();
+//						Log.v(TAG, "AlarmPushSettingService onStart relFlag ......");
+//						try {
+//							if (ctx!=null) {
+//								saveAllAccounts();
+//							}
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//					}
+//					while (!isAccept && AlarmReceiver.delFlag == -1) {
+//						getSettingsSP();
+//						Log.v(TAG, "AlarmPushSettingService onStart delFlag......");
+//						try {
+//							if (ctx!=null) {
+//								delPushUserAndSaveStarnetUser();
+//							}
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//			}.start();
+//		}
 		// }
 	}
 

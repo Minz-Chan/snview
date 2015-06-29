@@ -1180,7 +1180,7 @@ public class ReadWriteXmlUtils {
 		return cloudAccountList;
 	}
 
-	private final static String ALARMPUSHUSER_FILEPATH = "/data/data/com.starnet.snview/ALARMS_PUSHUSERS_FILE.xml";
+	public final static String ALARMPUSHUSER_FILEPATH = "/data/data/com.starnet.snview/ALARMS_PUSHUSERS_FILE.xml";
 
 	/** 向xml文档中添加报警推送账户 **/
 	public static void addAlarmPushUserToXML(CloudAccount user) {

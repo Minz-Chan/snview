@@ -60,14 +60,12 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 				intent.setClass(ctx, AlarmAccountsAddingActivity.class);
 				// intent.setClass(ctx, AlarmAccountsAddActivity.class);
 				startActivityForResult(intent, REQUESTCODE_ADD);
-
 			}
 		});
 
 		userListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent intent = new Intent();
 				intent.putExtra("pos", position);
 				intent.putExtra("cla", mList.get(position));
@@ -79,8 +77,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		userListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				jumpDeleteDialog(position);
 				return true;
 			}
@@ -151,7 +148,6 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mList);
 		userListView = (ListView) findViewById(R.id.userListView);
 		userListView.setAdapter(caAdapter);
-
 	}
 
 	@Override
@@ -160,8 +156,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 
 		if (resultCode == ADDINGTCODE) {
 			if (data != null) {
-				CloudAccount ca = (CloudAccount) data
-						.getSerializableExtra("alarmUser");
+				CloudAccount ca = (CloudAccount) data.getSerializableExtra("alarmUser");
 				boolean cover = data.getBooleanExtra("cover", false);
 				if (!cover) {
 					ReadWriteXmlUtils.addAlarmPushUserToXML(ca);
@@ -183,8 +178,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			}
 		} else if (resultCode == REQUESTCODE_ADD) {
 			if (data != null) {
-				CloudAccount ca = (CloudAccount) data
-						.getSerializableExtra("ca");
+				CloudAccount ca = (CloudAccount) data.getSerializableExtra("ca");
 				ca.setEnabled(true);
 				boolean cover = data.getBooleanExtra("cover", false);
 				if (!cover) {

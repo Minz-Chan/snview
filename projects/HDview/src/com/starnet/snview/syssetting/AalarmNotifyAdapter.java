@@ -2,26 +2,33 @@ package com.starnet.snview.syssetting;
 
 import java.util.HashMap;
 import java.util.List;
+
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.SnapshotSound;
+import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
+import com.starnet.snview.util.NetWorkUtils;
+
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
+import android.widget.CompoundButton;
+import android.widget.Toast;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 @SuppressLint("ClickableViewAccessibility")
-public class AalarmNotifyAdapter extends BaseAdapter {
+public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeListener{
 
 	private final String TAG = "AalarmNotifyAdapter";
 
@@ -30,18 +37,17 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 	boolean isAllAcc;
 
 	private Context ctx;
+	private String apiKey;
 	private Vibrator vibrator;
 	private LayoutInflater flater;
 	private boolean isClickFlagAcc;
 	private boolean isClickFlagSha;
 	private boolean isClickFlagSou;
+	private HashMap<String, String> mHashmap;
 	private List<HashMap<String, Object>> mData;
-
-	private GestureDetector mGestureDetector;
-
-	public AalarmNotifyAdapter(Context ctx,
-			List<HashMap<String, Object>> mData, boolean isAllAcc,
-			boolean isShake, boolean isSound) {
+	
+	public AalarmNotifyAdapter(Context ctx,List<HashMap<String, Object>> mData, boolean isAllAcc, boolean isShake, boolean isSound) {
+		
 		this.ctx = ctx;
 		this.mData = mData;
 		this.isShake = isShake;
@@ -50,23 +56,35 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 		this.isClickFlagSou = isSound;
 		this.isClickFlagSha = isShake;
 		this.isClickFlagAcc = isAllAcc;
-
 		vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
-		flater = (LayoutInflater) ctx
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		gestureListener = new FlipOnGestureListener();
-		mGestureDetector = new GestureDetector(ctx, gestureListener);
+		flater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	}
+	
+   public AalarmNotifyAdapter(Context ctx,HashMap<String, String> map, boolean isAllAcc, boolean isShake, boolean isSound) {
+		
+		this.ctx = ctx;
+		this.mHashmap = map;
+		this.isShake = isShake;
+		this.isSound = isSound;
+		this.isAllAcc = isAllAcc;
+		this.isClickFlagSou = isSound;
+		this.isClickFlagSha = isShake;
+		this.isClickFlagAcc = isAllAcc;
+		
+		apiKey = Utils.getMetaValue(ctx.getApplicationContext(), "api_key");
+		vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+		flater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
 	}
 
 	@Override
 	public int getCount() {
-		return mData.size();
+		return 1;
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return mData.get(position);
+		return null;
 	}
 
 	@Override
@@ -74,71 +92,82 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 		return position;
 	}
 
-	private int curPostion;
-	private TextView curTXT;
-	private ImageButton curImgBtn;
+//	private int curPostion;
+	private TextView tv_push;
+	private TextView tv_shake;
+	private TextView tv_sound;
+	private CheckSwitchButton csv_push;
+	private CheckSwitchButton csv_shake;
+	private CheckSwitchButton csv_sound;
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = flater
-					.inflate(R.layout.alarmnotifyadapter_item, null);
+			convertView = flater.inflate(R.layout.alarm_notifyadapter_items, null);
 		}
+		
+		tv_push = (TextView) convertView.findViewById(R.id.alarm_cnt);
+		csv_push = (CheckSwitchButton) convertView.findViewById(R.id.imgBtn);
+		
+		tv_shake = (TextView) convertView.findViewById(R.id.tv_alarm_shake);
+		csv_shake = (CheckSwitchButton) convertView.findViewById(R.id.csv_shake);
 
-		TextView txt = (TextView) convertView.findViewById(R.id.alarm_txt);
-		final ImageButton imgBtn = (ImageButton) convertView
-				.findViewById(R.id.imgBtn);
+		tv_sound = (TextView) convertView.findViewById(R.id.tv_alarm_sound);
+		csv_sound = (CheckSwitchButton) convertView.findViewById(R.id.csv_sound);
 
-		HashMap<String, Object> map = mData.get(position);
-		String content = map.get("text").toString();
-		txt.setText("" + content);
-
-		final TextView cnt = (TextView) convertView
-				.findViewById(R.id.alarm_cnt);
-
-		final int pos = position;
-
-		if (pos == 0) {
-			if (isClickFlagAcc) {
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				cnt.setText(ctx.getString(R.string.notify_accept_open));
-			} else {
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-				cnt.setText(ctx.getString(R.string.notify_accept_off));
-			}
-		} else if (pos == 1) {
-			if (isClickFlagSha) {
-				cnt.setText(ctx.getString(R.string.remind_shake_open));
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-			} else {
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-				cnt.setText(ctx.getString(R.string.remind_shake_off));
-			}
-		} else if (pos == 2) {
-			if (isClickFlagSou) {
-				cnt.setText(ctx.getString(R.string.remind_sound_open));
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-			} else {
-				cnt.setText(ctx.getString(R.string.remind_sound_off));
-				imgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			}
+		if(isClickFlagAcc){
+			csv_push.setChecked(true);
+			tv_push.setText(ctx.getString(R.string.notify_accept_open));
+			csv_shake.setEnabled(true);
+			csv_sound.setEnabled(true);
+		}else{
+			csv_push.setChecked(false);
+			tv_push.setText(ctx.getString(R.string.notify_accept_off));
+			csv_shake.setEnabled(false);
+			csv_sound.setEnabled(false);
 		}
-
-		imgBtn.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				curTXT = cnt;
-				curPostion = pos;
-				curImgBtn = imgBtn;
-				return mGestureDetector.onTouchEvent(event);
-			}
-		});
-
-		imgBtn.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) { }
-		});
+		
+		if(isShake){
+			csv_shake.setChecked(true);
+			tv_shake.setText(ctx.getString(R.string.remind_shake_open));
+		}else{
+			tv_shake.setText(ctx.getString(R.string.remind_shake_off));
+			csv_shake.setChecked(false);
+		}
+		
+		if(isSound){
+			csv_sound.setChecked(true);
+			tv_sound.setText(ctx.getString(R.string.remind_sound_open));
+		}else{
+			csv_sound.setChecked(false);
+			tv_sound.setText(ctx.getString(R.string.remind_sound_off));
+		}
+		
+		csv_push.setOnCheckedChangeListener(this);
+		csv_shake.setOnCheckedChangeListener(this);
+		csv_sound.setOnCheckedChangeListener(this);
+//		{
+//
+//			@Override
+//			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//				isSound = isChecked;
+//				if(isChecked){
+//					String content = ctx.getString(R.string.remind_sound_open);
+//					tv_sound.setText(content);
+//					new Thread(new Runnable() {
+//						@Override
+//						public void run() {
+//							SnapshotSound s = new SnapshotSound(ctx);
+//							s.playPushSetSound();
+//						}
+//					}).start();				
+//				}else{
+//					String content = ctx.getString(R.string.remind_sound_off);
+//					tv_sound.setText(content);
+//				}
+//			}
+//		});
+		
 		return convertView;
 	}
 
@@ -165,147 +194,109 @@ public class AalarmNotifyAdapter extends BaseAdapter {
 	public void setClickFlagSou(boolean isClickFlagSou) {
 		this.isClickFlagSou = isClickFlagSou;
 	}
+	
+	public static boolean isStartOrStopWork = false;
 
-	private FlipOnGestureListener gestureListener;
-
-	private final class FlipOnGestureListener implements OnGestureListener {
-
-		@Override
-		public boolean onDown(MotionEvent e) {
-			Log.i(TAG, "====onDown====");
-			pressDownAction();
-			return false;
-		}
-
-		@Override
-		public void onShowPress(MotionEvent e) {
-
-		}
-
-		@Override
-		public boolean onSingleTapUp(MotionEvent e) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-			Log.i(TAG, "====onScroll====distanceX：" + distanceX);
-			if (distanceX > 0) {//表示左滑关闭
-				scrollCloseAction();
-			} else {//右滑表示打开，左滑表示
-				scrollOpenAction();
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {//灰色代表关闭，蓝色代表开启
+		Log.i(TAG, "isChecked:" + isChecked);
+		switch(buttonView.getId()){
+		case R.id.imgBtn:
+			Log.i(TAG, "R.id.imgBtn");
+			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+			if(!isOpen){
+				showToast(ctx.getString(R.string.pushservice_network_notopen));
+				return;
 			}
-			return false;
-		}
-
-		@Override
-		public void onLongPress(MotionEvent e) {
-			Log.i(TAG, "====onLongPress====");
-		}
-
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			Log.i(TAG, "====onFling====");
-			return false;
-		}
-	}
-
-	private void pressDownAction() {
-		if (curPostion == 0) {
-			if (isClickFlagAcc) {
-				isClickFlagAcc = false;
-				curTXT.setText(ctx.getString(R.string.notify_accept_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			} else {
-				isClickFlagAcc = true;
-				curTXT.setText(ctx.getString(R.string.notify_accept_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			csv_shake.setEnabled(isChecked);
+			csv_sound.setEnabled(isChecked);
+			if(!isChecked){//关闭时，则
+				isRequestStartWork = false;
+				isStartOrStopWork = true;
+//				if(!PushManager.isPushEnabled(ctx)){
+					PushManager.stopWork(ctx);
+					openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
+//				}
+			}else{
+				isRequestStartWork = true;
+				isStartOrStopWork = true;
+//				if(PushManager.isPushEnabled(ctx)){
+					PushManager.startWork(ctx,PushConstants.LOGIN_TYPE_API_KEY,apiKey);
+					openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
+//				}
 			}
-		} else if (curPostion == 1) {
-			if (isClickFlagSha) {
-				isClickFlagSha = false;
-				curTXT.setText(ctx.getString(R.string.remind_shake_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			} else {
-				isClickFlagSha = true;
+			//开启加载圈
+			break;
+		case R.id.csv_shake:
+			isShake = isChecked;
+			if(isShake){
+				tv_shake.setText(ctx.getString(R.string.remind_shake_open));
 				long[] pattern = { 50, 200, 50, 200 };
 				vibrator.vibrate(pattern, -1);
-				curTXT.setText(ctx.getString(R.string.remind_shake_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			}else{
+				tv_shake.setText(ctx.getString(R.string.remind_shake_off));
 			}
-		} else if (curPostion == 2) {
-			if (isClickFlagSou) {
-				isClickFlagSou = false;
-				curTXT.setText(ctx.getString(R.string.remind_sound_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			} else {
-				isClickFlagSou = true;
-				curTXT.setText(ctx.getString(R.string.remind_sound_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+			break;
+		case R.id.csv_sound:
+			isSound = isChecked;
+			if(isSound){
+				String content = ctx.getString(R.string.remind_sound_open);
+				tv_sound.setText(content);
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						SnapshotSound s = new SnapshotSound(ctx);
 						s.playPushSetSound();
 					}
-				}).start();
+				}).start();				
+			}else{
+				String content = ctx.getString(R.string.remind_sound_off);
+				tv_sound.setText(content);
 			}
+			break;
 		}
+		
+		//SharedPreference 的读写
+		SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+		Editor editor = sps.edit();
+		editor.putBoolean("isAllAccept", isAllAcc);
+		editor.putBoolean("isShake", isShake);
+		editor.putBoolean("isSound", isSound);
+		editor.commit();
+		
 	}
-
-	private void scrollCloseAction() {
-		if (curPostion == 0) {
-			if (isClickFlagAcc) {
-				isClickFlagAcc = false;
-				curTXT.setText(ctx.getString(R.string.notify_accept_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			}
-		} else if (curPostion == 1) {
-			if (isClickFlagSha) {
-				isClickFlagSha = false;
-				curTXT.setText(ctx.getString(R.string.remind_shake_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			}
-		} else if (curPostion == 2) {
-			if (isClickFlagSou) {
-				isClickFlagSou = false;
-				curTXT.setText(ctx.getString(R.string.remind_sound_off));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_off);
-			}
+	
+	private void showToast(String text){
+		Toast.makeText(ctx, text, Toast.LENGTH_SHORT).show();
+	}
+	
+	private void openProgressDialogForPushService(String title){
+		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, false);
+		pushServicePrg.show();
+	}
+	
+	private boolean isRequestStartWork ;//标识百度推送服务是否启动
+	private ProgressDialog pushServicePrg;
+	
+	public void closeProgreeDialog(int errorCode){
+		
+		if((pushServicePrg != null) && (pushServicePrg.isShowing())){
+			pushServicePrg.dismiss();
 		}
-	}
-
-	private void scrollOpenAction() {
-		if (curPostion == 0) {
-			if (!isClickFlagAcc){
-				isClickFlagAcc = true;
-				curTXT.setText(ctx.getString(R.string.notify_accept_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+		
+		if(errorCode == 0){
+			if(isRequestStartWork){
+				showToast(ctx.getString(R.string.pushservice_open_success));
+			}else{
+				showToast(ctx.getString(R.string.pushservice_close_success));
 			}
-		} else if (curPostion == 1) {
-			if (!isClickFlagSha) {
-				isClickFlagSha = true;
-				long[] pattern = { 50, 200, 50, 200 };
-				vibrator.vibrate(pattern, -1);
-				curTXT.setText(ctx.getString(R.string.remind_shake_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
+		}else{
+			if(isRequestStartWork){
+				showToast(ctx.getString(R.string.pushservice_open_failure));
+			}else{
+				showToast(ctx.getString(R.string.pushservice_close_failure));
 			}
-		} else if (curPostion == 2) {
-			if (!isClickFlagSou) {
-				isClickFlagSou = true;
-				curTXT.setText(ctx.getString(R.string.remind_sound_open));
-				curImgBtn.setBackgroundResource(R.drawable.pushset_notify_open);
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						SnapshotSound s = new SnapshotSound(ctx);
-						s.playPushSetSound();
-					}
-				}).start();
-			}
+			csv_push.setChecked(false);
 		}
 	}
 }
