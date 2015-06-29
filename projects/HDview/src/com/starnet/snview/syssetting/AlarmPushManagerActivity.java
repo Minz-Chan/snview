@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,15 +42,15 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	private SharedPreferences sp;
 	private List<CloudAccount> ps;
 	private List<CloudAccount> ca;
-	private Button saveAlarmInfBtn;
+//	private Button saveAlarmInfBtn;
 	private Button clearAlarmInfBtn;	
-	private HashMap<String, Object> map;
+	private HashMap<String, String> map;
 	private final int REQUESTCODE = 0x0001;
 	private CornerListView alarmUserListView;// 报警账户的listView
-	private AlarmUserAdapter alarmUserAdapter;
+	private static AlarmUserAdapter alarmUserAdapter;//报警账户接收圆角列表
 	private List<HashMap<String, Object>> list;
 	private CornerListView alarmNotifyListView;// 报警通知（接收、声音和震动的设置）
-	private AalarmNotifyAdapter alarmNotifyAdapter;
+	private static AalarmNotifyAdapter alarmNotifyAdapter;//报警推送接收圆角列表
 	private List<HashMap<String, Object>> settingList;
 	protected final String TAG = "AlarmPushManagerActivity";
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
@@ -64,22 +66,19 @@ public class AlarmPushManagerActivity extends BaseActivity {
 
 	private void setListeners() {
 		
-		saveAlarmInfBtn.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				startPushSettingService();
-				saveSettingsToSharedPreference();
-				saveStarnetAndAlarmPushAccounts();
-				AlarmPushManagerActivity.this.finish();
-			}
-		});
+//		saveAlarmInfBtn.setOnClickListener(new OnClickListener(){
+//			@Override
+//			public void onClick(View v) {
+//				startPushSettingService();
+//				saveSettingsToSharedPreference();
+//				saveStarnetAndAlarmPushAccounts();
+//				AlarmPushManagerActivity.this.finish();
+//			}
+//		});
 		
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				startPushSettingService();
-//				saveSettingsToSharedPreference();
-//				saveStarnetAndAlarmPushAccounts();
 				AlarmPushManagerActivity.this.finish();
 			}
 		});
@@ -91,20 +90,9 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			}
 		});
 
-		super.getRightButton().setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startPushSettingService();
-				saveSettingsToSharedPreference();
-				saveStarnetAndAlarmPushAccounts();
-				AlarmPushManagerActivity.this.finish();
-			}
-		});
-
 		alarmUserListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (position == 1) {
 					Intent intent = new Intent();
 					intent.setClass(ctx, AlarmAccountsPreviewActivity.class);
@@ -116,6 +104,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 
 	/** 保存用户的设置选项 **/
 	private void saveSettingsToSharedPreference() {
+		
 		isAcc = alarmUserAdapter.isClickFlag();
 		isShake = alarmNotifyAdapter.isClickFlagSha();
 		isSound = alarmNotifyAdapter.isClickFlagSou();
@@ -164,11 +153,12 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		super.setTitleViewText(getString(R.string.system_setting_alarm_pushset));
 
 		ctx = AlarmPushManagerActivity.this;
-		saveAlarmInfBtn = (Button) findViewById(R.id.saveAlarmInfBtn);
 		clearAlarmInfBtn = (Button) findViewById(R.id.clearAlarmInfBtn);
 		alarmUserListView = (CornerListView) findViewById(R.id.alarmUserListView);
 		alarmNotifyListView = (CornerListView) findViewById(R.id.alarmNotifyListView);
 
+		isFirstInCurrentActivity = true;
+		
 		sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
 		isAcc = sp.getBoolean("isAccept", true);
 		isShake = sp.getBoolean("isShake", true);
@@ -299,17 +289,11 @@ public class AlarmPushManagerActivity extends BaseActivity {
 	}
 
 	private void setAalarmNotifyAdapter() {
-		settingList = new ArrayList<HashMap<String, Object>>();
-		map = new HashMap<String, Object>();
-		map.put("text", getString(R.string.system_setting_alarminfo_accept));
-		settingList.add(map);
-		map = new HashMap<String, Object>();
-		map.put("text", getString(R.string.system_setting_alarminfo_remind_shake));
-		settingList.add(map);
-		map = new HashMap<String, Object>();
-		map.put("text", getString(R.string.system_setting_alarminfo_remind_sound));
-		settingList.add(map);
-		alarmNotifyAdapter = new AalarmNotifyAdapter(this, settingList, isAllAcc, isShake, isSound);
+		map = new HashMap<String, String>();
+		map.put("alarm_push", getString(R.string.system_setting_alarminfo_accept));
+		map.put("alarm_shake", getString(R.string.system_setting_alarminfo_remind_shake));
+		map.put("alarm_sound", getString(R.string.system_setting_alarminfo_remind_sound));
+		alarmNotifyAdapter = new AalarmNotifyAdapter(this, map, isAllAcc, isShake, isSound);
 		alarmNotifyListView.setAdapter(alarmNotifyAdapter);
 	} 
 
@@ -360,4 +344,35 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		Intent service = new Intent("syssetting.AlarmPushSettingService");
 		startService(service);
 	}
+
+	public static boolean isFirstInCurrentActivity = true;
+//	@Override
+//	protected void onNewIntent(Intent intent) {//for baidu service
+//		super.onNewIntent(intent);
+//		if(!isFirstInCurrentActivity){
+//			isFirstInCurrentActivity = false;
+//			int errorCode = intent.getIntExtra("errorCode", -1);
+//			if(errorCode == 0){
+//				alarmNotifyAdapter.closeProgreeDialog(errorCode);
+//			}else{
+//				alarmNotifyAdapter.closeProgreeDialog(errorCode);
+//			}
+//		}
+//	}
+	
+	public static Handler mHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			Bundle data = msg.getData();
+			int errorCode = data.getInt("errorCode", -1);
+			boolean pushServiceAccept = data.getBoolean("remind_push_all_accept");
+			if(!pushServiceAccept){//表示是startWork,stopWork
+				alarmNotifyAdapter.closeProgreeDialog(errorCode);
+			}else{//表示是setTags,delTags
+				alarmUserAdapter.closeProgreeDialog(errorCode);
+			}
+		}
+	};
 }

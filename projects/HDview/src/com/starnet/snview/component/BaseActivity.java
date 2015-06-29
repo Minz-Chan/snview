@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmActivity;
+import com.starnet.snview.alarmmanager.AlarmReceiver;
 import com.starnet.snview.devicemanager.DeviceViewActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.images.ImagesManagerActivity;
@@ -405,6 +406,7 @@ public abstract class BaseActivity extends Activity {
 	}
 	/*关闭百度推送服务***/
 	private void shutDownBaiduPushService(){
+		AlarmReceiver.applicationOver = true;
 		PushManager.stopWork(getBaseContext());
 	}
 	
