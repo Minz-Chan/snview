@@ -20,7 +20,7 @@
                 android:id="@+id/imgBtn"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_vertical|right"
                  />
         </LinearLayout>
 

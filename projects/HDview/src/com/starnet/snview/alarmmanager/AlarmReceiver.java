@@ -27,7 +27,6 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.syssetting.AalarmNotifyAdapter;
 import com.starnet.snview.syssetting.AlarmPushManagerActivity;
-import com.starnet.snview.syssetting.AlarmPushSettingService;
 import com.starnet.snview.syssetting.AlarmUserAdapter;
 import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -80,7 +79,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		Log.d(TAG, responseString);
 //		AlarmPushManagerActivity.isFirstInCurrentActivity = false;
 		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
-			relFlag = 1;
 			Utils.setBind(context, true);
 		} else {
 			Utils.setBind(context, false);
@@ -369,12 +367,12 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		String responseString = "onSetTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
 		Log.d(TAG, responseString);
 		if (errorCode == 0) {// 注册成功
-			relFlag = 1;
 			saveTagSuccOrFail(context, true);
 			closeRegOrDelService(context);
 			for(String str:sucessTags){
 				tagsStatus.put(str, true);
 			}
+			
 			for(String str:failTags){
 				tagsStatus.put(str, false);
 			}
@@ -391,7 +389,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 		
 		//对标签的设置结果进行返回处理
-		
+		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
 
 	/**
@@ -412,9 +410,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	public void onDelTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
 		String responseString = "onDelTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
 		Log.d(TAG, responseString);
-		if (errorCode == 0) {// 注册成功
-			delFlag = 1;
-			
+		if (errorCode == 0) {// 注册成功			
 			saveTagSuccOrFail(context, true);
 			closeRegOrDelService(context);
 			
@@ -500,8 +496,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 	}
 	
-	public static int relFlag = - 1;
-	public static int delFlag = - 1;
+//	public static int relFlag = - 1;
+//	public static int delFlag = - 1;
 	
 	private static boolean isFirstStart = true;
 	
@@ -516,6 +512,12 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 	}
 	private void updateAlarmPushManagerActivityUIWithSetOrDelTags(Context context, List<String> sucessTags, List<String> failTags,int errorCode) {
+		
+		if(errorCode == 0){
+			if((failTags!=null)&&(failTags.size()>0)){
+				errorCode = -1;
+			}
+		}
 		
 		Message msg = new Message();
 		Bundle data = new Bundle();

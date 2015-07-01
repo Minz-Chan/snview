@@ -82,7 +82,73 @@ public class AlarmUserAdapter extends BaseAdapter implements OnCheckedChangeList
 				curTxt.setText(ctx.getString(R.string.alarm_accept_off));
 				csv_push.setChecked(false);
 			}
-			csv_push.setOnCheckedChangeListener(this);
+//			csv_push.setOnCheckedChangeListener(this);
+			csv_push.setOnCheckedChangeListener(new OnCheckedChangeListener(){
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if(isFastDoubleClick()){
+						return;
+					}
+					isAccept = isChecked;
+					isClickFlag = isChecked;
+					try{
+						boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
+						if(!isOpen){
+							showToast(ctx.getString(R.string.pushservice_network_notopen));
+							return;
+						}			
+						if(isChecked){
+							//报警账户接收功能开启
+							if((tags==null)||(tags.isEmpty())){
+								showToast(ctx.getString(R.string.pushservice_alarmusr_null_open));
+								return;
+							}
+							curTxt.setText(ctx.getString(R.string.alarm_accept_open));
+							csv_push.setChecked(true);
+							String setTags = "";
+							for(CloudAccount ca : tags){
+								String uName = ca.getUsername();
+								String pswd = MD5Utils.createMD5(ca.getPassword());
+								String temp = uName + pswd;
+								if(ca.equals(tags.get(tags.size()-1))){
+									setTags += temp;
+								}else{
+									setTags += temp+",";
+								}
+							}
+							setTagsWithBaiduPushService(setTags);
+						}else{
+							//报警账户接收功能关闭
+							if((tags==null)||(tags.isEmpty())){
+								csv_push.setChecked(true);	
+								csv_push.invalidate();
+								showToast(ctx.getString(R.string.pushservice_alarmusr_null_open));
+								return;
+							}
+							curTxt.setText(ctx.getString(R.string.alarm_accept_off));
+							csv_push.setChecked(false);				
+							String setTags = "";
+							for(CloudAccount ca : tags){
+								String uName = ca.getUsername();
+								String pswd = MD5Utils.createMD5(ca.getPassword());
+								String temp = uName + pswd;
+								if(ca.equals(tags.get(tags.size()-1))){
+									setTags += temp;
+								}else{
+									setTags += temp+",";
+								}
+							}
+							delTagsWithBaiduPushService(setTags);
+						}
+						SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+						Editor editor = sps.edit();
+						editor.putBoolean("isSound", isAccept);
+						editor.commit();
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+			});
 		} else if (position == 1) {
 			convertView = flater.inflate(R.layout.alarmuseradapter_item, null);
 			TextView cnt = (TextView) convertView.findViewById(R.id.pset_cnt);
@@ -100,7 +166,17 @@ public class AlarmUserAdapter extends BaseAdapter implements OnCheckedChangeList
 		return isClickFlag;
 	}
 
-	private boolean hasRun = false;
+	private long lastClickTime;
+	private boolean isFastDoubleClick() {
+		long time = System.currentTimeMillis();
+		long timeD = time - lastClickTime;
+		if (0 < timeD && timeD < 500) {
+			return true;
+		}
+		lastClickTime = time;
+		return false;
+	}
+	
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		
@@ -110,7 +186,7 @@ public class AlarmUserAdapter extends BaseAdapter implements OnCheckedChangeList
 		
 		switch(buttonView.getId()){
 		case R.id.imgBtn:
-			hasRun = true;
+//			hasRun = true;
 			isAccept = isChecked;
 			isClickFlag = isChecked;
 			try{
