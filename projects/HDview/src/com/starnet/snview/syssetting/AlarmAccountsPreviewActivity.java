@@ -106,7 +106,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 				}.start();
 				
 				if (NetWorkUtils.checkNetConnection(ctx)) {
-					deleteTags(mList.get(position));
+					//deleteTags(mList.get(position));
 				}
 				
 				mList.remove(position);

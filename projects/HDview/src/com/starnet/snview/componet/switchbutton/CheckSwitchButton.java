@@ -1,5 +1,6 @@
 ﻿package com.starnet.snview.componet.switchbutton;
 
+
 import com.starnet.snview.R;
 
 import android.content.Context;
@@ -112,7 +113,8 @@ public class CheckSwitchButton extends CheckBox {
 		Resources resources = context.getResources();
 
 		// get viewConfiguration
-		mClickTimeout = ViewConfiguration.getPressedStateDuration() + ViewConfiguration.getTapTimeout();
+		mClickTimeout = ViewConfiguration.getPressedStateDuration()
+				+ ViewConfiguration.getTapTimeout();
 		mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
 		// get Bitmap
@@ -137,7 +139,8 @@ public class CheckSwitchButton extends CheckBox {
 		mVelocity = (int) (VELOCITY * density + 0.5f);
 		mExtendOffsetY = (int) (EXTENDED_OFFSET_Y * density + 0.5f);
 		// 创建一个新的矩形与指定的坐标。
-		mSaveLayerRectF = new RectF(0, mExtendOffsetY, mMask.getWidth(), mMask.getHeight() + mExtendOffsetY);
+		mSaveLayerRectF = new RectF(0, mExtendOffsetY, mMask.getWidth(),
+				mMask.getHeight() + mExtendOffsetY);
 		mXfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);// PorterDuff.Mode.SRC_IN
 																	// ：这个属性代表
 																	// 取两层绘制交集。显示上层。
@@ -182,7 +185,7 @@ public class CheckSwitchButton extends CheckBox {
 	 *            true to check the button, false to uncheck it
 	 */
 	public void setChecked(boolean checked) {
-		
+
 		if (mChecked != checked) {
 			mChecked = checked;
 
@@ -203,6 +206,7 @@ public class CheckSwitchButton extends CheckBox {
 			if (mOnCheckedChangeWidgetListener != null) {
 				mOnCheckedChangeWidgetListener.onCheckedChanged(CheckSwitchButton.this, mChecked);
 			}
+
 			mBroadcasting = false;
 		}
 	}
@@ -276,6 +280,7 @@ public class CheckSwitchButton extends CheckBox {
 			}
 			break;
 		}
+
 		invalidate();
 		return isEnabled();
 	}
@@ -323,11 +328,13 @@ public class CheckSwitchButton extends CheckBox {
 		// 绘制蒙板
 		canvas.drawBitmap(mMask, 0, mExtendOffsetY, mPaint);
 		mPaint.setXfermode(mXfermode);
+
 		// 绘制底部图片
 		canvas.drawBitmap(mBottom, mRealPos, mExtendOffsetY, mPaint);
 		mPaint.setXfermode(null);
 		// 绘制边框
 		canvas.drawBitmap(mFrame, 0, mExtendOffsetY, mPaint);
+
 		// 绘制按钮
 		canvas.drawBitmap(mCurBtnPic, mRealPos, mExtendOffsetY, mPaint);
 		canvas.restore();
@@ -335,13 +342,15 @@ public class CheckSwitchButton extends CheckBox {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		setMeasuredDimension((int) mMaskWidth, (int) (mMaskHeight + 2 * mExtendOffsetY));
+		setMeasuredDimension((int) mMaskWidth,
+				(int) (mMaskHeight + 2 * mExtendOffsetY));
 	}
 
 	private void startAnimation(boolean turnOn) {
 		mAnimating = true;
 		mAnimatedVelocity = turnOn ? -mVelocity : mVelocity;
 		mAnimationPosition = mBtnPos;
+
 		new SwitchAnimation().run();
 	}
 

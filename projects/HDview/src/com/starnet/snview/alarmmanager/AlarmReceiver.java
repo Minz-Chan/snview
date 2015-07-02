@@ -470,7 +470,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}else{
 			
 		}
-		AlarmPushManagerActivity.isFirstInCurrentActivity = false;
 		if(!applicationOver){
 			updateAlarmPushManagerActivityUI(context,errorCode);
 		}

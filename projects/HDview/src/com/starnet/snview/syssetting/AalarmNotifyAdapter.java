@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +31,7 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 
 	private final String TAG = "AalarmNotifyAdapter";
 
-	boolean isShake;
-	boolean isSound;
-	boolean isAllAcc;
+	boolean isAcc;//用于标记报警账户接收
 
 	private Context ctx;
 	private String apiKey;
@@ -46,13 +43,12 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 	private HashMap<String, String> mHashmap;
 	private List<HashMap<String, Object>> mData;
 	
+	private AlarmUserAdapter alarmUserAdapter;
+	
 	public AalarmNotifyAdapter(Context ctx,List<HashMap<String, Object>> mData, boolean isAllAcc, boolean isShake, boolean isSound) {
 		
 		this.ctx = ctx;
 		this.mData = mData;
-		this.isShake = isShake;
-		this.isSound = isSound;
-		this.isAllAcc = isAllAcc;
 		this.isClickFlagSou = isSound;
 		this.isClickFlagSha = isShake;
 		this.isClickFlagAcc = isAllAcc;
@@ -60,16 +56,14 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		flater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
-   public AalarmNotifyAdapter(Context ctx,HashMap<String, String> map, boolean isAllAcc, boolean isShake, boolean isSound) {
+   public AalarmNotifyAdapter(Context ctx,HashMap<String, String> map, boolean isAllAcc, boolean isShake, boolean isSound,boolean isAcc) {
 		
 		this.ctx = ctx;
 		this.mHashmap = map;
-		this.isShake = isShake;
-		this.isSound = isSound;
-		this.isAllAcc = isAllAcc;
 		this.isClickFlagSou = isSound;
 		this.isClickFlagSha = isShake;
 		this.isClickFlagAcc = isAllAcc;
+		this.isAcc = isAcc;
 		
 		apiKey = Utils.getMetaValue(ctx.getApplicationContext(), "api_key");
 		vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
@@ -92,7 +86,6 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		return position;
 	}
 
-//	private int curPostion;
 	private TextView tv_push;
 	private TextView tv_shake;
 	private TextView tv_sound;
@@ -127,7 +120,7 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			csv_sound.setEnabled(false);
 		}
 		
-		if(isShake){
+		if(isClickFlagSha){
 			csv_shake.setChecked(true);
 			tv_shake.setText(ctx.getString(R.string.remind_shake_open));
 		}else{
@@ -135,7 +128,7 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			csv_shake.setChecked(false);
 		}
 		
-		if(isSound){
+		if(isClickFlagSou){
 			csv_sound.setChecked(true);
 			tv_sound.setText(ctx.getString(R.string.remind_sound_open));
 		}else{
@@ -146,29 +139,24 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		csv_push.setOnCheckedChangeListener(this);
 		csv_shake.setOnCheckedChangeListener(this);
 		csv_sound.setOnCheckedChangeListener(this);
-//		{
-//
-//			@Override
-//			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//				isSound = isChecked;
-//				if(isChecked){
-//					String content = ctx.getString(R.string.remind_sound_open);
-//					tv_sound.setText(content);
-//					new Thread(new Runnable() {
-//						@Override
-//						public void run() {
-//							SnapshotSound s = new SnapshotSound(ctx);
-//							s.playPushSetSound();
-//						}
-//					}).start();				
-//				}else{
-//					String content = ctx.getString(R.string.remind_sound_off);
-//					tv_sound.setText(content);
-//				}
-//			}
-//		});
 		
 		return convertView;
+	}
+	
+	public void setAlarmUserAdapter(AlarmUserAdapter adapter){
+		this.alarmUserAdapter = adapter;
+	}
+	
+	public CheckSwitchButton getPushBtn(){
+		return csv_push;
+	}
+	
+	public CheckSwitchButton getSoundBtn(){
+		return csv_sound;
+	}
+	
+	public CheckSwitchButton getShakeBtn(){
+		return csv_shake;
 	}
 
 	public boolean isClickFlagAcc() {
@@ -198,38 +186,48 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 	public static boolean isStartOrStopWork = false;
 
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {//灰色代表关闭，蓝色代表开启
-		Log.i(TAG, "isChecked:" + isChecked);
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {//灰色代表关闭，蓝色代表开
+		boolean isDoublcClick = isFastDoubleClick();
+		if(isDoublcClick){
+			return;
+		}
 		switch(buttonView.getId()){
 		case R.id.imgBtn:
-			Log.i(TAG, "R.id.imgBtn");
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 			if(!isOpen){
+				isClickFlagAcc = !isChecked;
 				showToast(ctx.getString(R.string.pushservice_network_notopen));
+				notifyDataSetChanged();
 				return;
 			}
+			csv_push.setChecked(isChecked);
+			isClickFlagAcc = isChecked;
 			csv_shake.setEnabled(isChecked);
 			csv_sound.setEnabled(isChecked);
 			if(!isChecked){//关闭时，则
 				isRequestStartWork = false;
 				isStartOrStopWork = true;
 //				if(!PushManager.isPushEnabled(ctx)){
-					PushManager.stopWork(ctx);
-					openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
+				PushManager.stopWork(ctx);
+				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
+				baiduServiceSwicthFlag = CLOSE_FLAG;
+				tv_push.setText(ctx.getString(R.string.notify_accept_off));
 //				}
 			}else{
 				isRequestStartWork = true;
 				isStartOrStopWork = true;
 //				if(PushManager.isPushEnabled(ctx)){
-					PushManager.startWork(ctx,PushConstants.LOGIN_TYPE_API_KEY,apiKey);
-					openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
+				PushManager.startWork(ctx,PushConstants.LOGIN_TYPE_API_KEY,apiKey);
+				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
+				baiduServiceSwicthFlag = OPEN_FLAG;
+				tv_push.setText(ctx.getString(R.string.notify_accept_open));
 //				}
 			}
-			//开启加载圈
 			break;
 		case R.id.csv_shake:
-			isShake = isChecked;
-			if(isShake){
+			isClickFlagSha = isChecked;
+			csv_shake.setChecked(isChecked);
+			if(isClickFlagSha){
 				tv_shake.setText(ctx.getString(R.string.remind_shake_open));
 				long[] pattern = { 50, 200, 50, 200 };
 				vibrator.vibrate(pattern, -1);
@@ -238,8 +236,9 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			}
 			break;
 		case R.id.csv_sound:
-			isSound = isChecked;
-			if(isSound){
+			isClickFlagSou = isChecked;
+			csv_sound.setChecked(isChecked);
+			if(isClickFlagSou){
 				String content = ctx.getString(R.string.remind_sound_open);
 				tv_sound.setText(content);
 				new Thread(new Runnable() {
@@ -255,15 +254,17 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			}
 			break;
 		}
-		
+				
 		//SharedPreference 的读写
 		SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
 		Editor editor = sps.edit();
-		editor.putBoolean("isAllAccept", isAllAcc);
-		editor.putBoolean("isShake", isShake);
-		editor.putBoolean("isSound", isSound);
+		editor.putBoolean("isAllAccept", isClickFlagAcc);
+		editor.putBoolean("isShake", isClickFlagSha);
+		editor.putBoolean("isSound", isClickFlagSou);
+		editor.putBoolean("isAccept", isAcc);
 		editor.commit();
 		
+		notifyDataSetChanged();
 	}
 	
 	private void showToast(String text){
@@ -279,24 +280,60 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 	private ProgressDialog pushServicePrg;
 	
 	public void closeProgreeDialog(int errorCode){
-		
 		if((pushServicePrg != null) && (pushServicePrg.isShowing())){
 			pushServicePrg.dismiss();
 		}
-		
 		if(errorCode == 0){
 			if(isRequestStartWork){
 				showToast(ctx.getString(R.string.pushservice_open_success));
+				tv_push.setText(ctx.getString(R.string.notify_accept_open));
 			}else{
 				showToast(ctx.getString(R.string.pushservice_close_success));
+				tv_push.setText(ctx.getString(R.string.notify_accept_off));
 			}
-		}else{
+			if(baiduServiceSwicthFlag == OPEN_FLAG){
+				csv_push.setChecked(true);
+				tv_push.setText(ctx.getString(R.string.notify_accept_open));
+			}else{
+				csv_push.setChecked(false);
+				tv_push.setText(ctx.getString(R.string.notify_accept_off));
+			}
+			//通知报警接收账户开关的开启与关闭
+			alarmUserAdapter.notifyDataSetChanged();
+		}else{//操作失败，需要将按钮置回原来的情形；
 			if(isRequestStartWork){
 				showToast(ctx.getString(R.string.pushservice_open_failure));
 			}else{
 				showToast(ctx.getString(R.string.pushservice_close_failure));
 			}
-			csv_push.setChecked(false);
+			if(baiduServiceSwicthFlag == OPEN_FLAG){
+				csv_push.setChecked(false);
+			}else{
+				csv_push.setChecked(true);
+			}
+			//将操作信息写入到xml文档中；
+			SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+			Editor editor = sps.edit();
+			editor.putBoolean("isAllAccept", csv_push.isChecked());
+			editor.putBoolean("isShake", isClickFlagSha);
+			editor.putBoolean("isSound", isClickFlagSou);
+			editor.putBoolean("isAccept", alarmUserAdapter.isClickFlag());
+			editor.commit();
 		}
 	}
+	private long lastClickTime;
+	private boolean isFastDoubleClick() {
+		long time = System.currentTimeMillis();
+		long timeD = time - lastClickTime;
+		if ((0 < timeD) && (timeD <= 500)) {
+			return true;
+		}
+		lastClickTime = time;
+		return false;
+	}
+	
+	private int baiduServiceSwicthFlag = -1;
+	
+	private static final int OPEN_FLAG = 1;
+	private static final int CLOSE_FLAG = 2;
 }
