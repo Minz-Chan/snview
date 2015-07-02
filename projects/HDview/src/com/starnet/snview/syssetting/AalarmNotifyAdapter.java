@@ -14,6 +14,8 @@ import com.starnet.snview.util.NetWorkUtils;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Vibrator;
@@ -147,18 +149,6 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		this.alarmUserAdapter = adapter;
 	}
 	
-	public CheckSwitchButton getPushBtn(){
-		return csv_push;
-	}
-	
-	public CheckSwitchButton getSoundBtn(){
-		return csv_sound;
-	}
-	
-	public CheckSwitchButton getShakeBtn(){
-		return csv_shake;
-	}
-
 	public boolean isClickFlagAcc() {
 		return isClickFlagAcc;
 	}
@@ -183,7 +173,7 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		this.isClickFlagSou = isClickFlagSou;
 	}
 	
-	public static boolean isStartOrStopWork = false;
+	public static boolean isStartOrStopWork = false;//是否使用了推送服务的开启与关闭标识
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {//灰色代表关闭，蓝色代表开
@@ -198,6 +188,9 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 				isClickFlagAcc = !isChecked;
 				showToast(ctx.getString(R.string.pushservice_network_notopen));
 				notifyDataSetChanged();
+				return;
+			}
+			if((pushServicePrg != null) && (pushServicePrg.isShowing())){
 				return;
 			}
 			csv_push.setChecked(isChecked);
@@ -272,7 +265,9 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 	}
 	
 	private void openProgressDialogForPushService(String title){
-		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, false);
+		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, true);
+		pushServicePrg.setCanceledOnTouchOutside(false);
+		
 		pushServicePrg.show();
 	}
 	

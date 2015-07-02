@@ -18,6 +18,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dip"
+        android:dividerHeight="1.0dip"
+        android:divider="@color/grey"
         android:background="@drawable/system_setting_listview_shape"
         android:cacheColorHint="#00000000" />
     

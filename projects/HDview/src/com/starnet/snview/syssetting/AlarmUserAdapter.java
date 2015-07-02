@@ -104,6 +104,10 @@ public class AlarmUserAdapter extends BaseAdapter{
 						return;
 					}
 					
+					if((pushServicePrg != null) && (pushServicePrg.isShowing())){
+					return;	
+					}
+					
 					boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
 					if(!isOpen){
 						isClickFlag = !isChecked;
@@ -205,7 +209,8 @@ public class AlarmUserAdapter extends BaseAdapter{
 	private ProgressDialog pushServicePrg;
 	
 	private void openProgressDialogForSetOrDelTags(String title){
-		pushServicePrg = ProgressDialog.show(ctx, null,title, true, false);
+		pushServicePrg = ProgressDialog.show(ctx, null,title, true, true);
+		pushServicePrg.setCanceledOnTouchOutside(false);
 		pushServicePrg.show();
 	}
 	
@@ -242,7 +247,7 @@ public class AlarmUserAdapter extends BaseAdapter{
 			isSetTagsFlag = false;
 			isSetOrDelTags = true;
 			AalarmNotifyAdapter.isStartOrStopWork = false;
-			String title = ctx.getString(R.string.pushservice_alarmusr_settags);
+			String title = ctx.getString(R.string.pushservice_alarmusr_deltags);
 			openProgressDialogForSetOrDelTags(title);
 			List<String>tempTags = new ArrayList<String>();
 			tempTags.add(tags);
@@ -258,7 +263,7 @@ public class AlarmUserAdapter extends BaseAdapter{
 			isSetTagsFlag = true;
 			isSetOrDelTags = true;
 			AalarmNotifyAdapter.isStartOrStopWork = false;
-			String title = ctx.getString(R.string.pushservice_alarmusr_deltags);
+			String title = ctx.getString(R.string.pushservice_alarmusr_settags);
 			openProgressDialogForSetOrDelTags(title);
 			List<String>tempTags = new ArrayList<String>();
 			tempTags.add(tags);
