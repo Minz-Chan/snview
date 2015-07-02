@@ -120,7 +120,9 @@ public class AlarmUserAdapter extends BaseAdapter{
 						if(isChecked){
 							//报警账户接收功能开启
 							if((tags==null)||(tags.isEmpty())){
+								isClickFlag = !isChecked;
 								showToast(ctx.getString(R.string.pushservice_alarmusr_null_open));
+								notifyDataSetChanged();
 								return;
 							}
 							curTxt.setText(ctx.getString(R.string.alarm_accept_open));
@@ -140,9 +142,9 @@ public class AlarmUserAdapter extends BaseAdapter{
 						}else{
 							//报警账户接收功能关闭
 							if((tags==null)||(tags.isEmpty())){
-								csv_push.setChecked(true);	
-								csv_push.invalidate();
+								isClickFlag = !isChecked;
 								showToast(ctx.getString(R.string.pushservice_alarmusr_null_open));
+								notifyDataSetChanged();
 								return;
 							}
 							curTxt.setText(ctx.getString(R.string.alarm_accept_off));
