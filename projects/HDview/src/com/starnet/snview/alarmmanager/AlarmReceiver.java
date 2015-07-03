@@ -77,16 +77,11 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	public void onBind(Context context, int errorCode, String appid, String userId, String channelId, String requestId) {
 		String responseString = "onBind errorCode=" + errorCode + " appid=" + appid + " userId=" + userId + " channelId=" + channelId + " requestId=" + requestId;
 		Log.d(TAG, responseString);
-//		AlarmPushManagerActivity.isFirstInCurrentActivity = false;
 		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
 			Utils.setBind(context, true);
 		} else {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
-//			AlarmPushSettingService.setCtx(context);
-			if (!started) {
-//				startRegOrDelService(context);// 开启服务
-			}
 		}
 		if(!applicationOver){
 			updateAlarmPushManagerActivityUI(context,errorCode);
@@ -495,9 +490,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 	}
 	
-//	public static int relFlag = - 1;
-//	public static int delFlag = - 1;
-	
 	private static boolean isFirstStart = true;
 	
 	private void updateAlarmPushManagerActivityUI(Context context,int errorCode){
@@ -508,6 +500,9 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		msg.setData(data);
 		if(AalarmNotifyAdapter.isStartOrStopWork){
 			AlarmPushManagerActivity.mHandler.sendMessage(msg);
+		}
+		if(isFirstStart){
+			isFirstStart = false;
 		}
 	}
 	private void updateAlarmPushManagerActivityUIWithSetOrDelTags(Context context, List<String> sucessTags, List<String> failTags,int errorCode) {
@@ -526,16 +521,8 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		if(AlarmUserAdapter.isSetOrDelTags){
 			AlarmPushManagerActivity.mHandler.sendMessage(msg);
 		}
-		
-		
 		if(isFirstStart){
 			isFirstStart = false;
-		}else{
-//			Intent intent = new Intent();
-//			intent.putExtra("errorCode",errorCode);
-//	        intent.setClass(context.getApplicationContext(), AlarmPushManagerActivity.class);
-//	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//	        context.getApplicationContext().startActivity(intent);
 		}
 	}
 }

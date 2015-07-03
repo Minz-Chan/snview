@@ -68,8 +68,7 @@ public class Utils {
 		if (flag) {
 			flagStr = "ok";
 		}
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 		Editor editor = sp.edit();
 		editor.putString("bind_flag", flagStr);
 		editor.commit();
