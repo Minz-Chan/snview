@@ -83,9 +83,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
-		if(!applicationOver){
-			updateAlarmPushManagerActivityUI(context,errorCode);
-		}
+		updateAlarmPushManagerActivityUI(context,errorCode);
 	}
 
 	/**
@@ -377,10 +375,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			}
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
-//			AlarmPushSettingService.setCtx(context);
-			if (!started) {
-//				startRegOrDelService(context);// 开启服务
-			}
 		}
 		
 		//对标签的设置结果进行返回处理
@@ -465,9 +459,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}else{
 			
 		}
-		if(!applicationOver){
-			updateAlarmPushManagerActivityUI(context,errorCode);
-		}
+		updateAlarmPushManagerActivityUI(context,errorCode);
 	}
 
 	private static boolean started = false;

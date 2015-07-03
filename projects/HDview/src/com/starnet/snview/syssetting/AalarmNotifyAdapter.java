@@ -200,21 +200,17 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			if(!isChecked){//关闭时，则
 				isRequestStartWork = false;
 				isStartOrStopWork = true;
-//				if(!PushManager.isPushEnabled(ctx)){
 				PushManager.stopWork(ctx);
 				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
 				baiduServiceSwicthFlag = CLOSE_FLAG;
 				tv_push.setText(ctx.getString(R.string.notify_accept_off));
-//				}
 			}else{
 				isRequestStartWork = true;
 				isStartOrStopWork = true;
-//				if(PushManager.isPushEnabled(ctx)){
 				PushManager.startWork(ctx,PushConstants.LOGIN_TYPE_API_KEY,apiKey);
 				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
 				baiduServiceSwicthFlag = OPEN_FLAG;
 				tv_push.setText(ctx.getString(R.string.notify_accept_open));
-//				}
 			}
 			break;
 		case R.id.csv_shake:

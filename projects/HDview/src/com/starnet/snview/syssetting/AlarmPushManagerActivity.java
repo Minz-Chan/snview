@@ -321,7 +321,7 @@ public class AlarmPushManagerActivity extends BaseActivity {
 			super.handleMessage(msg);
 			Bundle data = msg.getData();
 			int errorCode = data.getInt("errorCode", -1);
-			boolean pushServiceAccept = data.getBoolean("remind_push_all_accept");
+			boolean pushServiceAccept = data.getBoolean("remind_push_all_accept", true);
 			if(!pushServiceAccept){//表示是startWork,stopWork
 				alarmNotifyAdapter.closeProgreeDialog(errorCode);
 			}else{//表示是setTags,delTags
