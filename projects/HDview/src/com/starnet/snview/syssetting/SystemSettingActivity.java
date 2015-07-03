@@ -136,7 +136,8 @@ public class SystemSettingActivity extends BaseActivity {
 	
 	protected void gotoAlarmPushManager(){
 		Intent intent = new Intent();
-        intent.setClass(SystemSettingActivity.this, AlarmPushManagerActivity.class); 
+//		intent.setClass(SystemSettingActivity.this, AlarmPushManagerActivity.class); 
+        intent.setClass(SystemSettingActivity.this, AnotherAlarmPushManagerActivity.class); 
         startActivity(intent);
 	}
 	

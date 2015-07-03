@@ -196,7 +196,12 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/channel_listview_titlebarstyle" />
-
+        <activity
+            android:name="com.starnet.snview.syssetting.AnotherAlarmPushManagerActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/SampleTheme" />
+        
         <receiver android:name="com.starnet.snview.alarmmanager.OnAlarmMessageArrivedReceiver" >
             <intent-filter>
                 <action android:name="com.starnet.snview.action.ALARM_MESSAGE_ARRIVED" />

@@ -19,6 +19,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -195,8 +196,8 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			}
 			csv_push.setChecked(isChecked);
 			isClickFlagAcc = isChecked;
-			csv_shake.setEnabled(isChecked);
-			csv_sound.setEnabled(isChecked);
+//			csv_shake.setEnabled(isChecked);
+//			csv_sound.setEnabled(isChecked);
 			if(!isChecked){//关闭时，则
 				isRequestStartWork = false;
 				isStartOrStopWork = true;
@@ -212,6 +213,7 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 				baiduServiceSwicthFlag = OPEN_FLAG;
 				tv_push.setText(ctx.getString(R.string.notify_accept_open));
 			}
+			Log.i(TAG, "推送服务的开启与关闭：" + isRequestStartWork);
 			break;
 		case R.id.csv_shake:
 			isClickFlagSha = isChecked;
@@ -236,14 +238,13 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 						SnapshotSound s = new SnapshotSound(ctx);
 						s.playPushSetSound();
 					}
-				}).start();				
+				}).start();		
 			}else{
 				String content = ctx.getString(R.string.remind_sound_off);
 				tv_sound.setText(content);
 			}
 			break;
 		}
-				
 		//SharedPreference 的读写
 		SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
 		Editor editor = sps.edit();
@@ -252,7 +253,6 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 		editor.putBoolean("isSound", isClickFlagSou);
 		editor.putBoolean("isAccept", isAcc);
 		editor.commit();
-		
 		notifyDataSetChanged();
 	}
 	
@@ -263,7 +263,6 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 	private void openProgressDialogForPushService(String title){
 		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, true);
 		pushServicePrg.setCanceledOnTouchOutside(false);
-		
 		pushServicePrg.show();
 	}
 	
@@ -311,12 +310,15 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			editor.putBoolean("isAccept", alarmUserAdapter.isClickFlag());
 			editor.commit();
 		}
+		
+		Log.i(TAG, "******加载圈关闭======");
 	}
 	private long lastClickTime;
 	private boolean isFastDoubleClick() {
 		long time = System.currentTimeMillis();
 		long timeD = time - lastClickTime;
-		if ((0 < timeD) && (timeD <= 500)) {
+		if ((0 < timeD) && (timeD <= 1000)) {
+			lastClickTime = time;
 			return true;
 		}
 		lastClickTime = time;

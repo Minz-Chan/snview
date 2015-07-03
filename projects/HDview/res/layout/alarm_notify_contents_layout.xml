@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/csv_push"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_top_push"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/system_setting_alarminfo_accept"
+                android:textColor="#0A0A0A"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_bottom_push"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5.0dip"
+                android:lineSpacingMultiplier="1.0"
+                android:maxLines="2"
+                android:text="TextView"
+                android:textColor="@color/gray_transplate"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.starnet.snview.componet.switchbutton.CheckSwitchButton
+            android:id="@+id/csv_push"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1.0dip"
+        android:background="@color/grey"
+        android:orientation="horizontal" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/button22"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_top_shake"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/system_setting_alarminfo_remind_shake"
+                android:textColor="#0A0A0A"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_bottom_shake"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5.0dip"
+                android:maxLines="2"
+                android:text="TextView"
+                android:textColor="@color/gray_transplate"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.starnet.snview.componet.switchbutton.CheckSwitchButton
+            android:id="@+id/csv_shake"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1.0dip"
+        android:background="@color/grey"
+        android:orientation="horizontal" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/csv_sound"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_top_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/system_setting_alarminfo_remind_sound"
+                android:textColor="#0A0A0A"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_bottom_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5.0dip"
+                android:maxLines="2"
+                android:text="TextView"
+                android:textColor="@color/gray_transplate"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.starnet.snview.componet.switchbutton.CheckSwitchButton
+            android:id="@+id/csv_sound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+</LinearLayout>
