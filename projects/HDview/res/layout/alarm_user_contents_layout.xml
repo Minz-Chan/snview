@@ -1,45 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
     <RelativeLayout
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignBottom="@+id/csv_alarm_push"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:gravity="center|left"
+            android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/tv_top2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="top Text" />
+                android:text="@string/system_setting_alarmuser_accept"
+                android:textColor="#0A0A0A"
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tv_bottom2"
-                android:layout_marginTop="6dp"
+                android:id="@+id/tv_alarmuser_accept"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="bottom Text" />
-
+                android:layout_gravity="left"
+                android:layout_marginBottom="5.0dip"
+                android:gravity="center|left"
+                android:maxLines="3"
+                android:text="TextView"
+                android:textColor="@color/gray_transplate"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <com.starnet.snview.componet.switchbutton.CheckSwitchButton
+            android:id="@+id/csv_alarmuser_push"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/csv_alarm_push"
-            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_centerVertical="true" />
     </RelativeLayout>
 
     <LinearLayout
@@ -49,42 +55,46 @@
         android:orientation="horizontal" />
 
     <RelativeLayout
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp" >
 
         <LinearLayout
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentStart="true"
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/tv_top3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="top Text" />
+                android:text="@string/system_setting_alarmuser"
+                android:textColor="#0A0A0A"
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tv_bottom3"
-                android:layout_marginTop="6dp"
+                android:id="@+id/tv_alarmusers"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="bottom Text" />
-
+                android:ellipsize="end"
+                android:gravity="center|left"
+                android:singleLine="true"
+                android:text="TextView"
+                android:textColor="@color/gray_transplate"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/iv_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:background="@drawable/btn_home_right"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/arrow" />
     </RelativeLayout>
-
 
 </LinearLayout>
