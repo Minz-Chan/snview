@@ -82,4 +82,6 @@
     <dimen name="playback_timesetting_account_item_width">25.0dip</dimen>
     <dimen name="playback_timesetting_account_item_height">50.0dip</dimen>
     
+    <dimen name="system_setting_alarm_item_height">55.0dip</dimen>
+    
 </resources>

@@ -35,8 +35,7 @@ import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
-public class AnotherAlarmPushManagerActivity extends BaseActivity implements
-		OnCheckedChangeListener ,OnClickListener{
+public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnCheckedChangeListener ,OnClickListener{
 
 	private static Context ctx;
 	public static final int REQUESTCODE = 0x0001;
@@ -188,6 +187,24 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 			csvAlarmUserAccept.setChecked(false);
 			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
 		}
+		
+		String content = "";
+		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
+		if (accounts != null && accounts.size() > 0) {
+			for (int i = 0; i < accounts.size(); i++) {
+				if (i != (accounts.size() - 1)) {
+					String result = accounts.get(i).getUsername() + ",";
+					content += result;
+				} else {
+					String result = accounts.get(i).getUsername();
+					content += result;
+				}
+			}
+		}
+		if (content.length() >= 18) {
+			content = content.substring(0, 18) + "...";
+		}
+		tvAlarmUsers.setText(content);
 	}
 	
 	private void saveSharedPreference(){
@@ -265,6 +282,9 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 					content += result;
 				}
 			}
+		}
+		if (content.length() >= 18) {
+			content = content.substring(0, 18) + "...";
 		}
 		tvAlarmUsers.setText(content);
 	}

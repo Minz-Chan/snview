@@ -6,7 +6,7 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="55.0dip"
         android:paddingLeft="16dp"
         android:paddingRight="16dp" >
 
@@ -57,15 +57,17 @@
     <RelativeLayout
         android:id="@+id/alarmUserContainer"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="55.0dip"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp" >
+        android:paddingRight="16dp"
+        android:background="@drawable/alarmuser_container_selector" >
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
+            android:gravity="center|left"
             android:orientation="vertical" >
 
             <TextView
