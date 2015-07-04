@@ -28,6 +28,7 @@ import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.syssetting.AalarmNotifyAdapter;
 import com.starnet.snview.syssetting.AlarmPushManagerActivity;
 import com.starnet.snview.syssetting.AlarmUserAdapter;
+import com.starnet.snview.syssetting.AnotherAlarmPushManagerActivity;
 import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -83,6 +84,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
+		Log.i(TAG, "======onBind*****"+errorCode);
 		updateAlarmPushManagerActivityUI(context,errorCode);
 	}
 
@@ -376,7 +378,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
-		
+		Log.i(TAG, "======onSetTags*****"+errorCode);
 		//对标签的设置结果进行返回处理
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
@@ -417,6 +419,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
+		Log.i(TAG, "======onDelTags*****"+errorCode);
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
 
@@ -459,6 +462,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}else{
 			
 		}
+		Log.i(TAG, "===onUnbind===="+errorCode);
 		updateAlarmPushManagerActivityUI(context,errorCode);
 	}
 
@@ -490,9 +494,9 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		data.putInt("errorCode",errorCode);
 		data.putBoolean("remind_push_all_accept", false);
 		msg.setData(data);
-		if(AalarmNotifyAdapter.isStartOrStopWork){
-			AlarmPushManagerActivity.mHandler.sendMessage(msg);
-		}
+//		if(AalarmNotifyAdapter.isStartOrStopWork){
+			AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
+//		}
 		if(isFirstStart){
 			isFirstStart = false;
 		}
@@ -510,9 +514,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		data.putInt("errorCode",errorCode);
 		data.putBoolean("remind_push_all_accept", true);
 		msg.setData(data);
-		if(AlarmUserAdapter.isSetOrDelTags){
-			AlarmPushManagerActivity.mHandler.sendMessage(msg);
-		}
+		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
 		if(isFirstStart){
 			isFirstStart = false;
 		}
