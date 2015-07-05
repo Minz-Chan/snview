@@ -28,6 +28,7 @@
     <string name="channel_manager_connect_timeout">连接验证超时</string>
     <string name="channel_manager_connect_wrong">连接验证错误，请检查信息</string>
     <string name="channel_manager_channellistview_search">请输入查找内容</string>
+    <string name="channel_manager_channellistview_netnotopens">网络未开启</string>
     <string name="channel_manager_channellistview_netnotopen">网络未开启，请检查网络</string>
     <string name="channel_manager_channellistview_loadfail">用户设备数据尚未加载成功,请等待</string>
     <string name="channel_manager_channellistview_channelnotchoose">您暂时还没有做通道选择,请选择</string>

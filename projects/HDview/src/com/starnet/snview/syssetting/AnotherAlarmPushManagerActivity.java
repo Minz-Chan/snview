@@ -3,6 +3,7 @@ package com.starnet.snview.syssetting;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -10,11 +11,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,13 +29,16 @@ import android.widget.Toast;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmReceiver;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
+import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
+@SuppressLint("HandlerLeak")
 public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnCheckedChangeListener ,OnClickListener{
 
 	private static Context ctx;
@@ -42,36 +46,31 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 	protected static final String TAG = "AnotherAlarmPushManagerActivity";
 	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
-	private static CheckSwitchButton csvPush;
-	private static TextView tvPush;
+	private CheckSwitchButton csvPush;
+	private TextView tvPush;
 
-	private static CheckSwitchButton csvShake;
-	private static TextView tvShake;
+	private CheckSwitchButton csvShake;
+	private TextView tvShake;
 
-	private static CheckSwitchButton csvSound;
-	private static TextView tvSound;
+	private CheckSwitchButton csvSound;
+	private TextView tvSound;
 
-	private static CheckSwitchButton csvAlarmUserAccept;
-	private static TextView tvAlarmUserAccept;
+	private CheckSwitchButton csvAlarmUserAccept;
+	private TextView tvAlarmUserAccept;
 
-	private static TextView tvAlarmUsers;// 显示推送账户
-	private static RelativeLayout alarmUserContainer;
-	
+	private TextView tvAlarmUsers;// 显示推送账户
 	private Button clearAlarmInfBtn;
+	private RelativeLayout alarmUserContainer;
 	
-	private static boolean isAcc;
-	private static boolean isShake;
-	private static boolean isSound;
-	private static boolean isAllAcc;
-	private static ProgressDialog pushServicePrg;
+	private boolean isAcc;
+	private boolean isShake;
+	private boolean isSound;
+	private boolean isAllAcc;
 	private SharedPreferences showFlagSP;
+	private ProgressDialog pushServicePrg;
 	
-	private static int openOperationFlag = -1;//启动服务的标识位，用于标识启动的哪一个服务（startWork,stopWork,setTags,delTags）
-	private static final int STOPWORKFLAG = 0x0001;
-	private static final int STARTWORKFLAG = 0x0002;
-	private static final int DELTAGSFLAG = 0x0003;
-	private static final int SETTAGSFLAG = 0x0004;
-	
+	private List<String>tags = new ArrayList<String>();
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -89,6 +88,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				AlarmReceiver.mActivity = null;
 				finish();
 			}
 		});
@@ -129,6 +129,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_alarm_pushset));
 		ctx = AnotherAlarmPushManagerActivity.this;
+		AlarmReceiver.mActivity = AnotherAlarmPushManagerActivity.this;
 		
 		csvPush = (CheckSwitchButton) findViewById(R.id.csv_push);
 		csvShake = (CheckSwitchButton) findViewById(R.id.csv_push_shake);
@@ -149,10 +150,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		isShake = showFlagSP.getBoolean("isShake", true);
 		isSound = showFlagSP.getBoolean("isSound", true);
 		isAllAcc = showFlagSP.getBoolean("isAllAccept", true);
-		//test????????????????????????????????????????????????????????????
-//		isAllAcc = true;
-//		isAcc = true;
-		//
+
 		if(isAllAcc){
 			csvPush.setChecked(true);
 			tvPush.setText(getString(R.string.notify_accept_open));
@@ -205,6 +203,29 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			content = content.substring(0, 18) + "...";
 		}
 		tvAlarmUsers.setText(content);
+		
+		getTags(accounts);
+	}
+	
+	private void getTags(List<CloudAccount> accounts){
+		try {
+			if (accounts != null && accounts.size() > 0) {
+				for (int i = 0; i < accounts.size() - 1; i++) {
+					String userName = accounts.get(i).getUsername();
+					String paswd = accounts.get(i).getPassword();
+					paswd = MD5Utils.createMD5(paswd);
+					String result = userName + paswd + ",";
+					tags.add(result);
+				}
+				String userName = accounts.get(accounts.size() - 1).getUsername();
+				String paswd = accounts.get(accounts.size() - 1).getPassword();
+				paswd = MD5Utils.createMD5(paswd);
+				String result = userName + paswd + ",";
+				tags.add(result);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void saveSharedPreference(){
@@ -217,52 +238,50 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		editor.commit();
 	}
 
-	public static Handler mHandler = new Handler() {
+	public Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			Bundle data = msg.getData();
 			int errorCode = data.getInt("errorCode", -1);
 			if(errorCode == 0){//推送服务调用成功
-				if(openOperationFlag == STOPWORKFLAG){
-					showToast(ctx.getString(R.string.pushservice_close_success));
-				}else if (openOperationFlag == STARTWORKFLAG) {
+				if (currentAction == ACTION.START_SERVICE) {
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
 					showToast(ctx.getString(R.string.pushservice_open_success));
-				}else if (openOperationFlag == SETTAGSFLAG) {
+				}
+				if (currentAction == ACTION.STOP_SERVICE) {
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
+					showToast(ctx.getString(R.string.pushservice_close_success));
+				}
+				if (currentAction == ACTION.ADD_TAG) {
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
 					showToast(ctx.getString(R.string.pushservice_settags_success));
-				}else if (openOperationFlag == DELTAGSFLAG) {
+				}
+				if (currentAction == ACTION.DEL_TAG) {
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
 					showToast(ctx.getString(R.string.pushservice_deltags_success));
 				}
-				Log.i(TAG, "======成功之后关闭*****"+openOperationFlag);
 			}else{//置回原来的标识情况
-				if(openOperationFlag == STOPWORKFLAG){
-					isAllAcc = true;
-					csvPush.setChecked(isAllAcc);
-					showToast(ctx.getString(R.string.pushservice_close_failure));
-				}else if (openOperationFlag == STARTWORKFLAG) {
-					isAllAcc = false;
-					csvPush.setChecked(isAllAcc);
+				if (currentAction == ACTION.START_SERVICE) {
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
+					startSvrTask.cancel(false);
 					showToast(ctx.getString(R.string.pushservice_open_failure));
-					csvShake.setEnabled(false);
-					csvSound.setEnabled(false);
-					csvAlarmUserAccept.setEnabled(false);
-				}else if (openOperationFlag == SETTAGSFLAG) {
-					isAcc = false;
-					csvAlarmUserAccept.setChecked(isAcc);
+				}
+				if (currentAction == ACTION.STOP_SERVICE) {
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
+					stopSvrTask.cancel(false);
+					showToast(ctx.getString(R.string.pushservice_close_failure));
+				}
+				if (currentAction == ACTION.ADD_TAG) {
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
+					setSvrTask.cancel(false);
 					showToast(ctx.getString(R.string.pushservice_settags_failure));
-				}else if (openOperationFlag == DELTAGSFLAG) {
-					isAcc = true;
-					csvAlarmUserAccept.setChecked(isAcc);
+				}
+				if (currentAction == ACTION.DEL_TAG) {
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
+					delSvrTask.cancel(false);
 					showToast(ctx.getString(R.string.pushservice_deltags_failure));
 				}
-				Log.i(TAG, "======失败之后的*****"+openOperationFlag);
-			}
-			closeProgressDialog();
-		}
-
-		private void closeProgressDialog() {
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
 			}
 		}
 	};
@@ -287,22 +306,21 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			content = content.substring(0, 18) + "...";
 		}
 		tvAlarmUsers.setText(content);
+		tags.clear();
+		getTags(accounts);
 	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+			AlarmReceiver.mActivity = null;
 			this.finish();
 		}
 		return true;
 	}
-	
-	private List<String>tags = new ArrayList<String>();
-	private boolean isRequestStartWork = false;//用于标识开启推送服务还是关闭推送服务，false 表示关闭，true表示开启
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		String apiKey = Utils.getMetaValue(ctx.getApplicationContext(), "api_key");
 		switch (buttonView.getId()) {
 		case R.id.csv_push:
 			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
@@ -321,22 +339,15 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				}
 				return;
 			}
-			isAllAcc = isChecked;
-			csvShake.setEnabled(isChecked);
-			csvSound.setEnabled(isChecked);
-			csvAlarmUserAccept.setEnabled(isChecked);
-			if(isAllAcc){
-				isRequestStartWork = true;
-				openOperationFlag = STARTWORKFLAG;
-				tvPush.setText(getString(R.string.notify_accept_open));
-				PushManager.startWork(ctx,PushConstants.LOGIN_TYPE_API_KEY,apiKey);
-				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
-			}else{
-				isRequestStartWork = false;
-				PushManager.stopWork(ctx);
-				openOperationFlag = STOPWORKFLAG;
-				tvPush.setText(getString(R.string.notify_accept_off));
-				openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
+			if (!isActionSuccess) {
+				return;
+			}
+			if (isChecked) {
+				startSvrTask = new StartPushServiceTask();
+				startSvrTask.execute(new Object());
+			} else {
+				stopSvrTask = new StopPushServiceTask();
+				stopSvrTask.execute(new Object());
 			}
 			break;
 		case R.id.csv_push_shake:
@@ -375,7 +386,6 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				showToast(getString(R.string.pushservice_network_notopen));
 				return;
 			}
-			
 			if((tags == null) || tags.equals("") || tags.size() == 0){
 				isAcc = !isChecked;
 				csvAlarmUserAccept.setChecked(isAcc);
@@ -383,26 +393,22 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				return;
 			}
 			
-			isAcc = isChecked;
-			if(isAcc){
-				openOperationFlag = SETTAGSFLAG;
-				PushManager.setTags(ctx, tags);
-				tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
-				openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_settags));
-			}else{
-				openOperationFlag = DELTAGSFLAG;
-				tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
-				openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_deltags));
-				PushManager.delTags(ctx, tags);
+			if (!isActionSuccess) {
+				return;
+			}
+			if (!isChecked) {
+				delSvrTask = new DelTagServiceTask();
+				delSvrTask.execute(new Object());
+			} else {
+				setSvrTask = new SetTagServiceTask();
+				setSvrTask.execute(new Object());
 			}
 			break;
 		}
-		Log.i(TAG, "======开启的服务标识*****"+openOperationFlag);
 	}
 
 	private void openProgressDialogForPushService(String title){
 		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, false);
-		pushServicePrg.show();
 	}
 
 	@Override
@@ -415,6 +421,241 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		case R.id.clearAlarmInfBtn:
 			jumpClearDialog();
 			break;
+		}
+	}
+	
+	private enum ACTION {
+		START_SERVICE,
+		STOP_SERVICE,
+		ADD_TAG,
+		DEL_TAG
+	}
+	
+	private ACTION currentAction;
+	private boolean isActionSuccess = true;  // 操作是否成功 
+	
+	private enum PUSH_SERVICE_STATUS {
+		INIT,	 // 初始
+		WORKING, // 工作中
+		STOP	 // 已停止
+	}
+	
+	private PUSH_SERVICE_STATUS serviceStatus = PUSH_SERVICE_STATUS.INIT;
+	private StartPushServiceTask startSvrTask;
+	private StopPushServiceTask stopSvrTask;
+	private SetTagServiceTask setSvrTask;
+	private DelTagServiceTask delSvrTask;
+	
+	public class SetTagServiceTask extends AsyncTask<Object, Object, Boolean>{
+
+		@Override
+		protected void onPreExecute() {
+			// 启动添加标签服务，同时显示加载框
+			currentAction = ACTION.ADD_TAG;
+			serviceStatus = PUSH_SERVICE_STATUS.INIT;
+			PushManager.setTags(ctx, tags);
+			openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_settags));
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			// 等待服务启动完成
+			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
+			Boolean startSuccess = true;
+			if (isCancelled()) {  // 被取消说明启动失败
+				startSuccess = false; 
+			}
+			return startSuccess;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			// 服务启动成功，onPostExecute正常调用 
+			isActionSuccess = true;
+			isAcc = true;
+			saveSharedPreference();
+			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+
+		@Override
+		protected void onCancelled(Boolean result) {// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
+			isActionSuccess = false;
+			isAcc = false;
+			saveSharedPreference();
+			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
+			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
+			csvAlarmUserAccept.setChecked(false); 
+			isActionSuccess = true;
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+	}
+	
+	public class DelTagServiceTask extends AsyncTask<Object, Object, Boolean>{
+
+		@Override
+		protected void onPreExecute() {
+			// 启动添加标签服务，同时显示加载框
+			currentAction = ACTION.DEL_TAG;
+			serviceStatus = PUSH_SERVICE_STATUS.INIT;
+			PushManager.delTags(ctx, tags);
+			openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_deltags));
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			// 等待服务启动完成
+			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
+			Boolean startSuccess = true;
+			if (isCancelled()) {  // 被取消说明启动失败
+				startSuccess = false; 
+			}
+			return startSuccess;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			// 服务启动成功，onPostExecute正常调用 
+			isActionSuccess = true;
+			isAcc = false;
+			saveSharedPreference();
+			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+
+		@Override
+		protected void onCancelled(Boolean result) {
+			// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
+			isAcc = true;
+			saveSharedPreference();
+			isActionSuccess = false;
+			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
+			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
+			csvAlarmUserAccept.setChecked(true); 
+			isActionSuccess = true;
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+	}
+	
+	public class StartPushServiceTask extends AsyncTask<Object, Object, Boolean> {
+		
+		@Override
+		protected void onPreExecute() {
+			// 启动推送服务，同时显示加载框
+			currentAction = ACTION.START_SERVICE;
+			serviceStatus = PUSH_SERVICE_STATUS.INIT;
+			PushManager.startWork(ctx, PushConstants.LOGIN_TYPE_API_KEY,Utils.getMetaValue(ctx.getApplicationContext(), "api_key"));
+			openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			// 等待服务启动完成
+			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
+			
+			Boolean startSuccess = true;
+			if (isCancelled()) {  // 被取消说明启动失败
+				startSuccess = false; 
+			}
+			return startSuccess;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			// 服务启动成功，onPostExecute正常调用 
+			isAllAcc = true;
+			saveSharedPreference();
+			isActionSuccess = true;
+			csvShake.setEnabled(true);
+			csvSound.setEnabled(true);
+			csvAlarmUserAccept.setEnabled(true);
+			tvPush.setText(getString(R.string.notify_accept_open));
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+
+		@Override
+		protected void onCancelled(Boolean result) {
+			// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
+			isAllAcc = false;
+			saveSharedPreference();
+			isActionSuccess = false;
+			csvShake.setEnabled(false);
+			csvSound.setEnabled(false);
+			csvAlarmUserAccept.setEnabled(false);
+			tvPush.setText(getString(R.string.notify_accept_off));
+			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
+			csvPush.setChecked(false); 
+			isActionSuccess = true;
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+	}
+	
+	public class StopPushServiceTask extends AsyncTask<Object, Object, Boolean> {
+		
+		@Override
+		protected void onPreExecute() {
+			// 启动推送服务，同时显示加载框
+			currentAction = ACTION.STOP_SERVICE;
+			PushManager.stopWork(ctx);
+			openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			// 等待服务关闭完成
+			while (serviceStatus != PUSH_SERVICE_STATUS.STOP && !isCancelled());
+			Boolean stopSuccess = true;
+			if (isCancelled()) {  // 被取消说明关闭失败
+				stopSuccess = false; 
+			}
+			return stopSuccess;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			// 服务关闭成功，onPostExeceute正常调用
+			isAllAcc = false;
+			saveSharedPreference();
+			isActionSuccess = true;
+			csvShake.setEnabled(false);
+			csvSound.setEnabled(false);
+			csvAlarmUserAccept.setEnabled(false);
+			tvPush.setText(getString(R.string.notify_accept_off));
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
+		}
+
+		@Override
+		protected void onCancelled(Boolean result) {
+			// 服务关闭失败，onPostExeceute不被调用，onCancelled被调用
+			isAllAcc = true;
+			saveSharedPreference();
+			isActionSuccess = false;
+			csvShake.setEnabled(true);
+			csvSound.setEnabled(true);
+			csvAlarmUserAccept.setEnabled(true);
+			
+			tvPush.setText(getString(R.string.notify_accept_open));
+			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
+			csvPush.setChecked(true);
+			isActionSuccess = true;
+			
+			if(pushServicePrg!=null && pushServicePrg.isShowing()){
+				pushServicePrg.dismiss();
+			}
 		}
 	}
 }

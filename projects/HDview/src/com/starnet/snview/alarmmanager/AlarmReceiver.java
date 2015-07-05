@@ -25,9 +25,6 @@ import android.util.Log;
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
-import com.starnet.snview.syssetting.AalarmNotifyAdapter;
-import com.starnet.snview.syssetting.AlarmPushManagerActivity;
-import com.starnet.snview.syssetting.AlarmUserAdapter;
 import com.starnet.snview.syssetting.AnotherAlarmPushManagerActivity;
 import com.starnet.snview.util.Base64Util;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -48,13 +45,17 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  */
 @SuppressLint({ "SdCardPath" })
 public class AlarmReceiver extends FrontiaPushMessageReceiver {
-	/** TAG to Log */
-	public static final String TAG = AlarmReceiver.class.getSimpleName();
-	public static int ERROR_CODE;
 	
+	/** TAG to Log */
+	public static int ERROR_CODE;
 	public static boolean applicationOver = false;
 	public static boolean serviceOpenStatus = false;  // true, opened; false, closed
+	public static final String TAG = AlarmReceiver.class.getSimpleName();
 	public static HashMap<String, Boolean> tagsStatus = new HashMap<String, Boolean>(); // <tagString, tagRegisterStatus>
+	
+	public static final int NOTIFICATION_ID = 0x00001234;
+	public static AnotherAlarmPushManagerActivity mActivity;
+	
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
 	 * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -85,7 +86,9 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			saveTagSuccOrFail(context, false);
 		}
 		Log.i(TAG, "======onBind*****"+errorCode);
-		updateAlarmPushManagerActivityUI(context,errorCode);
+//		if(mActivity != null){
+		updateAlarmPushManagerActivityUI(context, errorCode);
+//		}
 	}
 
 	/**
@@ -193,9 +196,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		if (matcher.find()) {
 			ad.setImageUrl(matcher.group(3));
 		} else {
-			throw new IllegalStateException(
-					"Invalid image url, which should match pattern"
-							+ "[username]:[password]@[url]");
+			throw new IllegalStateException("Invalid image url, which should match pattern" + "[username]:[password]@[url]");
 		}
 
 		return ad;
@@ -249,10 +250,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 				ad.setChannel(Integer.valueOf(matcher.group(3))); // channel
 			}
 		} else {
-			throw new IllegalStateException(
-					"Invalid video url, which should match pattern"
-							+ "[username]:[password]@[scheme]://[ip]:[port]/[channel]"
-							+ " or [scheme]://[ip]:[port]/[channel]");
+			throw new IllegalStateException("Invalid video url, which should match pattern" + "[username]:[password]@[scheme]://[ip]:[port]/[channel]" + " or [scheme]://[ip]:[port]/[channel]");
 		}
 
 		return ad;
@@ -290,8 +288,6 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 		return ad;
 	}
-
-	public static final int NOTIFICATION_ID = 0x00001234;
 
 	@SuppressWarnings("deprecation")
 	private void showNotification(Context context, String title, String contentTitle, String contentText) {
@@ -378,7 +374,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
-		Log.i(TAG, "======onSetTags*****"+errorCode);
+		Log.i(TAG, "======onSetTags*****" + errorCode);
 		//对标签的设置结果进行返回处理
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
@@ -419,7 +415,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 			Utils.setBind(context, false);
 			saveTagSuccOrFail(context, false);
 		}
-		Log.i(TAG, "======onDelTags*****"+errorCode);
+		Log.i(TAG, "======onDelTags*****" + errorCode);
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
 	}
 
@@ -462,13 +458,13 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}else{
 			
 		}
-		Log.i(TAG, "===onUnbind===="+errorCode);
+		Log.i(TAG, "===onUnbind====" + errorCode);
 		updateAlarmPushManagerActivityUI(context,errorCode);
 	}
 
-	private static boolean started = false;
-	private static Intent intentService;
 	private SharedPreferences sp;
+	private static Intent intentService;
+	private static boolean started = false;
 	private final String PSXML = "PSXMLFILE";
 
 	/** 保存注册/删除的标志位的值isSucOrFail **/
@@ -494,9 +490,9 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		data.putInt("errorCode",errorCode);
 		data.putBoolean("remind_push_all_accept", false);
 		msg.setData(data);
-//		if(AalarmNotifyAdapter.isStartOrStopWork){
-			AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
-//		}
+		if(mActivity != null){
+			mActivity.mHandler.sendMessage(msg);
+		}
 		if(isFirstStart){
 			isFirstStart = false;
 		}
@@ -508,13 +504,15 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 				errorCode = -1;
 			}
 		}
-		
 		Message msg = new Message();
 		Bundle data = new Bundle();
 		data.putInt("errorCode",errorCode);
 		data.putBoolean("remind_push_all_accept", true);
 		msg.setData(data);
-		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
+//		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
+		if(mActivity != null){
+			mActivity.mHandler.sendMessage(msg);
+		}
 		if(isFirstStart){
 			isFirstStart = false;
 		}
