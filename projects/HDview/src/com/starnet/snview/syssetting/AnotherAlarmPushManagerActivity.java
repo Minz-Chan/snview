@@ -48,7 +48,6 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 	private static Context ctx;
 	public static final int REQUESTCODE = 0x0001;
 	protected static final String TAG = "AnotherAlarmPushManagerActivity";
-	private final String filePath = "/data/data/com.starnet.snview/star_cloudAccount.xml";
 
 	private CheckSwitchButton csvPush;
 	private TextView tvPush;
@@ -252,7 +251,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		editor.putBoolean("isAllAccept", isAllAcc);
 		editor.putBoolean("isShake", isShake);
 		editor.putBoolean("isSound", isSound);
-		editor.putBoolean("isAccept", isAcc);
+		editor.putBoolean("isAllAccept", isAcc);
 		editor.commit();
 	}
 

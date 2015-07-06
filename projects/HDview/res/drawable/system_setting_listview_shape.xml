@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <!--
- 实心  透明色
- <solid android:color="#FFFFFF"/>
-    -->
     <gradient
         android:angle="270"
         android:endColor="@color/system_setting_listview_background"

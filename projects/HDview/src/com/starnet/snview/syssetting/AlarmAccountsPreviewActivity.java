@@ -1,5 +1,6 @@
 package com.starnet.snview.syssetting;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +35,13 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	private final int ADDINGTCODE = 0x0006;
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int REQUESTCODE_EDIT = 0x0004;
+
+	private boolean isAlarmUserAccept;//报警账户接收标记，为true表示开启，false表示不开启
+	private boolean isPushServiceAccept;//推送服务接收标记，为true表示开启，false表示不开启
+	
+	private String tags;
+	private List<String> tagList;
+	private SharedPreferences spsOfTag;//用于管理tag 标签的SharedPreferences
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +94,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		});
 	}
 
+	//删除的时候，需要注销掉标签
 	private void jumpDeleteDialog(int pos) {
 		Builder builder = new Builder(ctx);
 		String user = mList.get(pos).getUsername();
@@ -96,19 +107,52 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				//xml文档中删除标签,修改文档中的setTags 标签为delTags
+				try {
+					String userName = mList.get(position).getUsername();
+					String paswd = mList.get(position).getPassword();
+					String tag = userName + MD5Utils.createMD5(paswd);
+					
+					for (int i = 0; i < tagList.size(); i++) {
+						String tempTag = tagList.get(i);
+						if (tempTag.contains(tag)) {
+							if (tempTag.contains("setTags")) {
+								tempTag = tempTag.replace("setTags", "delTags");
+								tagList.set(i, tempTag);
+							}
+							break;
+						}
+					}
+					//先擦除，再重写
+					spsOfTag.edit().clear().commit();				
+					String tempTags="";
+					int size = tagList.size();
+					if (size == 0) {
+						tempTags = "";
+					}else if (size == 1) {
+						tempTags = tagList.get(0);
+					}else {
+						for (int i = 0;i < size - 1; i++) {
+							if (i == 0) {
+								tempTags = tagList.get(0)+",";
+							}else{
+								tempTags = tempTags + tagList.get(i) + ",";
+							}
+						}
+						tempTags = tempTags + tagList.get(size-1);
+					}
+					spsOfTag.edit().putString("tags", tempTags).commit();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 				new Thread(){
 					@Override
 					public void run() {
 						ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
 					}
-					
 				}.start();
-				
-				if (NetWorkUtils.checkNetConnection(ctx)) {
-					//deleteTags(mList.get(position));
-				}
-				
+								
 				mList.remove(position);
 				caAdapter.notifyDataSetChanged();
 			}
@@ -119,8 +163,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	protected void deleteTags(CloudAccount clA) {
 		try {
 			List<String> delTags = new ArrayList<String>();
-			delTags.add(clA.getUsername() + ""
-					+ MD5Utils.createMD5(clA.getPassword()));
+			delTags.add(clA.getUsername() + "" + MD5Utils.createMD5(clA.getPassword()));
 			PushManager.delTags(ctx, delTags);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -140,20 +183,28 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_alarmuser_preview));
+		
+		SharedPreferences sps = ctx.getSharedPreferences("", Context.MODE_PRIVATE);
+		isAlarmUserAccept = sps.getBoolean("isAllAccept", false);
+		isPushServiceAccept = sps.getBoolean("isAllAccept", false);
 
 		mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
 		if (mList == null) {
 			mList = new ArrayList<CloudAccount>();
 		}
+		
+		tagList = new ArrayList<String>();
+		getTagsList();
+		
 		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mList);
 		userListView = (ListView) findViewById(R.id.userListView);
 		userListView.setAdapter(caAdapter);
+				
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-
 		if (resultCode == ADDINGTCODE) {
 			if (data != null) {
 				CloudAccount ca = (CloudAccount) data.getSerializableExtra("alarmUser");
@@ -176,28 +227,9 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 					ReadWriteXmlUtils.replaceAlarmPushUserToXML(ca, index);
 				}
 			}
-		} else if (resultCode == REQUESTCODE_ADD) {
+		} else if (resultCode == REQUESTCODE_EDIT) {//youd
 			if (data != null) {
-				CloudAccount ca = (CloudAccount) data.getSerializableExtra("ca");
-				ca.setEnabled(true);
-				boolean cover = data.getBooleanExtra("cover", false);
-				if (!cover) {
-					mList.add(ca);
-					caAdapter.notifyDataSetChanged();
-				} else {
-					for (int i = 0; i < mList.size(); i++) {
-						if (ca.getUsername().equals(mList.get(i).getUsername())) {
-							mList.set(i, ca);
-							caAdapter.notifyDataSetChanged();
-							break;
-						}
-					}
-				}
-			}
-		} else if (resultCode == REQUESTCODE_EDIT) {
-			if (data != null) {
-				CloudAccount da = (CloudAccount) data
-						.getSerializableExtra("claa");
+				CloudAccount da = (CloudAccount) data.getSerializableExtra("claa");
 				da.setEnabled(true);
 				int pos = data.getIntExtra("position", 0);
 				String flag = data.getStringExtra("flag");
@@ -215,6 +247,21 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 					mList.set(pos, da);
 					caAdapter.notifyDataSetChanged();
 				}
+			}
+		}
+		tagList.clear();
+		getTagsList();
+	}
+	/**获取推送标签**/
+	private void getTagsList() {
+		spsOfTag = ctx.getSharedPreferences("alarmAccounts", Context.MODE_PRIVATE);
+		tags = spsOfTag.getString("tags", "");
+		if (tags==null || tags.equals("") || tags.length()==0) {
+			
+		}else{
+			String[] tagStrings = tags.split(",");
+			for (int i = 0; i < tagStrings.length; i++) {
+				tagList.add(tagStrings[i]);
 			}
 		}
 	}
