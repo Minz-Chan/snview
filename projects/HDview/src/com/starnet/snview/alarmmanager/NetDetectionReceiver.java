@@ -2,50 +2,124 @@ package com.starnet.snview.alarmmanager;
 
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
-import com.starnet.snview.R;
+import com.starnet.snview.util.NetWorkUtils;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.widget.Toast;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
+
 //需要考虑网络异常的情况
+@SuppressLint("HandlerLeak")
 public class NetDetectionReceiver extends BroadcastReceiver {
+
+	public Handler mHandler = new Handler(){
+
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case 0:
+				serviceStatus = PUSH_SERVICE_STATUS.WORKING;
+				break;
+			case -1:
+				serviceStatus = PUSH_SERVICE_STATUS.STOP;
+				mStartPushServiceTask.cancel(false);
+				break;
+			}
+		}
+	};
 	
-	private final long TIME_SPACE = 5 * 60 * 1000;//5*60*1000分钟
-	private long lasttime = System.currentTimeMillis();
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		while(true){
-			if(context!=null && PushManager.isPushEnabled(context)){
-				break;
+
+		if (context == null) {
+			return;
+		}
+				
+		SharedPreferences sp = context.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+		boolean hasPushServiceAccept = sp.getBoolean("isAllAccept", false);
+		if(!hasPushServiceAccept){
+			return;
+		}
+		
+		boolean isOpen = NetWorkUtils.checkNetConnection(context);
+		if (!isOpen) {
+			PushManager.stopWork(context);
+			return;
+		}
+		
+		boolean isPushEnabled = PushManager.isPushEnabled(context);
+		if (isPushEnabled) {
+			return;
+		}else {
+			AlarmReceiver.mNetDetectionReceiver = this;
+			mStartPushServiceTask = new StartPushServiceTask(context);
+			mStartPushServiceTask.execute(new Object());
+		}
+	}
+	
+	private StartPushServiceTask mStartPushServiceTask;
+	
+	private enum ACTION {
+		START_SERVICE,
+		STOP_SERVICE
+	}
+	
+	private ACTION currentAction;
+	
+	private enum PUSH_SERVICE_STATUS {
+		INIT,	 // 初始
+		WORKING, // 工作中
+		STOP	 // 已停止
+	}
+	
+	private PUSH_SERVICE_STATUS serviceStatus = PUSH_SERVICE_STATUS.INIT;
+	
+	public class StartPushServiceTask extends AsyncTask<Object, Object, Boolean> {
+		
+		private Context context;
+		public StartPushServiceTask(Context context){
+			this.context = context;
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			// 启动推送服务，同时显示加载框
+			currentAction = ACTION.START_SERVICE;
+			serviceStatus = PUSH_SERVICE_STATUS.INIT;
+			PushManager.startWork(context, PushConstants.LOGIN_TYPE_API_KEY,Utils.getMetaValue(context.getApplicationContext(), "api_key"));
+		}
+		
+		@Override
+		protected Boolean doInBackground(Object... params) {
+			// 等待服务启动完成
+			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
+			Boolean startSuccess = true;
+			if (isCancelled()) {  // 被取消说明启动失败
+				startSuccess = false; 
 			}
-			long currentTime = System.currentTimeMillis();
-			while (currentTime - lasttime >= TIME_SPACE) {
-				if(context!=null && PushManager.isPushEnabled(context)){
-					break;
-				}
-				if(context!=null){
-					ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-					if(manager==null){
-						break;
-					}
-					NetworkInfo mobileInfo = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-					NetworkInfo wifiInfo = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-					NetworkInfo activeInfo = manager.getActiveNetworkInfo();
-					boolean isMobile = mobileInfo.isConnected();
-					boolean isWifiConnect = wifiInfo.isConnected();
-					if(isMobile || isWifiConnect){
-						PushManager.startWork(context, PushConstants.LOGIN_TYPE_API_KEY,Utils.getMetaValue(context.getApplicationContext(), "api_key"));
-					}else{
-						String text = context.getString(R.string.channel_manager_channellistview_netnotopens);
-						Toast.makeText(context,text,Toast.LENGTH_LONG).show();
-					}
-				}
-				lasttime = currentTime;
+			return startSuccess;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			// 服务启动成功，onPostExecute正常调用 
+			if (!result) {
+				mStartPushServiceTask = new StartPushServiceTask(context);
+				mStartPushServiceTask.execute(new Object());
 			}
+		}
+
+		@Override
+		protected void onCancelled(Boolean result) {
+			// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
+			mStartPushServiceTask = new StartPushServiceTask(context);
+			mStartPushServiceTask.execute(new Object());
 		}
 	}
 }

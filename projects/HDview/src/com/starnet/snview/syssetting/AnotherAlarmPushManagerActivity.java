@@ -16,12 +16,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +72,11 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 	private boolean isAllAcc;
 	private SharedPreferences showFlagSP;
 	private ProgressDialog pushServicePrg;
+	private LinearLayout container_layout;
+	private RelativeLayout container_csvs1;
+	private RelativeLayout container_csvs2;
+	private RelativeLayout container_csvs3;
+	private RelativeLayout container_csvs4;
 	
 	private List<String>tags = new ArrayList<String>();
 		
@@ -139,10 +148,16 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		tvPush = (TextView) findViewById(R.id.tv_push_accept);
 		tvShake = (TextView) findViewById(R.id.tv_push_shake);
 		tvSound = (TextView) findViewById(R.id.tv_push_sound);
+		container_layout = (LinearLayout) findViewById(R.id.container_layout);
 		tvAlarmUserAccept = (TextView) findViewById(R.id.tv_alarmuser_accept);
 
 		tvAlarmUsers = (TextView) findViewById(R.id.tv_alarmusers);
 		clearAlarmInfBtn = (Button) findViewById(R.id.clearAlarmInfBtn);
+		
+		container_csvs1 = (RelativeLayout) findViewById(R.id.container_csvs1);
+		container_csvs2 = (RelativeLayout) findViewById(R.id.container_csvs2);
+		container_csvs3 = (RelativeLayout) findViewById(R.id.container_csvs3);
+		container_csvs4 = (RelativeLayout) findViewById(R.id.container_csvs4);
 		alarmUserContainer = (RelativeLayout) findViewById(R.id.alarmUserContainer);
 		
 		showFlagSP = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
@@ -186,6 +201,9 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
 		}
 		
+		listener = new PhoneUIListener();
+		container_layout.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+		
 		String content = "";
 		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
 		if (accounts != null && accounts.size() > 0) {
@@ -220,7 +238,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				String userName = accounts.get(accounts.size() - 1).getUsername();
 				String paswd = accounts.get(accounts.size() - 1).getPassword();
 				paswd = MD5Utils.createMD5(paswd);
-				String result = userName + paswd + ",";
+				String result = userName + paswd;
 				tags.add(result);
 			}
 		} catch (Exception e) {
@@ -655,6 +673,42 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			
 			if(pushServicePrg!=null && pushServicePrg.isShowing()){
 				pushServicePrg.dismiss();
+			}
+		}
+	}
+	
+	private PhoneUIListener listener;
+	private boolean hasCalculateHeight = false;
+	
+	private final class PhoneUIListener implements OnGlobalLayoutListener{
+
+		@Override
+		public void onGlobalLayout() {
+			if (!hasCalculateHeight) {
+				hasCalculateHeight = true;
+				int gtHeight = container_csvs1.getHeight();
+				LayoutParams csvLayout1 = container_csvs1.getLayoutParams();
+				csvLayout1.height = gtHeight;
+				container_csvs1.setLayoutParams(csvLayout1);
+				
+				LayoutParams csvLayout2 = container_csvs1.getLayoutParams();
+				csvLayout2.height = gtHeight;
+				container_csvs2.setLayoutParams(csvLayout2);
+				
+				LayoutParams csvLayout3 = container_csvs3.getLayoutParams();
+				csvLayout3.height = gtHeight;
+				container_csvs3.setLayoutParams(csvLayout3);
+				
+				LayoutParams csvLayout4 = container_csvs4.getLayoutParams();
+				csvLayout4.height = gtHeight;
+				container_csvs4.setLayoutParams(csvLayout4);
+				
+				LayoutParams csvLayout5 = alarmUserContainer.getLayoutParams();
+				csvLayout5.height = gtHeight;
+				alarmUserContainer.setLayoutParams(csvLayout5);
+				
+				
+				Log.i(TAG, "=====gtHeight====:"+gtHeight);
 			}
 		}
 	}

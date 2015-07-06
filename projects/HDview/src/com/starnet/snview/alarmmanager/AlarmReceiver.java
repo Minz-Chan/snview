@@ -55,6 +55,7 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 	
 	public static final int NOTIFICATION_ID = 0x00001234;
 	public static AnotherAlarmPushManagerActivity mActivity;
+	public static NetDetectionReceiver mNetDetectionReceiver;
 	
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
@@ -88,7 +89,17 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		Log.i(TAG, "======onBind*****"+errorCode);
 //		if(mActivity != null){
 		updateAlarmPushManagerActivityUI(context, errorCode);
-//		}
+		if (mNetDetectionReceiver!=null) {
+			if (mActivity == null) {
+				Message msg = new Message();
+				if (errorCode == 0) {
+					msg.what = 0;
+				}else {
+					msg.what = -1;
+				}
+				mNetDetectionReceiver.mHandler.sendMessage(msg);
+			}
+		}
 	}
 
 	/**
