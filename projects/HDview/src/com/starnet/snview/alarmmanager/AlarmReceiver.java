@@ -92,11 +92,10 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		if (mNetDetectionReceiver!=null) {
 			if (mActivity == null) {
 				Message msg = new Message();
-				if (errorCode == 0) {
-					msg.what = 0;
-				}else {
-					msg.what = -1;
-				}
+				Bundle data = new Bundle();
+				data.putInt("flag", NetDetectionReceiver.STARTWORKFLAG);
+				data.putInt("errorCode", errorCode);
+				msg.setData(data);
 				mNetDetectionReceiver.mHandler.sendMessage(msg);
 			}
 		}
@@ -388,6 +387,17 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		Log.i(TAG, "======onSetTags*****" + errorCode);
 		//对标签的设置结果进行返回处理
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
+		
+		if (mNetDetectionReceiver!=null) {
+			if (mActivity == null) {
+				Message msg = new Message();
+				Bundle data = new Bundle();
+				data.putInt("flag", NetDetectionReceiver.SETTAGFLAG);
+				data.putInt("errorCode", errorCode);
+				msg.setData(data);
+				mNetDetectionReceiver.mHandler.sendMessage(msg);
+			}
+		}
 	}
 
 	/**
@@ -428,6 +438,16 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		}
 		Log.i(TAG, "======onDelTags*****" + errorCode);
 		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
+		if (mNetDetectionReceiver!=null) {
+			if (mActivity == null) {
+				Message msg = new Message();
+				Bundle data = new Bundle();
+				data.putInt("flag", NetDetectionReceiver.DELTAGFLAG);
+				data.putInt("errorCode", errorCode);
+				msg.setData(data);
+				mNetDetectionReceiver.mHandler.sendMessage(msg);
+			}
+		}
 	}
 
 
