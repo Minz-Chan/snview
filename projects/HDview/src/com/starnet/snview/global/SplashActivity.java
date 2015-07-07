@@ -102,7 +102,7 @@ public class SplashActivity extends Activity {
 		Resources resource = this.getResources();
 	    String pkgName = this.getPackageName();
 		CustomPushNotificationBuilder cBuilder = new CustomPushNotificationBuilder(
-                getApplicationContext(), resource.getIdentifier(
+                resource.getIdentifier(
                         "notification_custom_builder", "layout", pkgName),
                 resource.getIdentifier("notification_icon", "id", pkgName),
                 resource.getIdentifier("notification_title", "id", pkgName),

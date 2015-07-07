@@ -22,7 +22,7 @@ import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.baidu.frontia.api.FrontiaPushMessageReceiver;
+import com.baidu.android.pushservice.PushMessageReceiver;
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.syssetting.AnotherAlarmPushManagerActivity;
@@ -44,7 +44,7 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  * 
  */
 @SuppressLint({ "SdCardPath" })
-public class AlarmReceiver extends FrontiaPushMessageReceiver {
+public class AlarmReceiver extends PushMessageReceiver {
 	
 	/** TAG to Log */
 	public static int ERROR_CODE;
@@ -547,5 +547,12 @@ public class AlarmReceiver extends FrontiaPushMessageReceiver {
 		if(isFirstStart){
 			isFirstStart = false;
 		}
+	}
+
+	@Override
+	public void onNotificationArrived(Context arg0, String arg1, String arg2,
+			String arg3) {
+		// TODO Auto-generated method stub
+		
 	}
 }

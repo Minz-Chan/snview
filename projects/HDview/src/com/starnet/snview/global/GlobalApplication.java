@@ -2,7 +2,8 @@ package com.starnet.snview.global;
 
 import java.util.List;
 
-import com.baidu.frontia.FrontiaApplication;
+
+
 import com.starnet.snview.R;
 import com.starnet.snview.images.ImageLoader;
 import com.starnet.snview.realplay.PreviewDeviceItem;
@@ -10,10 +11,11 @@ import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.ActivityUtility;
 
 import android.app.Activity;
+import android.app.Application;
 import android.os.Handler;
 
-//public class GlobalApplication extends Application {
-public class GlobalApplication extends FrontiaApplication {
+public class GlobalApplication extends Application {
+//public class GlobalApplication extends FrontiaApplication {
 	private static GlobalApplication singleton = new GlobalApplication();
 	
 	private String appName;
@@ -46,7 +48,7 @@ public class GlobalApplication extends FrontiaApplication {
 	
 	@Override
 	public void onCreate() {
-		super.onCreate();
+//		super.onCreate();
 		
 		CrashHandler ch = CrashHandler.getInstance();
 		ch.init(this);
