@@ -231,7 +231,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 					String userName = accounts.get(i).getUsername();
 					String paswd = accounts.get(i).getPassword();
 					paswd = MD5Utils.createMD5(paswd);
-					String result = userName + paswd + ",";
+					String result = userName + paswd;
 					tags.add(result);
 				}
 				String userName = accounts.get(accounts.size() - 1).getUsername();
