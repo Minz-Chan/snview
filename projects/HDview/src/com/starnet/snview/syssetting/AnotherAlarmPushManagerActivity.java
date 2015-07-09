@@ -251,7 +251,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		editor.putBoolean("isAllAccept", isAllAcc);
 		editor.putBoolean("isShake", isShake);
 		editor.putBoolean("isSound", isSound);
-		editor.putBoolean("isAllAccept", isAcc);
+		editor.putBoolean("isAccept", isAcc);
 		editor.commit();
 	}
 
@@ -263,7 +263,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			int errorCode = data.getInt("errorCode", -1);
 			if(errorCode == 0){//推送服务调用成功
 				if (currentAction == ACTION.START_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
 					showToast(ctx.getString(R.string.pushservice_open_success));
 				}
 				if (currentAction == ACTION.STOP_SERVICE) {
@@ -271,7 +271,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 					showToast(ctx.getString(R.string.pushservice_close_success));
 				}
 				if (currentAction == ACTION.ADD_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
+					serviceStatus = PUSH_SERVICE_STATUS.STOP;
 					showToast(ctx.getString(R.string.pushservice_settags_success));
 				}
 				if (currentAction == ACTION.DEL_TAG) {
@@ -280,7 +280,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				}
 			}else{//置回原来的标识情况
 				if (currentAction == ACTION.START_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
 					startSvrTask.cancel(false);
 					showToast(ctx.getString(R.string.pushservice_open_failure));
 				}
@@ -290,7 +290,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 					showToast(ctx.getString(R.string.pushservice_close_failure));
 				}
 				if (currentAction == ACTION.ADD_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
+					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
 					setSvrTask.cancel(false);
 					showToast(ctx.getString(R.string.pushservice_settags_failure));
 				}
