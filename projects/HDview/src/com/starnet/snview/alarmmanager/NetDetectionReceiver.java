@@ -16,12 +16,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 //需要考虑网络异常的情况
 @SuppressLint("HandlerLeak")
 public class NetDetectionReceiver extends BroadcastReceiver {
 	
-	
+	private static final String TAG = "NetDetectionReceiver";
 	//如果是true的话，应该删除掉，在保存的时候不需要再次保存了？？？？？
 	
 	public static final int STARTWORKFLAG = 1;
@@ -86,6 +87,8 @@ public class NetDetectionReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
+		Log.i(TAG,"===NetDetectionReceiver,,,,onReceive=====");
 
 		if (context == null) {
 			return;
@@ -118,6 +121,7 @@ public class NetDetectionReceiver extends BroadcastReceiver {
 			String tag = sps.getString("tags", "");
 			if (tag==null || tag.equals("") || tag.length() == 0) {}
 			else {
+				
 				String tags[] = tag.split(",");
 				if (tags == null || tags.length == 0) {
 					return;
@@ -140,12 +144,14 @@ public class NetDetectionReceiver extends BroadcastReceiver {
 				if (setTags.size() > 0) {
 					mSetTagsServiceTask = new SetTagsServiceTask(context, setTags);
 					mSetTagsServiceTask.execute(new Object());
+					Log.i(TAG,"===NetDetectionReceiver,,,,setTags=====");
 				}
 				//??????????应该卡住，以免同时修改文档造成文档错误
 				//启动注销delTag的服
 				if (delTags.size() > 0) {
 					mDelTagsServiceTask = new DelTagsServiceTask(context, delTags);
 					mDelTagsServiceTask.execute(new Object());
+					Log.i(TAG,"===NetDetectionReceiver,,,,delTags=====");
 				}
 			}
 			return;
