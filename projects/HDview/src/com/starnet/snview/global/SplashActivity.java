@@ -8,6 +8,7 @@ import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmReceiver;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.images.LocalFileUtils;
 import com.starnet.snview.realplay.RealplayActivity;
@@ -51,15 +52,11 @@ public class SplashActivity extends Activity {
 		new DelayStarTask().execute(new Object());
 	}
 
-	private void toGuideOrRealplayActivity() {
-		// 加载测试数据
-//		LoadDemoDataAsync loadtask = new LoadDemoDataAsync();
-//		loadtask.execute();
-		
-		SharedPreferences sp = getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		boolean isAccept = sp.getBoolean("isAllAccept", true);
-		isShake = sp.getBoolean("isShake", true);
-		isSound = sp.getBoolean("isSound", true);
+	private void toGuideOrRealplayActivity() {		
+		SharedPreferences sp = getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, 0);
+		boolean isAccept = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
+		isShake = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SHAKE, true);
+		isSound = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SOUND, true);
 		if (isAccept) {
 			startBaiduPushService();
 		}

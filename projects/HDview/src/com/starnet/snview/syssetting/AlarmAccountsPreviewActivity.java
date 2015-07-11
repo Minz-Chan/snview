@@ -1,6 +1,5 @@
 package com.starnet.snview.syssetting;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,9 +19,9 @@ import android.widget.ListView;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
-import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class AlarmAccountsPreviewActivity extends BaseActivity {
@@ -36,8 +34,8 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int REQUESTCODE_EDIT = 0x0004;
 
-	private boolean isAlarmUserAccept;//报警账户接收标记，为true表示开启，false表示不开启
-	private boolean isPushServiceAccept;//推送服务接收标记，为true表示开启，false表示不开启
+//	private boolean isAlarmUserAccept;//报警账户接收标记，为true表示开启，false表示不开启
+//	private boolean isPushServiceAccept;//推送服务接收标记，为true表示开启，false表示不开启
 	
 	private String tags;
 	private List<String> tagList;
@@ -115,33 +113,15 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 					
 					for (int i = 0; i < tagList.size(); i++) {
 						String tempTag = tagList.get(i);
-						if (tempTag.contains(tag)) {
-							if (tempTag.contains("setTags")) {
-								tempTag = tempTag.replace("setTags", "delTags");
-								tagList.set(i, tempTag);
-							}
+						if (tempTag.contains(tag)&&tempTag.contains("setTags")) {
+							tagList.remove(i);
 							break;
 						}
 					}
 					//先擦除，再重写
-					spsOfTag.edit().clear().commit();				
-					String tempTags="";
-					int size = tagList.size();
-					if (size == 0) {
-						tempTags = "";
-					}else if (size == 1) {
-						tempTags = tagList.get(0);
-					}else {
-						for (int i = 0;i < size - 1; i++) {
-							if (i == 0) {
-								tempTags = tagList.get(0)+",";
-							}else{
-								tempTags = tempTags + tagList.get(i) + ",";
-							}
-						}
-						tempTags = tempTags + tagList.get(size-1);
-					}
-					spsOfTag.edit().putString("tags", tempTags).commit();
+					spsOfTag.edit().clear().commit();
+					AlarmSettingUtils.getInstance().writeAlarmUserToXml(tagList);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -184,9 +164,9 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_alarmuser_preview));
 		
-		SharedPreferences sps = ctx.getSharedPreferences("", Context.MODE_PRIVATE);
-		isAlarmUserAccept = sps.getBoolean("isAllAccept", false);
-		isPushServiceAccept = sps.getBoolean("isAllAccept", false);
+//		SharedPreferences sps = ctx.getSharedPreferences("", Context.MODE_PRIVATE);
+//		isAlarmUserAccept = sps.getBoolean("isAllAccept", false);
+//		isPushServiceAccept = sps.getBoolean("isAllAccept", false);
 
 		mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
 		if (mList == null) {
@@ -254,7 +234,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	}
 	/**获取推送标签**/
 	private void getTagsList() {
-		spsOfTag = ctx.getSharedPreferences("alarmAccounts", Context.MODE_PRIVATE);
+		spsOfTag = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		tags = spsOfTag.getString("tags", "");
 		if (tags==null || tags.equals("") || tags.length()==0) {
 			

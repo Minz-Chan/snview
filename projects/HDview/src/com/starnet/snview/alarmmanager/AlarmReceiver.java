@@ -1,5 +1,7 @@
 package com.starnet.snview.alarmmanager;
 
+import java.nio.channels.AlreadyConnectedException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -21,7 +23,9 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.baidu.android.pushservice.PushManager;
 import com.baidu.android.pushservice.PushMessageReceiver;
 import com.starnet.snview.R;
 import com.starnet.snview.component.SnapshotSound;
@@ -45,18 +49,29 @@ import com.starnet.snview.util.ReadWriteXmlUtils;
  */
 @SuppressLint({ "SdCardPath" })
 public class AlarmReceiver extends PushMessageReceiver {
+	public static final String TAG = "AlarmReceiver";
 	
-	/** TAG to Log */
+	public static boolean serviceOpenStatus = false;  // true, opened; false, closed
+	public static HashMap<String, Boolean> tagsStatus = new HashMap<String, Boolean>(); // <tagString, tagRegisterStatus>
+	
 	public static int ERROR_CODE;
 	public static boolean applicationOver = false;
-	public static boolean serviceOpenStatus = false;  // true, opened; false, closed
-	public static final String TAG = AlarmReceiver.class.getSimpleName();
-	public static HashMap<String, Boolean> tagsStatus = new HashMap<String, Boolean>(); // <tagString, tagRegisterStatus>
+	
+	
 	
 	public static final int NOTIFICATION_ID = 0x00001234;
 	public static AnotherAlarmPushManagerActivity mActivity;
 	public static NetDetectionReceiver mNetDetectionReceiver;
 	
+	public static final int SUCCESS = 1;
+	public static final int FAILURE = 0;
+	
+	public static final int SERVICE_RSP_START = 0x99990001;
+	public static final int SERVICE_RSP_STOP = 0x99990002;
+	public static final int SERVICE_RSP_SET_TAG = 0x99990003;
+	public static final int SERVICE_RSP_DEL_TAG = 0x99990004;
+	
+	private boolean callFromBind = false;
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
 	 * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -78,8 +93,30 @@ public class AlarmReceiver extends PushMessageReceiver {
 	 */
 	@Override
 	public void onBind(Context context, int errorCode, String appid, String userId, String channelId, String requestId) {
-		String responseString = "onBind errorCode=" + errorCode + " appid=" + appid + " userId=" + userId + " channelId=" + channelId + " requestId=" + requestId;
+		String responseString = "onBind errorCode=" + errorCode + " appid="
+				+ appid + " userId=" + userId + " channelId=" + channelId
+				+ " requestId=" + requestId;
 		Log.d(TAG, responseString);
+		
+		// 如果返回0，绑定成功；否则，绑定失败
+		if (errorCode == 0) {
+			// 更新服务状态
+			serviceOpenStatus = true;
+			
+			callFromBind = true;
+			PushManager.listTags(context); // 触发onListTags()进行注册或删除
+		} else {
+			// 更新服务状态
+			serviceOpenStatus = false;
+		}
+		
+		// 传入服务状态信息，通知UI更新
+		Message msg = Message.obtain();
+		msg.what = SERVICE_RSP_START;
+		msg.arg1 = serviceOpenStatus ? SUCCESS : FAILURE;
+		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+		
+		/*
 		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
 			Utils.setBind(context, true);
 		} else {
@@ -98,7 +135,323 @@ public class AlarmReceiver extends PushMessageReceiver {
 				msg.setData(data);
 				mNetDetectionReceiver.mHandler.sendMessage(msg);
 			}
+		}*/
+	}
+	
+	
+	/**
+	 * PushManager.stopWork() 的回调函数。
+	 * 
+	 * @param context
+	 *            上下文
+	 * @param errorCode
+	 *            错误码。0表示从云推送解绑定成功；非0表示失败。
+	 * @param requestId
+	 *            分配给对云推送的请求的id
+	 */
+	@Override
+	public void onUnbind(Context context, int errorCode, String requestId) {
+		String responseString = "onUnbind errorCode=" + errorCode
+				+ " requestId = " + requestId;
+		Log.d(TAG, responseString);
+		
+		// 如果返回0，绑定成功；否则，绑定失败
+		if (errorCode == 0) {
+			// 更新服务状态
+			serviceOpenStatus = false;
+		} else {
+			// 更新服务状态
+			serviceOpenStatus = true;
 		}
+		
+		// 传入服务状态信息，通知UI更新
+		Message msg = Message.obtain();
+		msg.what = SERVICE_RSP_STOP;
+		msg.arg1 = serviceOpenStatus ? FAILURE : SUCCESS;
+		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+		
+		/*
+		// 解绑定成功，设置未绑定flag，
+		if (errorCode == 0) {
+			Utils.setBind(context, false);
+		}else{
+			
+		}
+		Log.i(TAG, "===onUnbind====" + errorCode);
+		updateAlarmPushManagerActivityUI(context,errorCode);*/
+	}
+	
+	/**
+	 * listTags() 的回调函数。
+	 * 
+	 * @param context
+	 *            上下文
+	 * @param errorCode
+	 *            错误码。0表示列举tag成功；非0表示失败。
+	 * @param tags
+	 *            当前应用设置的所有tag。
+	 * @param requestId
+	 *            分配给对云推送的请求的id
+	 */
+	@Override
+	public void onListTags(Context context, int errorCode, List<String> tags, String requestId) {
+		String responseString = "onListTags errorCode=" + errorCode + " tags="
+				+ tags;
+		Log.d(TAG, responseString);
+		
+		if (!AlarmSettingUtils.getInstance().isInitalized()) {
+			return;
+		}
+		
+		List<String> schemeTags = new ArrayList<String>();  	// 计划注册的用户tag列表
+		List<String> toRegisterTags = new ArrayList<String>(); 	// 将要注册的tag列表：in {计划注册tag列表} and not in {已注册tag列表}
+		List<String> toDelTags = new ArrayList<String>(); 		// 将要删除的tag列表：not in {计划注册tag列表} and in {已注册tag列表}
+		boolean isUserAlarmOpen = AlarmSettingUtils.getInstance()
+				.isUserAlarmOpen();
+		
+		if (isUserAlarmOpen) {
+			// 获取已启用星云账户tag列表和报警账户tag列表
+			schemeTags = AlarmSettingUtils.getInstance().getAllUserTags();
+		} else {
+			// 获取已启用星云账户tag列表
+			schemeTags = AlarmSettingUtils.getInstance().getStarnetAccountsTags();
+		}
+		
+		
+		if (tags != null && tags.size() > 0) {
+			for (String schemeTag : schemeTags) {
+				// 如果已有tag列表中没有此用户tag，则加入待注册列表
+				if (!tags.contains(schemeTag)) {
+					toRegisterTags.add(schemeTag);
+				}
+			}
+			// 注册tag列表
+			PushManager.setTags(context, toRegisterTags);
+			
+			for (String registeredTag : tags) {
+				// 如果已有用户tag列表中没有此注册tag，则加入待删除列表
+				if (!schemeTags.contains(registeredTag)) {
+					toDelTags.add(registeredTag);
+				}
+			}
+			// 删除tag列表
+			PushManager.delTags(context, toDelTags);
+		} else {
+			// 所有计划注册的用户tag均需注册，无多余用户tag需要删除
+			PushManager.setTags(context, schemeTags);
+		}
+	}
+	
+	/**
+	 * setTags() 的回调函数。
+	 * 
+	 * @param context
+	 *            上下文
+	 * @param errorCode
+	 *            错误码。0表示某些tag已经设置成功；非0表示所有tag的设置均失败。
+	 * @param successTags
+	 *            设置成功的tag
+	 * @param failTags
+	 *            设置失败的tag
+	 * @param requestId
+	 *            分配给对云推送的请求的id
+	 */
+	@Override
+	public void onSetTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
+		String responseString = "onSetTags errorCode=" + errorCode
+				+ " sucessTags=" + sucessTags + " failTags=" + failTags
+				+ " requestId=" + requestId;
+		Log.d(TAG, responseString);
+		
+		// 如果函数调用由onBind()间接触发，则不另作提示
+		if (callFromBind) {
+			callFromBind = false;
+			return;
+		}
+		
+		int result; // SUCCESS：成功；FAILURE，失败；－1；部分设置成功
+		if (errorCode == 0) {
+			if (failTags == null || 
+					(failTags != null && failTags.size() == 0)) {
+				// tag全部设置成功，不作处理
+				result = SUCCESS;
+			} else {
+				// TODO tag部分设置成功
+				result = -1;
+			}
+		} else {
+			// tag全部设置失败
+			result = FAILURE;
+
+		}
+		
+		// 通知ui进行相应提示
+		Message msg = Message.obtain();
+		msg.what = SERVICE_RSP_SET_TAG;
+		msg.arg1 = result;
+		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+		
+		/*
+		if (errorCode == 0) {
+			StringBuffer sb = new StringBuffer("");
+			if (sucessTags != null && sucessTags.size() > 0) {
+				for (String tag : sucessTags) {
+					sb.append(tag + ",");
+				}
+				Toast.makeText(context, sb + "注册成功", Toast.LENGTH_LONG).show();
+			}
+			
+			if (sucessTags != null && sucessTags.size() > 0) {
+				for (String tag : sucessTags) {
+					tagsStatus.put(tag, true);
+				}
+			}
+			if (failTags != null && failTags.size() > 0) {
+				for (String tag : failTags) {
+					tagsStatus.put(tag, false);
+				}
+			}
+		} else {
+			Toast.makeText(context, "tag注册失败", Toast.LENGTH_LONG).show();
+			
+			if (failTags != null && failTags.size() > 0) {
+				for (String tag : failTags) {
+					tagsStatus.put(tag, false);
+				}
+			}
+		}*/ 
+		
+		/*
+		if (errorCode == 0) {// 注册成功
+			saveTagSuccOrFail(context, true);
+			closeRegOrDelService(context);
+			for(String str:sucessTags){
+				tagsStatus.put(str, true);
+			}
+			
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
+		} else {// 注册标签失败
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
+			Utils.setBind(context, false);
+			saveTagSuccOrFail(context, false);
+		}
+		Log.i(TAG, "======onSetTags*****" + errorCode);
+		//对标签的设置结果进行返回处理
+		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
+		
+		if (mNetDetectionReceiver!=null) {
+			if (mActivity == null) {
+				Message msg = new Message();
+				Bundle data = new Bundle();
+				data.putInt("flag", NetDetectionReceiver.SETTAGFLAG);
+				data.putInt("errorCode", errorCode);
+				msg.setData(data);
+				mNetDetectionReceiver.mHandler.sendMessage(msg);
+			}
+		}*/
+	}
+
+	/**
+	 * delTags() 的回调函数。
+	 * 
+	 * @param context
+	 *            上下文
+	 * @param errorCode
+	 *            错误码。0表示某些tag已经删除成功；非0表示所有tag均删除失败。
+	 * @param successTags
+	 *            成功删除的tag
+	 * @param failTags
+	 *            删除失败的tag
+	 * @param requestId
+	 *            分配给对云推送的请求的id
+	 */
+	@Override
+	public void onDelTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
+		String responseString = "onDelTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
+		Log.d(TAG, responseString);
+		
+		// 如果函数调用由onBind()间接触发，则不另作提示
+		if (callFromBind) {
+			callFromBind = false;
+			return;
+		}
+		
+		int result; // SUCCESS：成功；FAILURE，失败；－1；部分设置成功 
+		if (errorCode == 0) {
+			if (failTags != null && failTags.size() > 0) {
+				// TODO 部分删除失败
+				result = -1;
+			} else {
+				// 全部删除成功
+				result = SUCCESS;
+			}
+		} else {
+			// 全部删除失败
+			result = FAILURE;
+		}
+		
+		// 通知ui进行相应提示
+		Message msg = Message.obtain();
+		msg.what = SERVICE_RSP_DEL_TAG;
+		msg.arg1 = result;
+		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+		
+		/*
+		if (errorCode == 0) {
+			if (sucessTags != null && sucessTags.size() > 0) {
+				for (String tag : sucessTags) {
+					tagsStatus.put(tag, false);
+				}
+			}
+			if (failTags != null && failTags.size() > 0) {
+				for (String tag : failTags) {
+					tagsStatus.put(tag, true);
+				}
+			}
+		} else {
+			if (failTags != null && failTags.size() > 0) {
+				for (String tag : failTags) {
+					tagsStatus.put(tag, true);
+				}
+			}
+		}*/
+		
+		// TODO 通知UI进行相应的提示
+		/*
+		if (errorCode == 0) {// 注册成功			
+			saveTagSuccOrFail(context, true);
+			closeRegOrDelService(context);
+			
+			for(String str:sucessTags){
+				tagsStatus.put(str, true);
+			}
+			
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
+		} else {
+			for(String str:failTags){
+				tagsStatus.put(str, false);
+			}
+			Utils.setBind(context, false);
+			saveTagSuccOrFail(context, false);
+		}
+		Log.i(TAG, "======onDelTags*****" + errorCode);
+		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
+		if (mNetDetectionReceiver!=null) {
+			if (mActivity == null) {
+				Message msg = new Message();
+				Bundle data = new Bundle();
+				data.putInt("flag", NetDetectionReceiver.DELTAGFLAG);
+				data.putInt("errorCode", errorCode);
+				msg.setData(data);
+				mNetDetectionReceiver.mHandler.sendMessage(msg);
+			}
+		}*/
 	}
 
 	/**
@@ -310,22 +663,25 @@ public class AlarmReceiver extends PushMessageReceiver {
 		controlSoundAndShake(context);
 	}
 
-	private void controlSoundAndShake(Context ctx) {
-		SharedPreferences sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		boolean isShake = sp.getBoolean("isShake", true);
-		boolean isSound = sp.getBoolean("isSound", true);
-		final Context ct = ctx;
-		if (isSound) {
+	/**
+	 * 提醒用户（声音、震动）
+	 * @param context 当前环境上下文
+	 */
+	private void controlSoundAndShake(final Context context) {
+		boolean isShakeOpen = AlarmSettingUtils.getInstance().isShakeOpen();
+		boolean isSoundOpen = AlarmSettingUtils.getInstance().isSoundOpen();
+		if (isSoundOpen) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					SnapshotSound s = new SnapshotSound(ct);
+					SnapshotSound s = new SnapshotSound(context);
 					s.playPushSetSound();
 				}
 			}).start();
 		}
-		if (isShake) {
-			Vibrator vibrator = (Vibrator) ctx.getSystemService(Context.VIBRATOR_SERVICE);
+		if (isShakeOpen) {
+			Vibrator vibrator = (Vibrator) context
+					.getSystemService(Context.VIBRATOR_SERVICE);
 			long[] pattern = { 50, 200, 50, 200 };
 			vibrator.vibrate(pattern, -1);
 		}
@@ -348,150 +704,7 @@ public class AlarmReceiver extends PushMessageReceiver {
 		String notifyString = "通知点击 title=\"" + title + "\" description=\"" + description + "\" customContent=" + customContentString;
 		Log.d(TAG, notifyString);
 	}
-
-	/**
-	 * setTags() 的回调函数。
-	 * 
-	 * @param context
-	 *            上下文
-	 * @param errorCode
-	 *            错误码。0表示某些tag已经设置成功；非0表示所有tag的设置均失败。
-	 * @param successTags
-	 *            设置成功的tag
-	 * @param failTags
-	 *            设置失败的tag
-	 * @param requestId
-	 *            分配给对云推送的请求的id
-	 */
-	@Override
-	public void onSetTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
-		String responseString = "onSetTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
-		Log.d(TAG, responseString);
-		if (errorCode == 0) {// 注册成功
-			saveTagSuccOrFail(context, true);
-			closeRegOrDelService(context);
-			for(String str:sucessTags){
-				tagsStatus.put(str, true);
-			}
-			
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-		} else {// 注册标签失败
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-			Utils.setBind(context, false);
-			saveTagSuccOrFail(context, false);
-		}
-		Log.i(TAG, "======onSetTags*****" + errorCode);
-		//对标签的设置结果进行返回处理
-		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
-		
-		if (mNetDetectionReceiver!=null) {
-			if (mActivity == null) {
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putInt("flag", NetDetectionReceiver.SETTAGFLAG);
-				data.putInt("errorCode", errorCode);
-				msg.setData(data);
-				mNetDetectionReceiver.mHandler.sendMessage(msg);
-			}
-		}
-	}
-
-	/**
-	 * delTags() 的回调函数。
-	 * 
-	 * @param context
-	 *            上下文
-	 * @param errorCode
-	 *            错误码。0表示某些tag已经删除成功；非0表示所有tag均删除失败。
-	 * @param successTags
-	 *            成功删除的tag
-	 * @param failTags
-	 *            删除失败的tag
-	 * @param requestId
-	 *            分配给对云推送的请求的id
-	 */
-	@Override
-	public void onDelTags(Context context, int errorCode, List<String> sucessTags, List<String> failTags, String requestId) {
-		String responseString = "onDelTags errorCode=" + errorCode + " sucessTags=" + sucessTags + " failTags=" + failTags + " requestId=" + requestId;
-		Log.d(TAG, responseString);
-		if (errorCode == 0) {// 注册成功			
-			saveTagSuccOrFail(context, true);
-			closeRegOrDelService(context);
-			
-			for(String str:sucessTags){
-				tagsStatus.put(str, true);
-			}
-			
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-		} else {
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-			Utils.setBind(context, false);
-			saveTagSuccOrFail(context, false);
-		}
-		Log.i(TAG, "======onDelTags*****" + errorCode);
-		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
-		if (mNetDetectionReceiver!=null) {
-			if (mActivity == null) {
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putInt("flag", NetDetectionReceiver.DELTAGFLAG);
-				data.putInt("errorCode", errorCode);
-				msg.setData(data);
-				mNetDetectionReceiver.mHandler.sendMessage(msg);
-			}
-		}
-	}
-
-
-	/**
-	 * listTags() 的回调函数。
-	 * 
-	 * @param context
-	 *            上下文
-	 * @param errorCode
-	 *            错误码。0表示列举tag成功；非0表示失败。
-	 * @param tags
-	 *            当前应用设置的所有tag。
-	 * @param requestId
-	 *            分配给对云推送的请求的id
-	 */
-	@Override
-	public void onListTags(Context context, int errorCode, List<String> tags, String requestId) {
-		String responseString = "onListTags errorCode=" + errorCode + " tags=" + tags;
-		Log.d(TAG, responseString);
-	}
-
-	/**
-	 * PushManager.stopWork() 的回调函数。
-	 * 
-	 * @param context
-	 *            上下文
-	 * @param errorCode
-	 *            错误码。0表示从云推送解绑定成功；非0表示失败。
-	 * @param requestId
-	 *            分配给对云推送的请求的id
-	 */
-	@Override
-	public void onUnbind(Context context, int errorCode, String requestId) {
-		String responseString = "onUnbind errorCode=" + errorCode + " requestId = " + requestId;
-		Log.d(TAG, responseString);
-		// 解绑定成功，设置未绑定flag，
-		if (errorCode == 0) {
-			Utils.setBind(context, false);
-		}else{
-			
-		}
-		Log.i(TAG, "===onUnbind====" + errorCode);
-		updateAlarmPushManagerActivityUI(context,errorCode);
-	}
+	
 
 	private SharedPreferences sp;
 	private static Intent intentService;
@@ -522,7 +735,7 @@ public class AlarmReceiver extends PushMessageReceiver {
 		data.putBoolean("remind_push_all_accept", false);
 		msg.setData(data);
 		if(mActivity != null){
-			mActivity.mHandler.sendMessage(msg);
+			mActivity.handler.sendMessage(msg);
 		}
 		if(isFirstStart){
 			isFirstStart = false;
@@ -542,7 +755,7 @@ public class AlarmReceiver extends PushMessageReceiver {
 		msg.setData(data);
 //		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
 		if(mActivity != null){
-			mActivity.mHandler.sendMessage(msg);
+			mActivity.handler.sendMessage(msg);
 		}
 		if(isFirstStart){
 			isFirstStart = false;
@@ -552,7 +765,6 @@ public class AlarmReceiver extends PushMessageReceiver {
 	@Override
 	public void onNotificationArrived(Context arg0, String arg1, String arg2,
 			String arg3) {
-		// TODO Auto-generated method stub
 		
 	}
 }

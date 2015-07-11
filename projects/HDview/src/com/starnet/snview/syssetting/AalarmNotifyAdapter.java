@@ -6,6 +6,7 @@ import java.util.List;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
@@ -246,12 +247,12 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 			break;
 		}
 		//SharedPreference 的读写
-		SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+		SharedPreferences sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		Editor editor = sps.edit();
-		editor.putBoolean("isAllAccept", isClickFlagAcc);
-		editor.putBoolean("isShake", isClickFlagSha);
-		editor.putBoolean("isSound", isClickFlagSou);
-		editor.putBoolean("isAccept", isAcc);
+		editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, isClickFlagAcc);
+		editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_SHAKE, isClickFlagSha);
+		editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_SOUND, isClickFlagSou);
+		editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, isAcc);
 		editor.commit();
 		notifyDataSetChanged();
 	}
@@ -302,12 +303,12 @@ public class AalarmNotifyAdapter extends BaseAdapter implements OnCheckedChangeL
 				csv_push.setChecked(true);
 			}
 			//将操作信息写入到xml文档中；
-			SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+			SharedPreferences sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 			Editor editor = sps.edit();
-			editor.putBoolean("isAllAccept", csv_push.isChecked());
-			editor.putBoolean("isShake", isClickFlagSha);
-			editor.putBoolean("isSound", isClickFlagSou);
-			editor.putBoolean("isAccept", alarmUserAdapter.isClickFlag());
+			editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, csv_push.isChecked());
+			editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_SHAKE, isClickFlagSha);
+			editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_SOUND, isClickFlagSou);
+			editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, alarmUserAdapter.isClickFlag());
 			editor.commit();
 		}
 		

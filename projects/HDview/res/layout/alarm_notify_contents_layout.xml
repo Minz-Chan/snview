@@ -42,7 +42,7 @@
         </LinearLayout>
 
         <com.starnet.snview.componet.switchbutton.CheckSwitchButton
-            android:id="@+id/csv_push"
+            android:id="@+id/global_alarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -91,7 +91,7 @@
         </LinearLayout>
 
         <com.starnet.snview.componet.switchbutton.CheckSwitchButton
-            android:id="@+id/csv_push_shake"
+            android:id="@+id/alarm_shake"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -142,7 +142,7 @@
         </LinearLayout>
 
         <com.starnet.snview.componet.switchbutton.CheckSwitchButton
-            android:id="@+id/csv_push_sound"
+            android:id="@+id/alarm_sound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

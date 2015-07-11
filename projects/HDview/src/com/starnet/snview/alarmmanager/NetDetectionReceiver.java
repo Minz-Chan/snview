@@ -100,7 +100,7 @@ public class NetDetectionReceiver extends BroadcastReceiver {
 			return;
 		}
 		
-		if(!context.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE).getBoolean("isAllAccept", false)){
+		if(!context.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE).getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, false)){
 			return;
 		}
 		
@@ -109,9 +109,9 @@ public class NetDetectionReceiver extends BroadcastReceiver {
 			
 			AlarmReceiver.mNetDetectionReceiver = this;
 			
-			acceptInfoSp = context.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
-			boolean isAllAcc = acceptInfoSp.getBoolean("isAllAccept", true);
-			boolean isAcc = acceptInfoSp.getBoolean("isAccept", true);
+			acceptInfoSp = context.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
+			boolean isAllAcc = acceptInfoSp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
+			boolean isAcc = acceptInfoSp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
 			if (!isAllAcc||!isAcc) {
 				return;
 			}

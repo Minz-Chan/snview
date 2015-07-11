@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,6 +33,7 @@ import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmReceiver;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.SnapshotSound;
@@ -41,57 +41,60 @@ import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
+import com.starnet.snview.util.StringUtils;
 
 @SuppressLint("HandlerLeak")
-public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnCheckedChangeListener ,OnClickListener{
-
-	private static Context ctx;
-	public static final int REQUESTCODE = 0x0001;
+public class AnotherAlarmPushManagerActivity extends BaseActivity implements
+		OnCheckedChangeListener, OnClickListener {
 	protected static final String TAG = "AnotherAlarmPushManagerActivity";
+	
+	private Context ctx;
+	public static final int REQUESTCODE = 0x0001;
 
-	private CheckSwitchButton csvPush;
-	private TextView tvPush;
 
-	private CheckSwitchButton csvShake;
-	private TextView tvShake;
-
-	private CheckSwitchButton csvSound;
-	private TextView tvSound;
-
-	private CheckSwitchButton csvAlarmUserAccept;
-	private TextView tvAlarmUserAccept;
-
-	private TextView tvAlarmUsers;// 显示推送账户
-	private Button clearAlarmInfBtn;
+	private boolean isGlobalAlarmOpen;
+	private boolean isShakeOpen;
+	private boolean isSoundOpen;
+	private boolean isUserAlarmOpen;
+	
+	private CheckSwitchButton globalAlarmButton;
+	private CheckSwitchButton shakeButton;
+	private CheckSwitchButton soundButton;
+	private CheckSwitchButton userAlarmButton;
+	private Button clearAlarmsButton;
+	
+	private TextView txtGlobalAlarm;
+	private TextView txtShake;
+	private TextView txtSound;
+	private TextView txtUserAlarm;
+	private TextView txtAlarmUsers;	// 显示推送账户列表
+	private ProgressDialog waittingDialog;
+	private LinearLayout layout0;
+	private RelativeLayout layout1;
+	private RelativeLayout layout2;
+	private RelativeLayout layout3;
+	private RelativeLayout layout4;
 	private RelativeLayout alarmUserContainer;
 	
-	private boolean isAcc;
-	private boolean isShake;
-	private boolean isSound;
-	private boolean isAllAcc;
-	private SharedPreferences showFlagSP;
-	private ProgressDialog pushServicePrg;
-	private LinearLayout container_layout;
-	private RelativeLayout container_csvs1;
-	private RelativeLayout container_csvs2;
-	private RelativeLayout container_csvs3;
-	private RelativeLayout container_csvs4;
-	
-	private List<String>tags = new ArrayList<String>();
+	private List<String> tags = new ArrayList<String>();
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.alarm_layout_notify_user_activity);
+		
+		AlarmSettingUtils.getInstance().init(this);
+		AlarmSettingUtils.getInstance().attachHandler(handler);
+		
 		intialViews();
 		setListeners();
 	}
 
 	private void setListeners() {
-		csvPush.setOnCheckedChangeListener(this);
-		csvShake.setOnCheckedChangeListener(this);
-		csvSound.setOnCheckedChangeListener(this);
-		csvAlarmUserAccept.setOnCheckedChangeListener(this);
+		globalAlarmButton.setOnCheckedChangeListener(this);
+		shakeButton.setOnCheckedChangeListener(this);
+		soundButton.setOnCheckedChangeListener(this);
+		userAlarmButton.setOnCheckedChangeListener(this);
 	
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
 			@Override
@@ -100,7 +103,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 				finish();
 			}
 		});
-		clearAlarmInfBtn.setOnClickListener(this);
+		clearAlarmsButton.setOnClickListener(this);
 		alarmUserContainer.setOnClickListener(this);
 	}
 
@@ -116,18 +119,15 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			public void onClick(DialogInterface dialog, int which) {
 				boolean isSuc = ReadWriteXmlUtils.deleteAlarmInfoFile();
 				if (isSuc) {
-					showToast(getString(R.string.system_setting_pushset_clear_alarm_suc));
+					showMessage(getString(R.string.system_setting_pushset_clear_alarm_suc));
 				} else {
-					showToast(getString(R.string.system_setting_pushset_clear_alarm_fai));
+					showMessage(getString(R.string.system_setting_pushset_clear_alarm_fai));
 				}
 			}
 		});
 		builder.show();
 	}
 
-	private static void showToast(String content) {
-		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
-	}
 
 	private void intialViews() {
 		super.hideRightButton();
@@ -139,69 +139,67 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		ctx = AnotherAlarmPushManagerActivity.this;
 		AlarmReceiver.mActivity = AnotherAlarmPushManagerActivity.this;
 		
-		csvPush = (CheckSwitchButton) findViewById(R.id.csv_push);
-		csvShake = (CheckSwitchButton) findViewById(R.id.csv_push_shake);
-		csvSound = (CheckSwitchButton) findViewById(R.id.csv_push_sound);
-		csvAlarmUserAccept = (CheckSwitchButton) findViewById(R.id.csv_alarmuser_push);
+		globalAlarmButton = (CheckSwitchButton) findViewById(R.id.global_alarm);
+		shakeButton = (CheckSwitchButton) findViewById(R.id.alarm_shake);
+		soundButton = (CheckSwitchButton) findViewById(R.id.alarm_sound);
+		userAlarmButton = (CheckSwitchButton) findViewById(R.id.alarm_user);
 
-		tvPush = (TextView) findViewById(R.id.tv_push_accept);
-		tvShake = (TextView) findViewById(R.id.tv_push_shake);
-		tvSound = (TextView) findViewById(R.id.tv_push_sound);
-		container_layout = (LinearLayout) findViewById(R.id.container_layout);
-		tvAlarmUserAccept = (TextView) findViewById(R.id.tv_alarmuser_accept);
+		txtGlobalAlarm = (TextView) findViewById(R.id.tv_push_accept);
+		txtShake = (TextView) findViewById(R.id.tv_push_shake);
+		txtSound = (TextView) findViewById(R.id.tv_push_sound);
+		layout0 = (LinearLayout) findViewById(R.id.container_layout);
+		txtUserAlarm = (TextView) findViewById(R.id.tv_alarmuser_accept);
 
-		tvAlarmUsers = (TextView) findViewById(R.id.tv_alarmusers);
-		clearAlarmInfBtn = (Button) findViewById(R.id.clearAlarmInfBtn);
+		txtAlarmUsers = (TextView) findViewById(R.id.tv_alarmusers);
+		clearAlarmsButton = (Button) findViewById(R.id.clearAlarmInfBtn);
 		
-		container_csvs1 = (RelativeLayout) findViewById(R.id.container_csvs1);
-		container_csvs2 = (RelativeLayout) findViewById(R.id.container_csvs2);
-		container_csvs3 = (RelativeLayout) findViewById(R.id.container_csvs3);
-		container_csvs4 = (RelativeLayout) findViewById(R.id.container_csvs4);
+		layout1 = (RelativeLayout) findViewById(R.id.container_csvs1);
+		layout2 = (RelativeLayout) findViewById(R.id.container_csvs2);
+		layout3 = (RelativeLayout) findViewById(R.id.container_csvs3);
+		layout4 = (RelativeLayout) findViewById(R.id.container_csvs4);
 		alarmUserContainer = (RelativeLayout) findViewById(R.id.alarmUserContainer);
 		
-		showFlagSP = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		isAcc = showFlagSP.getBoolean("isAccept", true);
-		isShake = showFlagSP.getBoolean("isShake", true);
-		isSound = showFlagSP.getBoolean("isSound", true);
-		isAllAcc = showFlagSP.getBoolean("isAllAccept", true);
+		SharedPreferences sharedPref = ctx.getSharedPreferences(
+				AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
+		isGlobalAlarmOpen = sharedPref.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
+		isShakeOpen = sharedPref.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SHAKE, true);
+		isSoundOpen = sharedPref.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SOUND, true);
+		isUserAlarmOpen = sharedPref.getBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
 
-		if(isAllAcc){
-			csvPush.setChecked(true);
-			tvPush.setText(getString(R.string.notify_accept_open));
-		}else{
-			tvPush.setText(getString(R.string.notify_accept_off));
-			csvPush.setChecked(false);
-			csvShake.setEnabled(false);
-			csvSound.setEnabled(false);
-			csvAlarmUserAccept.setEnabled(false);
+		if (isGlobalAlarmOpen) {
+			globalAlarmButton.setChecked(true);
+			txtGlobalAlarm.setText(getString(R.string.notify_accept_open));
+		} else {
+			txtGlobalAlarm.setText(getString(R.string.notify_accept_off));
+			globalAlarmButton.setChecked(false);
+			shakeButton.setEnabled(false);
+			soundButton.setEnabled(false);
+			userAlarmButton.setEnabled(false);
 		}
-		
-		if(isShake){
-			csvShake.setChecked(true);
-			tvShake.setText(getString(R.string.remind_shake_open));
-		}else{
-			csvShake.setChecked(false);
-			tvShake.setText(getString(R.string.remind_shake_off));
+		if (isShakeOpen) {
+			shakeButton.setChecked(true);
+			txtShake.setText(getString(R.string.remind_shake_open));
+		} else {
+			shakeButton.setChecked(false);
+			txtShake.setText(getString(R.string.remind_shake_off));
 		}
-		
-		if(isSound){
-			csvSound.setChecked(true);
-			tvSound.setText(getString(R.string.remind_sound_open));
-		}else{
-			csvSound.setChecked(false);
-			tvSound.setText(getString(R.string.remind_sound_off));
+		if (isSoundOpen) {
+			soundButton.setChecked(true);
+			txtSound.setText(getString(R.string.remind_sound_open));
+		} else {
+			soundButton.setChecked(false);
+			txtSound.setText(getString(R.string.remind_sound_off));
 		}
-		
-		if(isAcc){
-			csvAlarmUserAccept.setChecked(true);
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
-		}else{
-			csvAlarmUserAccept.setChecked(false);
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
+		if (isUserAlarmOpen) {
+			userAlarmButton.setChecked(true);
+			txtUserAlarm.setText(getString(R.string.alarm_accept_open));
+		} else {
+			userAlarmButton.setChecked(false);
+			txtUserAlarm.setText(getString(R.string.alarm_accept_off));
 		}
 		
 		listener = new PhoneUIListener();
-		container_layout.getViewTreeObserver().addOnGlobalLayoutListener(listener);
+		layout0.getViewTreeObserver().addOnGlobalLayoutListener(listener);
 		
 		String content = "";
 		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
@@ -219,9 +217,12 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		if (content.length() >= 18) {
 			content = content.substring(0, 18) + "...";
 		}
-		tvAlarmUsers.setText(content);
-		
+		txtAlarmUsers.setText(content);
 		getTags(accounts);
+		
+		// 同步至SharedPreference配置中
+		AlarmSettingUtils.getInstance().writeAlarmUserToXml(tags);
+		
 	}
 	
 	private void getTags(List<CloudAccount> accounts){
@@ -244,65 +245,280 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 			e.printStackTrace();
 		}
 	}
-	
-	private void saveSharedPreference(){
-		SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
-		Editor editor = sps.edit();
-		editor.putBoolean("isAllAccept", isAllAcc);
-		editor.putBoolean("isShake", isShake);
-		editor.putBoolean("isSound", isSound);
-		editor.putBoolean("isAccept", isAcc);
-		editor.commit();
-	}
 
-	public Handler mHandler = new Handler() {
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+			AlarmReceiver.mActivity = null;
+			this.finish();
+		}
+		return true;
+	}
+	
+	// 提示滑动开关操作是否来自用户手动操作
+	private boolean isUserManul = true;
+	
+	public Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
-			super.handleMessage(msg);
-			Bundle data = msg.getData();
-			int errorCode = data.getInt("errorCode", -1);
-			if(errorCode == 0){//推送服务调用成功
-				if (currentAction == ACTION.START_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
-					showToast(ctx.getString(R.string.pushservice_open_success));
+			// 取消加载框
+			dismissWaittingDialog();
+			
+			switch (msg.what) {
+			case AlarmReceiver.SERVICE_RSP_START:
+				// 如果服务启动成功，使能其他按钮并提示成功；否则，复位按钮状态，并提示失败
+				if (msg.arg1 == AlarmReceiver.SUCCESS) {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
+					soundButton.setEnabled(true);
+					shakeButton.setEnabled(true);
+					userAlarmButton.setEnabled(true);
+					showMessage("推送服务启动成功");
+				} else {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, false);
+					restoreButtonState(globalAlarmButton);
+					showMessage("推送服务启动失败");
 				}
-				if (currentAction == ACTION.STOP_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
-					showToast(ctx.getString(R.string.pushservice_close_success));
+				break;
+			case AlarmReceiver.SERVICE_RSP_STOP:
+				// 如果服务关闭成功，禁用其他按钮并提示已关闭；否则，提示关闭失败
+				if (msg.arg1 == AlarmReceiver.SUCCESS) {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, false);
+					soundButton.setEnabled(false);
+					shakeButton.setEnabled(false);
+					userAlarmButton.setEnabled(false);
+					showMessage("推送服务已关闭");
+				} else {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
+					restoreButtonState(globalAlarmButton);
+					showMessage("推送服务关闭失败");
 				}
-				if (currentAction == ACTION.ADD_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
-					showToast(ctx.getString(R.string.pushservice_settags_success));
+			case AlarmReceiver.SERVICE_RSP_SET_TAG:
+				// 如果报警接收开启成功，不作提示；开启失败，复位滑动开关并提示
+				if (msg.arg1 == AlarmReceiver.SUCCESS) {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
+				} else if (msg.arg1 == AlarmReceiver.FAILURE) {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, false);
+					restoreButtonState(userAlarmButton);
+					showMessage("报警账户接收开启失败");
+				} else {
+					// TODO 部分tag设置居功
 				}
-				if (currentAction == ACTION.DEL_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.STOP;
-					showToast(ctx.getString(R.string.pushservice_deltags_success));
+				break;
+			case AlarmReceiver.SERVICE_RSP_DEL_TAG:
+				// 如果报警接收关闭成功，不作提示；开启失败，复位滑动开关并提示
+				if (msg.arg1 == AlarmReceiver.SUCCESS) {
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, false);
+				} else if (msg.arg1 == AlarmReceiver.FAILURE) {
+					// FIXME 报警账户接收开关时，若即有注册，又有删除，如何处理？？
+					saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
+					restoreButtonState(userAlarmButton);	
+					showMessage("报警账户接收关闭失败");
+				} else {
+					// TODO 部分tag删除居功
 				}
-			}else{//置回原来的标识情况
-				if (currentAction == ACTION.START_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
-					startSvrTask.cancel(false);
-					showToast(ctx.getString(R.string.pushservice_open_failure));
-				}
-				if (currentAction == ACTION.STOP_SERVICE) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
-					stopSvrTask.cancel(false);
-					showToast(ctx.getString(R.string.pushservice_close_failure));
-				}
-				if (currentAction == ACTION.ADD_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
-					setSvrTask.cancel(false);
-					showToast(ctx.getString(R.string.pushservice_settags_failure));
-				}
-				if (currentAction == ACTION.DEL_TAG) {
-					serviceStatus = PUSH_SERVICE_STATUS.WORKING;
-					delSvrTask.cancel(false);
-					showToast(ctx.getString(R.string.pushservice_deltags_failure));
-				}
+				break;
+			default:
+				break;
 			}
 		}
 	};
+	
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		switch (buttonView.getId()) {
+		case R.id.global_alarm:
+			globalAlarmButtonClick(buttonView, isChecked);
+			break;
+		case R.id.alarm_shake:
+			shakeButtonClick(buttonView, isChecked);
+			break;
+		case R.id.alarm_sound:
+			soundButtonClick(buttonView, isChecked);
+			break;
+		case R.id.alarm_user:
+			userAlarmButtonClick(buttonView, isChecked);
+			break;
+		}
+		
+		// 无特殊 设置，正常状态为true，表征操作是用户行为
+		isUserManul = true; 
+	}
+	
+	/*
+	 * 全局报警推送开关点击
+	 */
+	private void globalAlarmButtonClick(CompoundButton buttonView, boolean isChecked) {
+		// 如果网络连通，正常执行流程；否则，复位滑动开关状态
+		if (isNetworkAvalible()) {
+			if (isChecked) {
+				PushManager.startWork(ctx, PushConstants.LOGIN_TYPE_API_KEY,
+						Utils.getMetaValue(ctx.getApplicationContext(),
+								"api_key"));
+				showWaittingDialog("报警推送服务启动中...");
+			} else {
+				if (isUserManul) {
+					// 关闭时若服务不连通，可能导致onUnbind()不被回调，引起加载框无法消失
+					if (PushManager.isConnected(ctx)) {
+						PushManager.stopWork(ctx);
+						showWaittingDialog("报警推送服务关闭中...");
+					} else {
+						if (isUserManul) {
+							restoreButtonState((CheckSwitchButton)buttonView);   
+							showMessage("暂时无法关闭报警推送服务，请稍后再试！");
+						} else {
+							// 复位操作，不作处理
+						}
+					}
+				} else {
+					// 复位操作，不处理
+				}
+			}
+			
+		} else {
+			if (isUserManul) {
+				restoreButtonState((CheckSwitchButton)buttonView);  
+				showMessage("当前网络不可用，请检查网络设置");
+			} else {
+				// 复位操作，不处理
+			}
+		}
+	}
+	
+	/*
+	 * 震动开关点击
+	 */
+	private void shakeButtonClick(CompoundButton buttonView, boolean isChecked) {
+		if(isChecked){
+			txtShake.setText(getString(R.string.remind_shake_open));
+			Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+			long[] pattern = { 50, 200, 50, 200 };
+			vibrator.vibrate(pattern, -1);
+		}else{
+			txtShake.setText(getString(R.string.remind_shake_off));
+		}
+		saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_SHAKE, isChecked);
+	}
+	
+	/*
+	 * 声音开关点击
+	 */
+	private void soundButtonClick(CompoundButton buttonView, boolean isChecked) {
+		if(isChecked){
+			txtSound.setText(getString(R.string.remind_sound_open));
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					SnapshotSound s = new SnapshotSound(ctx);
+					s.playPushSetSound();
+				}
+			}).start();
+		}else{
+			txtSound.setText(getString(R.string.remind_sound_off));
+		}
+		saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_SOUND, isChecked);
+	}
+	
+	/*
+	 * 报警账户开关点击
+	 */
+	private void userAlarmButtonClick(CompoundButton buttonView, boolean isChecked) {
+		saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, isChecked);
+		// 如果网络连通，且全局推送开关开启，则触 发tag的注册或删除
+		if (isNetworkAvalible()) {
+			if (globalAlarmButton.isChecked()) {
+				// 若此时服务不连通，可能导致onSetTags/onDelTags无法被间接回调，导致加载框无法消失，需作处理
+				if (PushManager.isConnected(ctx)) {
+					PushManager.listTags(ctx);  // onListTags()被回调
+					showWaittingDialog(isChecked ? "报警账户接收开启中..." : "报警账户接收关闭中...");
+				} else {
+					if (isUserManul) {
+						restoreButtonState((CheckSwitchButton)buttonView); 
+						saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, !isChecked);
+						showMessage("暂时无法启动报警账户推送接收，请稍后再试！");
+					} else {
+						// 复位操作调用，不作处理
+					}
+				}
+			} else {
+				// 推送服务全局开关关闭，不作处理
+			}
+		} else {
+			if (isUserManul) {
+				restoreButtonState((CheckSwitchButton)buttonView);
+				saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, !isChecked);
+				showMessage("当前网络不可用，请检查网络设置");
+			} else {
+				// 复位操作调用，不作处理
+			}
+		}
+	}
 
+	/*
+	 * 还原开关状态（若原先为开启状态，则置回关闭状态；若碑为关闭状态，则置为开启状态）
+	 */
+	private void restoreButtonState(CompoundButton cb) {
+		isUserManul = false;
+		if (cb != null) {
+			cb.toggle();
+		}
+	}
+	
+	/*
+	 * 网络是否可用
+	 */
+	private boolean isNetworkAvalible() {
+		return NetWorkUtils.checkNetConnection(ctx);
+	}
+
+	private void showWaittingDialog(String msg){
+		waittingDialog = ProgressDialog.show(ctx, "", msg,  true, false);
+	}
+	
+	private void dismissWaittingDialog() {
+		if (waittingDialog != null && waittingDialog.isShowing()) {
+			waittingDialog.dismiss();
+		}
+	}
+	
+	private void showMessage(String s) {
+		Toast.makeText(ctx, s, Toast.LENGTH_LONG).show();
+	}
+	
+	private void saveAlarmConfig(String key, boolean value) {
+		if (StringUtils.isEquals(key, AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM)) {
+			txtGlobalAlarm.setText(value ? 
+					getString(R.string.notify_accept_open) : getString(R.string.notify_accept_off));
+		} if (StringUtils.isEquals(key, AlarmSettingUtils.ALARM_CONFIG_SHAKE)) {
+			txtShake.setText(value ? 
+					getString(R.string.remind_shake_open) : getString(R.string.remind_shake_off));
+		} if (StringUtils.isEquals(key, AlarmSettingUtils.ALARM_CONFIG_SOUND)) {
+			txtSound.setText(value ? 
+					getString(R.string.remind_sound_open) : getString(R.string.remind_sound_off));
+		} if (StringUtils.isEquals(key, AlarmSettingUtils.ALARM_CONFIG_USER_ALARM)) {
+			txtUserAlarm.setText(value ? 
+					getString(R.string.alarm_accept_open) : getString(R.string.alarm_accept_off));
+		}
+		
+		SharedPreferences config = ctx.getSharedPreferences(
+				AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
+		Editor editor = config.edit();
+		editor.putBoolean(key, value);
+		editor.commit();
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.alarmUserContainer:
+			Intent intent = new Intent(ctx, AlarmAccountsPreviewActivity.class);
+			startActivityForResult(intent, REQUESTCODE);
+			break;
+		case R.id.clearAlarmInfBtn:
+			jumpClearDialog();
+			break;
+		}
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -322,359 +538,17 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		if (content.length() >= 18) {
 			content = content.substring(0, 18) + "...";
 		}
-		tvAlarmUsers.setText(content);
+		txtAlarmUsers.setText(content);
+		
+		AlarmSettingUtils alarmSetting = AlarmSettingUtils.getInstance();
+		// 如果全局推送开关和报警账户推送开关都开启，则触发tag进行注册或删除
+		if (alarmSetting.isPushOpen() && alarmSetting.isUserAlarmOpen()) {
+			PushManager.listTags(ctx);
+		}
 		tags.clear();
 		getTags(accounts);
 	}
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-			AlarmReceiver.mActivity = null;
-			this.finish();
-		}
-		return true;
-	}
-
-	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		switch (buttonView.getId()) {
-		case R.id.csv_push:
-			boolean isOpen = NetWorkUtils.checkNetConnection(ctx);
-			if(!isOpen){
-				isAllAcc = !isChecked;
-				csvPush.setChecked(isAllAcc);
-				showToast(getString(R.string.pushservice_network_notopen));
-				if(!isAllAcc){
-					csvShake.setEnabled(false);
-					csvSound.setEnabled(false);
-					csvAlarmUserAccept.setEnabled(false);
-				}else{
-					csvShake.setEnabled(true);
-					csvSound.setEnabled(true);
-					csvAlarmUserAccept.setEnabled(true);
-				}
-				return;
-			}
-			if (!isActionSuccess) {
-				return;
-			}
-			if (isChecked) {
-				startSvrTask = new StartPushServiceTask();
-				startSvrTask.execute(new Object());
-			} else {
-				stopSvrTask = new StopPushServiceTask();
-				stopSvrTask.execute(new Object());
-			}
-			break;
-		case R.id.csv_push_shake:
-			isShake = isChecked;
-			if(isShake){
-				tvShake.setText(getString(R.string.remind_shake_open));
-				Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-				long[] pattern = { 50, 200, 50, 200 };
-				vibrator.vibrate(pattern, -1);
-			}else{
-				tvShake.setText(getString(R.string.remind_shake_off));
-			}
-			saveSharedPreference();
-			break;
-		case R.id.csv_push_sound:
-			isSound = isChecked;
-			if(isSound){
-				tvSound.setText(getString(R.string.remind_sound_open));
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						SnapshotSound s = new SnapshotSound(ctx);
-						s.playPushSetSound();
-					}
-				}).start();
-			}else{
-				tvSound.setText(getString(R.string.remind_sound_off));
-			}
-			saveSharedPreference();
-			break;
-		case R.id.csv_alarmuser_push:
-			isOpen = NetWorkUtils.checkNetConnection(ctx);
-			if(!isOpen){
-				isAcc = !isChecked;
-				csvAlarmUserAccept.setChecked(isAcc);
-				showToast(getString(R.string.pushservice_network_notopen));
-				return;
-			}
-			if((tags == null) || tags.equals("") || tags.size() == 0){
-				isAcc = !isChecked;
-				csvAlarmUserAccept.setChecked(isAcc);
-				showToast(ctx.getString(R.string.pushservice_alarmusr_null_open));
-				return;
-			}
-			
-			if (!isActionSuccess) {
-				return;
-			}
-			if (!isChecked) {
-				delSvrTask = new DelTagServiceTask();
-				delSvrTask.execute(new Object());
-			} else {
-				setSvrTask = new SetTagServiceTask();
-				setSvrTask.execute(new Object());
-			}
-			break;
-		}
-	}
-
-	private void openProgressDialogForPushService(String title){
-		pushServicePrg = ProgressDialog.show(ctx, "",title,  true, false);
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.alarmUserContainer:
-			Intent intent = new Intent(ctx, AlarmAccountsPreviewActivity.class);
-			startActivityForResult(intent, REQUESTCODE);
-			break;
-		case R.id.clearAlarmInfBtn:
-			jumpClearDialog();
-			break;
-		}
-	}
-	
-	private enum ACTION {
-		START_SERVICE,
-		STOP_SERVICE,
-		ADD_TAG,
-		DEL_TAG
-	}
-	
-	private ACTION currentAction;
-	private boolean isActionSuccess = true;  // 操作是否成功 
-	
-	private enum PUSH_SERVICE_STATUS {
-		INIT,	 // 初始
-		WORKING, // 工作中
-		STOP	 // 已停止
-	}
-	
-	private PUSH_SERVICE_STATUS serviceStatus = PUSH_SERVICE_STATUS.INIT;
-	private StartPushServiceTask startSvrTask;
-	private StopPushServiceTask stopSvrTask;
-	private SetTagServiceTask setSvrTask;
-	private DelTagServiceTask delSvrTask;
-	
-	public class SetTagServiceTask extends AsyncTask<Object, Object, Boolean>{
-
-		@Override
-		protected void onPreExecute() {
-			// 启动添加标签服务，同时显示加载框
-			currentAction = ACTION.ADD_TAG;
-			serviceStatus = PUSH_SERVICE_STATUS.INIT;
-			PushManager.setTags(ctx, tags);
-			openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_settags));
-		}
-		
-		@Override
-		protected Boolean doInBackground(Object... params) {
-			// 等待服务启动完成
-			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
-			Boolean startSuccess = true;
-			if (isCancelled()) {  // 被取消说明启动失败
-				startSuccess = false; 
-			}
-			return startSuccess;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			// 服务启动成功，onPostExecute正常调用 
-			isActionSuccess = true;
-			isAcc = true;
-			saveSharedPreference();
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-
-		@Override
-		protected void onCancelled(Boolean result) {// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
-			isActionSuccess = false;
-			isAcc = false;
-			saveSharedPreference();
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
-			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
-			csvAlarmUserAccept.setChecked(false); 
-			isActionSuccess = true;
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-	}
-	
-	public class DelTagServiceTask extends AsyncTask<Object, Object, Boolean>{
-
-		@Override
-		protected void onPreExecute() {
-			// 启动添加标签服务，同时显示加载框
-			currentAction = ACTION.DEL_TAG;
-			serviceStatus = PUSH_SERVICE_STATUS.INIT;
-			PushManager.delTags(ctx, tags);
-			openProgressDialogForPushService(ctx.getString(R.string.pushservice_alarmusr_deltags));
-		}
-		
-		@Override
-		protected Boolean doInBackground(Object... params) {
-			// 等待服务启动完成
-			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
-			Boolean startSuccess = true;
-			if (isCancelled()) {  // 被取消说明启动失败
-				startSuccess = false; 
-			}
-			return startSuccess;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			// 服务启动成功，onPostExecute正常调用 
-			isActionSuccess = true;
-			isAcc = false;
-			saveSharedPreference();
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_off));
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-
-		@Override
-		protected void onCancelled(Boolean result) {
-			// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
-			isAcc = true;
-			saveSharedPreference();
-			isActionSuccess = false;
-			tvAlarmUserAccept.setText(getString(R.string.alarm_accept_open));
-			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
-			csvAlarmUserAccept.setChecked(true); 
-			isActionSuccess = true;
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-	}
-	
-	public class StartPushServiceTask extends AsyncTask<Object, Object, Boolean> {
-		
-		@Override
-		protected void onPreExecute() {
-			// 启动推送服务，同时显示加载框
-			currentAction = ACTION.START_SERVICE;
-			serviceStatus = PUSH_SERVICE_STATUS.INIT;
-			PushManager.startWork(ctx, PushConstants.LOGIN_TYPE_API_KEY,Utils.getMetaValue(ctx.getApplicationContext(), "api_key"));
-			openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_openning));
-		}
-		
-		@Override
-		protected Boolean doInBackground(Object... params) {
-			// 等待服务启动完成
-			while (serviceStatus != PUSH_SERVICE_STATUS.WORKING && !isCancelled());
-			
-			Boolean startSuccess = true;
-			if (isCancelled()) {  // 被取消说明启动失败
-				startSuccess = false; 
-			}
-			return startSuccess;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			// 服务启动成功，onPostExecute正常调用 
-			isAllAcc = true;
-			saveSharedPreference();
-			isActionSuccess = true;
-			csvShake.setEnabled(true);
-			csvSound.setEnabled(true);
-			csvAlarmUserAccept.setEnabled(true);
-			tvPush.setText(getString(R.string.notify_accept_open));
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-
-		@Override
-		protected void onCancelled(Boolean result) {
-			// 服务启动失败，onPostExecute不被调用，onCancelled被调用 
-			isAllAcc = false;
-			saveSharedPreference();
-			isActionSuccess = false;
-			csvShake.setEnabled(false);
-			csvSound.setEnabled(false);
-			csvAlarmUserAccept.setEnabled(false);
-			tvPush.setText(getString(R.string.notify_accept_off));
-			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
-			csvPush.setChecked(false); 
-			isActionSuccess = true;
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-	}
-	
-	public class StopPushServiceTask extends AsyncTask<Object, Object, Boolean> {
-		
-		@Override
-		protected void onPreExecute() {
-			// 启动推送服务，同时显示加载框
-			currentAction = ACTION.STOP_SERVICE;
-			PushManager.stopWork(ctx);
-			openProgressDialogForPushService(ctx.getString(R.string.system_setting_pushservice_closing));
-		}
-		
-		@Override
-		protected Boolean doInBackground(Object... params) {
-			// 等待服务关闭完成
-			while (serviceStatus != PUSH_SERVICE_STATUS.STOP && !isCancelled());
-			Boolean stopSuccess = true;
-			if (isCancelled()) {  // 被取消说明关闭失败
-				stopSuccess = false; 
-			}
-			return stopSuccess;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			// 服务关闭成功，onPostExeceute正常调用
-			isAllAcc = false;
-			saveSharedPreference();
-			isActionSuccess = true;
-			csvShake.setEnabled(false);
-			csvSound.setEnabled(false);
-			csvAlarmUserAccept.setEnabled(false);
-			tvPush.setText(getString(R.string.notify_accept_off));
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-
-		@Override
-		protected void onCancelled(Boolean result) {
-			// 服务关闭失败，onPostExeceute不被调用，onCancelled被调用
-			isAllAcc = true;
-			saveSharedPreference();
-			isActionSuccess = false;
-			csvShake.setEnabled(true);
-			csvSound.setEnabled(true);
-			csvAlarmUserAccept.setEnabled(true);
-			
-			tvPush.setText(getString(R.string.notify_accept_open));
-			// 操作失败的时候，相应的onCheckedChanged事件处理会被屏蔽，按钮回复原始状态
-			csvPush.setChecked(true);
-			isActionSuccess = true;
-			
-			if(pushServicePrg!=null && pushServicePrg.isShowing()){
-				pushServicePrg.dismiss();
-			}
-		}
-	}
 	
 	private PhoneUIListener listener;
 	private boolean hasCalculateHeight = false;
@@ -685,22 +559,22 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements OnC
 		public void onGlobalLayout() {
 			if (!hasCalculateHeight) {
 				hasCalculateHeight = true;
-				int gtHeight = container_csvs1.getHeight();
-				LayoutParams csvLayout1 = container_csvs1.getLayoutParams();
+				int gtHeight = layout1.getHeight();
+				LayoutParams csvLayout1 = layout1.getLayoutParams();
 				csvLayout1.height = gtHeight;
-				container_csvs1.setLayoutParams(csvLayout1);
+				layout1.setLayoutParams(csvLayout1);
 				
-				LayoutParams csvLayout2 = container_csvs1.getLayoutParams();
+				LayoutParams csvLayout2 = layout1.getLayoutParams();
 				csvLayout2.height = gtHeight;
-				container_csvs2.setLayoutParams(csvLayout2);
+				layout2.setLayoutParams(csvLayout2);
 				
-				LayoutParams csvLayout3 = container_csvs3.getLayoutParams();
+				LayoutParams csvLayout3 = layout3.getLayoutParams();
 				csvLayout3.height = gtHeight;
-				container_csvs3.setLayoutParams(csvLayout3);
+				layout3.setLayoutParams(csvLayout3);
 				
-				LayoutParams csvLayout4 = container_csvs4.getLayoutParams();
+				LayoutParams csvLayout4 = layout4.getLayoutParams();
 				csvLayout4.height = gtHeight;
-				container_csvs4.setLayoutParams(csvLayout4);
+				layout4.setLayoutParams(csvLayout4);
 				
 				LayoutParams csvLayout5 = alarmUserContainer.getLayoutParams();
 				csvLayout5.height = gtHeight;

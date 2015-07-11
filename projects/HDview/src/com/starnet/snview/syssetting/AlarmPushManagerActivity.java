@@ -27,6 +27,7 @@ import android.widget.Button;
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
@@ -136,11 +137,11 @@ public class AlarmPushManagerActivity extends BaseActivity {
 		alarmUserListView = (CornerListView) findViewById(R.id.alarmUserListView);
 		alarmNotifyListView = (CornerListView) findViewById(R.id.alarmNotifyListView);
 		
-		sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-		isAcc = sp.getBoolean("isAccept", true);
-		isShake = sp.getBoolean("isShake", true);
-		isSound = sp.getBoolean("isSound", true);
-		isAllAcc = sp.getBoolean("isAllAccept", true);
+		sp = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, 0);
+		isAcc = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
+		isShake = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SHAKE, true);
+		isSound = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_SOUND, true);
+		isAllAcc = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
 
 		setAalarmNotifyAdapter();
 		setAlarmUserAdapter(isAcc,isShake,isSound,isAllAcc);

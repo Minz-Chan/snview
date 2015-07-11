@@ -41,7 +41,7 @@
         </LinearLayout>
 
         <com.starnet.snview.componet.switchbutton.CheckSwitchButton
-            android:id="@+id/csv_alarmuser_push"
+            android:id="@+id/alarm_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"

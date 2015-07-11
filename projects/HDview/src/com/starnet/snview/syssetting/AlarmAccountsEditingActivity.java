@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
@@ -61,7 +62,7 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 		pswdEdt = (EditText) findViewById(R.id.password_edt);
 		
 		tagList = new ArrayList<String>();
-		sps = ctx.getSharedPreferences("alarmAccounts", Context.MODE_PRIVATE);
+		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		tags = sps.getString("tags", "");
 		if (tags == null || tags.equals("")|| tags.length()==0) {
 			
@@ -171,30 +172,14 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 			String newTag = userName + password +"|false|setTags";//将要被注册
 			
 			for (int i = 0; i < tagList.size(); i++) {
-				String tt = tagList.get(i);
-				if (tt.contains(oldTagPart)) {
-					if (tt.contains("setTags")) {
-						tt = tt.replace("setTags", "delTags");
-						tagList.set(i, tt);
-					}
+				if (tagList.get(i).contains(oldTagPart)) {
+					tagList.set(i, newTag);
 					break;
 				}
 			}
 			
-			tagList.add(newTag);
-			
 			//重新组织tags
-			String tempTags = "";
-			int size = tagList.size();
-			if (size == 1) {
-				tempTags = tagList.get(0);
-			}else{
-				for (int i = 0; i < size-1; i++) {
-					tempTags = tagList.get(i) +"," + tempTags;
-				}
-				tempTags = tempTags + tagList.get(size-1);
-			}
-			sps.edit().putString("tags", tempTags).commit();
+			AlarmSettingUtils.getInstance().writeAlarmUserToXml(tagList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -231,9 +216,10 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				String newPasword = cla.getPassword();
 				if (!oldPasword.equals(newPasword)) {
 					putTagsToSharedPreference(cla);
-				}else {//修改当前账户的setTags改为delTags
-					updateTagsToSharedPreference();
 				}
+//				else {//修改当前账户的setTags改为delTags
+//					updateTagsToSharedPreference();
+//				}
 				
 				Intent data = new Intent();
 				data.putExtra("flag", "cover");
@@ -253,42 +239,41 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				});
 		builder.show();
 	}
-
-	protected void updateTagsToSharedPreference() {
-		try {
-			sps.edit().clear().commit();
-			///旧的标签
-			String oldUsername = originCA.getUsername();
-			String oldePassword = originCA.getPassword();
-			oldePassword = MD5Utils.createMD5(oldePassword);
-			String oldTagPart = oldUsername + oldePassword;//将要被注册
-			
-			for (int i = 0; i < tagList.size(); i++) {
-				String tt = tagList.get(i);
-				if (tt.contains(oldTagPart)) {
-					if (tt.contains("setTags")) {
-						tt = tt.replace("setTags", "delTags");
-						tagList.set(i, tt);
-					}
-					break;
-				}
-			}			
-			//重新组织tags
-			String tempTags = "";
-			int size = tagList.size();
-			if (size == 1) {
-				tempTags = tagList.get(0);
-			}else{
-				for (int i = 0; i < size-1; i++) {
-					tempTags = tagList.get(i) +"," + tempTags;
-				}
-				tempTags = tempTags + tagList.get(size-1);
-			}
-			sps.edit().putString("tags", tempTags).commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	private void updateTagsToSharedPreference() {
+//		try {
+//			sps.edit().clear().commit();
+//			///旧的标签
+//			String oldUsername = originCA.getUsername();
+//			String oldePassword = originCA.getPassword();
+//			oldePassword = MD5Utils.createMD5(oldePassword);
+//			String oldTagPart = oldUsername + oldePassword;//将要被注册
+//			
+//			for (int i = 0; i < tagList.size(); i++) {
+//				String tt = tagList.get(i);
+//				if (tt.contains(oldTagPart)) {
+//					if (tt.contains("setTags")) {
+//						tt = tt.replace("setTags", "delTags");
+//						tagList.set(i, tt);
+//					}
+//					break;
+//				}
+//			}			
+//			//重新组织tags
+//			String tempTags = "";
+//			int size = tagList.size();
+//			if (size == 1) {
+//				tempTags = tagList.get(0);
+//			}else{
+//				for (int i = 0; i < size-1; i++) {
+//					tempTags = tagList.get(i) +"," + tempTags;
+//				}
+//				tempTags = tempTags + tagList.get(size-1);
+//			}
+//			sps.edit().putString("tags", tempTags).commit();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	protected int checkIsNull() {
 		int index = -1;

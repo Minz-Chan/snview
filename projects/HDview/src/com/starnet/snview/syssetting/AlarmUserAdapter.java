@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
@@ -87,9 +88,9 @@ public class AlarmUserAdapter extends BaseAdapter{
 				csv_push.setChecked(false);
 			}
 
-			SharedPreferences sp = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
+			SharedPreferences sp = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, 0);
 			
-			boolean result = sp.getBoolean("isAllAccept", true);
+			boolean result = sp.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
 			if(result){
 				csv_push.setEnabled(true);
 			}else{
@@ -116,9 +117,9 @@ public class AlarmUserAdapter extends BaseAdapter{
 						return;
 					}
 					isClickFlag = isChecked;
-					SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+					SharedPreferences sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 					Editor editor = sps.edit();
-					editor.putBoolean("isAccept", isClickFlag);
+					editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, isClickFlag);
 					editor.commit();
 					try{		
 						if(isChecked){
@@ -232,9 +233,9 @@ public class AlarmUserAdapter extends BaseAdapter{
 				showToast(ctx.getString(R.string.pushservice_deltags_failure));
 			}
 			csv_push.setChecked(false);
-			SharedPreferences sps = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", Context.MODE_PRIVATE);
+			SharedPreferences sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 			Editor editor = sps.edit();
-			editor.putBoolean("isAccept", !isClickFlag);
+			editor.putBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, !isClickFlag);
 			editor.commit();
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.baidu.android.pushservice.PushManager;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 
@@ -149,9 +150,9 @@ public class AlarmPushSettingService extends Service {
 		// regOrDelSP = ctx.getSharedPreferences("PSXMLFILE", 0);
 		// isAccept = regOrDelSP.getBoolean("regOrDelSP", true);
 		if (ctx!=null) {
-			settingsSP = ctx.getSharedPreferences("ALARM_PUSHSET_FILE", 0);
-			isAccept = settingsSP.getBoolean("isAccept", true);
-			isAllAcc = settingsSP.getBoolean("isAllAccept", true);
+			settingsSP = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, 0);
+			isAccept = settingsSP.getBoolean(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, true);
+			isAllAcc = settingsSP.getBoolean(AlarmSettingUtils.ALARM_CONFIG_GLOBAL_ALARM, true);
 		}
 	}
 
