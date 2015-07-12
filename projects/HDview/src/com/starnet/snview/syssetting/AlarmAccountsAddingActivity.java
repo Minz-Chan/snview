@@ -72,7 +72,7 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 								tags = tags + "," + tag;
 							}
 							sps.edit().putString("tags", tags).commit();
-							
+							user.setPassword(password);
 							Intent intent = new Intent();
 							intent.putExtra("cover", false);
 							intent.putExtra("alarmUser", user);
@@ -117,15 +117,15 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 					}
 					tempTags = tempTags + tagList.get(sizes-1);
 					sps.edit().putString("tags", tempTags).commit();
+					cla.setPassword(pswd);
+					Intent data = new Intent();
+					data.putExtra("alarmUser", cla);
+					data.putExtra("cover", true);
+					setResult(ADDINGTCODE, data);
+					AlarmAccountsAddingActivity.this.finish();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-				Intent data = new Intent();
-				data.putExtra("alarmUser", cla);
-				data.putExtra("cover", true);
-				setResult(ADDINGTCODE, data);
-				AlarmAccountsAddingActivity.this.finish();
 			}
 		});
 		builder.show();

@@ -18,6 +18,7 @@ import android.widget.ListView;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
+import com.starnet.snview.util.MD5Utils;
 
 public class AlarmAccountsPreviewActivity extends BaseActivity {
 
@@ -172,11 +173,10 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 					int index = getIndexOfAlarmUser(user);
 					mAlarmUserList.set(index, user);//先覆盖
 					mAlarmUserList.remove(position);//再移除
-				}else{
+				}else{//仅仅修改了单击的用户
 					mAlarmUserList.set(position, user);
 				}
 				caAdapter.notifyDataSetChanged();
-				//spsOfTag.edit().clear().commit();
 				String tags = getNewTags();
 				spsOfTag.edit().putString("tags", tags).commit();
 			}
@@ -184,17 +184,21 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	}
 	private String getNewTags(){
 		String result = "";
-		int size = mAlarmUserList.size();
-		for (int i = 0; i < size-1; i++) {
-			AlarmUser user = mAlarmUserList.get(i);
-			String userName = user.getUserName();
-			String password = user.getPassword();
-			String tag = userName + password + "|" + userName.length() + ",";
-			result += tag;
-		}
-		AlarmUser user = mAlarmUserList.get(size-1);
-		String temp = user.getUserName() + user.getPassword() + "|"+user.getUserName().length();
-		result = result + temp;
+		
+			int size = mAlarmUserList.size();
+			for (int i = 0; i < size-1; i++) {
+				AlarmUser user = mAlarmUserList.get(i);
+				String userName = user.getUserName();
+				String password = user.getPassword();
+				
+				String tag = userName + password + "|" + userName.length() + ",";
+				result += tag;
+			}
+			AlarmUser user = mAlarmUserList.get(size-1);
+			String temp = user.getUserName() + user.getPassword() + "|"+user.getUserName().length();
+			result = result + temp;
+		
+		
 		return result;
 	}
 

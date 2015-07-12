@@ -82,31 +82,38 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 			public void onClick(View v) {
 				int index = checkIsNull();
 				if (index == -1) {
-					AlarmUser aA = getCloudAccount();
-					boolean isSame = checkISSame(originCA, aA);// 检测用户是否发生改变
-					if (isSame) {
-						AlarmAccountsEditingActivity.this.finish();
-					} else {// 用户信息发生改变的时候，要检测是用户名发生改变还是用户密码发生了改变
-						int inde = checkPswdOrUsernameChange(originCA, aA);// 1，代表用户名发生改变；2，代表密码发生改变
-						if (inde==1) {// 1代表用户名发生改变
-							if (isExistUser(aA)) {
-								jumpCoverDialog(aA);
-							} else {// 不存在与该用户同名的用户，直接替换原来的用户
-								putTagsToSharedPreference(aA);//先删除,后保存
+					try{
+						AlarmUser aA = getCloudAccount();
+						boolean isSame = checkISSame(originCA, aA);// 检测用户是否发生改变
+						if (isSame) {
+							AlarmAccountsEditingActivity.this.finish();
+						} else {// 用户信息发生改变的时候，要检测是用户名发生改变还是用户密码发生了改变
+							int inde = checkPswdOrUsernameChange(originCA, aA);// 1，代表用户名发生改变；2，代表密码发生改变
+							if (inde==1) {// 1代表用户名发生改变
+								if (isExistUser(aA)) {
+									jumpCoverDialog(aA);
+								} else {// 不存在与该用户同名的用户，直接替换原来的用户
+									putTagsToSharedPreference(aA);//先删除,后保存
+									String passWord = aA.getPassword();
+									passWord = MD5Utils.createMD5(passWord);
+									aA.setPassword(passWord);
+									Intent intent = new Intent();
+									intent.putExtra("position", pos);
+									intent.putExtra("claa", aA);
+									setResult(REQUESTCODE_EDIT, intent);
+									AlarmAccountsEditingActivity.this.finish();
+								}
+							}else if (inde==2) {
+								putTagsToSharedPreference(aA);
 								Intent intent = new Intent();
 								intent.putExtra("position", pos);
 								intent.putExtra("claa", aA);
 								setResult(REQUESTCODE_EDIT, intent);
 								AlarmAccountsEditingActivity.this.finish();
 							}
-						}else if (inde==2) {
-							putTagsToSharedPreference(aA);
-							Intent intent = new Intent();
-							intent.putExtra("position", pos);
-							intent.putExtra("claa", aA);
-							setResult(REQUESTCODE_EDIT, intent);
-							AlarmAccountsEditingActivity.this.finish();
 						}
+					}catch(Exception e){
+						
 					}
 				} else if (index == 1) {
 					showToast(getString(R.string.alarm_usernamenull));
@@ -190,6 +197,7 @@ private void replaceOriginTagWithNewTag(AlarmUser alarmUser) throws Exception{
 //		ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE).edit().clear().commit();
 		alarmSettingUtils.writeAlarmUserToXml(tagList);
 		
+		alarmUser.setPassword(newPassword);
 		Intent data = new Intent();
 		data.putExtra("flag", "cover");
 		data.putExtra("claa", alarmUser);
