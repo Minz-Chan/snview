@@ -135,7 +135,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_ok">确定</string>
     <string name="system_setting_alarm_pushset_port_null">端口号为空，请填充</string>
     <string name="system_setting_alarm_pushset_uName_null">用户名为空，请填充</string>
-    <string name="system_setting_about_build">Version 6.2.10 (Build 20150703)</string>
+    <string name="system_setting_about_build">Version 6.2.11 (Build 20150713)</string>
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
