@@ -1,6 +1,5 @@
 package com.starnet.snview.syssetting;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog.Builder;
@@ -12,34 +11,28 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
-import com.baidu.android.pushservice.PushManager;
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
-import com.starnet.snview.util.MD5Utils;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class AlarmAccountsPreviewActivity extends BaseActivity {
 
 	private Context ctx;
 	private ListView userListView;
-	private List<CloudAccount> mList;
 	private AlarmAccountsPreviewAdapter caAdapter;
 	private final int ADDINGTCODE = 0x0006;
 	private final int REQUESTCODE_ADD = 0x0003;
 	private final int REQUESTCODE_EDIT = 0x0004;
 
-//	private boolean isAlarmUserAccept;//报警账户接收标记，为true表示开启，false表示不开启
-//	private boolean isPushServiceAccept;//推送服务接收标记，为true表示开启，false表示不开启
-	
-	private String tags;
 	private List<String> tagList;
+	private AlarmUser clickAlarmUser;
 	private SharedPreferences spsOfTag;//用于管理tag 标签的SharedPreferences
+	private List<AlarmUser> mAlarmUserList;//保村报警账户的列表
+	private AlarmSettingUtils alarmSettingUtils;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +59,6 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 
 				Intent intent = new Intent();
 				intent.setClass(ctx, AlarmAccountsAddingActivity.class);
-				// intent.setClass(ctx, AlarmAccountsAddActivity.class);
 				startActivityForResult(intent, REQUESTCODE_ADD);
 			}
 		});
@@ -76,7 +68,8 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Intent intent = new Intent();
 				intent.putExtra("pos", position);
-				intent.putExtra("cla", mList.get(position));
+				clickAlarmUser = mAlarmUserList.get(position);
+				intent.putExtra("cla", clickAlarmUser);
 				intent.setClass(ctx, AlarmAccountsEditingActivity.class);
 				startActivityForResult(intent, REQUESTCODE_EDIT);
 			}
@@ -95,7 +88,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 	//删除的时候，需要注销掉标签
 	private void jumpDeleteDialog(int pos) {
 		Builder builder = new Builder(ctx);
-		String user = mList.get(pos).getUsername();
+		String user = mAlarmUserList.get(pos).getUserName();
 		String con = getString(R.string.system_setting_alarm_pushset_user_del);
 		String ok = getString(R.string.system_setting_alarm_pushset_user_del_ok);
 		String ca = getString(R.string.system_setting_alarm_pushset_user_del_cancel);
@@ -105,56 +98,31 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				//xml文档中删除标签,修改文档中的setTags 标签为delTags
+				//sharedPreference文档中删除标签
 				try {
-					String userName = mList.get(position).getUsername();
-					String paswd = mList.get(position).getPassword();
-					String tag = userName + MD5Utils.createMD5(paswd);
-					
+					String userName = mAlarmUserList.get(position).getUserName();
+					String paswd = mAlarmUserList.get(position).getPassword();
+					String tag = userName + paswd;
 					for (int i = 0; i < tagList.size(); i++) {
 						String tempTag = tagList.get(i);
-						if (tempTag.contains(tag)&&tempTag.contains("setTags")) {
+						if (tempTag.contains(tag)) {
 							tagList.remove(i);
 							break;
 						}
 					}
 					//先擦除，再重写
 					spsOfTag.edit().clear().commit();
-					AlarmSettingUtils.getInstance().writeAlarmUserToXml(tagList);
-					
+					alarmSettingUtils.writeAlarmUserToXml(tagList);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
-				new Thread(){
-					@Override
-					public void run() {
-						ReadWriteXmlUtils.deleteAlarmPushUserToXML(position);
-					}
-				}.start();
-								
-				mList.remove(position);
+				mAlarmUserList.remove(position);
 				caAdapter.notifyDataSetChanged();
 			}
 		});
 		builder.show();
 	}
-
-	protected void deleteTags(CloudAccount clA) {
-		try {
-			List<String> delTags = new ArrayList<String>();
-			delTags.add(clA.getUsername() + "" + MD5Utils.createMD5(clA.getPassword()));
-			PushManager.delTags(ctx, delTags);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
-	}
-
-	protected void showToast(String content) {
-		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
-	}
-
+	
 	private void initViews() {
 
 		super.hideExtendButton();
@@ -163,20 +131,18 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_alarmuser_preview));
+		spsOfTag = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
 		
-//		SharedPreferences sps = ctx.getSharedPreferences("", Context.MODE_PRIVATE);
-//		isAlarmUserAccept = sps.getBoolean("isAllAccept", false);
-//		isPushServiceAccept = sps.getBoolean("isAllAccept", false);
-
-		mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-		if (mList == null) {
-			mList = new ArrayList<CloudAccount>();
-		}
+		alarmSettingUtils = AlarmSettingUtils.getInstance();
+		alarmSettingUtils.setContext(ctx);
+		tagList = alarmSettingUtils.getAlarmUserTagsWithLength();
+		mAlarmUserList = alarmSettingUtils.getAlarmUsers();
 		
-		tagList = new ArrayList<String>();
-		getTagsList();
+		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mAlarmUserList);
+		userListView = (ListView) findViewById(R.id.userListView);
+		userListView.setAdapter(caAdapter);
 		
-		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mList);
+		caAdapter = new AlarmAccountsPreviewAdapter(ctx, mAlarmUserList);
 		userListView = (ListView) findViewById(R.id.userListView);
 		userListView.setAdapter(caAdapter);
 				
@@ -187,71 +153,60 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == ADDINGTCODE) {
 			if (data != null) {
-				CloudAccount ca = (CloudAccount) data.getSerializableExtra("alarmUser");
-				boolean cover = data.getBooleanExtra("cover", false);
-				if (!cover) {
-					ReadWriteXmlUtils.addAlarmPushUserToXML(ca);
-					mList.add(ca);
-					caAdapter.notifyDataSetChanged();
-				} else {
-					mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-					int index = 0;
-					for (int i = 0; i < mList.size(); i++) {
-						if (ca.getUsername().equals(mList.get(i).getUsername())) {
-							index = i;
-							mList.set(i, ca);
-							caAdapter.notifyDataSetChanged();
-							break;
-						}
-					}
-					ReadWriteXmlUtils.replaceAlarmPushUserToXML(ca, index);
+				boolean isCover = data.getBooleanExtra("cover", false);
+				AlarmUser user = data.getParcelableExtra("alarmUser");
+				if (isCover) {//需要覆盖
+					int index = getIndexOfAlarmUser(user);
+					mAlarmUserList.set(index, user);
+				}else{
+					mAlarmUserList.add(user);
 				}
+				caAdapter.notifyDataSetChanged();
 			}
 		} else if (resultCode == REQUESTCODE_EDIT) {//youd
 			if (data != null) {
-				CloudAccount da = (CloudAccount) data.getSerializableExtra("claa");
-				da.setEnabled(true);
-				int pos = data.getIntExtra("position", 0);
-				String flag = data.getStringExtra("flag");
-				if (flag != null && flag.equals("cover")) {// 表示需要替代
-					boolean cover = data.getBooleanExtra("cover", false);
-					if (cover) {// 表示需要覆盖
-						int ind = getIndex(da);
-						mList.set(ind, da);
-						ReadWriteXmlUtils.replaceAlarmPushUserToXML(da, ind);
-						mList.remove(pos);
-						ReadWriteXmlUtils.deleteAlarmPushUserToXML(pos);
-						caAdapter.notifyDataSetChanged();
-					}
-				} else if (flag == null) {
-					mList.set(pos, da);
-					caAdapter.notifyDataSetChanged();
+				boolean isCover = data.getBooleanExtra("cover", false);
+				int position = data.getIntExtra("position", 0);
+				AlarmUser user = data.getParcelableExtra("claa");
+				if(isCover){//覆盖其他的，删除当前的
+					int index = getIndexOfAlarmUser(user);
+					mAlarmUserList.set(index, user);//先覆盖
+					mAlarmUserList.remove(position);//再移除
+				}else{
+					mAlarmUserList.set(position, user);
 				}
+				caAdapter.notifyDataSetChanged();
+				spsOfTag.edit().clear().commit();
+				String tags = getNewTags();
+				spsOfTag.edit().putString("tags", tags).commit();
 			}
 		}
-		tagList.clear();
-		getTagsList();
 	}
-	/**获取推送标签**/
-	private void getTagsList() {
-		spsOfTag = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
-		tags = spsOfTag.getString("tags", "");
-		if (tags==null || tags.equals("") || tags.length()==0) {
-			
-		}else{
-			String[] tagStrings = tags.split(",");
-			for (int i = 0; i < tagStrings.length; i++) {
-				tagList.add(tagStrings[i]);
-			}
+	private String getNewTags(){
+		String result = "";
+		int size = mAlarmUserList.size();
+		for (int i = 0; i < size-1; i++) {
+			AlarmUser user = mAlarmUserList.get(i);
+			String userName = user.getUserName();
+			String password = user.getPassword();
+			String tag = userName + password + "|" + userName.length() + ",";
+			result += tag;
 		}
+		AlarmUser user = mAlarmUserList.get(size-1);
+		String temp = user.getUserName() + user.getPassword() + "|"+user.getUserName().length();
+		result = result + temp;
+		return result;
 	}
 
-	private int getIndex(CloudAccount da) {
-		for (int i = 0; i < mList.size(); i++) {
-			if (mList.get(i).getUsername().equals(da.getUsername())) {
-				return i;
+	private int getIndexOfAlarmUser(AlarmUser user) {
+		int index = 0;
+		int size = mAlarmUserList.size();
+		for (int i = 0; i < size; i++) {
+			if (mAlarmUserList.get(i).getUserName().equals(user.getUserName())) {
+				index = i;
+				break;
 			}
 		}
-		return 0;
+		return index;
 	}
 }

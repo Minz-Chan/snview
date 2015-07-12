@@ -1,6 +1,5 @@
 package com.starnet.snview.alarmmanager;
 
-import java.nio.channels.AlreadyConnectedException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,6 @@ import android.os.Message;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.baidu.android.pushservice.PushManager;
 import com.baidu.android.pushservice.PushMessageReceiver;
@@ -217,6 +215,14 @@ public class AlarmReceiver extends PushMessageReceiver {
 			schemeTags = AlarmSettingUtils.getInstance().getStarnetAccountsTags();
 		}
 		
+		if (schemeTags.size() ==  0) {
+			// 通知ui进行相应提示
+			Message msg = Message.obtain();
+			msg.what = SERVICE_RSP_SET_TAG;
+			msg.arg1 = FAILURE;
+			AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+			return;
+		}
 		
 		if (tags != null && tags.size() > 0) {
 			for (String schemeTag : schemeTags) {

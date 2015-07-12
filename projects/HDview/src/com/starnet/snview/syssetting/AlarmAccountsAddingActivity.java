@@ -1,6 +1,5 @@
 package com.starnet.snview.syssetting;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog.Builder;
@@ -15,9 +14,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class AlarmAccountsAddingActivity extends BaseActivity {
 
@@ -26,9 +25,12 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 	private EditText pswdExt;
 	private final int ADDINGTCODE = 0x0006;
 
+	private int indexSame;
 	private String tags;
-	private List<String>tagList;
+	private List<String>tagList;//用于保存所有的列表
 	private SharedPreferences sps;
+	private List<AlarmUser>userList;
+	private AlarmSettingUtils alarmSettingUtils;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,22 +54,18 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 				try {
 					int index = checkIsNull();
 					if (index == -1) {
-						CloudAccount user = new CloudAccount();
+						AlarmUser user = new AlarmUser();
 						String userName = userExt.getText().toString();
 						String password = pswdExt.getText().toString();
-						user.setUsername(userName);
+						user.setUserName(userName);
 						user.setPassword(password);
 						boolean isExist = checkIsExist(user);
 						if (isExist) {
-							jumpDialog(user);
+							jumpDialog(user);//替代用户
 						}else {
-							Intent intent = new Intent();
-							intent.putExtra("cover", false);
-							intent.putExtra("alarmUser", user);
-							
 							sps.edit().clear().commit();
 							password = MD5Utils.createMD5(password);
-							String tag = userName + password + "|false|setTags";
+							String tag = userName + password + "|"+userName.length();
 							if (tags == null || tags.equals("")||tags.length()==0) {
 								tags = tag;
 							}else{
@@ -75,9 +73,12 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 							}
 							sps.edit().putString("tags", tags).commit();
 							
+							Intent intent = new Intent();
+							intent.putExtra("cover", false);
+							intent.putExtra("alarmUser", user);
 							setResult(ADDINGTCODE, intent);
 							AlarmAccountsAddingActivity.this.finish();
-						}
+						}						
 					} else if (index == 1) {
 						showToast(getString(R.string.alarm_usernamenull));
 					} else if (index == 2) {
@@ -90,52 +91,32 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 		});
 	}
 	
-	private void jumpDialog(CloudAccount ca){
+	private void jumpDialog(AlarmUser ca){
 		Builder builder = new Builder(ctx);
 		builder.setTitle(R.string.system_setting_alarm_pushset_exist_cover);
 		String ok = getString(R.string.system_setting_alarm_pushset_builer_identify_add_ok);
 		String cancel = getString(R.string.system_setting_alarm_pushset_builer_identify_add_cance);
 		builder.setNegativeButton(cancel, null);
-		final CloudAccount cla = ca;
+		final AlarmUser cla = ca;
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				
 				try {
-					String userName = cla.getUsername();
+					String userName = cla.getUserName();
 					String pswd = cla.getPassword();
+					sps.edit().clear().commit();
+					pswd = MD5Utils.createMD5(pswd);//新的tag
+					String temp = userName + pswd + "|" + userName.length();
 					
-					if (!pswd.equals(existAccount.getPassword())) {
-						sps.edit().clear().commit();
-						//新的tag
-						pswd = MD5Utils.createMD5(pswd);
-						String temp = userName + pswd +"|false|setTags";//
-						//旧的tag
-						String oldUserName = existAccount.getUsername();
-						String oldPaswd = existAccount.getPassword();
-						oldPaswd = MD5Utils.createMD5(oldPaswd);
-						String oldTemp = oldUserName + oldPaswd;
-						int size = tagList.size();
-						for (int i = 0; i < size; i++) {
-							String tag = tagList.get(i);
-							if (tag.contains(oldTemp)) {
-								if (tag.contains("setTags")) {
-									tag = tag.replace("setTags", "delTags");
-									tagList.set(i, tag);
-								}
-								break;
-							}
-						}
-						//添加新的tags
-						tagList.add(temp);
-						int sizes = tagList.size();
-						String tempTags = "";
-						for (int i = 0; i < sizes-1; i++) {
-							tempTags = tagList.get(i) + "," + tempTags;
-						}
-						tempTags = tempTags + tagList.get(sizes-1);
-						sps.edit().putString("tags", tempTags).commit();
+					tagList.set(indexSame, temp);//替代旧的tag
+					int sizes = tagList.size();
+					String tempTags = "";
+					for (int i = 0; i < sizes - 1; i++) {
+						tempTags = tagList.get(i) + "," + tempTags;
 					}
+					tempTags = tempTags + tagList.get(sizes-1);
+					sps.edit().putString("tags", tempTags).commit();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -152,17 +133,18 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 	
 	private CloudAccount existAccount;
 	
-	private boolean checkIsExist(CloudAccount user){
+	private boolean checkIsExist(AlarmUser user){
 		boolean isExist = false;
-		List<CloudAccount>userList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-		if (userList!=null) {
-			for (int i = 0; i < userList.size(); i++) {
-				String uName = userList.get(i).getUsername();
-				if (uName.equals(user.getUsername())) {
-					isExist = true;
-					existAccount = userList.get(i);
-					break;
-				}
+		if (tags == null || tags.equals("")) {
+			return false;
+		}
+		int userSize = userList.size();
+		for (int i = 0; i < userSize; i++) {
+			AlarmUser tempUser = userList.get(i);
+			if (user.getUserName().equals(tempUser.getUserName())) {
+				isExist = true;
+				indexSame = i;
+				break;
 			}
 		}
 		return isExist;
@@ -197,20 +179,12 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_pushset_alarmuser));
 		
-		tagList = new ArrayList<String>();
-		sps = ctx.getSharedPreferences("alarmAccounts", Context.MODE_PRIVATE);
+		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
+		alarmSettingUtils = AlarmSettingUtils.getInstance();
+		alarmSettingUtils.setContext(ctx);
+		
 		tags = sps.getString("tags", "");
-		if (tags == null || tags.equals("") || tags.length() == 0) {
-			
-		}else{
-			if (tags.contains(",")) {
-				String result[] = tags.split(",");
-				for (int i = 0; i < result.length; i++) {
-					tagList.add(result[i]);
-				}
-			}else {
-				tagList.add(tags);
-			}
-		}
+		userList = alarmSettingUtils.getAlarmUsers();
+		tagList = alarmSettingUtils.getAlarmUserTagsWithLength();
 	}
 }

@@ -3,6 +3,7 @@ package com.starnet.snview.alarmmanager;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.starnet.snview.syssetting.AlarmUser;
 import com.starnet.snview.syssetting.CloudAccount;
 import com.starnet.snview.syssetting.CloudAccountAddingActivity;
 import com.starnet.snview.util.MD5Utils;
@@ -19,6 +20,7 @@ public class AlarmSettingUtils {
 	public static final String ALARM_CONFIG_SHAKE = "SHAKE_SWITCH";
 	public static final String ALARM_CONFIG_SOUND = "SOUND_SWITCH";
 	public static final String ALARM_CONFIG_USER_ALARM = "USER_ALARM_SWITCH";
+	public static final String ALARMUSER_PUSH_FILENAME = "ALARM_PUSHSET_FILE";
 	
 	private static SharedPreferences alarmConfig;
 	private static AlarmSettingUtils singleInstance;
@@ -114,6 +116,47 @@ public class AlarmSettingUtils {
 		
 		return tags;
 	}
+	
+	/*
+	 * 获取报警账户tag列表（tag=用户名+32位小写md5密码）,为空的时候，返回一个size=0的列表
+	 */
+	public List<String> getAlarmUserTagsWithLength() {
+		List<String> result = new ArrayList<String>();
+		String tag = alarmConfig.getString("tags", "");
+		if (tag != null && tag.length() > 0) {
+			String[] tags = tag.split(",");
+			int tagLen = tags.length;
+			for (int i = 0; i < tagLen; i++) {
+				result.add(tags[i]);
+			}
+		}
+		return result;
+	}
+	/*****
+	 * 获取报警账户列表,为空的时候，返回一个size=0的列表
+	 * @return
+	 */
+	public List<AlarmUser> getAlarmUsers(){
+		List<AlarmUser> result = new ArrayList<AlarmUser>();
+		String tag = alarmConfig.getString("tags", "");
+		if (tag == null || tag.equals("") || tag.length() ==0) {
+			return result;
+		}else{
+			String []tempTag = tag.split(",");
+			int tempLen = tempTag.length;
+			for (int i = 0; i < tempLen; i++) {
+				String userTag[] = tempTag[i].split("\\|");
+				int userNameLen = Integer.valueOf(userTag[1]);
+				String userName = userTag[0].substring(0,userNameLen);
+				String password = userTag[0].substring(userNameLen);
+				AlarmUser user = new AlarmUser();
+				user.setUserName(userName);
+				user.setPassword(password);
+				result.add(user);
+			}
+		}
+		return result;
+	}
 
 	/*
 	 * 获取报警账户tag列表（tag=用户名+32位小写md5密码）,为空的时候，返回一个size=0的列表
@@ -123,21 +166,17 @@ public class AlarmSettingUtils {
 		String tag = alarmConfig.getString("tags", "");
 		if (tag != null && tag.length() > 0) {
 			String[] tags = tag.split(",");
-			for (int i = 0; i < tags.length; i++) {
-				if (tags[i].contains("|false")&&tags[i].contains("|setTags")&&!tags[i].contains("|delTags")) {
-					tags[i] = tags[i].replace("|false", "");
-					tags[i] = tags[i].replace("|setTags", "");
-					if (!checkTagContained(tags[i], result)) {
-						result.add(tags[i]);
-					}
-				}
+			int tagLen = tags.length;
+			for (int i = 0; i < tagLen; i++) {
+				String []tempTag = tags[i].split("\\|");
+				result.add(tempTag[0]);
 			}
 		}
+		return result;
 		// TODO mock数据，release时删除
 //		result.add("minze10adc3949ba59abbe56e057f20f883e");
 //		result.add("aaaae10adc3949ba59abbe56e057f20f883e");
 //		result.add("bbbbe10adc3949ba59abbe56e057f20f883e");
-		return result;
 	}
 
 	// 检测result列表中是否已经包含该报警账户
@@ -208,5 +247,12 @@ public class AlarmSettingUtils {
 			tempTags = tempTags + tags.get(size-1);
 		}
 		alarmConfig.edit().putString("tags", tempTags).commit();
+	}
+	
+	public void setContext(Context context){
+		if (context == null) {
+			throw new NullPointerException("Context can't be null.");
+		}
+		alarmConfig = context.getSharedPreferences(ALARMUSER_PUSH_FILENAME,Context.MODE_PRIVATE);
 	}
 }

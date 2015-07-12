@@ -1,6 +1,5 @@
 package com.starnet.snview.syssetting;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog.Builder;
@@ -18,23 +17,22 @@ import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.util.MD5Utils;
-import com.starnet.snview.util.ReadWriteXmlUtils;
 
 public class AlarmAccountsEditingActivity extends BaseActivity {
 
-	//“why********|false|delTags”,“zhao********|false|setTags”,“hongxu********|true|setTags”
+	//“why********|3”,“zhao********|4”,“hongxu********|6”
 	
 	private int pos;
 	private Context ctx;
 	private EditText userEdt;
 	private EditText pswdEdt;
-	private CloudAccount originCA;
-	private List<CloudAccount> mList;
+	private AlarmUser originCA;
 	private final int REQUESTCODE_EDIT = 0x0004;
 	
-	private String tags;
 	private List<String>tagList;
 	private SharedPreferences sps;
+	private List<AlarmUser>alarmUserList;
+	private AlarmSettingUtils alarmSettingUtils;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,32 +54,20 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 
 		Intent intent = getIntent();
 		pos = intent.getIntExtra("pos", 0);
-		originCA = (CloudAccount) intent.getSerializableExtra("cla");
+		originCA = (AlarmUser) intent.getParcelableExtra("cla");
 
 		userEdt = (EditText) findViewById(R.id.user_edt);
 		pswdEdt = (EditText) findViewById(R.id.password_edt);
+		userEdt.setText(originCA.getUserName());
 		
-		tagList = new ArrayList<String>();
-		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
-		tags = sps.getString("tags", "");
-		if (tags == null || tags.equals("")|| tags.length()==0) {
-			
-		}else {
-			String[] result = tags.split(",");
-			for (int i = 0; i < result.length; i++) {
-				tagList.add(result[i]);
-			}
-		}
-
-		mList = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-		showContent();
+		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
+		alarmSettingUtils = AlarmSettingUtils.getInstance();
+		alarmSettingUtils.setContext(ctx);
+		tagList = alarmSettingUtils.getAlarmUserTagsWithLength();
+		alarmUserList = alarmSettingUtils.getAlarmUsers();
 
 	}
 
-	private void showContent() {
-		userEdt.setText(originCA.getUsername());
-		pswdEdt.setText(originCA.getPassword());
-	}
 
 	private void setListeners() {
 		super.getLeftButton().setOnClickListener(new OnClickListener() {
@@ -96,7 +82,7 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 			public void onClick(View v) {
 				int index = checkIsNull();
 				if (index == -1) {
-					CloudAccount aA = getCloudAccount();
+					AlarmUser aA = getCloudAccount();
 					boolean isSame = checkISSame(originCA, aA);// 检测用户是否发生改变
 					if (isSame) {
 						AlarmAccountsEditingActivity.this.finish();
@@ -106,10 +92,7 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 							if (isExistUser(aA)) {
 								jumpCoverDialog(aA);
 							} else {// 不存在与该用户同名的用户，直接替换原来的用户
-								
 								putTagsToSharedPreference(aA);//先删除,后保存
-								
-								ReadWriteXmlUtils.replaceAlarmPushUserToXML(aA, pos);
 								Intent intent = new Intent();
 								intent.putExtra("position", pos);
 								intent.putExtra("claa", aA);
@@ -117,10 +100,7 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 								AlarmAccountsEditingActivity.this.finish();
 							}
 						}else if (inde==2) {
-							
 							putTagsToSharedPreference(aA);
-							
-							ReadWriteXmlUtils.replaceAlarmPushUserToXML(aA, pos);
 							Intent intent = new Intent();
 							intent.putExtra("position", pos);
 							intent.putExtra("claa", aA);
@@ -135,9 +115,9 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				}
 			}
 
-			private int checkPswdOrUsernameChange(CloudAccount originCA, CloudAccount aA) {
+			private int checkPswdOrUsernameChange(AlarmUser originCA, AlarmUser aA) {
 				int index = -1;
-				if (!originCA.getUsername().equals(aA.getUsername())) {
+				if (!originCA.getUserName().equals(aA.getUserName())) {
 					index = 1;
 				} else if (!originCA.getPassword().equals(aA.getPassword())) {
 					index = 2;
@@ -145,89 +125,32 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				return index;
 			}
 
-			private boolean checkISSame(CloudAccount orCA, CloudAccount aA) {
-				if (orCA.getUsername().equals(aA.getUsername())
-						&& (orCA.getPassword().equals(aA.getPassword()))) {
+			private boolean checkISSame(AlarmUser orCA, AlarmUser aA) {
+				if (orCA.getUserName().equals(aA.getUserName()) && (orCA.getPassword().equals(aA.getPassword()))) {
 					return true;
 				} else {
 					return false;
 				}
 			}
+			
 		});
 	}
 	
-	/**替换原来的用户，先删除后保存**/
-	private void putTagsToSharedPreference(CloudAccount aA) {
-		try {
-			sps.edit().clear().commit();
-			///旧的标签
-			String oldUsername = originCA.getUsername();
-			String oldePassword = originCA.getPassword();
-			oldePassword = MD5Utils.createMD5(oldePassword);
-			String oldTagPart = oldUsername + oldePassword;
-			///新的标签
-			String userName = aA.getUsername();
-			String password = aA.getPassword();
-			password = MD5Utils.createMD5(password);
-			String newTag = userName + password +"|false|setTags";//将要被注册
-			
-			for (int i = 0; i < tagList.size(); i++) {
-				if (tagList.get(i).contains(oldTagPart)) {
-					tagList.set(i, newTag);
-					break;
-				}
-			}
-			
-			//重新组织tags
-			AlarmSettingUtils.getInstance().writeAlarmUserToXml(tagList);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
-	private boolean isExistUser(CloudAccount aA) {
-		boolean isExist = false;
-		int size = mList.size();
-		for (int i = 0; i < size; i++) {
-			CloudAccount tA = mList.get(i);
-			if (aA.getUsername().equals(tA.getUsername())) {
-				isExist = true;
-				existAccount = tA;
-				break;
-			}
-		}
-		return isExist;
-	}
-
-	private void jumpCoverDialog(CloudAccount ca) {
+	private void jumpCoverDialog(AlarmUser ca) {
 		Builder builder = new Builder(ctx);
 		builder.setTitle(R.string.system_setting_alarm_pushset_exist_cover);
 		String ok = getString(R.string.system_setting_alarm_pushset_builer_identify_add_ok);
 		String cancel = getString(R.string.system_setting_alarm_pushset_builer_identify_add_cance);
-		final CloudAccount cla = ca;
+		final AlarmUser cla = ca;
 		builder.setPositiveButton(ok, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				
-				//cla 为新账户，被替换账户，则为orginCA
-//				单独考虑(用户存在的话，先检测密码是否改变，密码若是未变化，则不需要改动；密码变化，则改动)
-				String oldPasword = existAccount.getPassword();//xiangtongzhanghu 
-				String newPasword = cla.getPassword();
-				if (!oldPasword.equals(newPasword)) {
-					putTagsToSharedPreference(cla);
+				//先删除原来的用户
+				try {
+					replaceOriginTagWithNewTag(cla);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-//				else {//修改当前账户的setTags改为delTags
-//					updateTagsToSharedPreference();
-//				}
-				
-				Intent data = new Intent();
-				data.putExtra("flag", "cover");
-				data.putExtra("claa", cla);
-				data.putExtra("cover", true);
-				data.putExtra("position", pos);
-				setResult(REQUESTCODE_EDIT, data);
-				AlarmAccountsEditingActivity.this.finish();
 			}
 		});
 		builder.setNegativeButton(cancel,
@@ -239,42 +162,68 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 				});
 		builder.show();
 	}
-//	private void updateTagsToSharedPreference() {
-//		try {
-//			sps.edit().clear().commit();
-//			///旧的标签
-//			String oldUsername = originCA.getUsername();
-//			String oldePassword = originCA.getPassword();
-//			oldePassword = MD5Utils.createMD5(oldePassword);
-//			String oldTagPart = oldUsername + oldePassword;//将要被注册
-//			
-//			for (int i = 0; i < tagList.size(); i++) {
-//				String tt = tagList.get(i);
-//				if (tt.contains(oldTagPart)) {
-//					if (tt.contains("setTags")) {
-//						tt = tt.replace("setTags", "delTags");
-//						tagList.set(i, tt);
-//					}
-//					break;
-//				}
-//			}			
-//			//重新组织tags
-//			String tempTags = "";
-//			int size = tagList.size();
-//			if (size == 1) {
-//				tempTags = tagList.get(0);
-//			}else{
-//				for (int i = 0; i < size-1; i++) {
-//					tempTags = tagList.get(i) +"," + tempTags;
-//				}
-//				tempTags = tempTags + tagList.get(size-1);
-//			}
-//			sps.edit().putString("tags", tempTags).commit();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 
+private void replaceOriginTagWithNewTag(AlarmUser alarmUser) throws Exception{
+		
+		String oldUserName = originCA.getUserName();
+		String oldPassword = originCA.getPassword();
+		String oldTag = oldUserName + oldPassword + "|" + oldUserName.length();
+		tagList.remove(oldTag);//移除单击时的报警账户
+		
+		String newUserName = alarmUser.getUserName();
+		String newPassword = alarmUser.getPassword();
+		newPassword = MD5Utils.createMD5(newPassword);
+		String newTag = newUserName + newPassword + "|"+ newUserName.length();
+		
+		int size = tagList.size();
+		for (int i = 0; i < size; i++) {
+			String tag = tagList.get(i);
+			String tempTag[] = tag.split("\\|");			
+			int userNameLen = Integer.valueOf(tempTag[1]);
+			String userName = tempTag[0].substring(0, userNameLen);
+			if (userName.equals(alarmUser.getUserName())) {
+				tagList.set(i, newTag);
+				break;
+			}
+		}
+		
+		ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).edit().clear().commit();
+		alarmSettingUtils.writeAlarmUserToXml(tagList);
+		
+		Intent data = new Intent();
+		data.putExtra("flag", "cover");
+		data.putExtra("claa", alarmUser);
+		data.putExtra("cover", true);
+		data.putExtra("position", pos);
+		setResult(REQUESTCODE_EDIT, data);
+		AlarmAccountsEditingActivity.this.finish();
+	}
+	
+	/**替换原来的用户，先删除后保存**/
+	private void putTagsToSharedPreference(AlarmUser aA) {
+		try {
+			sps.edit().clear().commit();
+			///旧的标签
+			String oldUsername = originCA.getUserName();
+			String oldePassword = originCA.getPassword();
+			String oldTagPart = oldUsername + oldePassword;
+			///新的标签
+			String userName = aA.getUserName();
+			String password = aA.getPassword();
+			password = MD5Utils.createMD5(password);
+			String newTag = userName + password + "|" + userName.length();//将要被注册
+			for (int i = 0; i < tagList.size(); i++) {
+				if (tagList.get(i).contains(oldTagPart)) {
+					tagList.set(i, newTag);
+					break;
+				}
+			}
+			//重新组织tags
+			alarmSettingUtils.writeAlarmUserToXml(tagList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	protected int checkIsNull() {
 		int index = -1;
 		String userName = userEdt.getText().toString().trim();
@@ -294,15 +243,26 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 		Toast.makeText(ctx, content, Toast.LENGTH_SHORT).show();
 	}
 	
-	private CloudAccount existAccount;
+	private boolean isExistUser(AlarmUser aA) {
+		boolean isExist = false;
+		int size = alarmUserList.size();
+		for (int i = 0; i < size; i++) {
+			AlarmUser tA = alarmUserList.get(i);
+			if (aA.getUserName().equals(tA.getUserName())) {
+				isExist = true;
+				break;
+			}
+		}
+		return isExist;
+	}
 
 	/** 获取增加标签的账户 **/
-	private CloudAccount getCloudAccount() {
-		CloudAccount account = new CloudAccount();
+	private AlarmUser getCloudAccount() {
+		AlarmUser account = new AlarmUser();
 		String pswd = pswdEdt.getText().toString();
 		String uNam = userEdt.getText().toString();
 		account.setPassword(pswd);
-		account.setUsername(uNam);
+		account.setUserName(uNam);
 		return account;
 	}
 }

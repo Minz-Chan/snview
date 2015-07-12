@@ -38,7 +38,6 @@ import com.starnet.snview.alarmmanager.Utils;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.SnapshotSound;
 import com.starnet.snview.componet.switchbutton.CheckSwitchButton;
-import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
 import com.starnet.snview.util.ReadWriteXmlUtils;
 import com.starnet.snview.util.StringUtils;
@@ -50,8 +49,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 	
 	private Context ctx;
 	public static final int REQUESTCODE = 0x0001;
-
-
+	
 	private boolean isGlobalAlarmOpen;
 	private boolean isShakeOpen;
 	private boolean isSoundOpen;
@@ -76,7 +74,9 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 	private RelativeLayout layout4;
 	private RelativeLayout alarmUserContainer;
 	
-	private List<String> tags = new ArrayList<String>();
+	private AlarmSettingUtils alarmSettingUtils;
+	private List<String> tags = new ArrayList<String>();//保存从本地的报警账户标签
+	private List<AlarmUser> userList = new ArrayList<AlarmUser>();//报警账户列表
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -201,50 +201,52 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 		listener = new PhoneUIListener();
 		layout0.getViewTreeObserver().addOnGlobalLayoutListener(listener);
 		
+		alarmSettingUtils = AlarmSettingUtils.getInstance();
+		alarmSettingUtils.setContext(ctx);
 		String content = "";
-		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-		if (accounts != null && accounts.size() > 0) {
-			for (int i = 0; i < accounts.size(); i++) {
-				if (i != (accounts.size() - 1)) {
-					String result = accounts.get(i).getUsername() + ",";
-					content += result;
-				} else {
-					String result = accounts.get(i).getUsername();
-					content += result;
-				}
+		//使用SharedPreference去维护报警账户信息
+		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).getString("tags", "");
+		if(tagString==null || tagString.equals("") || tagString.length()==0){
+			content = getString(R.string.pushservice_alarmusr_null);
+		}else{
+			content = getTagsContent(content, tagString);
+			if (content.length() >= 18) {
+				content = content.substring(0, 18) + "...";
 			}
 		}
-		if (content.length() >= 18) {
-			content = content.substring(0, 18) + "...";
-		}
 		txtAlarmUsers.setText(content);
-		getTags(accounts);
-		
-		// 同步至SharedPreference配置中
-		AlarmSettingUtils.getInstance().writeAlarmUserToXml(tags);
+		alarmSettingUtils.writeAlarmUserToXml(tags);// 同步至SharedPreference配置中
 		
 	}
 	
-	private void getTags(List<CloudAccount> accounts){
-		try {
-			if (accounts != null && accounts.size() > 0) {
-				for (int i = 0; i < accounts.size() - 1; i++) {
-					String userName = accounts.get(i).getUsername();
-					String paswd = accounts.get(i).getPassword();
-					paswd = MD5Utils.createMD5(paswd);
-					String result = userName + paswd;
-					tags.add(result);
+	private String getTagsContent(String content, String tagString) {
+		if (tagString == null || tagString.equals("") || tagString.length() == 0) { }else {
+			String []tempTag = tagString.split(",");
+			int tempTagLength = tempTag.length;
+			for (int i = 0; i < tempTagLength; i++) {
+				
+				tags.add(tempTag[i]);
+				
+				String []tag = tempTag[i].split("\\|");
+				
+				int length = Integer.valueOf(tag[1]);
+				AlarmUser user = new AlarmUser();
+				String userName = tag[0].substring(0, length);
+				String passWord = tag[0].substring(length);
+				user.setUserName(userName);
+				user.setPassword(passWord);
+				userList.add(user);
+				if (i == tempTag.length-1) {
+					content += userName;
+				}else{
+					content += (userName+",");
 				}
-				String userName = accounts.get(accounts.size() - 1).getUsername();
-				String paswd = accounts.get(accounts.size() - 1).getPassword();
-				paswd = MD5Utils.createMD5(paswd);
-				String result = userName + paswd;
-				tags.add(result);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		return content;
 	}
+	
+	
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -523,20 +525,14 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		String content = "";
-		List<CloudAccount> accounts = ReadWriteXmlUtils.getAlarmPushUsersFromXML();
-		if (accounts != null && accounts.size() > 0) {
-			for (int i = 0; i < accounts.size(); i++) {
-				if (i != (accounts.size() - 1)) {
-					String result = accounts.get(i).getUsername() + ",";
-					content += result;
-				} else {
-					String result = accounts.get(i).getUsername();
-					content += result;
-				}
+		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).getString("tags", "");
+		if(tagString == null || tagString.equals("") || tagString.length()==0){
+			content = getString(R.string.pushservice_alarmusr_null);
+		}else{
+			content = getTagsContent(content, tagString);
+			if (content.length() >= 18) {
+				content = content.substring(0, 18) + "...";
 			}
-		}
-		if (content.length() >= 18) {
-			content = content.substring(0, 18) + "...";
 		}
 		txtAlarmUsers.setText(content);
 		
@@ -545,8 +541,6 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 		if (alarmSetting.isPushOpen() && alarmSetting.isUserAlarmOpen()) {
 			PushManager.listTags(ctx);
 		}
-		tags.clear();
-		getTags(accounts);
 	}
 
 	

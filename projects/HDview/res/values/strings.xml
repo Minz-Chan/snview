@@ -170,6 +170,7 @@
     <string name="device_manager_online_en">(在线)</string>
     <string name="device_manager_offline_en">(离线)</string>
     
+    <string name="pushservice_alarmusr_null">报警账户为空，单击此处添加报警接收账户</string>
     <string name="pushservice_alarmusr_settags">报警账户接收注册中，请等待&#8230;</string>
     <string name="pushservice_alarmusr_deltags">报警账户接收注销中，请等待&#8230;</string>
     <string name="pushservice_alarmusr_null_open">报警账户为空，请添加接收账户后在启动接收功能</string>
@@ -336,6 +337,7 @@
     <string name="alarm_videoload_wait">视频正在下载，请等待&#8230;</string>
     <string name="alarm_img_load_fail">图片下载失败，请稍后重试&#8230;</string>
     <string name="alarm_img_load_timeout">访问超时，请检查网络是否畅通</string>
+    <string name="alarm_user_please_input_newpassword_hint">请输入新的密码</string>
     <string name="playback_channel">通道</string>
     <string name="playback_click_start_scan">开始回放</string>
     <string name="playback_setting_end_time">结束时间</string>

@@ -15,10 +15,10 @@ import android.widget.TextView;
 public class AlarmAccountsPreviewAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private List<CloudAccount> mUserList;
+	private List<AlarmUser> mUserList;
 	private LayoutInflater mLayoutInflater;
 
-	public AlarmAccountsPreviewAdapter(Context context, List<CloudAccount> mUserList) {
+	public AlarmAccountsPreviewAdapter(Context context, List<AlarmUser> mUserList) {
 		this.mContext = context;
 		this.mUserList = mUserList;
 		this.mLayoutInflater = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
@@ -51,20 +51,13 @@ public class AlarmAccountsPreviewAdapter extends BaseAdapter {
 			convertView = mLayoutInflater.inflate(
 					R.layout.cloudaccount_listview_item_layout, null);
 		}
-		CloudAccount item = mUserList.get(position);
+		AlarmUser item = mUserList.get(position);
 		TextView caTitleName = (TextView) convertView
 				.findViewById(R.id.cloudaccount_item_name);
-		caTitleName.setText(item.getUsername());
+		caTitleName.setText(item.getUserName());
 		ImageView itemIcon = (ImageView) convertView
 				.findViewById(R.id.imageView_user_photo);
 		itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-		if (item.isEnabled()) {
-			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-		} else {
-			itemIcon.setBackgroundResource(R.drawable.user_photo_select);
-			// itemIcon.setBackgroundResource(R.drawable.user_photo_noused);
-		}
 		return convertView;
 	}
-
 }
