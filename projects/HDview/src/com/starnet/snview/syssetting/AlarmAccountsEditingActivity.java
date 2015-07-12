@@ -105,6 +105,9 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 								}
 							}else if (inde==2) {
 								putTagsToSharedPreference(aA);
+								String passWord = aA.getPassword();
+								passWord = MD5Utils.createMD5(passWord);
+								aA.setPassword(passWord);
 								Intent intent = new Intent();
 								intent.putExtra("position", pos);
 								intent.putExtra("claa", aA);
