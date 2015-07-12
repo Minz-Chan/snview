@@ -68,8 +68,11 @@ public class AlarmReceiver extends PushMessageReceiver {
 	public static final int SERVICE_RSP_STOP = 0x99990002;
 	public static final int SERVICE_RSP_SET_TAG = 0x99990003;
 	public static final int SERVICE_RSP_DEL_TAG = 0x99990004;
+	public static final int SERVICE_RSP_NULL_ALARM_TAGLIST = 0x99990005;
 	
-	private boolean callFromBind = false;
+	// 当onSetTags()或onDelTags()的触发 非用户间接触发时，此值为true
+	private boolean callFromInternal = false;
+	
 	/**
 	 * 调用PushManager.startWork后，sdk将对push
 	 * server发起绑定请求，这个过程是异步的。绑定请求的结果通过onBind返回。 如果您需要用单播推送，需要把这里获取的channel
@@ -101,7 +104,7 @@ public class AlarmReceiver extends PushMessageReceiver {
 			// 更新服务状态
 			serviceOpenStatus = true;
 			
-			callFromBind = true;
+			callFromInternal = true;
 			PushManager.listTags(context); // 触发onListTags()进行注册或删除
 		} else {
 			// 更新服务状态
@@ -113,27 +116,6 @@ public class AlarmReceiver extends PushMessageReceiver {
 		msg.what = SERVICE_RSP_START;
 		msg.arg1 = serviceOpenStatus ? SUCCESS : FAILURE;
 		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
-		
-		/*
-		if (errorCode == 0) {// 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
-			Utils.setBind(context, true);
-		} else {
-			Utils.setBind(context, false);
-			saveTagSuccOrFail(context, false);
-		}
-		Log.i(TAG, "======onBind*****"+errorCode);
-//		if(mActivity != null){
-		updateAlarmPushManagerActivityUI(context, errorCode);
-		if (mNetDetectionReceiver!=null) {
-			if (mActivity == null) {
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putInt("flag", NetDetectionReceiver.STARTWORKFLAG);
-				data.putInt("errorCode", errorCode);
-				msg.setData(data);
-				mNetDetectionReceiver.mHandler.sendMessage(msg);
-			}
-		}*/
 	}
 	
 	
@@ -167,16 +149,6 @@ public class AlarmReceiver extends PushMessageReceiver {
 		msg.what = SERVICE_RSP_STOP;
 		msg.arg1 = serviceOpenStatus ? FAILURE : SUCCESS;
 		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
-		
-		/*
-		// 解绑定成功，设置未绑定flag，
-		if (errorCode == 0) {
-			Utils.setBind(context, false);
-		}else{
-			
-		}
-		Log.i(TAG, "===onUnbind====" + errorCode);
-		updateAlarmPushManagerActivityUI(context,errorCode);*/
 	}
 	
 	/**
@@ -201,11 +173,15 @@ public class AlarmReceiver extends PushMessageReceiver {
 			return;
 		}
 		
+		
+		
 		List<String> schemeTags = new ArrayList<String>();  	// 计划注册的用户tag列表
 		List<String> toRegisterTags = new ArrayList<String>(); 	// 将要注册的tag列表：in {计划注册tag列表} and not in {已注册tag列表}
 		List<String> toDelTags = new ArrayList<String>(); 		// 将要删除的tag列表：not in {计划注册tag列表} and in {已注册tag列表}
 		boolean isUserAlarmOpen = AlarmSettingUtils.getInstance()
 				.isUserAlarmOpen();
+		
+		Log.d(TAG, "isUserAlarmOpen:" + isUserAlarmOpen);
 		
 		if (isUserAlarmOpen) {
 			// 获取已启用星云账户tag列表和报警账户tag列表
@@ -215,12 +191,21 @@ public class AlarmReceiver extends PushMessageReceiver {
 			schemeTags = AlarmSettingUtils.getInstance().getStarnetAccountsTags();
 		}
 		
+		Log.d(TAG, "schemeTags.size():" + schemeTags.size());
+		
+		// 如果schemeTags为空，发送消息到ui，且此时若tags不为空，tags中的tag应被请求删除
 		if (schemeTags.size() ==  0) {
-			// 通知ui进行相应提示
+			// 通知ui进行按钮状态更新，并根据实际情况决定是否提示
 			Message msg = Message.obtain();
-			msg.what = SERVICE_RSP_SET_TAG;
-			msg.arg1 = FAILURE;
+			msg.what = SERVICE_RSP_NULL_ALARM_TAGLIST;
 			AlarmSettingUtils.getInstance().notifyUIChanges(msg);
+
+			if (tags != null && tags.size() > 0) {
+				callFromInternal = true;
+				Log.d(TAG, "1Call delTags:" + tags);
+				PushManager.delTags(context, tags);
+			}
+			
 			return;
 		}
 		
@@ -232,7 +217,10 @@ public class AlarmReceiver extends PushMessageReceiver {
 				}
 			}
 			// 注册tag列表
-			PushManager.setTags(context, toRegisterTags);
+			if (toRegisterTags.size() > 0) {
+				Log.d(TAG, "2Call setTags:" + toRegisterTags);
+				PushManager.setTags(context, toRegisterTags);
+			}
 			
 			for (String registeredTag : tags) {
 				// 如果已有用户tag列表中没有此注册tag，则加入待删除列表
@@ -241,9 +229,14 @@ public class AlarmReceiver extends PushMessageReceiver {
 				}
 			}
 			// 删除tag列表
-			PushManager.delTags(context, toDelTags);
+			if (toDelTags.size() > 0) {
+				Log.d(TAG, "3Call delTags:" + toDelTags);
+				PushManager.delTags(context, toDelTags);
+			}
+			
 		} else {
 			// 所有计划注册的用户tag均需注册，无多余用户tag需要删除
+			Log.d(TAG, "4Call delTags:" + toDelTags);
 			PushManager.setTags(context, schemeTags);
 		}
 	}
@@ -270,8 +263,8 @@ public class AlarmReceiver extends PushMessageReceiver {
 		Log.d(TAG, responseString);
 		
 		// 如果函数调用由onBind()间接触发，则不另作提示
-		if (callFromBind) {
-			callFromBind = false;
+		if (callFromInternal) {
+			callFromInternal = false;
 			return;
 		}
 		
@@ -296,69 +289,6 @@ public class AlarmReceiver extends PushMessageReceiver {
 		msg.what = SERVICE_RSP_SET_TAG;
 		msg.arg1 = result;
 		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
-		
-		/*
-		if (errorCode == 0) {
-			StringBuffer sb = new StringBuffer("");
-			if (sucessTags != null && sucessTags.size() > 0) {
-				for (String tag : sucessTags) {
-					sb.append(tag + ",");
-				}
-				Toast.makeText(context, sb + "注册成功", Toast.LENGTH_LONG).show();
-			}
-			
-			if (sucessTags != null && sucessTags.size() > 0) {
-				for (String tag : sucessTags) {
-					tagsStatus.put(tag, true);
-				}
-			}
-			if (failTags != null && failTags.size() > 0) {
-				for (String tag : failTags) {
-					tagsStatus.put(tag, false);
-				}
-			}
-		} else {
-			Toast.makeText(context, "tag注册失败", Toast.LENGTH_LONG).show();
-			
-			if (failTags != null && failTags.size() > 0) {
-				for (String tag : failTags) {
-					tagsStatus.put(tag, false);
-				}
-			}
-		}*/ 
-		
-		/*
-		if (errorCode == 0) {// 注册成功
-			saveTagSuccOrFail(context, true);
-			closeRegOrDelService(context);
-			for(String str:sucessTags){
-				tagsStatus.put(str, true);
-			}
-			
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-		} else {// 注册标签失败
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-			Utils.setBind(context, false);
-			saveTagSuccOrFail(context, false);
-		}
-		Log.i(TAG, "======onSetTags*****" + errorCode);
-		//对标签的设置结果进行返回处理
-		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
-		
-		if (mNetDetectionReceiver!=null) {
-			if (mActivity == null) {
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putInt("flag", NetDetectionReceiver.SETTAGFLAG);
-				data.putInt("errorCode", errorCode);
-				msg.setData(data);
-				mNetDetectionReceiver.mHandler.sendMessage(msg);
-			}
-		}*/
 	}
 
 	/**
@@ -381,8 +311,8 @@ public class AlarmReceiver extends PushMessageReceiver {
 		Log.d(TAG, responseString);
 		
 		// 如果函数调用由onBind()间接触发，则不另作提示
-		if (callFromBind) {
-			callFromBind = false;
+		if (callFromInternal) {
+			callFromInternal = false;
 			return;
 		}
 		
@@ -405,59 +335,6 @@ public class AlarmReceiver extends PushMessageReceiver {
 		msg.what = SERVICE_RSP_DEL_TAG;
 		msg.arg1 = result;
 		AlarmSettingUtils.getInstance().notifyUIChanges(msg);
-		
-		/*
-		if (errorCode == 0) {
-			if (sucessTags != null && sucessTags.size() > 0) {
-				for (String tag : sucessTags) {
-					tagsStatus.put(tag, false);
-				}
-			}
-			if (failTags != null && failTags.size() > 0) {
-				for (String tag : failTags) {
-					tagsStatus.put(tag, true);
-				}
-			}
-		} else {
-			if (failTags != null && failTags.size() > 0) {
-				for (String tag : failTags) {
-					tagsStatus.put(tag, true);
-				}
-			}
-		}*/
-		
-		// TODO 通知UI进行相应的提示
-		/*
-		if (errorCode == 0) {// 注册成功			
-			saveTagSuccOrFail(context, true);
-			closeRegOrDelService(context);
-			
-			for(String str:sucessTags){
-				tagsStatus.put(str, true);
-			}
-			
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-		} else {
-			for(String str:failTags){
-				tagsStatus.put(str, false);
-			}
-			Utils.setBind(context, false);
-			saveTagSuccOrFail(context, false);
-		}
-		Log.i(TAG, "======onDelTags*****" + errorCode);
-		updateAlarmPushManagerActivityUIWithSetOrDelTags(context,sucessTags,failTags,errorCode);
-		if (mNetDetectionReceiver!=null) {
-			if (mActivity == null) {
-				Message msg = new Message();
-				Bundle data = new Bundle();
-				data.putInt("flag", NetDetectionReceiver.DELTAGFLAG);
-				data.putInt("errorCode", errorCode);
-				msg.setData(data);
-				mNetDetectionReceiver.mHandler.sendMessage(msg);
-			}
-		}*/
 	}
 
 	/**
@@ -712,61 +589,61 @@ public class AlarmReceiver extends PushMessageReceiver {
 	}
 	
 
-	private SharedPreferences sp;
-	private static Intent intentService;
-	private static boolean started = false;
-	private final String PSXML = "PSXMLFILE";
-
-	/** 保存注册/删除的标志位的值isSucOrFail **/
-	private void saveTagSuccOrFail(Context ctx, boolean isSucOrFail) {
-		sp = ctx.getSharedPreferences(PSXML, Context.MODE_PRIVATE);
-		Editor edt = sp.edit();
-		edt.putBoolean("isRegOrDelSuc", isSucOrFail);
-		edt.commit();
-	}
-
-	/** 关闭服务进程 **/
-	private void closeRegOrDelService(Context ctx) {
-		if (started) {
-			ctx.getApplicationContext().stopService(intentService);
-		}
-	}
-	
-	private static boolean isFirstStart = true;
-	
-	private void updateAlarmPushManagerActivityUI(Context context,int errorCode){
-		Message msg = new Message();
-		Bundle data = new Bundle();
-		data.putInt("errorCode",errorCode);
-		data.putBoolean("remind_push_all_accept", false);
-		msg.setData(data);
-		if(mActivity != null){
-			mActivity.handler.sendMessage(msg);
-		}
-		if(isFirstStart){
-			isFirstStart = false;
-		}
-	}
-	private void updateAlarmPushManagerActivityUIWithSetOrDelTags(Context context, List<String> sucessTags, List<String> failTags,int errorCode) {
-		
-		if(errorCode == 0){
-			if((failTags!=null)&&(failTags.size()>0)){
-				errorCode = -1;
-			}
-		}
-		Message msg = new Message();
-		Bundle data = new Bundle();
-		data.putInt("errorCode",errorCode);
-		data.putBoolean("remind_push_all_accept", true);
-		msg.setData(data);
-//		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
-		if(mActivity != null){
-			mActivity.handler.sendMessage(msg);
-		}
-		if(isFirstStart){
-			isFirstStart = false;
-		}
-	}
+//	private SharedPreferences sp;
+//	private static Intent intentService;
+//	private static boolean started = false;
+//	private final String PSXML = "PSXMLFILE";
+//
+//	/** 保存注册/删除的标志位的值isSucOrFail **/
+//	private void saveTagSuccOrFail(Context ctx, boolean isSucOrFail) {
+//		sp = ctx.getSharedPreferences(PSXML, Context.MODE_PRIVATE);
+//		Editor edt = sp.edit();
+//		edt.putBoolean("isRegOrDelSuc", isSucOrFail);
+//		edt.commit();
+//	}
+//
+//	/** 关闭服务进程 **/
+//	private void closeRegOrDelService(Context ctx) {
+//		if (started) {
+//			ctx.getApplicationContext().stopService(intentService);
+//		}
+//	}
+//	
+//	private static boolean isFirstStart = true;
+//	
+//	private void updateAlarmPushManagerActivityUI(Context context,int errorCode){
+//		Message msg = new Message();
+//		Bundle data = new Bundle();
+//		data.putInt("errorCode",errorCode);
+//		data.putBoolean("remind_push_all_accept", false);
+//		msg.setData(data);
+//		if(mActivity != null){
+//			mActivity.handler.sendMessage(msg);
+//		}
+//		if(isFirstStart){
+//			isFirstStart = false;
+//		}
+//	}
+//	private void updateAlarmPushManagerActivityUIWithSetOrDelTags(Context context, List<String> sucessTags, List<String> failTags,int errorCode) {
+//		
+//		if(errorCode == 0){
+//			if((failTags!=null)&&(failTags.size()>0)){
+//				errorCode = -1;
+//			}
+//		}
+//		Message msg = new Message();
+//		Bundle data = new Bundle();
+//		data.putInt("errorCode",errorCode);
+//		data.putBoolean("remind_push_all_accept", true);
+//		msg.setData(data);
+////		AnotherAlarmPushManagerActivity.mHandler.sendMessage(msg);
+//		if(mActivity != null){
+//			mActivity.handler.sendMessage(msg);
+//		}
+//		if(isFirstStart){
+//			isFirstStart = false;
+//		}
+//	}
 
 	@Override
 	public void onNotificationArrived(Context arg0, String arg1, String arg2,

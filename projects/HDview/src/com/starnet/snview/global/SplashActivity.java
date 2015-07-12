@@ -92,6 +92,7 @@ public class SplashActivity extends Activity {
 	}
 
 	private void startBaiduPushService() {
+		AlarmSettingUtils.getInstance().init(this);
 		AlarmPushSettingService.setCtx(SplashActivity.this);
 		PushManager.startWork(getApplicationContext(),
 				PushConstants.LOGIN_TYPE_API_KEY,

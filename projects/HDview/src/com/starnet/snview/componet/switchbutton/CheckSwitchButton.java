@@ -14,6 +14,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
@@ -234,8 +235,17 @@ public class CheckSwitchButton extends CheckBox {
 		mOnCheckedChangeWidgetListener = listener;
 	}
 
+	private long mClickFinishedTime;
+	private final long DOUBLE_CLICK_INTERVAL = 1000; 
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		long currTime = System.currentTimeMillis();
+		if (currTime - mClickFinishedTime < DOUBLE_CLICK_INTERVAL) {
+			mClickFinishedTime = currTime;
+			return false;
+		}
+		
 		int action = event.getAction();
 		float x = event.getX();
 		float y = event.getY();
@@ -278,6 +288,7 @@ public class CheckSwitchButton extends CheckBox {
 			} else {
 				startAnimation(!mTurningOn);
 			}
+			mClickFinishedTime = System.currentTimeMillis(); // 记录事件完成时间点
 			break;
 		}
 

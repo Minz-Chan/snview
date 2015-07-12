@@ -111,7 +111,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 						}
 					}
 					//先擦除，再重写
-					spsOfTag.edit().clear().commit();
+					//spsOfTag.edit().clear().commit();
 					alarmSettingUtils.writeAlarmUserToXml(tagList);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -131,10 +131,10 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_add_btn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_alarmuser_preview));
-		spsOfTag = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
+		spsOfTag = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		
 		alarmSettingUtils = AlarmSettingUtils.getInstance();
-		alarmSettingUtils.setContext(ctx);
+//		alarmSettingUtils.setContext(ctx);
 		tagList = alarmSettingUtils.getAlarmUserTagsWithLength();
 		mAlarmUserList = alarmSettingUtils.getAlarmUsers();
 		
@@ -176,7 +176,7 @@ public class AlarmAccountsPreviewActivity extends BaseActivity {
 					mAlarmUserList.set(position, user);
 				}
 				caAdapter.notifyDataSetChanged();
-				spsOfTag.edit().clear().commit();
+				//spsOfTag.edit().clear().commit();
 				String tags = getNewTags();
 				spsOfTag.edit().putString("tags", tags).commit();
 			}

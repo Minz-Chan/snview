@@ -202,10 +202,10 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 		layout0.getViewTreeObserver().addOnGlobalLayoutListener(listener);
 		
 		alarmSettingUtils = AlarmSettingUtils.getInstance();
-		alarmSettingUtils.setContext(ctx);
+//		alarmSettingUtils.setContext(ctx);
 		String content = "";
 		//使用SharedPreference去维护报警账户信息
-		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).getString("tags", "");
+		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE).getString("tags", "");
 		if(tagString==null || tagString.equals("") || tagString.length()==0){
 			content = getString(R.string.pushservice_alarmusr_null);
 		}else{
@@ -319,6 +319,13 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 					// TODO 部分tag删除居功
 				}
 				break;
+			case AlarmReceiver.SERVICE_RSP_NULL_ALARM_TAGLIST:
+				if (userAlarmButton.isChecked()) {
+					isUserManul = false;
+					userAlarmButton.setChecked(false);
+					showMessage("报警账户列表为空，请先添加报警账户！");
+				}
+				break;
 			default:
 				break;
 			}
@@ -425,6 +432,12 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 	 */
 	private void userAlarmButtonClick(CompoundButton buttonView, boolean isChecked) {
 		saveAlarmConfig(AlarmSettingUtils.ALARM_CONFIG_USER_ALARM, isChecked);
+		
+		// 如果非用户手动操作，不作处理
+		if (!isUserManul) {
+			return;
+		}
+		
 		// 如果网络连通，且全局推送开关开启，则触 发tag的注册或删除
 		if (isNetworkAvalible()) {
 			if (globalAlarmButton.isChecked()) {
@@ -525,7 +538,7 @@ public class AnotherAlarmPushManagerActivity extends BaseActivity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		String content = "";
-		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).getString("tags", "");
+		String tagString = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE).getString("tags", "");
 		if(tagString == null || tagString.equals("") || tagString.length()==0){
 			content = getString(R.string.pushservice_alarmusr_null);
 		}else{

@@ -20,7 +20,6 @@ public class AlarmSettingUtils {
 	public static final String ALARM_CONFIG_SHAKE = "SHAKE_SWITCH";
 	public static final String ALARM_CONFIG_SOUND = "SOUND_SWITCH";
 	public static final String ALARM_CONFIG_USER_ALARM = "USER_ALARM_SWITCH";
-	public static final String ALARMUSER_PUSH_FILENAME = "ALARM_PUSHSET_FILE";
 	
 	private static SharedPreferences alarmConfig;
 	private static AlarmSettingUtils singleInstance;
@@ -247,12 +246,5 @@ public class AlarmSettingUtils {
 			tempTags = tempTags + tags.get(size-1);
 		}
 		alarmConfig.edit().putString("tags", tempTags).commit();
-	}
-	
-	public void setContext(Context context){
-		if (context == null) {
-			throw new NullPointerException("Context can't be null.");
-		}
-		alarmConfig = context.getSharedPreferences(ALARMUSER_PUSH_FILENAME,Context.MODE_PRIVATE);
 	}
 }

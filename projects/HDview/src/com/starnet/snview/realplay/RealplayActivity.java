@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.starnet.snview.R;
 import com.starnet.snview.alarmmanager.AlarmDevice;
+import com.starnet.snview.alarmmanager.AlarmSettingUtils;
 import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.component.LandscapeToolbar.LandControlbarClickListener;
@@ -98,6 +99,8 @@ public class RealplayActivity extends BaseActivity {
 		initView();
 		initListener();
 		initVideoData();
+		
+		AlarmSettingUtils.getInstance().init(this);
 	}
 	
 	private GlobalApplication getApp() {

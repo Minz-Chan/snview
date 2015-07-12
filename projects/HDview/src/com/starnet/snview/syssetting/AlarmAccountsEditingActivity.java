@@ -60,9 +60,9 @@ public class AlarmAccountsEditingActivity extends BaseActivity {
 		pswdEdt = (EditText) findViewById(R.id.password_edt);
 		userEdt.setText(originCA.getUserName());
 		
-		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
+		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		alarmSettingUtils = AlarmSettingUtils.getInstance();
-		alarmSettingUtils.setContext(ctx);
+//		alarmSettingUtils.setContext(ctx);
 		tagList = alarmSettingUtils.getAlarmUserTagsWithLength();
 		alarmUserList = alarmSettingUtils.getAlarmUsers();
 
@@ -187,7 +187,7 @@ private void replaceOriginTagWithNewTag(AlarmUser alarmUser) throws Exception{
 			}
 		}
 		
-		ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE).edit().clear().commit();
+//		ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE).edit().clear().commit();
 		alarmSettingUtils.writeAlarmUserToXml(tagList);
 		
 		Intent data = new Intent();
@@ -202,7 +202,7 @@ private void replaceOriginTagWithNewTag(AlarmUser alarmUser) throws Exception{
 	/**替换原来的用户，先删除后保存**/
 	private void putTagsToSharedPreference(AlarmUser aA) {
 		try {
-			sps.edit().clear().commit();
+			//sps.edit().clear().commit();
 			///旧的标签
 			String oldUsername = originCA.getUserName();
 			String oldePassword = originCA.getPassword();

@@ -63,7 +63,7 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 						if (isExist) {
 							jumpDialog(user);//替代用户
 						}else {
-							sps.edit().clear().commit();
+							//sps.edit().clear().commit();
 							password = MD5Utils.createMD5(password);
 							String tag = userName + password + "|"+userName.length();
 							if (tags == null || tags.equals("")||tags.length()==0) {
@@ -105,7 +105,7 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 				try {
 					String userName = cla.getUserName();
 					String pswd = cla.getPassword();
-					sps.edit().clear().commit();
+					//sps.edit().clear().commit();
 					pswd = MD5Utils.createMD5(pswd);//新的tag
 					String temp = userName + pswd + "|" + userName.length();
 					
@@ -179,9 +179,9 @@ public class AlarmAccountsAddingActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setTitleViewText(getString(R.string.system_setting_pushset_alarmuser));
 		
-		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARMUSER_PUSH_FILENAME, Context.MODE_PRIVATE);
+		sps = ctx.getSharedPreferences(AlarmSettingUtils.ALARM_CONFIG, Context.MODE_PRIVATE);
 		alarmSettingUtils = AlarmSettingUtils.getInstance();
-		alarmSettingUtils.setContext(ctx);
+//		alarmSettingUtils.setContext(ctx);
 		
 		tags = sps.getString("tags", "");
 		userList = alarmSettingUtils.getAlarmUsers();
