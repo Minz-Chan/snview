@@ -21,6 +21,7 @@ import com.starnet.snview.R;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.CommonUtils;
 import com.starnet.snview.util.MD5Utils;
 import com.starnet.snview.util.NetWorkUtils;
@@ -60,7 +61,12 @@ public class CloudAccountViewActivity extends BaseActivity {
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		
 		mListView = (ListView) findViewById(R.id.cloudaccount_listview);
-		previewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		RealplayActivity mRealplayActivity = GlobalApplication.getInstance().getRealplayActivity();
+		if(mRealplayActivity!=null){
+			previewDeviceItems = mRealplayActivity.getPreviewDevices();
+		}else{
+			
+		}
 
 		context = CloudAccountViewActivity.this;
 		try {

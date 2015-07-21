@@ -792,7 +792,11 @@ public class ChannelListActivity extends BaseActivity {
 
 		titleView = super.getTitleView();
 		titleView.setSingleLine(true);
-		List<PreviewDeviceItem> previews = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
+		RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+		List<PreviewDeviceItem> previews = null;
+		if(activity!=null){
+			previews = activity.getPreviewDevices();
+		}
 		if ((previews == null) || (previews != null && previews.size() == 0)) {
 			titleView.setText(getString(R.string.navigation_title_channel_list));// 设置列表标题名
 		} else {
@@ -802,7 +806,6 @@ public class ChannelListActivity extends BaseActivity {
 		super.hideExtendButton();
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setRightButtonBg(R.drawable.navigation_bar_search_btn_selector);
-		RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
 		if (activity!=null) {
 			oriPreviewChnls = activity.getPreviewDevices();// 获取源预览通道列表
 			if ((oriPreviewChnls != null) && (oriPreviewChnls.size() > 0)) {

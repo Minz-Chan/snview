@@ -62,6 +62,9 @@ public class SDCardUtils {
 	/** 获取外置SDCard的路径 ；如果不可用，则返回为空 **/
 	public static String getExternalSDCardPath() {
 		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
+		if(path==null || path.equals("")||path.length()==0){
+			return "";
+		}
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		return absPath;
