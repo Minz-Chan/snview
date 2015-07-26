@@ -25,6 +25,7 @@ import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.realplay.PreviewDeviceItem;
+import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.IPAndPortUtils;
 
 @SuppressLint("HandlerLeak")
@@ -42,6 +43,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	private RadioButton noRadioButton;
 	private RadioButton yesRadioButton;
 	private DeviceItem clickDeviceItem;
+	private DeviceItem originalDeviceItem;//用于保存设备修改前的信息
 	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
@@ -171,8 +173,6 @@ public class DeviceEditableActivity extends BaseActivity {
 				String svrIp = server_et.getText().toString();
 				String lPass = password_et.getText().toString();
 				String lUser = username_et.getText().toString();
-				// String chSum = channelnumber_et.getText().toString();
-				// String dfChl = defaultChannel_et.getText().toString();
 				
 				String cName = DeviceEditableActivity.this.getString(R.string.device_manager_collect_device);
 				if ((!dName.trim().equals("") && !svrIp.trim().equals("") && !svrPt.trim().equals("") && !lUser.trim().equals(""))) {// 检查信息是否为空
@@ -205,7 +205,7 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
-						// clickDeviceItem.setDefaultChannel(Integer.valueOf(dfChl));
+
 						boolean isBelong = isBelongDeviceItem(clickDeviceItem);
 						// 并返回原来的界面
 						Intent data = new Intent();
@@ -228,10 +228,17 @@ public class DeviceEditableActivity extends BaseActivity {
 								temp.setChannel(channelids.get(i));
 								mPreviewDeviceItems.set(indexs.get(i), temp);
 							}
+							
+							//检测是否是密码等其他信息更改了
+							boolean isChanged = checkChanged();
+							if (isChanged && clickDeviceItem.isUsable()) {
+								updatePreviewDeviceItems();
+							}
 
 							if (clickDeviceItem.isUsable() && noRadioButton.isChecked()) {
 								setNewPreviewDeviceItems();
 							}
+							
 							
 						}
 						clickDeviceItem.setUsable(yesRadioButton.isChecked());
@@ -322,11 +329,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case CONNIDENPRG:
-			connIdenPrg = ProgressDialog
-					.show(this,
-							"",
-							getString(R.string.device_manager_deviceedit_conning_and_wait),
-							true, true);
+			connIdenPrg = ProgressDialog.show(this,"",getString(R.string.device_manager_deviceedit_conning_and_wait),true, true);
 			connIdenPrg.setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dialog) {
@@ -349,14 +352,35 @@ public class DeviceEditableActivity extends BaseActivity {
 	private void showToasContent(String content) {
 		Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
 	}
+	
+	/**更新预览通道;将预览通道中来源于该设备的预览通道的信息进行更新**/
+	protected void updatePreviewDeviceItems() {
+		if ((mPreviewDeviceItems != null) & mPreviewDeviceItems.size() > 0) {
+			
+			for (PreviewDeviceItem item : mPreviewDeviceItems) {
+				if (item.getPlatformUsername().equals(originalDeviceItem.getPlatformUsername())&& item.getDeviceRecordName().equals(originalDeviceItem.getDeviceName())) {
+					item.setDeviceRecordName(clickDeviceItem.getDeviceName());
+					item.setLoginPass(clickDeviceItem.getLoginPass());
+					item.setLoginUser(clickDeviceItem.getLoginUser());
+					item.setSvrIp(clickDeviceItem.getSvrIp());
+					item.setSvrPort(clickDeviceItem.getSvrPort());
+				}
+			}
+			
+			RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+			if(activity!=null){
+				activity.setPreviewDevices(mPreviewDeviceItems);
+				activity.notifyPreviewDevicesContentChanged();
+			}
+			
+		}
+	}
 
+	/**设置新的预览通道****/
 	protected void setNewPreviewDeviceItems() {
 		if ((mPreviewDeviceItems != null) & mPreviewDeviceItems.size() > 0) {
 			for (PreviewDeviceItem item : mPreviewDeviceItems) {
-				if (item.getPlatformUsername().equals(
-						clickDeviceItem.getPlatformUsername())
-						&& item.getDeviceRecordName().equals(
-								clickDeviceItem.getDeviceName())) {
+				if (item.getPlatformUsername().equals(clickDeviceItem.getPlatformUsername())&& item.getDeviceRecordName().equals(clickDeviceItem.getDeviceName())) {
 					deletePDeviceItems.add(item);
 				}
 			}
@@ -366,17 +390,19 @@ public class DeviceEditableActivity extends BaseActivity {
 			}
 
 			if (deletePDeviceItems.size() > 0) {
-				GlobalApplication.getInstance().getRealplayActivity()
-						.setPreviewDevices(mPreviewDeviceItems);
-				GlobalApplication.getInstance().getRealplayActivity()
-						.notifyPreviewDevicesContentChanged();
+				RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+				if(activity!=null){
+					activity.setPreviewDevices(mPreviewDeviceItems);
+					activity.notifyPreviewDevicesContentChanged();
+				}
 			}
 		}
 	}
 
+	/**预览设备中是否包含来源于修改的设备****/
 	protected boolean isBelongDeviceItem(DeviceItem clickDeviceItem2) {
 		boolean isBelong = false;
-		if (mPreviewDeviceItems == null) {
+		if (mPreviewDeviceItems == null || mPreviewDeviceItems.size()==0) {
 			return false;
 		}
 		int size = mPreviewDeviceItems.size();
@@ -392,9 +418,8 @@ public class DeviceEditableActivity extends BaseActivity {
 		return isBelong;
 	}
 
-	protected HashMap<String, ArrayList<Integer>> getUpdateInfo(
-			DeviceItem clickDeviceItem2,
-			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+	protected HashMap<String, ArrayList<Integer>> getUpdateInfo(DeviceItem clickDeviceItem2,List<PreviewDeviceItem> mPreviewDeviceItems2) {
+		
 		int size = mPreviewDeviceItems2.size();
 		String deviceName = clickDeviceItem.getDeviceName();
 		ArrayList<Integer> indexs = new ArrayList<Integer>();
@@ -416,16 +441,13 @@ public class DeviceEditableActivity extends BaseActivity {
 		return previewInfo;
 	}
 
-	protected boolean isBelongAndSetPreviewDeviceItem(
-			DeviceItem clickDeviceItem2,
-			List<PreviewDeviceItem> mPreviewDeviceItems2) {
+	protected boolean isBelongAndSetPreviewDeviceItem(DeviceItem clickDeviceItem2,List<PreviewDeviceItem> mPreviewDeviceItems2) {
 		boolean isBelong = false;
 		if (mPreviewDeviceItems2 == null) {
 			return false;
 		}
 
-		if ((mPreviewDeviceItems2 != null)
-				&& (mPreviewDeviceItems2.size() == 0)) {
+		if ((mPreviewDeviceItems2 != null) && (mPreviewDeviceItems2.size() == 0)) {
 			return false;
 		}
 
@@ -448,18 +470,17 @@ public class DeviceEditableActivity extends BaseActivity {
 		super.setRightButtonBg(R.drawable.navigation_bar_savebtn_selector);
 		super.setLeftButtonBg(R.drawable.navigation_bar_back_btn_selector);
 		super.setTitleViewText(getString(R.string.common_drawer_device_management));
-
-		mPreviewDeviceItems = GlobalApplication.getInstance().getRealplayActivity().getPreviewDevices();
-
+		
+		RealplayActivity mActivity = GlobalApplication.getInstance().getRealplayActivity();
+		if(mActivity!=null){
+			mPreviewDeviceItems = mActivity.getPreviewDevices();
+		}
+		
 		port_et = (EditText) findViewById(R.id.et_device_add_port);
 		record_et = (EditText) findViewById(R.id.et_device_add_record);
 		server_et = (EditText) findViewById(R.id.et_device_add_server);
 		password_et = (EditText) findViewById(R.id.et_device_add_password);
 		username_et = (EditText) findViewById(R.id.et_device_add_username);
-		// channelnumber_et = (EditText)
-		// findViewById(R.id.et_device_add_channelnumber);
-		// defaultChannel_et = (EditText)
-		// findViewById(R.id.et_device_add_defaultChannel);
 
 		noRadioButton = (RadioButton) findViewById(R.id.isenable_noi_radioBtn);
 		yesRadioButton = (RadioButton) findViewById(R.id.isenable_yesi_radioBtn);
@@ -469,8 +490,8 @@ public class DeviceEditableActivity extends BaseActivity {
 		if (intent != null) {
 			Bundle bundle = intent.getExtras();
 			if (bundle != null) {
-				clickDeviceItem = (DeviceItem) bundle
-						.getSerializable("clickDeviceItem");
+				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
+				copyClickItemInfoToOriginalItem();
 			}
 		}
 
@@ -501,9 +522,6 @@ public class DeviceEditableActivity extends BaseActivity {
 		record_et.setText(deviceName);
 		username_et.setText(loginUser);
 		password_et.setText(loginPass);
-		// defaultChannel_et.setText(defaultChannel);
-		// channelnumber_et.setText(channelSum);
-		// channelnumber_et.setKeyListener(null);
 		if (clickDeviceItem.isUsable()) {
 			yesRadioButton.setChecked(true);
 			noRadioButton.setChecked(false);
@@ -511,5 +529,44 @@ public class DeviceEditableActivity extends BaseActivity {
 			yesRadioButton.setChecked(false);
 			noRadioButton.setChecked(true);
 		}
+	}
+
+	//用于保存设备修改前的信息
+	private void copyClickItemInfoToOriginalItem() {
+		originalDeviceItem = new DeviceItem();
+		
+		originalDeviceItem.setPlatformUsername(clickDeviceItem.getPlatformUsername());
+		originalDeviceItem.setDeviceName(clickDeviceItem.getDeviceName());
+		originalDeviceItem.setSvrIp(clickDeviceItem.getSvrIp());
+		originalDeviceItem.setSvrPort(clickDeviceItem.getSvrPort());
+		originalDeviceItem.setLoginUser(clickDeviceItem.getLoginUser());
+		originalDeviceItem.setLoginPass(clickDeviceItem.getLoginPass());
+		
+	}
+
+//检测当前的设备信息与之前的信息是否进行了修改，如果修改返回为true，否则返回为false
+	protected boolean checkChanged() {
+		
+		if(!originalDeviceItem.getDeviceName().equals(clickDeviceItem.getDeviceName())){
+			return true;
+		}
+		
+		if (!originalDeviceItem.getSvrIp().equals(clickDeviceItem.getSvrIp())) {
+			return true;
+		}
+		
+		if (!originalDeviceItem.getSvrPort().equals(clickDeviceItem.getSvrPort())) {
+			return true;
+		}
+		
+		if (!originalDeviceItem.getLoginUser().equals(clickDeviceItem.getLoginUser())) {
+			return true;
+		}
+		
+		if (!originalDeviceItem.getLoginPass().equals(clickDeviceItem.getLoginPass())) {
+			return true;
+		}
+		
+		return false;
 	}
 }
