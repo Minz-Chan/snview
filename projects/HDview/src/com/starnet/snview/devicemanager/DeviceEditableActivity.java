@@ -211,15 +211,11 @@ public class DeviceEditableActivity extends BaseActivity {
 						Intent data = new Intent();
 						Bundle bundle = new Bundle();
 						if (isBelong) {
-							HashMap<String, ArrayList<Integer>> map = getUpdateInfo(
-									clickDeviceItem, mPreviewDeviceItems);
+							HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
 							bundle.putBoolean("priviewUpdate", true);
-							bundle.putIntegerArrayList("indexes",
-									map.get("indexs"));
-							bundle.putIntegerArrayList("channelids",
-									map.get("channelids"));
-							ArrayList<Integer> channelids = map
-									.get("channelids");
+							bundle.putIntegerArrayList("indexes",map.get("indexs"));
+							bundle.putIntegerArrayList("channelids",map.get("channelids"));
+							ArrayList<Integer> channelids = map.get("channelids");
 							ArrayList<Integer> indexs = map.get("indexs");
 							for (int i = 0; i < map.get("indexs").size(); i++) {
 								PreviewDeviceItem temp = new PreviewDeviceItem();
@@ -236,6 +232,7 @@ public class DeviceEditableActivity extends BaseActivity {
 							if (clickDeviceItem.isUsable() && noRadioButton.isChecked()) {
 								setNewPreviewDeviceItems();
 							}
+							
 						}
 						clickDeviceItem.setUsable(yesRadioButton.isChecked());
 						bundle.putSerializable("cDeviceItem", clickDeviceItem);

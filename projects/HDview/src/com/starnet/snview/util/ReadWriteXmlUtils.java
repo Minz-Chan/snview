@@ -54,7 +54,7 @@ public class ReadWriteXmlUtils {
 	 *            报警信息
 	 * @return true, 成功；false, 失败
 	 */
-	public static boolean writeAlarm(AlarmDevice alarm) {
+	public synchronized static boolean writeAlarm(AlarmDevice alarm) {
 		if (alarm == null) {
 			return false;
 		}
@@ -128,7 +128,7 @@ public class ReadWriteXmlUtils {
 
 	/*** 从文档中移除指定位置的的AlarmDevice ***/
 	@SuppressWarnings("unchecked")
-	public static void removeSpecifyAlarm(int index) {
+	public synchronized static void removeSpecifyAlarm(int index) {// 
 		File file = new File(ALARMS_PERSISTANCE_PATH);
 		if (!file.exists()) {
 			return;
@@ -173,7 +173,7 @@ public class ReadWriteXmlUtils {
 
 	// 从文档中移除指定的AlarmDevice
 	@SuppressWarnings("unchecked")
-	public static void removeAlarm(AlarmDevice alarmDevice) {
+	public synchronized static void removeAlarm(AlarmDevice alarmDevice) {
 		File file = new File(ALARMS_PERSISTANCE_PATH);
 		if (!file.exists()) {
 			return;
@@ -231,7 +231,7 @@ public class ReadWriteXmlUtils {
 	 * @return 报警信息的信息列表
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<AlarmDevice> readAlarms() {
+	public synchronized static List<AlarmDevice> readAlarms() {
 		List<AlarmDevice> alarmList = new ArrayList<AlarmDevice>();
 		File file = new File(ALARMS_PERSISTANCE_PATH);
 		try {

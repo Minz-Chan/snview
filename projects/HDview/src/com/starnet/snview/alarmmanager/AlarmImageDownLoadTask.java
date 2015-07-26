@@ -95,13 +95,17 @@ public class AlarmImageDownLoadTask {
 				return;
 			}
 			Message msg = new Message();
-			boolean isAvailable = false;
+			boolean isAvailable = false;//标识在外置sdcard是否可用
 			String exPath = SDCardUtils.getExternalSDCardPath();
 			String appName = AlarmImageFileCache.getApplicationName2();
-			String tempPath = exPath + appName;
-			File file = new File(tempPath);
-			if (file.exists()) {
-				isAvailable = true;
+			if(exPath==null||exPath.equals("")){//表示不存在外置sdcard上
+				isAvailable = false;
+			}else{
+				String tempPath = exPath + appName;
+				File file = new File(tempPath);
+				if (file.exists()) {
+					isAvailable = true;
+				}
 			}
 			if (isAvailable) {// 保存下载的图像文件
 				String[] urls = imageUrl.split("/");
@@ -109,7 +113,7 @@ public class AlarmImageDownLoadTask {
 				String fImgPath = SDCardUtils.getExternalSDCardPath() + appName;
 				createMkdir(fImgPath);
 				fImgPath = fImgPath + "/" + imagename;
-				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
+				BitmapUtils.saveBmpFile(Utils.bytes2Bitmap(imgData), fImgPath);
 				Bundle data = new Bundle();
 				data.putByteArray("image", imgData);
 				msg.setData(data);
@@ -122,7 +126,7 @@ public class AlarmImageDownLoadTask {
 				String fImgPath = inPath + appName;
 				createMkdir(fImgPath);
 				fImgPath = fImgPath + "/" + imagename;
-				BitmapUtils.saveBmpFile(Utils.bytes2Bimap(imgData), fImgPath);
+				BitmapUtils.saveBmpFile(Utils.bytes2Bitmap(imgData), fImgPath);
 				Intent intent = new Intent();
 				intent.putExtra("image", imgData);
 				intent.setClass(mContext, AlarmImageActivity.class);

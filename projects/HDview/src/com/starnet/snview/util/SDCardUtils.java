@@ -28,6 +28,7 @@ public class SDCardUtils {
 		if (SDCARD_PATH != null) {
 			return SDCARD_PATH;
 		}
+		
 		File path;
 		boolean isAvailable = isAvailableForExternalSDCard();
 		if (isAvailable) {
@@ -37,13 +38,6 @@ public class SDCardUtils {
 			path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.SD_CARD); // internal sdcard
 		}
 
-		// File path =
-		// ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
-		// // external sdcard
-		// if (path == null) {
-		// path = ExternalStorage.getAllStorageLocations().get(
-		// ExternalStorage.SD_CARD); // internal sdcard
-		// }
 		String absPath = path.getAbsolutePath();
 		absPath += absPath.endsWith(File.separator) ? "" : File.separator;
 		SDCARD_PATH = absPath;
@@ -74,8 +68,8 @@ public class SDCardUtils {
 	public static boolean isAvailableForExternalSDCard() {
 		boolean isAvailable = false;
 		File path = ExternalStorage.getAllStorageLocations().get(ExternalStorage.EXTERNAL_SD_CARD);
-		if (path == null) {
-			return false;
+		if (path == null||path.equals("")) {
+			return isAvailable;
 		}
 		String appName = GlobalApplication.getInstance().getAppName();
 		String absPath = path.getAbsolutePath();
@@ -87,14 +81,6 @@ public class SDCardUtils {
 		return isAvailable;
 	}
 	
-	public static boolean existSDCard() {  
-		if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	/**
 	 * 获取手机内部可用空间大小（MB）
 	 * 

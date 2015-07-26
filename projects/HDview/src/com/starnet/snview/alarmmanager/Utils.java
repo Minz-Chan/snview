@@ -115,7 +115,7 @@ public class Utils {
 	}
 
 	/** 将byte[]转化为Bitmap **/
-	public static Bitmap bytes2Bimap(byte[] b) {
+	public static Bitmap bytes2Bitmap(byte[] b) {
 		if (b.length != 0) {
 			return BitmapFactory.decodeByteArray(b, 0, b.length);
 		} else {

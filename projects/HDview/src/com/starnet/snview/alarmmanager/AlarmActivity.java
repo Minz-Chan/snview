@@ -59,8 +59,7 @@ public class AlarmActivity extends BaseActivity {
 		if (getIntent().getExtras() == null) {
 			startFromNotification = false;
 		} else {
-			startFromNotification = (Boolean) getIntent().getExtras().get(
-					START_FROM_NOTIFICATION);
+			startFromNotification = (Boolean) getIntent().getExtras().get(START_FROM_NOTIFICATION);
 			if (startFromNotification == null) {
 				startFromNotification = false;
 			}
@@ -155,8 +154,7 @@ public class AlarmActivity extends BaseActivity {
 		
 		alarmListView.setOnGroupClickListener(new OnGroupClickListener() {
 			@Override
-			public boolean onGroupClick(ExpandableListView parent, View v,
-					int groupPosition, long id) {
+			public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
 				Intent intent = new Intent();
 				intent.setClass(mContext, AlarmContentActivity.class);
 				intent.putExtra("position", groupPosition);

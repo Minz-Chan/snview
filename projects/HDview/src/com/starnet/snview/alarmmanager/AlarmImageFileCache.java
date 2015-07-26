@@ -24,7 +24,13 @@ public class AlarmImageFileCache {
 		if (!isAvailable) {
 			return null;
 		}
-		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
+		
+		String tempPath = SDCardUtils.getExternalSDCardPath();
+		if(tempPath==null||tempPath.equals("")){
+			return null;
+		}
+		
+		String path = tempPath + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			Bitmap bmp = BitmapFactory.decodeFile(path);
@@ -57,7 +63,13 @@ public class AlarmImageFileCache {
 		if (!isAvailable) {
 			return false;
 		}
-		String path = SDCardUtils.getExternalSDCardPath() + appName + urls[urls.length - 1];
+		
+		String externalPath = SDCardUtils.getExternalSDCardPath();
+		if(externalPath==null||externalPath.equals("")){
+			return false;
+		}
+		
+		String path = externalPath + appName + urls[urls.length - 1];
 		File file = new File(path);
 		if (file.exists()) {
 			isExist = true;
