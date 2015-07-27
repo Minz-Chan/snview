@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 
 public class AlarmImageActivity extends BaseActivity {
@@ -63,10 +64,18 @@ public class AlarmImageActivity extends BaseActivity {
 				showImageView.setImageBitmap(bitmap);
 			} else {
 				byte[] imgData = intent.getByteArrayExtra("image");
-				Bitmap bitmap = BitmapFactory.decodeByteArray(imgData, 0,imgData.length);
-				showImageView.setScaleType(ScaleType.FIT_XY);
-				showImageView.setImageBitmap(bitmap);
-
+				try {
+					Bitmap bitmap = BitmapFactory.decodeByteArray(imgData, 0,imgData.length);
+					if (bitmap != null) {
+						showImageView.setScaleType(ScaleType.FIT_XY);
+						showImageView.setImageBitmap(bitmap);
+					}else{
+						Toast.makeText(this, getString(R.string.alarm_img_notsupport), Toast.LENGTH_SHORT).show();
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					Toast.makeText(this, getString(R.string.alarm_img_notsupport), Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 	}

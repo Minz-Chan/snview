@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -21,18 +22,21 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.starnet.snview.R;
+import com.starnet.snview.channelmanager.ChannelListActivity;
 import com.starnet.snview.component.BaseActivity;
 import com.starnet.snview.global.GlobalApplication;
 import com.starnet.snview.protocol.message.Constants;
 import com.starnet.snview.realplay.PreviewDeviceItem;
 import com.starnet.snview.realplay.RealplayActivity;
 import com.starnet.snview.util.IPAndPortUtils;
+import com.starnet.snview.util.ReadWriteXmlUtils;
 
 @SuppressLint("HandlerLeak")
 public class DeviceEditableActivity extends BaseActivity {
 
 	protected static final String TAG = "DeviceEditableActivity";
 
+	private int position;
 	private EditText port_et;
 	private EditText record_et;
 	private EditText server_et;
@@ -47,6 +51,7 @@ public class DeviceEditableActivity extends BaseActivity {
 	private final int REQUESTCODE = 11;
 	private List<PreviewDeviceItem> mPreviewDeviceItems;
 	private List<PreviewDeviceItem> deletePDeviceItems = new ArrayList<PreviewDeviceItem>(); // 预览通道
+	private List<DeviceItem>deviceItems;
 
 	private ProgressDialog connIdenPrg;
 	private final int CONNIDENPRG = 0x0003;
@@ -200,52 +205,61 @@ public class DeviceEditableActivity extends BaseActivity {
 					
 					if (isPort && isIp) {
 						
+						Intent data = new Intent();
+						Bundle bundle = new Bundle();
+						
 						clickDeviceItem.setSvrIp(svrIp);
 						clickDeviceItem.setSvrPort(svrPt);
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
+						
+						boolean isChanged = checkChanged();
+						if(!isChanged){//收藏设备未改变
+							DeviceEditableActivity.this.finish();
+						}else{//收藏设备有改变
+							boolean isContained = checkContainItemList();
+							if (isContained) {//如果包含的话，则弹出对话框，询问是否覆盖
+								Toast.makeText(DeviceEditableActivity.this, getString(R.string.device_edit_contain_same), Toast.LENGTH_SHORT).show();
+							}else{//如果bu包含的话，则修改对应的预览通道
+								boolean isBelong = isBelongDeviceItem(originalDeviceItem);
+								if (isBelong) {
+									HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
+									bundle.putBoolean("priviewUpdate", true);
+									bundle.putIntegerArrayList("indexes",map.get("indexs"));
+									bundle.putIntegerArrayList("channelids",map.get("channelids"));
+									ArrayList<Integer> channelids = map.get("channelids");
+									ArrayList<Integer> indexs = map.get("indexs");
+									for (int i = 0; i < map.get("indexs").size(); i++) {
+										PreviewDeviceItem temp = new PreviewDeviceItem();
+										temp.setSvrIp(svrIp);
+										temp.setSvrPort(svrPt);
+										temp.setLoginPass(lPass);
+										temp.setLoginUser(lUser);
+										temp.setDeviceRecordName(dName);
+										temp.setPlatformUsername(cName);
+										temp.setChannel(channelids.get(i));
+										mPreviewDeviceItems.set(indexs.get(i), temp);
+									}
+									
+									//检测是否是密码等其他信息更改了
+									isChanged = checkChanged();
+									if (isChanged && clickDeviceItem.isUsable()) {
+										updatePreviewDeviceItems();
+									}
 
-						boolean isBelong = isBelongDeviceItem(clickDeviceItem);
-						// 并返回原来的界面
-						Intent data = new Intent();
-						Bundle bundle = new Bundle();
-						if (isBelong) {
-							HashMap<String, ArrayList<Integer>> map = getUpdateInfo(clickDeviceItem, mPreviewDeviceItems);
-							bundle.putBoolean("priviewUpdate", true);
-							bundle.putIntegerArrayList("indexes",map.get("indexs"));
-							bundle.putIntegerArrayList("channelids",map.get("channelids"));
-							ArrayList<Integer> channelids = map.get("channelids");
-							ArrayList<Integer> indexs = map.get("indexs");
-							for (int i = 0; i < map.get("indexs").size(); i++) {
-								PreviewDeviceItem temp = new PreviewDeviceItem();
-								temp.setSvrIp(svrIp);
-								temp.setSvrPort(svrPt);
-								temp.setLoginPass(lPass);
-								temp.setLoginUser(lUser);
-								temp.setDeviceRecordName(dName);
-								temp.setPlatformUsername(cName);
-								temp.setChannel(channelids.get(i));
-								mPreviewDeviceItems.set(indexs.get(i), temp);
+									if (clickDeviceItem.isUsable() && noRadioButton.isChecked()) {
+										setNewPreviewDeviceItems();
+									}
+								}
+								clickDeviceItem.setUsable(yesRadioButton.isChecked());
+								bundle.putSerializable("cDeviceItem", clickDeviceItem);
+								data.putExtras(bundle);
+								setResult(REQUESTCODE, data);
+								DeviceEditableActivity.this.finish();
 							}
-							
-							//检测是否是密码等其他信息更改了
-							boolean isChanged = checkChanged();
-							if (isChanged && clickDeviceItem.isUsable()) {
-								updatePreviewDeviceItems();
-							}
-
-							if (clickDeviceItem.isUsable() && noRadioButton.isChecked()) {
-								setNewPreviewDeviceItems();
-							}
-							
-							
 						}
-						clickDeviceItem.setUsable(yesRadioButton.isChecked());
-						bundle.putSerializable("cDeviceItem", clickDeviceItem);
-						data.putExtras(bundle);
-						setResult(REQUESTCODE, data);
-						DeviceEditableActivity.this.finish();
+						// 并返回原来的界面
 					} else if (isPort && !isIp) {
 						String text = getString(R.string.device_manager_deviceeditable_ip_wrong);
 						Toast.makeText(DeviceEditableActivity.this, text,Toast.LENGTH_SHORT).show();
@@ -269,6 +283,55 @@ public class DeviceEditableActivity extends BaseActivity {
 				identifyWork();
 			}
 		});
+	}
+	
+	/**弹出覆盖对话框**/
+	public void jumpCoverDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.create();
+		builder.setTitle(R.string.device_edit_contain_cover);
+		
+		builder.setPositiveButton(R.string.device_edit_contain_cover_ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				coverAction();
+			}
+		});
+		
+		builder.setNegativeButton(R.string.device_edit_contain_cover_cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				DeviceEditableActivity.this.finish();
+			}
+		});
+		
+		builder.show();
+	}
+	
+	/**完成覆盖操作**/
+	private void coverAction(){
+		
+	}
+	
+	/**检测修改后的设备是否包含在设备列表中**/
+	boolean checkContainItemList(){
+		boolean result = false;
+		
+		if ( deviceItems == null || deviceItems.size()==0 ) {
+			return false;
+		}
+		
+		int size = deviceItems.size();
+		for (int i = 0; i < size; i++) {
+			if (i != position) {
+				if (deviceItems.get(i).getDeviceName().equals(clickDeviceItem.getDeviceName())) {
+					result = true;
+					break;
+				}
+			}
+		}
+		
+		return result;
 	}
 
 	/** 验证链接 ***/
@@ -491,6 +554,7 @@ public class DeviceEditableActivity extends BaseActivity {
 			Bundle bundle = intent.getExtras();
 			if (bundle != null) {
 				clickDeviceItem = (DeviceItem) bundle.getSerializable("clickDeviceItem");
+				position = bundle.getInt("position");
 				copyClickItemInfoToOriginalItem();
 			}
 		}
@@ -529,6 +593,12 @@ public class DeviceEditableActivity extends BaseActivity {
 			yesRadioButton.setChecked(false);
 			noRadioButton.setChecked(true);
 		}
+		
+		try {
+			deviceItems = ReadWriteXmlUtils.getCollectDeviceListFromXML(ChannelListActivity.filePath);
+		} catch (Exception e) {
+			deviceItems = null;
+		}
 	}
 
 	//用于保存设备修改前的信息
@@ -541,7 +611,6 @@ public class DeviceEditableActivity extends BaseActivity {
 		originalDeviceItem.setSvrPort(clickDeviceItem.getSvrPort());
 		originalDeviceItem.setLoginUser(clickDeviceItem.getLoginUser());
 		originalDeviceItem.setLoginPass(clickDeviceItem.getLoginPass());
-		
 	}
 
 //检测当前的设备信息与之前的信息是否进行了修改，如果修改返回为true，否则返回为false

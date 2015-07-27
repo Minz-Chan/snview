@@ -135,7 +135,7 @@
     <string name="system_setting_alarm_pushset_builer_identify_add_ok">确定</string>
     <string name="system_setting_alarm_pushset_port_null">端口号为空，请填充</string>
     <string name="system_setting_alarm_pushset_uName_null">用户名为空，请填充</string>
-    <string name="system_setting_about_build">Version 6.2.11 (Build 20150713)</string>
+    <string name="system_setting_about_build">Version 6.2.12 (Build 20150727)</string>
     <string name="system_setting_alarm_pushset_builer_identify_add_cance">取消</string>
     <string name="system_setting_pushset_identify_wait">正在进行连接验证，请等待</string>
     <string name="system_setting_alarm_pushset_timout">验证超时，请检查网络后重试</string>
@@ -252,6 +252,10 @@
     <string name="device_manager_setting_setedit_contain_no_need">已经包含该用户，不需要再次添加</string>
     <string name="device_manager_devicechoose_add_null_content">您还有包含未填写的内容，请补充完整</string>
     <string name="device_manager_unknown_exception">程序异常，请重新启动程序后尝试操作！</string>
+    <string name="device_edit_contain_cover">包含相同的设备，是否覆盖?</string>
+    <string name="device_edit_contain_same">修改失败，设备已存在</string>
+    <string name="device_edit_contain_cover_ok">确定</string>
+    <string name="device_edit_contain_cover_cancel">取消</string>
     
     <string name="device_collect_timeout">加载超时</string>
     <string name="device_collect_failure">加载失败</string>
@@ -318,12 +322,13 @@
     <string name="alarm_dialog_infor">报警信息</string>
     <string name="alarm_content_time">报警时间</string>
     <string name="alarm_content_type">报警类型</string>
-    <string name="alarm_content_port">报警端口</string>
+    <string name="alarm_content_port">报警端口</string>    
     <string name="alarm_content_channel">报警通道</string>
     <string name="alarm_content_contents">报警内容</string>
     <string name="alarm_content_devicename">报警设备</string>
     <string name="alarm_content_pushdomain">推送IP</string>
     <string name="alarm_content_pushusername">推送用户</string>
+    <string name="alarm_img_notsupport">不支持的图片格式</string>
     <string name="alarm_content_connwrong">连接请求有误，请稍后再试&#8230;</string>
     <string name="alarm_manageradapter_content">报警信息</string>
     <string name="alarm_manageradapter_imageload">图片下载</string>

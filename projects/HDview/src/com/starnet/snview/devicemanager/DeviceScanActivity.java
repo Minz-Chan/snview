@@ -55,6 +55,7 @@ public class DeviceScanActivity extends BaseActivity {
 				Intent intent = new Intent();
 				Bundle bundle = new Bundle();
 				bundle.putSerializable("clickDeviceItem", clickDeviceItem);
+				bundle.putInt("position", position);
 				intent.putExtras(bundle);
 				intent.setClass(DeviceScanActivity.this, DeviceEditableActivity.class);
 				startActivityForResult(intent, 10);
@@ -67,9 +68,7 @@ public class DeviceScanActivity extends BaseActivity {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == 10) {
 			if (resultCode == DeviceEditableActivity.RESULT_CODE_EXPCETION) {
-				Toast.makeText(this,
-						getString(R.string.device_manager_unknown_exception),
-						Toast.LENGTH_LONG).show();
+				Toast.makeText(this,getString(R.string.device_manager_unknown_exception),Toast.LENGTH_LONG).show();
 				return;
 			}
 			
