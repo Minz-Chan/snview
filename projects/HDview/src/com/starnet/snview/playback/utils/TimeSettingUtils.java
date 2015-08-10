@@ -19,21 +19,29 @@ public class TimeSettingUtils {
 		Date d1 = format.parse(dateStart);
 		Date d2 = format.parse(dateStop);
 		long diff = d2.getTime() - d1.getTime();// 毫秒ms
-		if (diff < 0) {
+		if (diff <= 0) {
 			return -1;
-		}else if (diff == 0) {
-			return -1;
-//			long dis = getBetweenMinutes(dateStart,dateStop);
-//			if (dis <= 0) {
-//				return -1;
-//			}else {
-//				return 3;
-//			}
-		}else if (diff > THREE_TIME_MILLI_SECONDS){
+		}else if (diff >= THREE_TIME_MILLI_SECONDS){
 			return -1;
 		}
 		long diffDays = diff / (24 * 60 * 60 * 1000);
 		return diffDays;
+	}
+	
+	/**获取时间间隔，如果时间在合理的范围内，则返回1；否则返回-1*/
+	public static long getTimeSpan(String dateStart, String dateStop) throws ParseException{
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Date d1 = format.parse(dateStart);
+		Date d2 = format.parse(dateStop);
+		long diff = d2.getTime() - d1.getTime();// 毫秒ms
+		if (diff <= 0) {
+			return -1;
+		}else if (diff >= THREE_TIME_MILLI_SECONDS){
+			return -1;
+		}else{
+//			return diff / (24 * 60 * 60 * 1000);
+			return 1;
+		}
 	}
 	
 	public static long getBetweenHours(String dateStart, String dateStop) throws ParseException{

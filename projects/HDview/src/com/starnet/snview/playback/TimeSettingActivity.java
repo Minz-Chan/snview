@@ -539,8 +539,9 @@ public class TimeSettingActivity extends BaseActivity {
 				String startTime = startTimeTxt.getText().toString();
 				String overTime = endtimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,overTime);
-					if ((dayDif <= 0) || (dayDif > 3)) {
+					long dayDif = TimeSettingUtils.getTimeSpan(startTime,overTime);
+//					long dayDif = TimeSettingUtils.getBetweenDays(startTime,overTime);
+					if ((dayDif <= 0) || (dayDif >= 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						return;
 					}
@@ -1180,7 +1181,7 @@ public class TimeSettingActivity extends BaseActivity {
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime, endTime);
+					long dayDif = TimeSettingUtils.getTimeSpan(startTime, endTime);
 					if (dayDif <= 0 || (dayDif >= 3)) {// 结束时间不变
 						int dayTimeNum = Integer.valueOf(dayTime);
 						boolean isLeaapYear = TimeSettingUtils.isLeapYear(yNum);
@@ -1199,8 +1200,8 @@ public class TimeSettingActivity extends BaseActivity {
 				String endTime = endtimeTxt.getText().toString();
 				String startTime = startTimeTxt.getText().toString();
 				try {
-					long dayDif = TimeSettingUtils.getBetweenDays(startTime,endTime);
-					if (dayDif < 0 || (dayDif > 3)) {
+					long dayDif = TimeSettingUtils.getTimeSpan(startTime,endTime);
+					if (dayDif <= 0 || (dayDif >= 3)) {
 						showToast(getString(R.string.playback_time_startEnd_notExt3));
 						isCanStartPlay = false;
 					} else {

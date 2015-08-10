@@ -88,7 +88,6 @@ public class DeviceScanActivity extends BaseActivity {
 						if (number.equals("0")) {
 							number = "1";
 						}
-//						defaultChannel_et.setText(number);
 						if (cDeviceItem.isUsable()) {
 							YesRadioButton.setChecked(true);
 							NoRadioButton.setChecked(false);
@@ -96,7 +95,6 @@ public class DeviceScanActivity extends BaseActivity {
 							YesRadioButton.setChecked(false);
 							NoRadioButton.setChecked(true);
 						}
-//						channelnumber_et.setText(cDeviceItem.getChannelSum());
 						try {
 							new Thread(){
 								@Override

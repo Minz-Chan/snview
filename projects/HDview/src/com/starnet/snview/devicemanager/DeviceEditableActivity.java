@@ -213,9 +213,17 @@ public class DeviceEditableActivity extends BaseActivity {
 						clickDeviceItem.setLoginUser(lUser);
 						clickDeviceItem.setLoginPass(lPass);
 						clickDeviceItem.setDeviceName(dName);
+						clickDeviceItem.setUsable(yesRadioButton.isChecked());
 						
 						boolean isChanged = checkChanged();
 						if(!isChanged){//收藏设备未改变
+							//如果由禁用改为启用；或者由启用改为禁用，需要通知设备进行了更改；
+							if (!(originalDeviceItem.isUsable() == clickDeviceItem.isUsable())) {
+								notitifyPreviewItemsUpdate();
+							}							
+							bundle.putSerializable("cDeviceItem", clickDeviceItem);
+							data.putExtras(bundle);
+							setResult(REQUESTCODE, data);
 							DeviceEditableActivity.this.finish();
 						}else{//收藏设备有改变
 							boolean isContained = checkContainItemList();
@@ -241,7 +249,6 @@ public class DeviceEditableActivity extends BaseActivity {
 										temp.setChannel(channelids.get(i));
 										mPreviewDeviceItems.set(indexs.get(i), temp);
 									}
-									
 									//检测是否是密码等其他信息更改了
 									isChanged = checkChanged();
 									if (isChanged && clickDeviceItem.isUsable()) {
@@ -283,6 +290,96 @@ public class DeviceEditableActivity extends BaseActivity {
 				identifyWork();
 			}
 		});
+	}
+	
+	/**通知实时预览界面，预览通道刷新*/
+	private void notitifyPreviewItemsUpdate() {
+		if ((mPreviewDeviceItems != null) & mPreviewDeviceItems.size() > 0) {
+			if (!clickDeviceItem.isUsable()) {// 删除禁用的
+				List<PreviewDeviceItem> disableItems = getDisablePreviewItems();
+				removeDisableItemsFromPreviewItems(disableItems);
+			}else{
+				List<PreviewDeviceItem> enableItems = getNeedEnablePreviewItems();
+				addEnablePreviewItems(enableItems);
+			}
+
+			RealplayActivity activity = GlobalApplication.getInstance().getRealplayActivity();
+			if (activity != null) {
+				activity.setPreviewDevices(mPreviewDeviceItems);
+				activity.notifyPreviewDevicesContentChanged();
+			}
+		}
+	}
+	
+	/**添加需要添加的设备*/
+	private void addEnablePreviewItems(List<PreviewDeviceItem>enableItems){
+		if (enableItems != null && enableItems.size() > 0) {
+			for (PreviewDeviceItem item : enableItems) {
+				boolean hasAdded = checkExistPreviewItem(item);
+				if (!hasAdded) {
+					mPreviewDeviceItems.add(item);
+				}
+			}
+		}
+	}
+	
+	/**检测是否已经存在于预览通道之中,如果添加返回true，否则返回false*/
+	private boolean checkExistPreviewItem(PreviewDeviceItem item){
+		boolean result = false;
+		
+		if(mPreviewDeviceItems==null||(mPreviewDeviceItems.size()==0)){
+			return false;
+		}
+		
+		String device = getString(R.string.device_manager_collect_device);
+		String record = item.getDeviceRecordName();
+		int itemChnl = item.getChannel();
+		
+		for (PreviewDeviceItem tempItem:mPreviewDeviceItems) {
+			if (device.equals(tempItem.getPlatformUsername())&&record.equals(tempItem.getDeviceRecordName())&&(tempItem.getChannel()==itemChnl)) {
+				return true;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**获取需要重新启用的设备*/
+	private List<PreviewDeviceItem> getNeedEnablePreviewItems(){
+		List<PreviewDeviceItem> oriItems = ReadWriteXmlUtils.getPreviewItemListInfoFromXML(ChannelListActivity.previewFilePath);
+		List<PreviewDeviceItem> enableItems = new ArrayList<PreviewDeviceItem>();
+		String device = getString(R.string.device_manager_collect_device);
+		String record = clickDeviceItem.getDeviceName();
+		if (oriItems != null && oriItems.size() > 0) {
+			for (PreviewDeviceItem item : oriItems) {
+				if (device.equals(item.getPlatformUsername())&&record.equals(item.getDeviceRecordName())) {
+					enableItems.add(item);
+				}
+			}
+		}
+		return enableItems;
+	}
+	
+	/**移除需要禁用的设备*/
+	private void removeDisableItemsFromPreviewItems(List<PreviewDeviceItem> disableItems){
+		if (disableItems != null && disableItems.size() > 0) {
+			for (PreviewDeviceItem item:disableItems ) {
+				mPreviewDeviceItems.remove(item);
+			}
+		}
+	}
+	
+	/**获取需要禁用预览通道*/
+	private List<PreviewDeviceItem> getDisablePreviewItems(){
+		String device = getString(R.string.device_manager_collect_device);
+		String record = clickDeviceItem.getDeviceName();
+		List<PreviewDeviceItem> disableItems = new ArrayList<PreviewDeviceItem>();
+		for (PreviewDeviceItem item : mPreviewDeviceItems) {
+			if (device.equals(item.getPlatformUsername())&&record.equals(item.getDeviceRecordName())) {
+				disableItems.add(item);
+			}
+		}
+		return disableItems;
 	}
 	
 	/**弹出覆盖对话框**/
@@ -611,6 +708,9 @@ public class DeviceEditableActivity extends BaseActivity {
 		originalDeviceItem.setSvrPort(clickDeviceItem.getSvrPort());
 		originalDeviceItem.setLoginUser(clickDeviceItem.getLoginUser());
 		originalDeviceItem.setLoginPass(clickDeviceItem.getLoginPass());
+		originalDeviceItem.setUsable(clickDeviceItem.isUsable());
+		originalDeviceItem.setDefaultChannel(clickDeviceItem.getDefaultChannel());
+		
 	}
 
 //检测当前的设备信息与之前的信息是否进行了修改，如果修改返回为true，否则返回为false
@@ -635,7 +735,7 @@ public class DeviceEditableActivity extends BaseActivity {
 		if (!originalDeviceItem.getLoginPass().equals(clickDeviceItem.getLoginPass())) {
 			return true;
 		}
-		
+				
 		return false;
 	}
 }
