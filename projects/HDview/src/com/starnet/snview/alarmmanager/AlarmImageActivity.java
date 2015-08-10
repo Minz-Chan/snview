@@ -82,8 +82,7 @@ public class AlarmImageActivity extends BaseActivity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK
-				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
 			Intent data = new Intent();
 			data.putExtra("alarmCancel", false);
 			setResult(ALARMACTIVITY_REQUESTCODE, data);

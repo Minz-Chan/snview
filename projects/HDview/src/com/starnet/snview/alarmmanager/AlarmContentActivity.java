@@ -78,6 +78,7 @@ public class AlarmContentActivity extends BaseActivity implements
 				in.putExtra("image", imgData);
 				in.setClass(AlarmContentActivity.this, AlarmImageActivity.class);
 				startActivityForResult(in, REQUESTCODE);
+//				startActivity(in);
 				break;
 			case DOWNLOADFAILED:
 				if (imgprogress != null && imgprogress.isShowing()) {
@@ -330,6 +331,14 @@ public class AlarmContentActivity extends BaseActivity implements
 			return imgprogress;
 		default:
 			return null;
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (imgprogress!=null && imgprogress.isShowing()) {
+			imgprogress.dismiss();
 		}
 	}
 }
