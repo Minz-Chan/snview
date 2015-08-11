@@ -173,9 +173,7 @@ public class AlarmReceiver extends PushMessageReceiver {
 			return;
 		}
 		
-		
-		
-		List<String> schemeTags = new ArrayList<String>();  	// 计划注册的用户tag列表
+		List<String> scheduleTags = new ArrayList<String>();  	// 计划注册的用户tag列表
 		List<String> toRegisterTags = new ArrayList<String>(); 	// 将要注册的tag列表：in {计划注册tag列表} and not in {已注册tag列表}
 		List<String> toDelTags = new ArrayList<String>(); 		// 将要删除的tag列表：not in {计划注册tag列表} and in {已注册tag列表}
 		boolean isUserAlarmOpen = AlarmSettingUtils.getInstance()
@@ -185,16 +183,16 @@ public class AlarmReceiver extends PushMessageReceiver {
 		
 		if (isUserAlarmOpen) {
 			// 获取已启用星云账户tag列表和报警账户tag列表
-			schemeTags = AlarmSettingUtils.getInstance().getAllUserTags();
+			scheduleTags = AlarmSettingUtils.getInstance().getAllUserTags();
 		} else {
 			// 获取已启用星云账户tag列表
-			schemeTags = AlarmSettingUtils.getInstance().getStarnetAccountsTags();
+			scheduleTags = AlarmSettingUtils.getInstance().getStarnetAccountsTags();
 		}
 		
-		Log.d(TAG, "schemeTags.size():" + schemeTags.size());
+		Log.d(TAG, "schemeTags.size():" + scheduleTags.size());
 		
 		// 如果schemeTags为空，发送消息到ui，且此时若tags不为空，tags中的tag应被请求删除
-		if (schemeTags.size() ==  0) {
+		if (scheduleTags.size() ==  0) {
 			// 通知ui进行按钮状态更新，并根据实际情况决定是否提示
 			Message msg = Message.obtain();
 			msg.what = SERVICE_RSP_NULL_ALARM_TAGLIST;
@@ -210,10 +208,10 @@ public class AlarmReceiver extends PushMessageReceiver {
 		}
 		
 		if (tags != null && tags.size() > 0) {
-			for (String schemeTag : schemeTags) {
+			for (String scheduleTag : scheduleTags) {
 				// 如果已有tag列表中没有此用户tag，则加入待注册列表
-				if (!tags.contains(schemeTag)) {
-					toRegisterTags.add(schemeTag);
+				if (!tags.contains(scheduleTag)) {
+					toRegisterTags.add(scheduleTag);
 				}
 			}
 			// 注册tag列表
@@ -223,8 +221,8 @@ public class AlarmReceiver extends PushMessageReceiver {
 			}
 			
 			for (String registeredTag : tags) {
-				// 如果已有用户tag列表中没有此注册tag，则加入待删除列表
-				if (!schemeTags.contains(registeredTag)) {
+				// 如果计划注册的用户tag列表中没有此注册过的tag，则加入待删除列表
+				if (!scheduleTags.contains(registeredTag)) {
 					toDelTags.add(registeredTag);
 				}
 			}
@@ -234,10 +232,15 @@ public class AlarmReceiver extends PushMessageReceiver {
 				PushManager.delTags(context, toDelTags);
 			}
 			
+			// 若tags与scheduleTags包含相同的结果集，则无待注册或待删除的tag，此时应发送空消息通知界面取消加载框
+			if (toRegisterTags.size() == 0 && toDelTags.size() == 0) {
+				AlarmSettingUtils.getInstance().notifyUIChanges(Message.obtain());
+			}
+			
 		} else {
 			// 所有计划注册的用户tag均需注册，无多余用户tag需要删除
 			Log.d(TAG, "4Call delTags:" + toDelTags);
-			PushManager.setTags(context, schemeTags);
+			PushManager.setTags(context, scheduleTags);
 		}
 	}
 	
